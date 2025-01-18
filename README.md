@@ -1,3 +1,4 @@
+[中文](1)
 # SiYuan Media Player Plugin
 
 A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.
