@@ -1,4 +1,4 @@
-[中文](1)
+[中文](README_zh_CN.md) | English
 # SiYuan Media Player Plugin
 
 A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.
