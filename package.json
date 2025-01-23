@@ -18,8 +18,14 @@
     "make-install": "vite build && node --no-warnings ./scripts/make_install.js"
   },
   "minAppVersion": "2.10.13",
-  "backends": ["windows", "linux", "darwin"],
-  "frontends": ["desktop"],
+  "backends": [
+    "windows",
+    "linux",
+    "darwin"
+  ],
+  "frontends": [
+    "desktop"
+  ],
   "displayName": {
     "default": "SiYuan Media Player",
     "zh_CN": "思源媒体播放器"
@@ -63,9 +69,10 @@
     "vite-plugin-zip-pack": "^1.0.5"
   },
   "dependencies": {
+    "@types/node": "^20.2.5",
     "artplayer": "^5.2.1",
+    "artplayer-plugin-chapter": "^1.0.0",
     "md5": "^2.3.0",
-    "qrcode": "^1.5.4",
-    "@types/node": "^20.2.5"
+    "qrcode": "^1.5.4"
   }
 }

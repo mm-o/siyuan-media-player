@@ -6,18 +6,26 @@ export interface MediaItem {
     title: string;        // 媒体标题
     artist?: string;      // 作者/UP主名称
     artistIcon?: string;  // 作者/UP主头像
-    duration: string;     // 媒体时长
-    thumbnail: string;    // 媒体缩略图
+    duration?: number;   // 媒体时长
+    thumbnail?: string;   // 媒体缩略图
     url: string;         // 媒体URL
-    originalUrl?: string; // 添加原始URL字段
-    type: 'bilibili' | 'video' | 'audio';
+    originalUrl?: string;  // 原始链接
+    type: 'video' | 'audio' | 'bilibili';
     isPinned?: boolean;   // 是否置顶
     isFavorite?: boolean; // 是否收藏
+    
+    // B站视频特有属性
     aid?: string;        // B站av号
     bvid?: string;       // B站bv号
     cid?: string;        // B站视频cid
     audioUrl?: string;    // 音频URL
-    headers?: any;
+    headers?: Record<string, string>;
+    
+    // 播放控制属性
+    startTime?: number;
+    endTime?: number;
+    isLoop?: boolean;
+    loopCount?: number;
 }
 
 /**
@@ -105,4 +113,20 @@ export interface PlaylistConfig {
         bvid?: string;   // B站bv号
         cid?: string;    // B站视频cid
     }[];                 // 媒体项列表
+}
+
+export interface PlayOptions {
+    startTime?: number;
+    endTime?: number;
+    isLoop?: boolean;
+    loopCount?: number;
+    autoplay?: boolean;
+    originalUrl?: string;
+    
+    // B站视频特有选项
+    type?: 'bilibili';
+    bvid?: string;
+    audioUrl?: string;
+    headers?: Record<string, string>;
+    title?: string;
 } 

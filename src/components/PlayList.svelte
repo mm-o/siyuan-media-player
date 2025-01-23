@@ -1,29 +1,38 @@
 <script lang="ts">
+    // 从"svelte"中导入createEventDispatcher和onMount
     import { createEventDispatcher, onMount } from "svelte";
+    // 从"siyuan"中导入showMessage
     import { showMessage } from "siyuan";
+    // 从'../core/types'中导入MediaItem、Config和PlaylistConfig类型
     import type { MediaItem, Config, PlaylistConfig } from '../core/types';
+    // 从'../core/media'中导入MediaManager
     import { MediaManager } from '../core/media';
+    // 从"siyuan"中导入Menu
     import { Menu } from "siyuan";
+    // 从'../core/bilibili'中导入BilibiliParser
     import { BilibiliParser } from '../core/bilibili';
+    // 从'../core/config'中导入ConfigManager类型
     import type { ConfigManager } from '../core/config';
+    // 从'../types/media'中导入MediaInfo类型
+    import type { MediaInfo } from '../types/media';
     
-    // Props
+    // 组件属性
     export let items: MediaItem[] = [];
     export let currentItem: MediaItem | null = null;
     export let configManager: ConfigManager;
     
-    // State
+    // 组件状态
     let tabs: PlaylistConfig[] = [];
     let activeTabId = 'default';
     let isAddingTab = false;
     let inputValue = '';
     let newTabInput: HTMLInputElement;
     
-    // Computed
+    // 计算属性
     $: activeTab = tabs.find(tab => tab.id === activeTabId);
     $: itemCount = activeTab?.items?.length || 0;
     
-    // Event dispatcher
+    // 事件分发器
     const dispatch = createEventDispatcher<{
         select: MediaItem;
         play: MediaItem;
@@ -35,78 +44,97 @@
     // 点击计时器和最后点击的项目
     let clickTimer: number;
     let lastClickedItem: string | null = null;
+    let lastClickTime = 0;
     
+    /**
+     * 统一处理播放请求
+     * 用于处理双击播放、右键播放等多个入口的播放请求
+     */
+    async function handlePlayRequest(item: MediaItem, options: {
+        startTime?: number;
+        endTime?: number;
+        isLoop?: boolean;
+        autoplay?: boolean;
+    } = {}) {
+        try {
+            console.log("[Playlist] 处理播放请求:", { 
+                item, 
+                options,
+                type: item.type,
+                hasStartTime: options.startTime !== undefined,
+                hasEndTime: options.endTime !== undefined,
+                isLoop: options.isLoop
+            });
+            
+            // 获取播放器配置
+            const config = await configManager.getConfig();
+            
+            // 如果是B站视频，获取播放流
+            if (item.type === 'bilibili' && item.bvid && item.cid) {
+                const streamInfo = await BilibiliParser.getProcessedVideoStream(
+                    item.bvid,
+                    item.cid,
+                    0,  // 不限制清晰度
+                    config,
+                    item.page  // 分P页码
+                );
+                
+                // 触发播放事件
+                dispatch('play', {
+                    ...item,
+                    url: streamInfo.video.url,
+                    audioUrl: streamInfo.audio.url,
+                    headers: streamInfo.headers,
+                    ...options,  // 合并传入的播放选项
+                });
+            } else {
+                // 普通媒体直接播放
+                dispatch('play', {
+                    ...item,
+                    ...options,  // 合并传入的播放选项
+                });
+            }
+            
+            // 更新当前项
+            currentItem = item;
+            
+        } catch (error) {
+            console.error("[Playlist] 播放失败:", error);
+            showMessage("播放失败，请重试");
+        }
+    }
+
     /**
      * 处理列表项点击
      * 单击选中项目，双击播放媒体
      */
     async function handleItemClick(item: MediaItem) {
-        if (lastClickedItem === item.id) {
+        // 检查是否为双击
+        const now = Date.now();
+        if (lastClickedItem === item.id && now - lastClickTime < 300) {
             // 双击：播放
-            clearTimeout(clickTimer);
+            await handlePlayRequest(item, {
+                autoplay: true
+            });
+            // 重置点击状态
             lastClickedItem = null;
-            
-            try {
-                // 如果是B站视频，获取播放流
-                if (item.type === 'bilibili' && item.bvid && item.cid) {
-                    const config = await configManager.getConfig();
-                    const streamInfo = await BilibiliParser.getProcessedVideoStream(
-                        item.bvid,
-                        item.cid,
-                        0,
-                        config
-                    );
-
-                    const biliMediaItem: MediaItem = {
-                        ...item,
-                        url: streamInfo.video.url,
-                        audioUrl: streamInfo.audio?.url,
-                        headers: streamInfo.headers
-                    };
-                    
-                    // 创建播放选项，确保包含所有必要信息
-                    const playOptions = {
-                        type: 'bilibili',
-                        bvid: biliMediaItem.bvid,
-                        originalUrl: biliMediaItem.originalUrl || biliMediaItem.url,
-                        audioUrl: biliMediaItem.audioUrl,
-                        headers: biliMediaItem.headers,  // 传递请求头
-                        title: biliMediaItem.title,
-                        autoplay: config.settings?.autoplay,
-                        startTime: 0
-                    };
-                    
-                    dispatch('play', {
-                        ...biliMediaItem,
-                        playOptions  // 添加播放选项
-                    });
-                    return;
-                }
-                
-                // 非B站视频直接播放
-                dispatch('play', item);
-            } catch (err) {
-                console.error('[PlayList] B站视频流获取失败:', err);
-                showMessage('获取视频流失败');
-            }
+            lastClickTime = 0;
         } else {
-            // 单击：选中项目并等待可能的第二次点击
+            // 单击：选择
             lastClickedItem = item.id;
-            clickTimer = window.setTimeout(() => {
-                dispatch('select', item);
-                lastClickedItem = null;
-            }, 300); // 300ms内的第二次点击视为双击
+            lastClickTime = now;
+            dispatch('select', item);
         }
     }
 
-    // Lifecycle
+    // 生命周期
     onMount(async () => {
         // 清理过期缓存
         MediaManager.cleanupCache();
         await loadPlaylists();
     });
 
-    // Watch for changes
+    // 监听变化
     $: if (tabs.length > 0) {
         savePlaylists();
     }
@@ -146,8 +174,19 @@
         if (!url) return;
         
         try {
+            // 处理B站视频ID
+            let processedUrl = url;
+            const bvMatch = url.match(/^(BV[\w]+)$/i);
+            const avMatch = url.match(/^(av\d+)$/i);
+            
+            if (bvMatch) {
+                processedUrl = `https://www.bilibili.com/video/${bvMatch[1]}`;
+            } else if (avMatch) {
+                processedUrl = `https://www.bilibili.com/video/${avMatch[1]}`;
+            }
+            
             // 创建媒体项（会自动识别B站视频）
-            const mediaItem = await MediaManager.createMediaItem(url);
+            const mediaItem = await MediaManager.createMediaItem(processedUrl);
             if (!mediaItem) {
                 showMessage('无法解析媒体文件');
                 return;
@@ -173,7 +212,7 @@
             inputValue = '';  // 清空输入框
             
             showMessage('已添加到播放列表');
-            dispatch('addMedia', { tabId: activeTabId, url: url.trim() });
+            dispatch('addMedia', { tabId: activeTabId, url: processedUrl.trim() });
         } catch (e) {
             console.error('Failed to add media:', e);
             showMessage('添加媒体失败');
@@ -217,17 +256,22 @@
         },
 
         showContextMenu(event: MouseEvent, tab: PlaylistConfig) {
+            // 如果标签是固定的，不显示右键菜单
             if (tab.isFixed) return;
             
+            // 创建右键菜单
             const menu = new Menu("tabContextMenu");
+            // 添加重命名项
             menu.addItem({
                 icon: "iconEdit",
                 label: "重命名",
                 click: () => {
+                    // 将当前标签设置为编辑状态
                     tabs = tabs.map(t => ({
                         ...t,
                         isEditing: t.id === tab.id
                     }));
+                    // 延迟执行，确保DOM更新后再获取输入框
                     setTimeout(() => {
                         const input = document.querySelector(`#tab-edit-${tab.id}`) as HTMLInputElement;
                         input?.focus();
@@ -235,18 +279,20 @@
                     }, 0);
                 }
             });
-            
+            // 添加删除项
             menu.addItem({
                 icon: "iconTrashcan",
                 label: "删除",
                 click: () => {
+                    // 从标签列表中移除当前标签
                     tabs = tabs.filter(t => t.id !== tab.id);
+                    // 如果当前标签是激活的，设置默认标签为激活
                     if (activeTabId === tab.id) {
                         activeTabId = 'default';
                     }
                 }
             });
-            
+            // 打开右键菜单
             menu.open({ x: event.clientX, y: event.clientY });
         }
     };
@@ -339,34 +385,152 @@
         }
     };
 
-    // 处理播放列表播放事件
-    async function handlePlay(event: CustomEvent<MediaItem>) {
-        currentItem = event.detail;
-        
-        if (player) {
-            const config = await configManager.getConfig();
+    /**
+     * 处理外部传入的媒体项
+     */
+    export async function handleMediaItem(item: MediaItem) {
+        try {
+            console.log("[Playlist] 接收到媒体项:", item);
             
-            // 如果是B站视频
-            if (currentItem.type === 'bilibili') {
-                player.play(currentItem.url, {
-                    type: 'bilibili',
-                    bvid: currentItem.bvid,
-                    originalUrl: currentItem.originalUrl || currentItem.url,
-                    audioUrl: currentItem.audioUrl,
-                    title: currentItem.title,
-                    autoplay: config.settings?.autoplay,
-                    startTime: 0  // 添加起始时间
+            // 检查是否已存在相同媒体
+            const existingItem = findExistingMedia(item);
+            if (existingItem) {
+                console.log("[Playlist] 媒体已存在，合并播放控制参数:", existingItem);
+                // 合并播放控制参数并播放
+                await handlePlayRequest({
+                    ...existingItem,
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    originalUrl: item.originalUrl
+                }, {
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    isLoop: item.startTime !== undefined && item.endTime !== undefined,
+                    autoplay: true
                 });
-            } else {
-                // 普通媒体直接播放
-                player.play(currentItem.url, {
-                    originalUrl: currentItem.originalUrl || currentItem.url,
-                    autoplay: config.settings?.autoplay,
-                    startTime: 0  // 添加起始时间
-                });
+                return;
             }
+            
+            // 如果是新项目，添加到播放列表中
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab) return;
+            
+            tab.items = [...(tab.items || []), item];
+            tabs = tabs;  // 触发Svelte更新
+            
+            // 自动播放新添加的项目
+            await handlePlayRequest(item, {
+                startTime: item.startTime,
+                endTime: item.endTime,
+                isLoop: item.startTime !== undefined && item.endTime !== undefined,
+                autoplay: true
+            });
+            
+        } catch (error) {
+            console.error("[Playlist] 处理媒体项失败:", error);
+            showMessage("添加媒体失败");
         }
     }
+
+    /**
+     * 查找已存在的相同媒体
+     */
+    function findExistingMedia(newItem: MediaItem): MediaItem | null {
+        if (!activeTab?.items) return null;
+
+        return activeTab.items.find(item => {
+            // B站视频：比较BV号
+            if (newItem.type === 'bilibili' && item.type === 'bilibili') {
+                return item.bvid === newItem.bvid;
+            }
+            
+            // 普通媒体：比较原始URL（忽略时间戳等参数）
+            const cleanUrl = (url: string) => {
+                try {
+                    const urlObj = new URL(url);
+                    return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+                } catch {
+                    return url.split('#')[0].split('?')[0];
+                }
+            };
+
+            const originalUrl1 = cleanUrl(item.originalUrl || item.url);
+            const originalUrl2 = cleanUrl(newItem.originalUrl || newItem.url);
+            return originalUrl1 === originalUrl2;
+        }) || null;
+    }
+
+    /**
+     * 处理提交
+     * 当用户点击添加按钮或按下回车键时触发
+     */
+    export async function handleSubmit(url: string, startTime?: number, endTime?: number) {
+        if (!url) {
+            showMessage('请输入媒体链接');
+            return;
+        }
+        
+        try {
+            console.log("[Playlist] 处理提交:", { url, startTime, endTime });
+            
+            // 创建新的媒体项
+            const newItem = await MediaManager.createMediaItem(url);
+            if (!newItem) {
+                showMessage('无法解析媒体文件');
+                return;
+            }
+
+            // 添加时间参数
+            if (startTime !== undefined) {
+                newItem.startTime = startTime;
+            }
+            if (endTime !== undefined) {
+                newItem.endTime = endTime;
+                newItem.isLoop = true;  // 如果有结束时间，说明是循环片段
+            }
+
+            // 检查是否已存在
+            const existingItem = findExistingMedia(newItem);
+            if (existingItem) {
+                // 如果已存在，使用现有项但更新时间参数
+                const playItem = {
+                    ...existingItem,
+                    startTime: startTime,
+                    endTime: endTime,
+                    isLoop: endTime !== undefined
+                };
+                
+                // 直接播放并传递时间参数
+                await handlePlayRequest(playItem, {
+                    startTime: startTime,
+                    endTime: endTime,
+                    isLoop: endTime !== undefined,
+                    autoplay: true
+                });
+                return;
+            }
+            
+            // 添加到当前标签页
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab) return;
+            
+            tab.items = [...(tab.items || []), newItem];
+            tabs = tabs;  // 触发 Svelte 更新
+            
+            // 立即播放新添加的项目
+            await handlePlayRequest(newItem, {
+                startTime: startTime,
+                endTime: endTime,
+                isLoop: endTime !== undefined,
+                autoplay: true
+            });
+            
+        } catch (error) {
+            console.error("[Playlist] 添加媒体失败:", error);
+            showMessage("添加媒体失败");
+        }
+    }
+
 </script>
 
 <div class="playlist">
@@ -471,7 +635,7 @@
                 class="tab-input playlist-input" 
                 placeholder="输入媒体链接..."
                 bind:value={inputValue}
-                on:keydown={(e) => e.key === 'Enter' && addMediaToPlaylist(inputValue)}
+                on:keydown={(e) => e.key === 'Enter' && handleSubmit(inputValue)}
             />
             {#if inputValue}
                 <span class="clear-icon" on:click={() => inputValue = ''}>×</span>
@@ -479,7 +643,7 @@
         </div>
         <button 
             class="add-btn" 
-            on:click={() => inputValue && addMediaToPlaylist(inputValue)}
+            on:click={() => inputValue && handleSubmit(inputValue)}
         >
             添加
         </button>

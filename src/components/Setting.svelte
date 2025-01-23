@@ -183,6 +183,18 @@
             type: "checkbox",
             title: "启用快捷键",
             description: "启用播放器快捷键控制"
+        },
+        {
+            key: "loopCount",
+            value: 3,
+            type: "slider",
+            title: "默认循环次数",
+            description: "循环片段的默认循环次数",
+            slider: {
+                min: 1,
+                max: 10,
+                step: 1
+            }
         }
     ];
     
