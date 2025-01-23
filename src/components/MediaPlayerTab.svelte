@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { showMessage } from 'siyuan';
     import Player from './Player.svelte';
     import PlayList from './PlayList.svelte';
@@ -9,11 +9,12 @@
     import type { MediaItem } from '../core/types';
     import md5 from 'md5';
     import { BilibiliParser } from '../core/bilibili';
+    import { LinkHandler } from '../core/linkHandler';
     
     // 组件属性
     export let app: any;
     export let configManager: ConfigManager;
-    export let onPlayerReady: (player: any) => void;
+    export let linkHandler: LinkHandler;
     
     // 状态管理
     let showControls = true;      // 控制栏显示状态
@@ -23,11 +24,85 @@
     let currentItem: MediaItem | null = null;  // 当前播放项
     let player: Player;           // 播放器组件引用
     let playerConfig: any;        // 播放器配置
+    let loopStartTime: number | null = null;  // 循环片段开始时间
+    let playlist: PlayList;       // 播放列表组件引用
     
-    // 初始化时加载配置并生成 WBI 签名
+    const NewLute: () => Lute = (globalThis as any).Lute.New;
+
+    /**
+     * 获取当前块ID
+     */
+    function getCurrentBlockId(): string {
+        // 获取当前选中的块
+        const selection = window.getSelection();
+        if (!selection || !selection.focusNode) {
+            throw new Error('未找到光标位置');
+        }
+
+        // 从光标位置向上查找块元素
+        let element = selection.focusNode as HTMLElement;
+        while (element && !element.dataset?.nodeId) {
+            element = element.parentElement as HTMLElement;
+        }
+
+        if (!element || !element.dataset.nodeId) {
+            throw new Error('未找到目标块');
+        }
+
+        return element.dataset.nodeId;
+    }
+
+    /**
+     * 插入块到当前位置的下方
+     */
+    async function insertBlock(content: string) {
+        try {
+            // 获取当前块ID
+            const currentBlockId = getCurrentBlockId();
+
+            // 构造插入块的请求
+            const response = await fetch('/api/block/insertBlock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: content,
+                    dataType: "markdown",
+                    previousID: currentBlockId  // 使用 previousID 参数指定在当前块后面插入
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('插入块失败');
+            }
+
+            showMessage('链接已插入');
+            
+        } catch (error) {
+            console.error('[MediaPlayerTab] 插入块失败:', error);
+            // 如果插入失败，退回到复制到剪贴板
+            await navigator.clipboard.writeText(content);
+            showMessage('插入失败，已复制到剪贴板');
+        }
+    }
+
+    // 初始化时加载配置
     onMount(async () => {
         const config = await configManager.load();
         playerConfig = config.settings;
+        // 确保配置中有循环次数设置
+        if (!playerConfig.loopCount) {
+            playerConfig.loopCount = 3;  // 默认值
+        }
+    });
+
+    // 组件销毁时清理
+    onDestroy(() => {
+        // 清除 LinkHandler 中的播放列表引用
+        if (linkHandler) {
+            linkHandler.setPlaylist(null);
+        }
     });
     
     // 处理设置变更
@@ -54,33 +129,172 @@
         showControls = false;
     }
     
+    // 格式化时间戳
+    function formatTime(seconds: number, isAnchorText: boolean = false): string {
+        if (isNaN(seconds)) return '0:00';
+        
+        // 锚文本取整，URL参数保留一位小数
+        const time = isAnchorText ? Math.round(seconds) : Number(seconds.toFixed(1));
+        
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
+        const secs = isAnchorText ? 
+            Math.floor(time % 60) : 
+            Number((time % 60).toFixed(1));
+        
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    /**
+     * 生成时间戳链接
+     */
+    function generateTimestampLink(mediaItem: MediaItem, options: {
+        isLoop: boolean;
+        startTime?: number;
+        endTime?: number;
+        count?: number;
+    }): string | null {
+        if (!player) return null;
+
+        try {
+            const currentTime = options.startTime ?? player.getCurrentTime();
+            const endTime = options.endTime ?? (options.isLoop ? currentTime + 3 : undefined);
+            
+            // 构建基础URL
+            const baseUrl = mediaItem.originalUrl || mediaItem.url;
+            const urlObj = new URL(baseUrl);
+            
+            // 清除已有的时间参数
+            urlObj.searchParams.delete('t');
+            
+            // 添加新的时间参数
+            if (options.isLoop && endTime) {
+                // 循环片段格式：[1:23~1:26](url?t=83.1~86.4)
+                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}~${endTime.toFixed(1)}`);
+                
+                const formattedStart = formatTime(currentTime, true);
+                const formattedEnd = formatTime(endTime, true);
+                return `- [${formattedStart}~${formattedEnd}](${urlObj.toString()})`;
+            } else {
+                // 时间戳格式：[1:23](url?t=83.1)
+                urlObj.searchParams.set('t', currentTime.toFixed(1));
+                return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
+            }
+        } catch (error) {
+            console.error('[MediaPlayerTab] 生成链接失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 获取截图数据
+     */
+    async function getScreenshot(): Promise<Blob | null> {
+        if (!player) return null;
+        
+        try {
+            // 获取截图的 base64 数据
+            const dataUrl = await player.getScreenshotDataURL();
+            if (!dataUrl) return null;
+            
+            // 转换为 Blob
+            const res = await fetch(dataUrl);
+            const blob = await res.blob();
+            return blob;
+        } catch (error) {
+            console.error('[MediaPlayerTab] 截图失败:', error);
+            return null;
+        }
+    }
+
     // 处理控制栏事件
     async function handleControlBarEvents(event: CustomEvent) {
-        switch(event.type) {
+        switch (event.type) {
             case 'screenshot':
-                if (player) {
-                    const success = await player.screenshot();
-                    if (success) {
-                        showMessage('截图已复制到剪贴板');
-                    } else {
-                        showMessage('截图失败，请确保视频正在播放');
+                if (player && currentItem) {
+                    try {
+                        const imageBlob = await getScreenshot();
+                        if (imageBlob) {
+                            // 构造文件名
+                            const timestamp = new Date().getTime();
+                            const filename = `${currentItem.title || 'screenshot'}_${timestamp}.png`;
+                            
+                            // 构造 FormData
+                            const formData = new FormData();
+                            formData.append('file[]', imageBlob, filename);
+                            
+                            // 上传图片
+                            const response = await fetch('/api/asset/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('上传图片失败');
+                            }
+                            
+                            const result = await response.json();
+                            if (result.code !== 0) {
+                                throw new Error(result.msg || '上传图片失败');
+                            }
+                            
+                            // 获取上传后的图片URL
+                            const imageUrl = result.data.succMap[filename];
+                            
+                            // 构造并插入 Markdown
+                            const imageMarkdown = `![${filename}](${imageUrl})`;
+                            await insertBlock(imageMarkdown);
+                            showMessage('截图已插入');
+                        } else {
+                            showMessage('截图失败，请确保视频正在播放');
+                        }
+                    } catch (error) {
+                        console.error('[MediaPlayerTab] 截图失败:', error);
+                        showMessage('截图失败，请重试');
                     }
+                } else {
+                    showMessage('请先播放视频');
                 }
                 break;
             case 'timestamp':
-                if (player) {
-                    const timestampLink = player.generateTimestampLink(currentItem);
+                if (player && currentItem) {
+                    const timestampLink = generateTimestampLink(currentItem, {
+                        isLoop: false,
+                        count: 0
+                    });
                     if (timestampLink) {
-                        try {
-                            await navigator.clipboard.writeText(timestampLink);
-                            showMessage('时间戳已复制到剪贴板');
-                        } catch (err) {
-                            console.error('复制时间戳失败:', err);
-                            showMessage('复制时间戳失败');
-                        }
-                    } else {
-                        showMessage('无法生成时间戳，请确保视频正在播放');
+                        await insertBlock(timestampLink);
                     }
+                } else {
+                    showMessage('请先播放媒体');
+                }
+                break;
+            case 'loopSegment':
+                if (!player || !currentItem) return;
+                
+                const currentTime = player.getCurrentTime();
+                if (loopStartTime === null) {
+                    // 记录开始时间
+                    loopStartTime = currentTime;
+                    showMessage('已记录循环片段开始时间');
+                } else {
+                    // 生成循环片段链接
+                    const timestampLink = generateTimestampLink(currentItem, {
+                        isLoop: true,
+                        startTime: loopStartTime,
+                        endTime: currentTime,
+                        count: 3
+                    });
+                    
+                    if (timestampLink) {
+                        await insertBlock(timestampLink);
+                    }
+                    
+                    // 重置开始时间
+                    loopStartTime = null;
                 }
                 break;
             case 'playlist':
@@ -102,11 +316,18 @@
     // 处理播放列表播放事件
     async function handlePlay(event: CustomEvent<MediaItem>) {
         currentItem = event.detail;
+        console.log("[MediaPlayerTab] 处理播放事件:", {
+            item: currentItem,
+            hasStartTime: currentItem.startTime !== undefined,
+            hasEndTime: currentItem.endTime !== undefined,
+            isLoop: currentItem.isLoop,
+            loopCount: playerConfig.loopCount
+        });
         
         if (player) {
             // 如果是B站视频
             if (currentItem.type === 'bilibili') {
-                player.play(currentItem.url, currentItem.playOptions || {
+                player.play(currentItem.url, {
                     type: 'bilibili',
                     bvid: currentItem.bvid,
                     originalUrl: currentItem.originalUrl || currentItem.url,
@@ -114,14 +335,20 @@
                     headers: currentItem.headers,
                     title: currentItem.title,
                     autoplay: playerConfig?.autoplay,
-                    startTime: 0
+                    startTime: currentItem.startTime,
+                    endTime: currentItem.endTime,
+                    isLoop: currentItem.isLoop,
+                    loopCount: playerConfig.loopCount
                 });
             } else {
                 // 普通媒体直接播放
                 player.play(currentItem.url, {
                     originalUrl: currentItem.originalUrl || currentItem.url,
                     autoplay: playerConfig?.autoplay,
-                    startTime: 0
+                    startTime: currentItem.startTime,
+                    endTime: currentItem.endTime,
+                    isLoop: currentItem.isLoop,
+                    loopCount: playerConfig.loopCount
                 });
             }
         }
@@ -177,8 +404,14 @@
     $: if (player) {
         // 确保播放器实例已经完全初始化
         setTimeout(() => {
-            onPlayerReady(player);
-        }, 0);
+            console.log("[MediaPlayerTab] 播放器就绪");
+        }, 100);  // 给予一些初始化时间
+    }
+
+    // 监听播放列表组件的挂载和更新
+    $: if (playlist && linkHandler) {
+        console.log("[MediaPlayerTab] 播放列表就绪，更新 LinkHandler");
+        linkHandler.setPlaylist(playlist);
     }
 </script>
 
@@ -203,8 +436,10 @@
             <div class="control-bar" class:hidden={!showControls}>
                 <ControlBar 
                     {currentItem}
+                    {loopStartTime}
                     on:screenshot={handleControlBarEvents}
                     on:timestamp={handleControlBarEvents}
+                    on:loopSegment={handleControlBarEvents}
                     on:playlist={handleControlBarEvents}
                     on:settings={handleControlBarEvents}
                 />
@@ -213,14 +448,13 @@
         
         <!-- 侧边栏: 用于显示播放列表或设置面板 -->
         <div class="sidebar" class:show={showPlaylist || showSettings}>
-            {#if showPlaylist}
-                <PlayList 
-                    {configManager}
-                    {currentItem}
-                    on:select={handleSelect}
-                    on:play={handlePlay}
-                />
-            {/if}
+            <PlayList 
+                bind:this={playlist}
+                {configManager}
+                {currentItem}
+                on:select={handleSelect}
+                on:play={handlePlay}
+            />
             {#if showSettings}
                 <Setting 
                     group="mediaPlayer"

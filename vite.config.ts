@@ -54,6 +54,7 @@ export default defineConfig({
         emptyOutDir: false,
         minify: true,
         sourcemap: isSrcmap ? 'inline' : false,
+        assetsDir: 'assets',
 
         lib: {
             entry: resolve(__dirname, "src/index.ts"),
@@ -99,7 +100,7 @@ export default defineConfig({
                     if (assetInfo.name === "style.css") {
                         return "index.css"
                     }
-                    return assetInfo.name
+                    return 'assets/[name]-[hash][extname]';
                 },
             },
         },

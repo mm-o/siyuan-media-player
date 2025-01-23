@@ -36,5 +36,10 @@
         "name": "Add Timestamp",
         "desc": "Copy timestamp link of current playback time",
         "text": "Timestamp"
+    },
+    "loopSegment": {
+        "name": "Loop Segment",
+        "desc": "Set loop segment start and end points",
+        "text": "Loop Segment"
     }
 }
