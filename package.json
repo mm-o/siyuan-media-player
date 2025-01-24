@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "type": "module",
   "description": {
     "default": "A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.",
