@@ -105,7 +105,7 @@
 ## 感谢
 
 - 感谢[思源笔记插件开发指南](https://ld246.com/article/1723732790981#START-UP)及其作者提供的详细开发文档。
-- 感谢归叶插件开发者 [vv](https://github.com/Wetoria) 帮助解决开发问题，非常推荐他开发的[归叶插件](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse)，非常好用。
+- 感谢归叶插件开发者 [vv](https://github.com/Wetoria) 帮助解决开发问题，非常推荐他开发的[叶归插件](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse)，非常好用。
 - 感谢 [ArtPlayer](https://artplayer.org/document/) 项目和开发者答疑解惑。
 - 感谢 [bilibili-API-collect](https://socialsisteryi.github.io/bilibili-API-collect/) 项目提供的 B站 API 文档。
 
