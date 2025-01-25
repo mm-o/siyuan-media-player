@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { showMessage } from 'siyuan';
     import Artplayer from 'artplayer';
-    //import artplayerPluginChapter from 'artplayer-plugin-chapter';
+    import artplayerPluginChapter from 'artplayer-plugin-chapter';
     import type { MediaItem, PlayOptions } from '../types/media';
     
     // 组件属性
@@ -31,7 +31,6 @@
             speed: 100,
             hotkey: true,
             loop: false,
-            autoplay: false
         };
         const initialConfig = config ? { ...defaultConfig, ...config } : defaultConfig;
         
@@ -42,7 +41,7 @@
             volume: initialConfig.volume / 100,
             isLive: false,
             muted: false,
-            autoplay: initialConfig.autoplay,
+            autoplay: true,
             pip: true,
             autoSize: true,
             autoMini: true,
@@ -76,7 +75,12 @@
                     return;
                 }
                 
+                // 跳转到开始位置
                 art.currentTime = currentChapter.start;
+                // 同步音频时间
+                if (audioPlugin.audio) {
+                    audioPlugin.audio.currentTime = currentChapter.start;
+                }
                 loopCount++;
                 console.log("[Player] 循环次数:", loopCount);
             }
@@ -90,7 +94,6 @@
             }
         });
     });
-    
     // 组件销毁时清理
     onDestroy(() => {
         if (art) {
@@ -107,7 +110,7 @@
         audio: null as HTMLAudioElement | null,
 
         // 创建音频元素
-        createAudio: (url: string, headers?: any) => {
+        createAudio: async (url: string, headers?: any) => {
             audioPlugin.destroy();
             
             const audio = new Audio();
@@ -115,20 +118,25 @@
             
             // 添加请求头参数
             if (headers) {
-                const audioUrl = new URL(url);
+                        const audioUrl = new URL(url);
                 if (headers.Referer) {
-                    audioUrl.searchParams.set('referer', headers.Referer);
-                }
+                            audioUrl.searchParams.set('referer', headers.Referer);
+                        }
                 if (headers.Cookie) {
-                    audioUrl.searchParams.set('cookie', headers.Cookie);
+                            audioUrl.searchParams.set('cookie', headers.Cookie);
                 }
                 audio.src = audioUrl.toString();
             } else {
                 audio.src = url;
             }
             
+            await new Promise<void>((resolve) => {
+                audio.addEventListener('canplaythrough', () => {
+                    resolve();
+                });
+            });
+            
             audioPlugin.audio = audio;
-            return audio;
         },
 
         // 同步音频状态
@@ -176,146 +184,114 @@
         }
     };
     
-    // ===================== 3. Seek跳转插件 =====================
-    
-    const seekPlugin = {
-        // 跳转到指定时间
-        seekTo: (time: number) => {
-            if (!art) return;
-            
-            try {
-                // 验证时间值
-                const validTime = parseFloat(String(time));
-                if (!Number.isFinite(validTime) || validTime < 0) {
-                    console.warn('[播放器] 无效的跳转时间:', time);
-                    return;
-                }
-                
-                // 确保不超过视频总长度
-                const targetTime = Math.min(validTime, art.duration);
-                
-                // 设置视频时间
-                art.currentTime = targetTime;
-                
-                // 同步音频时间
-                if (audioPlugin.audio) {
-                    audioPlugin.audio.currentTime = targetTime;
-                }
-            } catch (error) {
-                console.error('[播放器] 跳转失败:', error);
-            }
-        },
-        
-        // 获取当前时间
-        getCurrentTime: () => art ? art.currentTime : 0
-    };
-    
-    // ===================== 4. 循环播放插件 =====================
+    // ===================== 3. 统一的时间控制插件 =====================
     
     /**
-     * 设置循环片段
+     * 设置播放时间和循环
+     * @param start 开始时间
+     * @param end 结束时间（可选，用于循环片段）
+     * @param count 循环次数（可选，默认为0，表示不循环）
      */
-    function setLoop(start: number, end: number, count: number = 3) {
+    function setPlayTime(start: number, end?: number, count: number = 0) {
         if (!art) {
-            console.warn("[Player] setLoop: art 未就绪");
+            console.warn("[Player] setPlayTime: art 未就绪");
             return;
         }
         
         try {
-            console.log("[Player] 设置循环片段:", { start, end, count });
+            console.log("[Player] 设置播放时间:", { start, end, count });
             
-            // 重置循环计数器
+            // 重置循环状态
             loopCount = 0;
-            maxLoopCount = count;
+            currentChapter = null;
             
-            // 记录当前循环片段
-            currentChapter = { start, end };
-            
-            // 如果当前时间不在片段内，跳转到开始位置
-            if (art.currentTime < start || art.currentTime > end) {
-                art.currentTime = start;
+            // 如果有结束时间和循环次数大于0，设置循环片段
+            if (end !== undefined && count > 0) {
+                maxLoopCount = count;
+                currentChapter = { start, end };
+                console.log("[Player] 设置为循环片段模式");
             }
             
-            console.log("[Player] 循环片段已设置:", { currentChapter, maxLoopCount });
+            // 跳转到开始时间
+            console.log("[Player] 当前时间:", art.currentTime);
+            console.log("[Player] 跳转到开始位置:", start);
+            art.currentTime = start;
             
+            // 同步音频时间
+            if (audioPlugin.audio) {
+                audioPlugin.audio.currentTime = start;
+            }
+            
+            console.log("[Player] 播放时间已设置:", { 
+                currentChapter, 
+                maxLoopCount,
+                currentTime: art.currentTime 
+            });
         } catch (error) {
-            console.error('[Player] 设置循环片段失败:', error);
-            showMessage('设置循环片段失败');
+            console.error('[Player] 设置播放时间失败:', error);
+            showMessage('设置播放时间失败');
         }
     }
 
-    /**
-     * 清除循环片段
-     */
-    function clearLoop() {
-        if (!art) return;
-        currentChapter = null;
-        loopCount = 0;
-    }
-    
-    // ===================== 导出方法 =====================
-    
     // 播放媒体
     export async function play(url: string, options: PlayOptions = {}) {
-        if (!art) return;
+        console.log("[Player] 开始播放:", { url, options });
         
         try {
-            console.log("[Player] 开始播放:", { 
-                url, 
-                options,
-                hasStartTime: options.startTime !== undefined,
-                hasEndTime: options.endTime !== undefined,
-                isLoop: options.isLoop,
-                loopCount: options.loopCount
-            });
-
-            // 清除现有循环片段
-            clearLoop();
+            // 重置循环状态
+            currentChapter = null;
+            loopCount = 0;
             
-            // 处理B站音频
-            if (options.audioUrl) {
-                await audioPlugin.createAudio(options.audioUrl, options.headers);
-                audioPlugin.registerEvents();
-            } else {
-                audioPlugin.destroy();
-            }
-
+            // 清理之前的音频
+            audioPlugin.destroy();
+            
             // 设置播放源
-            await art.switchUrl(url);
+            art.url = url;
             
             // 等待视频就绪
             await new Promise<void>((resolve) => {
-                const canPlayHandler = () => {
+                const loadedHandler = () => {
                     resolve();
-                    art.off('video:canplay', canPlayHandler);
+                    art.off('video:loadeddata', loadedHandler);
                 };
-                art.on('video:canplay', canPlayHandler);
+                art.on('video:loadeddata', loadedHandler);
             });
             
-            // 应用播放选项
-            if (options.startTime) {
-                console.log("[Player] 设置开始时间:", options.startTime);
-                art.currentTime = options.startTime;
+            console.log("[Player] 视频已就绪");
+            
+            // 如果有音频轨道，设置音频源
+            if (options.audioUrl) {
+                console.log("[Player] 设置音频轨道:", options.audioUrl);
+                await audioPlugin.createAudio(options.audioUrl, options.headers);
+                audioPlugin.registerEvents();
             }
             
-            // 设置循环片段
-            if (options.isLoop && options.startTime !== undefined && options.endTime !== undefined) {
-                console.log("[Player] 设置循环片段:", {
-                    start: options.startTime,
-                    end: options.endTime,
-                    count: options.loopCount
-                });
-                setLoop(options.startTime, options.endTime, options.loopCount);
+            // 如果有自定义请求头，设置请求头
+            if (options.headers) {
+                console.log("[Player] 设置请求头:", options.headers);
+                art.headers = options.headers;
             }
             
-            // 设置自动播放
-            if (options.autoplay) {
-                art.play();
+            // 设置播放时间和循环
+            if (options.startTime !== undefined) {
+                if (options.isLoop && options.endTime !== undefined) {
+                    // 循环片段模式
+                    setPlayTime(options.startTime, options.endTime, options.count || 3);
+                } else {
+                    // 时间戳模式：只设置开始时间，不循环
+                    setPlayTime(options.startTime);
+                }
             }
+            
+            // 开始播放
+            art.play();
             
         } catch (error) {
             console.error("[Player] 播放失败:", error);
             showMessage("播放失败，请重试");
+            
+            // 清理音频
+            audioPlugin.destroy();
             
             if (art?.container) {
                 const event = new CustomEvent('streamError', {
@@ -359,11 +335,3 @@
 <div class="artplayer-app" bind:this={playerContainer}>
     <!-- Artplayer 将在这里初始化 -->
 </div>
-
-<style>
-/* 添加章节插件相关样式 */
-:global(.art-chapter-marker) {
-    background-color: var(--b3-theme-primary) !important;
-    opacity: 0.8;
-}
-</style>

@@ -46,7 +46,7 @@ export default class MediaPlayerPlugin extends Plugin {
 
         this.registerHotkeys();
 
-        // 初始化链接处理器，传入打开标签页的回调
+        // 初始化链接处理器
         this.linkHandler = new LinkHandler(
             this.configManager,
             () => this.openMediaPlayerTab()

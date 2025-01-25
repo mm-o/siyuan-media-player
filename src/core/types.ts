@@ -57,8 +57,6 @@ export interface Config {
         hotkey: boolean;
         /** 是否循环播放 */
         loop: boolean;
-        /** 是否自动播放 */
-        autoplay: boolean;
     };
     /** B站登录信息 */
     bilibiliLogin?: {
@@ -120,7 +118,6 @@ export interface PlayOptions {
     endTime?: number;
     isLoop?: boolean;
     loopCount?: number;
-    autoplay?: boolean;
     originalUrl?: string;
     
     // B站视频特有选项

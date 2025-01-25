@@ -20,41 +20,16 @@ export class MediaManager {
      * 将本地路径转换为 file:// URL
      */
     private static convertToFileUrl(path: string): string {
-        // 如果已经是完整URL，直接返回
         if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('file://')) {
             return path;
         }
         
-        try {
-            // 移除URL参数
-            const cleanPath = path.split('?')[0].split('#')[0];
-            
-            // Windows 路径转换
-            if (/^[a-zA-Z]:\\/.test(cleanPath)) {
-                return 'file:///' + cleanPath.replace(/\\/g, '/');
-            }
-            // Unix 路径转换
-            return 'file://' + cleanPath;
-        } catch (error) {
-            console.error('[MediaManager] 路径转换失败:', error);
-            return path;
+        // Windows 路径转换
+        if (/^[a-zA-Z]:\\/.test(path)) {
+            return 'file:///' + path.replace(/\\/g, '/');
         }
-    }
-
-    /**
-     * 从URL中提取文件名
-     */
-    private static getFilenameFromUrl(url: string): string {
-        try {
-            // 移除URL参数和hash
-            const cleanUrl = url.split('?')[0].split('#')[0];
-            // 获取最后一个路径段
-            const parts = cleanUrl.split(/[/\\]/);
-            return parts[parts.length - 1] || 'unknown';
-        } catch (error) {
-            console.error('[MediaManager] 获取文件名失败:', error);
-            return 'unknown';
-        }
+        // Unix 路径转换
+        return 'file://' + path;
     }
 
     /**
@@ -235,66 +210,40 @@ export class MediaManager {
     }
 
     /**
-     * 检查是否为媒体链接
-     */
-    static async isMediaLink(url: string): Promise<boolean> {
-        try {
-            // 检查是否为B站链接
-            if (url.includes('bilibili.com/video/')) return true;
-
-            // 移除时间戳和查询参数
-            const cleanUrl = url.split('#')[0].split('?')[0];
-            
-            // 检查媒体文件扩展名
-            const mediaExtensions = ['.mp4', '.mp3', '.webm', '.ogg', '.wav', '.m4v'];
-            
-            // 处理本地文件和网络链接
-            if (cleanUrl.startsWith('file://') || cleanUrl.match(/^[a-zA-Z]:\\/)) {
-                // 本地文件：直接检查扩展名
-                return mediaExtensions.some(ext => cleanUrl.toLowerCase().endsWith(ext));
-            } else if (cleanUrl.startsWith('http')) {
-                // 网络链接：检查扩展名
-                const urlPath = new URL(cleanUrl).pathname;
-                return mediaExtensions.some(ext => urlPath.toLowerCase().endsWith(ext));
-            }
-
-            return false;
-        } catch (error) {
-            console.error('[MediaManager] 检查媒体链接失败:', error);
-            return false;
-        }
-    }
-
-    /**
      * 创建媒体项
      */
-    public static async createMediaItem(url: string, options: any = {}): Promise<MediaItem | null> {
+    static async createMediaItem(url: string, savedInfo?: { aid?: string; bvid?: string; cid?: string }): Promise<MediaItem | null> {
         try {
-            // 处理本地文件路径
+            // 转换本地路径为 file:// URL
             const mediaUrl = this.convertToFileUrl(url);
             
-            // 获取缓存的媒体信息
+            // 首先尝试从缓存获取
             let mediaInfo = this.getCachedInfo(mediaUrl);
             
             if (!mediaInfo) {
-                // 如果是B站视频
-                if (url.includes('bilibili.com')) {
-                    mediaInfo = await BilibiliParser.getVideoInfo(url);
+                // 对于B站视频，使用BilibiliParser获取信息
+                if (mediaUrl.includes('bilibili.com')) {
+                    // 如果有保存的信息，优先使用
+                    if (savedInfo?.aid || savedInfo?.bvid) {
+                        mediaInfo = {
+                            ...await BilibiliParser.getVideoInfo(mediaUrl),
+                            ...savedInfo
+                        };
+                    } else {
+                        mediaInfo = await BilibiliParser.getVideoInfo(mediaUrl);
+                    }
                 } else {
-                    // 普通媒体：从文件名生成基本信息
-                    const filename = this.getFilenameFromUrl(url);
-                    mediaInfo = {
-                        title: filename,
-                        artist: '',
-                        artistIcon: '',
-                        duration: '0:00',
-                        thumbnail: '',
-                        url: mediaUrl
-                    };
+                    mediaInfo = await this.getMediaInfoFromElement(mediaUrl);
                 }
                 
-                // 缓存媒体信息
-                this.cacheInfo(mediaUrl, mediaInfo);
+                // 缓存新获取的信息
+                if (mediaInfo) {
+                    this.cacheInfo(mediaUrl, mediaInfo);
+                }
+            }
+            
+            if (!mediaInfo) {
+                return null;
             }
 
             // 确定媒体类型
@@ -313,11 +262,10 @@ export class MediaManager {
                 isFavorite: false,
                 aid: mediaInfo.aid,
                 bvid: mediaInfo.bvid,
-                cid: mediaInfo.cid,
-                originalUrl: url  // 保存原始URL
+                cid: mediaInfo.cid
             };
         } catch (e) {
-            console.error('[MediaManager] 创建媒体项失败:', e);
+            console.error('Failed to create media item:', e);
             return null;
         }
     }
