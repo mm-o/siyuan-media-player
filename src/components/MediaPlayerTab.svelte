@@ -9,7 +9,7 @@
     import type { MediaItem } from '../core/types';
     import md5 from 'md5';
     import { BilibiliParser } from '../core/bilibili';
-    import { LinkHandler } from '../core/linkHandler';
+    import { LinkHandler } from '../core/LinkHandler.ts.1';
     
     // 组件属性
     export let app: any;
@@ -163,8 +163,12 @@
             const currentTime = options.startTime ?? player.getCurrentTime();
             const endTime = options.endTime ?? (options.isLoop ? currentTime + 3 : undefined);
             
-            // 构建基础URL
+            // 使用原始链接或当前链接
             const baseUrl = mediaItem.originalUrl || mediaItem.url;
+            if (!baseUrl) {
+                throw new Error('无法获取媒体链接');
+            }
+
             const urlObj = new URL(baseUrl);
             
             // 清除已有的时间参数
@@ -172,12 +176,12 @@
             
             // 添加新的时间参数
             if (options.isLoop && endTime) {
-                // 循环片段格式：[1:23~1:26](url?t=83.1~86.4)
-                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}~${endTime.toFixed(1)}`);
+                // 循环片段格式：[1:23-1:26](url?t=83.1-86.4)
+                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${endTime.toFixed(1)}`);
                 
                 const formattedStart = formatTime(currentTime, true);
                 const formattedEnd = formatTime(endTime, true);
-                return `- [${formattedStart}~${formattedEnd}](${urlObj.toString()})`;
+                return `- [${formattedStart}-${formattedEnd}](${urlObj.toString()})`;
             } else {
                 // 时间戳格式：[1:23](url?t=83.1)
                 urlObj.searchParams.set('t', currentTime.toFixed(1));
@@ -185,6 +189,7 @@
             }
         } catch (error) {
             console.error('[MediaPlayerTab] 生成链接失败:', error);
+            showMessage('生成链接失败');
             return null;
         }
     }
@@ -314,43 +319,17 @@
     }
     
     // 处理播放列表播放事件
-    async function handlePlay(event: CustomEvent<MediaItem>) {
-        currentItem = event.detail;
-        console.log("[MediaPlayerTab] 处理播放事件:", {
-            item: currentItem,
-            hasStartTime: currentItem.startTime !== undefined,
-            hasEndTime: currentItem.endTime !== undefined,
-            isLoop: currentItem.isLoop,
-            loopCount: playerConfig.loopCount
-        });
+    async function handlePlay(event: CustomEvent) {
+        // 更新当前项，保存完整的媒体信息
+        currentItem = {
+            ...currentItem,
+            title: event.detail.title,
+            url: event.detail.url,
+            originalUrl: event.detail.originalUrl || event.detail.url // 保存原始链接
+        };
         
         if (player) {
-            // 如果是B站视频
-            if (currentItem.type === 'bilibili') {
-                player.play(currentItem.url, {
-                    type: 'bilibili',
-                    bvid: currentItem.bvid,
-                    originalUrl: currentItem.originalUrl || currentItem.url,
-                    audioUrl: currentItem.audioUrl,
-                    headers: currentItem.headers,
-                    title: currentItem.title,
-                    autoplay: playerConfig?.autoplay,
-                    startTime: currentItem.startTime,
-                    endTime: currentItem.endTime,
-                    isLoop: currentItem.isLoop,
-                    loopCount: playerConfig.loopCount
-                });
-            } else {
-                // 普通媒体直接播放
-                player.play(currentItem.url, {
-                    originalUrl: currentItem.originalUrl || currentItem.url,
-                    autoplay: playerConfig?.autoplay,
-                    startTime: currentItem.startTime,
-                    endTime: currentItem.endTime,
-                    isLoop: currentItem.isLoop,
-                    loopCount: playerConfig.loopCount
-                });
-            }
+            player.play(event.detail.url, event.detail);
         }
     }
 
@@ -408,7 +387,7 @@
         }, 100);  // 给予一些初始化时间
     }
 
-    // 监听播放列表组件的挂载和更新
+    // 监听播放列表组件的挂载
     $: if (playlist && linkHandler) {
         console.log("[MediaPlayerTab] 播放列表就绪，更新 LinkHandler");
         linkHandler.setPlaylist(playlist);
@@ -435,7 +414,7 @@
             <!-- 控制栏: 顶部悬浮的控制按钮区域 -->
             <div class="control-bar" class:hidden={!showControls}>
                 <ControlBar 
-                    {currentItem}
+                    title={currentItem?.title}
                     {loopStartTime}
                     on:screenshot={handleControlBarEvents}
                     on:timestamp={handleControlBarEvents}
@@ -452,6 +431,8 @@
                 bind:this={playlist}
                 {configManager}
                 {currentItem}
+                className="playlist-container"
+                hidden={!showPlaylist}
                 on:select={handleSelect}
                 on:play={handlePlay}
             />

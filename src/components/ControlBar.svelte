@@ -1,7 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { showMessage } from "siyuan";
-    import type { MediaItem } from '../types/media';
     
     // 创建事件分发器
     const dispatch = createEventDispatcher<{
@@ -12,16 +11,18 @@
         settings: void;        // 显示设置事件
     }>();
     
-    // 接收当前播放项
-    export let currentItem: MediaItem | null = null;
-    
-    // 添加循环按钮状态
+    // 直接接收标题，用标题判断是否在播放
+    export let title: string | null = null;
     export let loopStartTime: number | null = null;
     
     /**
      * 处理截图按钮点击
      */
     function handleScreenshot() {
+        if (!title) {
+            showMessage('请先播放媒体');
+            return;
+        }
         dispatch('screenshot');
     }
     
@@ -29,12 +30,10 @@
      * 复制时间戳链接
      */
     function handleTimestamp() {
-        if (!currentItem) {
+        if (!title) {
             showMessage('请先播放媒体');
             return;
         }
-        
-        // 直接触发事件，让父组件处理复制或插入操作
         dispatch('timestamp');
     }
     
@@ -42,7 +41,7 @@
      * 复制循环片段链接
      */
     function handleLoopSegment() {
-        if (!currentItem) {
+        if (!title) {
             showMessage('请先播放媒体');
             return;
         }
@@ -112,14 +111,7 @@
     <!-- 中间标题区域 -->
     <div class="title-area">
         <span class="media-title">
-            {#if currentItem}
-                {currentItem.title}
-                {#if currentItem.artist}
-                    - {currentItem.artist}
-                {/if}
-            {:else}
-                未播放
-            {/if}
+            {title || '未播放'}
         </span>
     </div>
     

@@ -140,25 +140,11 @@
     // 初始设置项
     const defaultSettings: ISettingItem[] = [
         {
-            key: "autoplay",
-            value: false,
-            type: "checkbox",
-            title: "自动播放",
-            description: "打开媒体文件时自动开始播放"
-        },
-        {
-            key: "loop",
-            value: false,
-            type: "checkbox",
-            title: "循环播放",
-            description: "自动循环播放当前媒体"
-        },
-        {
             key: "volume",
             value: 70,
             type: "slider",
-            title: "默认音量",
-            description: "新打开媒体时的默认音量",
+            title: "音量",
+            description: "默认音量大小",
             slider: {
                 min: 0,
                 max: 100,
@@ -170,31 +156,26 @@
             value: 100,
             type: "slider",
             title: "播放速度",
-            description: "调整媒体播放速度",
+            description: "默认播放速度",
             slider: {
-                min: 10,
+                min: 25,
                 max: 200,
-                step: 10
+                step: 25
             }
         },
         {
             key: "hotkey",
             value: true,
             type: "checkbox",
-            title: "启用快捷键",
-            description: "启用播放器快捷键控制"
+            title: "快捷键",
+            description: "启用播放器快捷键"
         },
         {
-            key: "loopCount",
-            value: 3,
-            type: "slider",
-            title: "默认循环次数",
-            description: "循环片段的默认循环次数",
-            slider: {
-                min: 1,
-                max: 10,
-                step: 1
-            }
+            key: "loop",
+            value: false,
+            type: "checkbox",
+            title: "循环播放",
+            description: "启用视频循环播放"
         }
     ];
     
