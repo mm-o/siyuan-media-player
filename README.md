@@ -1,83 +1,111 @@
 [中文](README_zh_CN.md) | English
 # SiYuan Media Player Plugin
 
-## Version Updates
+A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.
 
-### v0.1.1 (2024-03-28)
+## Features
+
+- **Multiple Format Support**
+  - Local video/audio files (supports mp4, mp3, webm, ogg, wav, m4v)
+  - Bilibili videos (supports BV number and links)
+
+- **Playback Controls**
+  - Play/Pause/Stop
+  - Volume adjustment
+  - Playback speed control (0.5x - 2.0x)
+  - Fullscreen/Web fullscreen mode
+  - Picture-in-Picture mode
+  - Video flip
+  - Aspect ratio adjustment
+
+- **Advanced Features**
+  - Video screenshot (supports clipboard copy)
+  - Timestamp link generation (supports Bilibili and regular media)
+  - Loop segment playback (supports Bilibili and regular media)
+  - Playlist management (supports grouping, pinning, favorites)
+  - Custom settings (volume, speed, autoplay, etc.)
+  - Bilibili account login (supports QR code login)
+
+## Usage Guide
+
+### Basic Usage
+1. Click the media player icon in the top bar to open the player
+2. Enter link to add to playlist
+3. Paste Bilibili video links directly to the playlist
+4. Click media links in documents to automatically open with the player
+
+### Playlist Features
+- Create multiple playlist groups
+- Support for pinning and favoriting media items
+- Right-click menu shortcuts
+
+### Timestamp Features
+- Click timestamp button to generate current time link
+- Support timestamps for Bilibili and regular media
+- Click timestamp links to jump to specific times
+
+### Loop Segment Features
+- Click loop segment button (twice) to generate loop segment link
+- Support loop segments for Bilibili and regular media
+- Click loop segment link to play the segment in loop
+
+### Settings Options
+Access through the settings icon in the player:
+- Volume adjustment (0-100)
+- Playback speed (0.5x-2.0x)
+- Loop playback toggle
+- Bilibili account login
+
+## Version History
+
+### v0.1.5 (2025.1.26)
 - Refactored playback logic for better stability
 - Added loop segment support
 - Fixed known issues
-- Improved performance
+- Optimized performance
 
-### v0.0.1 (2024-03-20)
+### v0.1.1 (2025-01-23)
+- Refactored playback logic for better stability
+- Added loop segment support
+- Fixed known issues
+- Optimized performance
+
+### v0.0.1 (2025-01-18)
 - Initial release
 - Basic playback functionality
 - Bilibili video support
 - Playlist management
 
-## Features
-
-1. Media Playback
-- Support for local audio/video files
-- Bilibili video parsing and playback
-- Picture-in-Picture mode support
-- Playback speed control
-
-2. Playback Controls
-- Screenshot capture
-- Timestamp marking
-- Loop segment playback
-- Volume control
-
-3. Playlist
-- Multi-tab management
-- Media item CRUD operations
-- Playback history
-- Favorites feature
-
-4. SiYuan Integration
-- Block reference support
-- Timestamp links
-- Screenshot insertion
-- Note association
-
-## Usage Guide
-
-1. Install the plugin
-2. Open media player in SiYuan Note
-3. Add media to playlist
-4. Start playing and managing media
-
 ## Development Plans
 
-1. Bilibili Feature Enhancement
-- Add danmaku support
-- Support more video formats
-- Optimize playback experience
+1. **Bilibili Feature Enhancements**
+   - Add danmaku support
+   - Support more Bilibili video formats
+   - Optimize video playback experience
 
-2. Timestamp Feature Enhancement
-- Custom link format
-- Custom display style
-- Batch generation feature
+2. **Timestamp Feature Enhancements**
+   - Custom timestamp link format
+   - Custom timestamp display style
+   - Batch timestamp generation
 
-3. Other Planned Features
-- Support for more video sources
-- Enhanced playlist management
-- Performance optimization
-- Mobile adaptation
+3. **Other Planned Features**
+   - Support for more video sources (YouTube, etc.)
+   - Enhanced playlist management
+   - Performance optimization
+   - Mobile adaptation
+
+*Note: Development timeline may be adjusted based on user feedback and technical feasibility.*
 
 ## Support
 
-- Issue Feedback: [GitHub Issues](https://github.com/mm-o/siyuan-media-player/issues)
+- Issue reporting: [GitHub Issues](https://github.com/mm-o/siyuan-media-player/issues)
 - Author: mm-o
 
-## Acknowledgements
+## Thanks
 
-Special thanks to the following projects and contributors:
-
-- Thanks to [SiYuan Plugin Development Guide](https://ld246.com/article/1723732790981#START-UP) and its author for providing detailed development documentation.
-- Thanks to [vv](https://github.com/Wetoria), the developer of Guiye plugin, for helping solve development issues. Highly recommend his [Guiye Plugin](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse).
-- Thanks to [ArtPlayer](https://artplayer.org/document/) project and developers for their support.
+- Thanks to [SiYuan Plugin Development Guide](https://ld246.com/article/1723732790981#START-UP) and its author for the detailed development documentation.
+- Thanks to [vv](https://github.com/Wetoria), the developer of Leaf plugin, for helping solve development issues. His [Fallen Leaves](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse) is highly recommended and very useful.
+- Thanks to [ArtPlayer](https://artplayer.org/document/) project and its developers for answering questions and providing support.
 - Thanks to [bilibili-API-collect](https://socialsisteryi.github.io/bilibili-API-collect/) project for providing Bilibili API documentation.
 
 ## License
