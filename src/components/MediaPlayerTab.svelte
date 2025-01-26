@@ -291,7 +291,7 @@
                         isLoop: true,
                         startTime: loopStartTime,
                         endTime: currentTime,
-                        count: 3
+                        count: playerConfig.loopCount
                     });
                     
                     if (timestampLink) {

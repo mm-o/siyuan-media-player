@@ -11,14 +11,13 @@
     
     // Artplayer 实例
     let art: any = null;
-    let chapterPlugin: any = null;  // 添加章节插件引用
+    //let chapterPlugin: any = null;  // 添加章节插件引用
     // 播放器容器 DOM 元素引用
     let playerContainer: HTMLElement;
     // 当前循环片段
     let currentChapter: { start: number; end: number; } | null = null;
     // 循环计数器
     let loopCount = 0;
-    let maxLoopCount = 3;  // 默认值，将被配置覆盖
     
     // ===================== 1. 初始化 Artplayer 播放器 =====================
     
@@ -31,6 +30,7 @@
             speed: 100,
             hotkey: true,
             loop: false,
+            loopCount: 3  // 默认循环次数
         };
         const initialConfig = config ? { ...defaultConfig, ...config } : defaultConfig;
         
@@ -67,11 +67,15 @@
         art.on('video:timeupdate', () => {
             // 检查是否需要循环
             if (currentChapter && art.currentTime >= currentChapter.end) {
+                // 从配置获取最大循环次数
+                const maxLoopCount = config.loopCount || 3;
+                
                 if (maxLoopCount > 0 && loopCount >= maxLoopCount) {
                     // 达到循环次数限制，清除循环
                     currentChapter = null;
                     loopCount = 0;
-                    console.log("[Player] 循环结束: 达到最大循环次数");
+                    // 使用 notice 显示循环结束提示
+                    art.notice.show = '循环播放结束';
                     return;
                 }
                 
@@ -82,7 +86,8 @@
                     audioPlugin.audio.currentTime = currentChapter.start;
                 }
                 loopCount++;
-                console.log("[Player] 循环次数:", loopCount);
+                // 使用 notice 显示当前循环次数
+                art.notice.show = `第 ${loopCount}/${maxLoopCount} 次循环`;
             }
         });
         
@@ -188,45 +193,27 @@
     
     /**
      * 设置播放时间和循环
-     * @param start 开始时间
-     * @param end 结束时间（可选，用于循环片段）
-     * @param count 循环次数（可选，默认为0，表示不循环）
      */
-    function setPlayTime(start: number, end?: number, count: number = 0) {
-        if (!art) {
-            console.warn("[Player] setPlayTime: art 未就绪");
-            return;
-        }
+    function setPlayTime(start: number, end?: number) {
+        if (!art) return;
         
         try {
-            console.log("[Player] 设置播放时间:", { start, end, count });
-            
             // 重置循环状态
             loopCount = 0;
             currentChapter = null;
             
-            // 如果有结束时间和循环次数大于0，设置循环片段
-            if (end !== undefined && count > 0) {
-                maxLoopCount = count;
+            // 如果有结束时间，设置循环片段
+            if (end !== undefined) {
                 currentChapter = { start, end };
-                console.log("[Player] 设置为循环片段模式");
             }
             
             // 跳转到开始时间
-            console.log("[Player] 当前时间:", art.currentTime);
-            console.log("[Player] 跳转到开始位置:", start);
             art.currentTime = start;
             
             // 同步音频时间
             if (audioPlugin.audio) {
                 audioPlugin.audio.currentTime = start;
             }
-            
-            console.log("[Player] 播放时间已设置:", { 
-                currentChapter, 
-                maxLoopCount,
-                currentTime: art.currentTime 
-            });
         } catch (error) {
             console.error('[Player] 设置播放时间失败:', error);
             showMessage('设置播放时间失败');
@@ -235,8 +222,6 @@
 
     // 播放媒体
     export async function play(url: string, options: PlayOptions = {}) {
-        console.log("[Player] 开始播放:", { url, options });
-        
         try {
             // 重置循环状态
             currentChapter = null;
@@ -257,18 +242,14 @@
                 art.on('video:loadeddata', loadedHandler);
             });
             
-            console.log("[Player] 视频已就绪");
-            
             // 如果有音频轨道，设置音频源
             if (options.audioUrl) {
-                console.log("[Player] 设置音频轨道:", options.audioUrl);
                 await audioPlugin.createAudio(options.audioUrl, options.headers);
                 audioPlugin.registerEvents();
             }
             
             // 如果有自定义请求头，设置请求头
             if (options.headers) {
-                console.log("[Player] 设置请求头:", options.headers);
                 art.headers = options.headers;
             }
             
@@ -276,15 +257,29 @@
             if (options.startTime !== undefined) {
                 if (options.isLoop && options.endTime !== undefined) {
                     // 循环片段模式
-                    setPlayTime(options.startTime, options.endTime, options.count || 3);
+                    setPlayTime(options.startTime, options.endTime);
                 } else {
-                    // 时间戳模式：只设置开始时间，不循环
+                    // 时间戳模式
                     setPlayTime(options.startTime);
                 }
             }
-            
+
             // 开始播放
             art.play();
+            
+            // 统一的播放状态日志
+            console.log("[Player] 开始播放:", {
+                url,
+                options: {
+                    time: options.startTime,
+                    loop: options.isLoop ? {
+                        start: options.startTime,
+                        end: options.endTime,
+                        maxCount: config.loopCount
+                    } : null,
+                    audio: !!options.audioUrl
+                }
+            });
             
         } catch (error) {
             console.error("[Player] 播放失败:", error);

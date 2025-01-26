@@ -194,34 +194,59 @@ export class BilibiliParser {
     }
 
     /**
-     * 从B站视频URL中提取视频ID
+     * 从B站视频URL中提取视频ID和分P信息
      */
-    private static extractVideoId(url: string): { aid?: string; bvid?: string } | null {
+    private static extractVideoId(url: string): {
+        aid?: string;
+        bvid?: string;
+        p?: number;  // 添加分P参数
+    } | null {
         try {
             const urlObj = new URL(url);
             
             // 处理短链接
             if (urlObj.hostname === 'b23.tv') {
-                // TODO: 处理短链接跳转
                 return null;
             }
+            
+            // 获取分P信息
+            const p = parseInt(urlObj.searchParams.get('p') || '1');
             
             // 从路径中提取BV号
             const bvMatch = urlObj.pathname.match(/\/(BV[\w]+)/);
             if (bvMatch) {
-                return { bvid: bvMatch[1] };
+                return { bvid: bvMatch[1], p };
             }
             
             // 从查询参数中提取
             const aid = urlObj.searchParams.get('aid');
             const bvid = urlObj.searchParams.get('bvid');
             
-            if (aid) return { aid };
-            if (bvid) return { bvid };
+            if (aid) return { aid, p };
+            if (bvid) return { bvid, p };
             
             return null;
         } catch {
             return null;
+        }
+    }
+
+    /**
+     * 获取视频分P信息
+     */
+    private static async getVideoPages(params: { aid?: string; bvid?: string }): Promise<any[]> {
+        try {
+            const response = await this.proxyRequest<BiliApiResponse>(
+                `${this.API.VIDEO_PAGES}?${new URLSearchParams(params).toString()}`
+            );
+
+            if (response.code === 0 && Array.isArray(response.data)) {
+                return response.data;
+            }
+            return [];
+        } catch (e) {
+            console.error('获取视频分P信息失败:', e);
+            return [];
         }
     }
 
@@ -277,13 +302,30 @@ export class BilibiliParser {
         if (!videoId) return null;
 
         try {
-            const params = new URLSearchParams(videoId);
+            // 1. 获取视频基本信息
+            const { p, ...params } = videoId;
             const response = await this.proxyRequest<BiliApiResponse>(
-                `${this.API.VIDEO_INFO}?${params.toString()}`
+                `${this.API.VIDEO_INFO}?${new URLSearchParams(params).toString()}`
             );
 
             if (response.code === 0) {
                 const data = response.data;
+                
+                // 2. 获取分P列表
+                const pages = await this.getVideoPages(params);
+                
+                // 3. 根据分P参数获取正确的cid
+                let cid = data.cid; // 默认使用第一P的cid
+                if (pages.length > 0) {
+                    const pageIndex = Math.min(Math.max(1, p || 1), pages.length) - 1;
+                    cid = pages[pageIndex].cid;
+                    
+                    // 如果是分P视频，在标题中添加分P信息
+                    if (pages.length > 1) {
+                        data.title = `${data.title} - P${pageIndex + 1}${pages[pageIndex].part ? ': ' + pages[pageIndex].part : ''}`;
+                    }
+                }
+
                 return {
                     url,
                     title: data.title,
@@ -293,7 +335,7 @@ export class BilibiliParser {
                     thumbnail: data.pic,
                     aid: String(data.aid),
                     bvid: data.bvid,
-                    cid: String(data.cid)
+                    cid: String(cid)  // 使用正确的分P cid
                 };
             }
             return null;
