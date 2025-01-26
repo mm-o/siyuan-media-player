@@ -164,6 +164,18 @@
             }
         },
         {
+            key: "loopCount",
+            value: 3,
+            type: "slider",
+            title: "循环次数",
+            description: "片段循环播放次数",
+            slider: {
+                min: 1,
+                max: 10,
+                step: 1
+            }
+        },
+        {
             key: "hotkey",
             value: true,
             type: "checkbox",

@@ -58,6 +58,19 @@ Access through the settings icon in the player:
 
 ## Version History
 
+### v0.1.6 (2025.1.27)
+- Enhanced Bilibili multi-part video support
+  - Correctly fetch cid for multi-part videos
+  - Display part information in title
+  - Support direct jump to specific part via p parameter
+- Improved loop playback feature
+  - Configurable loop count (1-10 times) in settings
+  - Display loop progress in player interface
+  - Unified configuration management
+- Bug fixes
+  - Fixed link handling logic (correctly identify media links)
+  - Optimized code structure
+
 ### v0.1.5 (2025.1.26)
 - Refactored playback logic for better stability
 - Added loop segment support

@@ -7,35 +7,83 @@ export class LinkHandler {
     private isListening: boolean = false;
     private openTabCallback: () => void;
 
+    // 支持的媒体文件扩展名
+    private readonly MEDIA_EXTENSIONS = [
+        // 视频格式
+        '.mp4', '.webm', '.ogg', '.mov', '.m4v',
+        // 音频格式
+        '.mp3', '.wav', '.aac', '.m4a'
+    ];
+
     constructor(configManager: ConfigManager, openTabCallback: () => void) {
         this.configManager = configManager;
         this.openTabCallback = openTabCallback;
     }
 
     /**
-     * 监听链接点击事件
+     * 开始监听链接点击事件
      */
     public startListening() {
         if (this.isListening) return;
         
         this.clickHandler = async (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            // 检查是否为链接元素
             if (!target.matches('span[data-type="a"]')) return;
-            
-            // 阻止默认行为和事件传播
-            e.preventDefault();
-            e.stopPropagation();
             
             const url = target.getAttribute('data-href');
             if (!url) return;
-            
-            await this.handleMediaLink(url);
+
+            // 检查是否为支持的链接类型
+            if (this.isSupportedLink(url)) {
+                e.preventDefault();
+                e.stopPropagation();
+                await this.handleMediaLink(url);
+            }
         };
 
-        // 使用捕获阶段监听
         document.addEventListener('click', this.clickHandler, true);
         this.isListening = true;
+    }
+
+    /**
+     * 检查是否为支持的链接类型
+     */
+    private isSupportedLink(url: string): boolean {
+        try {
+            const urlObj = new URL(url);
+            const urlPath = urlObj.pathname.toLowerCase();
+            const fullUrl = url.toLowerCase();
+            
+            // 检查是否为B站链接
+            if (urlObj.hostname.includes('bilibili.com')) {
+                return true;
+            }
+
+            // 检查是否包含媒体关键字
+            const mediaKeywords = ['mp3', 'mp4', 'webm', 'ogg', 'wav', 'm4v', 'mov', 'aac', 'm4a'];
+            if (mediaKeywords.some(keyword => fullUrl.includes(keyword))) {
+                return true;
+            }
+
+            // 检查文件扩展名
+            const isMediaFile = this.MEDIA_EXTENSIONS.some(ext => 
+                urlPath.endsWith(ext)
+            );
+            
+            // 检查是否为本地文件
+            const isLocalFile = urlObj.protocol === 'file:' && (
+                mediaKeywords.some(keyword => fullUrl.includes(keyword)) ||
+                this.MEDIA_EXTENSIONS.some(ext => urlPath.endsWith(ext))
+            );
+
+            return isMediaFile || isLocalFile;
+            
+        } catch (e) {
+            // 如果 URL 解析失败，尝试直接检查字符串
+            const urlLower = url.toLowerCase();
+            return this.MEDIA_EXTENSIONS.some(ext => urlLower.includes(ext)) ||
+                   urlLower.includes('bilibili.com');
+        }
     }
 
     /**
@@ -43,17 +91,16 @@ export class LinkHandler {
      */
     private async handleMediaLink(url: string) {
         try {
-            // 1. 打开媒体播放器标签页
+            // 打开媒体播放器标签页
             this.openTabCallback();
             
-            // 2. 等待标签页打开
+            // 等待标签页打开
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            // 3. 通过播放列表处理链接
+            // 通过播放列表处理链接
             if (this.playlist) {
                 await this.playlist.handleSubmit(url);
             }
-
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
             showMessage(error.message || "播放失败，请重试");

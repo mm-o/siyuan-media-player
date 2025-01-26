@@ -3,12 +3,6 @@
 
 A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.
 
-## Acknowledgments
-
-- Thanks to [SiYuan Plugin Development Guide](https://ld246.com/article/1723732790981#START-UP) and its author for the detailed development documentation.
-- Thanks to [vv](https://github.com/Wetoria), the developer of Leaf plugin, for helping solve development issues. His [Leaf plugin](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse) is highly recommended and very useful.
-- Thanks to [ArtPlayer](https://artplayer.org/document/) project and its developers for answering questions and providing support.
-
 ## Features
 
 - **Multiple Format Support**
@@ -25,77 +19,107 @@ A powerful media player plugin for SiYuan Note, supporting various media formats
   - Aspect ratio adjustment
 
 - **Advanced Features**
-  - Video screenshot (copy to clipboard)
+  - Video screenshot (supports clipboard copy)
   - Timestamp link generation (supports Bilibili and regular media)
-  - Playlist management (groups, pin, favorites)
+  - Loop segment playback (supports Bilibili and regular media)
+  - Playlist management (supports grouping, pinning, favorites)
   - Custom settings (volume, speed, autoplay, etc.)
-  - Bilibili account login (QR code login)
+  - Bilibili account login (supports QR code login)
 
-- **Shortcut Keys**
-  - Screenshot: Customizable
-  - Timestamp: Customizable
-
-- **User Interface**
-  - Clean and intuitive controls
-  - Auto-hiding control bar
-  - Side panel for playlist and settings
-  - Dark mode compatible
-  - Mini progress bar
-  - System theme color integration
-
-## Usage
+## Usage Guide
 
 ### Basic Usage
 1. Click the media player icon in the top bar to open the player
-2. Drag and drop media files into the player, or use the playlist panel
-3. For Bilibili videos, paste the video URL into the playlist
-4. Click media links in documents to automatically open in the player
+2. Enter link to add to playlist
+3. Paste Bilibili video links directly to the playlist
+4. Click media links in documents to automatically open with the player
 
 ### Playlist Features
 - Create multiple playlist groups
-- Pin and favorite media items
-- Right-click menu for quick actions
-- Drag and drop sorting
+- Support for pinning and favoriting media items
+- Right-click menu shortcuts
 
 ### Timestamp Features
 - Click timestamp button to generate current time link
-- Supports timestamps for Bilibili and regular media
-- Click timestamp links to automatically jump to specific time
+- Support timestamps for Bilibili and regular media
+- Click timestamp links to jump to specific times
 
-### Settings
-Access settings through the gear icon in the player:
-- Volume control (0-100)
+### Loop Segment Features
+- Click loop segment button (twice) to generate loop segment link
+- Support loop segments for Bilibili and regular media
+- Click loop segment link to play the segment in loop
+
+### Settings Options
+Access through the settings icon in the player:
+- Volume adjustment (0-100)
 - Playback speed (0.5x-2.0x)
-- Autoplay toggle
-- Loop mode toggle
+- Loop playback toggle
 - Bilibili account login
 
-## Roadmap
+## Version History
 
-Future development plans:
+### v0.1.6 (2025.1.27)
+- Enhanced Bilibili multi-part video support
+  - Correctly fetch cid for multi-part videos
+  - Display part information in title
+  - Support direct jump to specific part via p parameter
+- Improved loop playback feature
+  - Configurable loop count (1-10 times) in settings
+  - Display loop progress in player interface
+  - Unified configuration management
+- Bug fixes
+  - Fixed link handling logic (correctly identify media links)
+  - Optimized code structure
 
-1. **Bilibili Features Enhancement**
-   - Add danmaku (bullet comments) support
+### v0.1.5 (2025.1.26)
+- Refactored playback logic for better stability
+- Added loop segment support
+- Fixed known issues
+- Optimized performance
+
+### v0.1.1 (2025-01-23)
+- Refactored playback logic for better stability
+- Added loop segment support
+- Fixed known issues
+- Optimized performance
+
+### v0.0.1 (2025-01-18)
+- Initial release
+- Basic playback functionality
+- Bilibili video support
+- Playlist management
+
+## Development Plans
+
+1. **Bilibili Feature Enhancements**
+   - Add danmaku support
    - Support more Bilibili video formats
    - Optimize video playback experience
 
-2. **Timestamp Customization**
+2. **Timestamp Feature Enhancements**
    - Custom timestamp link format
    - Custom timestamp display style
    - Batch timestamp generation
 
 3. **Other Planned Features**
-   - More video source support (YouTube, etc.)
+   - Support for more video sources (YouTube, etc.)
    - Enhanced playlist management
    - Performance optimization
-   - Mobile device adaptation
+   - Mobile adaptation
 
-*Note: The development timeline may be adjusted based on user feedback and technical feasibility.*
+*Note: Development timeline may be adjusted based on user feedback and technical feasibility.*
 
 ## Support
 
-- Issue tracker: [GitHub Issues](https://github.com/your-repo/issues)
+- Issue reporting: [GitHub Issues](https://github.com/mm-o/siyuan-media-player/issues)
 - Author: mm-o
+
+## Thanks
+
+- Thanks to [SiYuan Plugin Development Guide](https://ld246.com/article/1723732790981#START-UP) and its author for the detailed development documentation.
+- Thanks to [vv](https://github.com/Wetoria), the developer of Leaf plugin, for helping solve development issues. His [Fallen Leaves](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse) is highly recommended and very useful.
+- Thanks to [ArtPlayer](https://artplayer.org/document/) project and its developers for answering questions and providing support.
+- Thanks to [bilibili-API-collect](https://socialsisteryi.github.io/bilibili-API-collect/) project for providing Bilibili API documentation.
 
 ## License
 

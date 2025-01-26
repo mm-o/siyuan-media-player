@@ -9,7 +9,7 @@
     import type { MediaItem } from '../core/types';
     import md5 from 'md5';
     import { BilibiliParser } from '../core/bilibili';
-    import { LinkHandler } from '../core/LinkHandler.ts.1';
+    import { LinkHandler } from '../core/LinkHandler';
     
     // 组件属性
     export let app: any;
@@ -291,7 +291,7 @@
                         isLoop: true,
                         startTime: loopStartTime,
                         endTime: currentTime,
-                        count: 3
+                        count: playerConfig.loopCount
                     });
                     
                     if (timestampLink) {
