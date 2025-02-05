@@ -30,60 +30,16 @@
     const NewLute: () => Lute = (globalThis as any).Lute.New;
 
     /**
-     * 获取当前块ID
+     * 插入内容到编辑器
      */
-    function getCurrentBlockId(): string {
-        // 获取当前选中的块
-        const selection = window.getSelection();
-        if (!selection || !selection.focusNode) {
-            throw new Error('未找到光标位置');
-        }
-
-        // 从光标位置向上查找块元素
-        let element = selection.focusNode as HTMLElement;
-        while (element && !element.dataset?.nodeId) {
-            element = element.parentElement as HTMLElement;
-        }
-
-        if (!element || !element.dataset.nodeId) {
-            throw new Error('未找到目标块');
-        }
-
-        return element.dataset.nodeId;
-    }
-
-    /**
-     * 插入块到当前位置的下方
-     */
-    async function insertBlock(content: string) {
+    async function insertContent(content: string) {
         try {
-            // 获取当前块ID
-            const currentBlockId = getCurrentBlockId();
-
-            // 构造插入块的请求
-            const response = await fetch('/api/block/insertBlock', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    data: content,
-                    dataType: "markdown",
-                    previousID: currentBlockId  // 使用 previousID 参数指定在当前块后面插入
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('插入块失败');
-            }
-
-            showMessage('链接已插入');
-            
-        } catch (error) {
-            console.error('[MediaPlayerTab] 插入块失败:', error);
-            // 如果插入失败，退回到复制到剪贴板
+            // 复制到剪贴板
             await navigator.clipboard.writeText(content);
-            showMessage('插入失败，已复制到剪贴板');
+            showMessage('已复制到剪贴板，请在编辑器中粘贴');
+        } catch (error) {
+            console.error('[MediaPlayerTab] 复制到剪贴板失败:', error);
+            showMessage('复制失败，请重试');
         }
     }
 
@@ -249,10 +205,9 @@
                             // 获取上传后的图片URL
                             const imageUrl = result.data.succMap[filename];
                             
-                            // 构造并插入 Markdown
+                            // 构造并复制 Markdown
                             const imageMarkdown = `![${filename}](${imageUrl})`;
-                            await insertBlock(imageMarkdown);
-                            showMessage('截图已插入');
+                            await insertContent(imageMarkdown);
                         } else {
                             showMessage('截图失败，请确保视频正在播放');
                         }
@@ -271,7 +226,7 @@
                         count: 0
                     });
                     if (timestampLink) {
-                        await insertBlock(timestampLink);
+                        await insertContent(timestampLink);
                     }
                 } else {
                     showMessage('请先播放媒体');
@@ -295,7 +250,7 @@
                     });
                     
                     if (timestampLink) {
-                        await insertBlock(timestampLink);
+                        await insertContent(timestampLink);
                     }
                     
                     // 重置开始时间
