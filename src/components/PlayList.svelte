@@ -75,6 +75,7 @@
                 isLoop?: boolean;
                 title: string;
                 originalUrl: string;  // 添加原始链接
+                type: string;
             };
             
             // 3. 处理不同类型的媒体
@@ -88,18 +89,19 @@
                 );
                 
                 playOptions = {
-                    url: streamInfo.video.url,
-                    audioUrl: streamInfo.audio.url,
+                    url: streamInfo.mpdUrl || streamInfo.video.url, // 优先使用MPD URL
                     headers: streamInfo.headers,
                     title: item.title,
-                    originalUrl: item.originalUrl || item.url  // 使用原始链接
+                    originalUrl: item.originalUrl || item.url,  // 使用原始链接
+                    type: streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili' // 设置正确的类型
                 };
             } else {
                 // 普通媒体：直接使用原始链接
                 playOptions = {
                     url: item.url,
                     title: item.title,
-                    originalUrl: item.originalUrl || item.url  // 使用原始链接
+                    originalUrl: item.originalUrl || item.url,  // 使用原始链接
+                    type: item.type || 'video'  // 设置媒体类型
                 };
             }
             

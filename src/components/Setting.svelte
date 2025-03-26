@@ -10,6 +10,7 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage } from "siyuan";
     import type { ConfigManager } from "../core/config";
+    import type { ISettingItem } from "../core/types";
     import { BilibiliParser } from "../core/bilibili";
 
     export let group: string;
@@ -176,18 +177,11 @@
             }
         },
         {
-            key: "hotkey",
+            key: "insertAtCursor",
             value: true,
             type: "checkbox",
-            title: "快捷键",
-            description: "启用播放器快捷键"
-        },
-        {
-            key: "loop",
-            value: false,
-            type: "checkbox",
-            title: "循环播放",
-            description: "启用视频循环播放"
+            title: "插入到光标处",
+            description: "链接插入到光标位置，否则复制到剪贴板"
         }
     ];
     
@@ -196,12 +190,6 @@
     // 组件加载时从配置加载设置
     onMount(async () => {
         const config = await configManager.load();
-        // 检查是否已登录
-        if (config.bilibiliLogin) {
-            loginSuccess = true;
-            loginTimestamp = config.bilibiliLogin.timestamp;
-            userInfo = config.bilibiliLogin.userInfo || null;
-        }
         
         // 更新设置项的值
         settingItems = settingItems.map(item => ({
@@ -222,8 +210,6 @@
         }), {});
         
         await configManager.updateSettings(settings);
-        
-        // 触发设置变更事件，确保播放器更新配置
         dispatch('changed', { settings });
         showMessage('设置已保存');
     }
@@ -233,12 +219,11 @@
      */
     function resetSettings() {
         settingItems = defaultSettings.map(item => ({...item}));
-        dispatch('changed', { 
-            settings: settingItems.reduce((acc, item) => ({
-                ...acc,
-                [item.key]: item.value
-            }), {})
-        });
+        const settings = settingItems.reduce((acc, item) => ({
+            ...acc,
+            [item.key]: item.value
+        }), {});
+        dispatch('changed', { settings });
         showMessage('设置已重置');
     }
 
@@ -247,17 +232,9 @@
      */
     function handleChange(event: Event, item: ISettingItem) {
         const target = event.target as HTMLInputElement | HTMLSelectElement;
-        let value: string | number | boolean = target.type === 'checkbox' 
+        let value: number | boolean = target.type === 'checkbox' 
             ? (target as HTMLInputElement).checked 
-            : target.value;
-        
-        if (item.type === 'slider') {
-            value = Number(value);
-            // 更新当前设置项的值
-            item.value = value;
-            // 强制更新视图
-            settingItems = settingItems;
-        }
+            : Number(target.value);
         
         // 更新设置项的值
         const index = settingItems.findIndex(i => i.key === item.key);

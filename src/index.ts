@@ -70,14 +70,6 @@ export default class MediaPlayerPlugin extends Plugin {
                     this.mediaPlayerTab.player.pause();
                 }
                 
-                // 销毁B站音频插件
-                if (this.mediaPlayerTab.player.plugins) {
-                    const biliPlugin = this.mediaPlayerTab.player.plugins.bilibili;
-                    if (biliPlugin && typeof biliPlugin.destroy === 'function') {
-                        biliPlugin.destroy();
-                    }
-                }
-                
                 // 完全销毁播放器
                 this.mediaPlayerTab.player.destroy(true);
             }
@@ -195,14 +187,6 @@ export default class MediaPlayerPlugin extends Plugin {
                         // 先暂停播放
                         if (typeof self.mediaPlayerTab.player.pause === 'function') {
                             self.mediaPlayerTab.player.pause();
-                        }
-                        
-                        // 销毁B站音频插件
-                        if (self.mediaPlayerTab.player.plugins) {
-                            const biliPlugin = self.mediaPlayerTab.player.plugins.bilibili;
-                            if (biliPlugin && typeof biliPlugin.destroy === 'function') {
-                                biliPlugin.destroy();
-                            }
                         }
                         
                         // 完全销毁播放器
