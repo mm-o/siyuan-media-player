@@ -1,102 +1,34 @@
-+ 中文 | [English](README.md)
-# 思源笔记媒体播放器插件
+# [DOC 帮助文档 👈](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh)
 
-一个功能强大的思源笔记媒体播放器插件，支持多种媒体格式，提供丰富的播放功能。
+# [ISSUE 反馈 交流](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-JcVadDDYzoViQNxltupcIrJxnSg)
 
-## 致谢
+# [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
-- 感谢[思源笔记插件开发指南](https://ld246.com/article/1723732790981#START-UP)及其作者提供的详细开发文档。
-- 感谢归叶插件开发者 [vv](https://github.com/Wetoria) 帮助解决开发问题，非常推荐他开发的[归叶插件](https://simplest-frontend.feishu.cn/docx/B3NndXHi7oLLXJxnxQmcczRsnse)，非常好用。
-- 感谢 [ArtPlayer](https://artplayer.org/document/) 项目和开发者答疑解惑。
+### v0.1.9 (2024.3.27)
+- 新增本地文件夹批量导入媒体功能
+- 新增播放列表清空功能
+- 修复播放列表标签切换问题
+- 修复/命令菜单错位问题
+### v0.1.8 (2025.3.24)
+- 增加B站DASH流支持
+  - 解决音画不同步问题
+  - 提升播放稳定性
+- 优化链接处理
+  - 修复时间戳和循环片段链接问题
+  - 改进播放器标签页未打开时的链接点击行为
+- 简化设置选项
+  - 移除冗余设置项
+  - 新增链接插入方式选择（光标位置或剪贴板）
+- 修复已知问题并优化性能
 
-## 功能特性
+# 打赏、鼓励、催更 🎉
 
-- **多格式支持**
-  - 本地视频/音频文件（支持 mp4, mp3, webm, ogg, wav, m4v）
-  - B站视频播放（支持 BV 号和链接）
+<div>
+<img src="https://745201.xyz/e43d21e2c04f47ddcc294cd62a64e6f.jpg" alt="alipay" width="300" />
+</div>
+<br>
+<div>
+<img src="https://745201.xyz/c42d51ea098d3a8687eb50012d1689e.jpg" alt="wechat" width="300" />
+</div>
 
-- **播放控制**
-  - 播放/暂停/停止
-  - 音量调节
-  - 播放速度控制（0.5x - 2.0x）
-  - 全屏/网页全屏模式
-  - 画中画模式
-  - 画面翻转
-  - 画面比例调节
-
-- **高级功能**
-  - 视频截图（支持复制到剪贴板）
-  - 时间戳链接生成（支持B站和普通媒体）
-  - 播放列表管理（支持分组、置顶、收藏）
-  - 自定义设置（音量、速度、自动播放等）
-  - B站账号登录（支持扫码登录）
-
-- **快捷键支持**
-  - 截图：可自定义
-  - 时间戳：可自定义
-
-- **界面特性**
-  - 简洁直观的控制界面
-  - 自动隐藏控制栏
-  - 播放列表和设置侧边栏
-  - 适配暗色模式
-  - 迷你进度条
-  - 主题色跟随系统
-
-## 使用说明
-
-### 基本使用
-1. 点击顶栏的媒体播放器图标打开播放器
-2. 拖拽媒体文件到播放器，或使用播放列表面板
-3. B站视频可直接粘贴视频链接到播放列表
-4. 点击文档中的媒体链接自动使用播放器打开
-
-### 播放列表功能
-- 创建多个播放列表分组
-- 支持媒体项置顶和收藏
-- 右键菜单快捷操作
-- 拖放排序
-
-### 时间戳功能
-- 点击时间戳按钮生成当前时间链接
-- 支持B站视频和普通媒体的时间戳
-- 点击时间戳链接自动跳转到指定时间
-
-### 设置选项
-通过播放器中的设置图标访问：
-- 音量调节（0-100）
-- 播放速度（0.5x-2.0x）
-- 自动播放开关
-- 循环播放开关
-- B站账号登录
-
-## 开发计划
-
-未来开发计划：
-
-1. **B站功能增强**
-   - 添加弹幕支持
-   - 支持更多B站视频格式
-   - 优化视频播放体验
-
-2. **时间戳功能增强**
-   - 自定义时间戳链接格式
-   - 自定义时间戳显示样式
-   - 批量生成时间戳功能
-
-3. **其他计划功能**
-   - 支持更多视频源（YouTube等）
-   - 增强播放列表管理
-   - 性能优化
-   - 移动端适配
-
-*注：具体开发时间表可能会根据用户反馈和技术可行性进行调整。*
-
-## 支持
-
-- 问题反馈：[GitHub Issues](https://github.com/your-repo/issues)
-- 作者：mm-o
-
-## 许可证
-
-MIT License
+# [ACKNOWLEDGMENTS 鸣谢](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-PKecdG4eboPDjAxo4Apc0vuTnJb)

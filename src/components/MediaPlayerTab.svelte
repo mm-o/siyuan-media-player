@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { showMessage } from 'siyuan';
     import Player from './Player.svelte';
     import PlayList from './PlayList.svelte';
@@ -7,81 +7,253 @@
     import ControlBar from './ControlBar.svelte';
     import type { ConfigManager } from '../core/config';
     import type { MediaItem } from '../core/types';
-    import md5 from 'md5';
     import { BilibiliParser } from '../core/bilibili';
+    import { LinkHandler } from '../core/LinkHandler';
+
+    // 类型定义
+    interface PlayOptions {
+        url: string;
+        type?: 'bilibili-dash' | 'bilibili';
+        headers?: Record<string, string>;
+        title?: string;
+        startTime?: number;
+        endTime?: number;
+        isLoop?: boolean;
+        loopCount?: number;
+        originalUrl?: string;
+        bvid?: string;
+    }
+
+    interface ControlBarEvent {
+        type: 'screenshot' | 'timestamp' | 'loopSegment' | 'playlist' | 'settings';
+    }
     
     // 组件属性
     export let app: any;
     export let configManager: ConfigManager;
-    export let onPlayerReady: (player: any) => void;
+    export let linkHandler: LinkHandler;
     
     // 状态管理
-    let showControls = true;      // 控制栏显示状态
-    let controlTimer: number;      // 自动隐藏定时器
-    let showPlaylist = false;      // 播放列表显示状态
-    let showSettings = false;      // 设置面板显示状态
-    let currentItem: MediaItem | null = null;  // 当前播放项
-    let player: Player;           // 播放器组件引用
-    let playerConfig: any;        // 播放器配置
-    
-    // 初始化时加载配置并生成 WBI 签名
-    onMount(async () => {
-        const config = await configManager.load();
-        playerConfig = config.settings;
-    });
-    
-    // 处理设置变更
-    function handleSettingsChanged(event: CustomEvent) {
-        const { settings } = event.detail;
-        playerConfig = settings;
-        if (player) {
-            player.updateConfig(settings);
+    let showControls = true;
+    let controlTimer: number;
+    let showPlaylist = false;
+    let showSettings = false;
+    let currentItem: MediaItem | null = null;
+    let player: Player;
+    let playerConfig: any;
+    let loopStartTime: number | null = null;
+    let playlist: PlayList;
+
+    // =============== 工具函数 ===============
+    /**
+     * 获取当前块ID
+     * @throws {Error} 当无法找到光标位置或目标块时
+     */
+    function getCurrentBlockId(): string {
+        const selection = window.getSelection();
+        if (!selection?.focusNode) {
+            throw new Error('未找到光标位置');
+        }
+
+        let element = selection.focusNode as HTMLElement;
+        while (element && !element.dataset?.nodeId) {
+            element = element.parentElement as HTMLElement;
+        }
+
+        if (!element?.dataset.nodeId) {
+            throw new Error('未找到目标块');
+        }
+
+        return element.dataset.nodeId;
+    }
+
+    /**
+     * 格式化时间戳
+     * @param seconds 秒数
+     * @param isAnchorText 是否作为锚点文本
+     */
+    function formatTime(seconds: number, isAnchorText: boolean = false): string {
+        if (isNaN(seconds)) return '0:00';
+        
+        const time = isAnchorText ? Math.round(seconds) : Number(seconds.toFixed(1));
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
+        const secs = isAnchorText ? 
+            Math.floor(time % 60) : 
+            Number((time % 60).toFixed(1));
+        
+        return hours > 0
+            ? `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+            : `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // =============== 块操作相关 ===============
+    /**
+     * 插入块到当前位置的下方
+     * @param content 要插入的内容
+     */
+    async function insertBlock(content: string): Promise<void> {
+        try {
+            const config = await configManager.getConfig();
+            const insertAtCursor = config.settings.insertAtCursor ?? true;
+
+            if (insertAtCursor) {
+                const currentBlockId = getCurrentBlockId();
+                const response = await fetch('/api/block/updateBlock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: content,
+                        dataType: "markdown",
+                        id: currentBlockId
+                    })
+                });
+
+                if (!response.ok) throw new Error('更新块失败');
+                showMessage('链接已插入');
+            } else {
+                await navigator.clipboard.writeText(content);
+                showMessage('链接已复制到剪贴板');
+            }
+        } catch (error) {
+            await navigator.clipboard.writeText(content);
+            showMessage('插入失败，已复制到剪贴板');
         }
     }
-    
-    // 鼠标移动时显示控制栏,3秒后自动隐藏
-    function handleMouseMove() {
+
+    /**
+     * 生成时间戳链接
+     * @param mediaItem 媒体项
+     * @param options 时间戳选项
+     */
+    function generateTimestampLink(mediaItem: MediaItem, options: {
+        isLoop: boolean;
+        startTime?: number;
+        endTime?: number;
+        count?: number;
+    }): string | null {
+        if (!player) return null;
+
+        try {
+            const currentTime = options.startTime ?? player.getCurrentTime();
+            const endTime = options.endTime ?? (options.isLoop ? currentTime + 3 : undefined);
+            const baseUrl = mediaItem.originalUrl || mediaItem.url;
+            
+            if (!baseUrl) throw new Error('无法获取媒体链接');
+
+            const urlObj = new URL(baseUrl);
+            urlObj.searchParams.delete('t');
+            
+            if (options.isLoop && endTime) {
+                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${endTime.toFixed(1)}`);
+                return `- [${formatTime(currentTime, true)}-${formatTime(endTime, true)}](${urlObj.toString()})`;
+            } else {
+                urlObj.searchParams.set('t', currentTime.toFixed(1));
+                return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
+            }
+        } catch (error) {
+            showMessage('生成链接失败');
+            return null;
+        }
+    }
+
+    // =============== 截图相关 ===============
+    /**
+     * 获取截图数据
+     */
+    async function getScreenshot(): Promise<Blob | null> {
+        if (!player) return null;
+        
+        try {
+            const dataUrl = await player.getScreenshotDataURL();
+            if (!dataUrl) return null;
+            
+            const res = await fetch(dataUrl);
+            return await res.blob();
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * 上传截图
+     * @param imageBlob 图片数据
+     * @param filename 文件名
+     */
+    async function uploadScreenshot(imageBlob: Blob, filename: string): Promise<string> {
+                            const formData = new FormData();
+                            formData.append('file[]', imageBlob, filename);
+                            
+                            const response = await fetch('/api/asset/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+        if (!response.ok) throw new Error('上传图片失败');
+                            
+                            const result = await response.json();
+        if (result.code !== 0) throw new Error(result.msg || '上传图片失败');
+        
+        return result.data.succMap[filename];
+    }
+
+    // =============== 事件处理 ===============
+    /**
+     * 处理鼠标移动事件
+     */
+    const handleMouseMove = () => {
         showControls = true;
         clearTimeout(controlTimer);
-        controlTimer = window.setTimeout(() => {
-            showControls = false;
-        }, 3000);
-    }
-    
-    // 鼠标离开时立即隐藏控制栏
-    function handleMouseLeave() {
+        controlTimer = window.setTimeout(() => showControls = false, 3000);
+    };
+
+    /**
+     * 处理鼠标离开事件
+     */
+    const handleMouseLeave = () => {
         clearTimeout(controlTimer);
         showControls = false;
-    }
-    
-    // 处理控制栏事件
-    async function handleControlBarEvents(event: CustomEvent) {
-        switch(event.type) {
+    };
+
+    /**
+     * 处理设置变更事件
+     */
+    const handleSettingsChanged = (event: CustomEvent) => {
+        const { settings } = event.detail;
+        playerConfig = settings;
+        player?.updateConfig(settings);
+    };
+
+    /**
+     * 处理媒体选择事件
+     */
+    const handleSelect = (event: CustomEvent<MediaItem>) => {
+        currentItem = event.detail;
+    };
+
+    /**
+     * 处理控制栏事件
+     */
+    async function handleControlBarEvents(event: CustomEvent): Promise<void> {
+        const type = event.type.replace(':', '') as ControlBarEvent['type'];
+        
+        // 只有需要播放器的操作才检查播放器状态
+        if (['screenshot', 'timestamp', 'loopSegment'].includes(type)) {
+            if (!player || !currentItem) {
+                showMessage('请先播放媒体');
+                return;
+            }
+        }
+
+        switch (type) {
             case 'screenshot':
-                if (player) {
-                    const success = await player.screenshot();
-                    if (success) {
-                        showMessage('截图已复制到剪贴板');
-                    } else {
-                        showMessage('截图失败，请确保视频正在播放');
-                    }
-                }
+                await handleScreenshot();
                 break;
             case 'timestamp':
-                if (player) {
-                    const timestampLink = player.generateTimestampLink(currentItem);
-                    if (timestampLink) {
-                        try {
-                            await navigator.clipboard.writeText(timestampLink);
-                            showMessage('时间戳已复制到剪贴板');
-                        } catch (err) {
-                            console.error('复制时间戳失败:', err);
-                            showMessage('复制时间戳失败');
-                        }
-                    } else {
-                        showMessage('无法生成时间戳，请确保视频正在播放');
-                    }
-                }
+                await handleTimestamp();
+                break;
+            case 'loopSegment':
+                await handleLoopSegment();
                 break;
             case 'playlist':
                 showPlaylist = !showPlaylist;
@@ -94,104 +266,182 @@
         }
     }
 
-    // 处理播放列表选择事件
-    function handleSelect(event: CustomEvent<MediaItem>) {
-        currentItem = event.detail;
-    }
-    
-    // 处理播放列表播放事件
-    async function handlePlay(event: CustomEvent<MediaItem>) {
-        currentItem = event.detail;
-        
-        if (player) {
-            // 如果是B站视频
-            if (currentItem.type === 'bilibili') {
-                player.play(currentItem.url, currentItem.playOptions || {
-                    type: 'bilibili',
-                    bvid: currentItem.bvid,
-                    originalUrl: currentItem.originalUrl || currentItem.url,
-                    audioUrl: currentItem.audioUrl,
-                    headers: currentItem.headers,
-                    title: currentItem.title,
-                    autoplay: playerConfig?.autoplay,
-                    startTime: 0
-                });
-            } else {
-                // 普通媒体直接播放
-                player.play(currentItem.url, {
-                    originalUrl: currentItem.originalUrl || currentItem.url,
-                    autoplay: playerConfig?.autoplay,
-                    startTime: 0
-                });
+    /**
+     * 处理截图事件
+     */
+    async function handleScreenshot(): Promise<void> {
+        try {
+            const imageBlob = await getScreenshot();
+            if (!imageBlob) {
+                showMessage('截图失败，请确保视频正在播放');
+                return;
             }
+
+            const timestamp = new Date().getTime();
+            const filename = `${currentItem.title || 'screenshot'}_${timestamp}.png`;
+            const imageUrl = await uploadScreenshot(imageBlob, filename);
+            
+            await insertBlock(`![${filename}](${imageUrl})`);
+            showMessage('截图已插入');
+        } catch {
+            showMessage('截图失败，请重试');
         }
     }
 
-    // 处理播放流错误
-    async function handleStreamError(event: CustomEvent) {
-        const { type, url, options } = event.detail;
+    /**
+     * 处理时间戳事件
+     */
+    async function handleTimestamp(): Promise<void> {
+        const timestampLink = generateTimestampLink(currentItem, {
+            isLoop: false,
+            count: 0
+        });
+        if (timestampLink) await insertBlock(timestampLink);
+    }
+
+    /**
+     * 处理循环片段事件
+     */
+    async function handleLoopSegment(): Promise<void> {
+        const currentTime = player.getCurrentTime();
+        if (loopStartTime === null) {
+            loopStartTime = currentTime;
+            showMessage('已记录循环片段开始时间');
+        } else {
+            const timestampLink = generateTimestampLink(currentItem, {
+                isLoop: true,
+                startTime: loopStartTime,
+                endTime: currentTime,
+                count: playerConfig.loopCount
+            });
+            
+            if (timestampLink) await insertBlock(timestampLink);
+            loopStartTime = null;
+        }
+    }
+
+    /**
+     * 处理播放事件
+     */
+    async function handlePlay(event: CustomEvent<PlayOptions>): Promise<void> {
+        const playOptions = event.detail;
+        if (!playOptions?.url) {
+            showMessage('无效的播放选项');
+            return;
+        }
+
+        try {
+            // 创建或更新 currentItem
+            currentItem = {
+                id: `item-${Date.now()}`,
+                title: playOptions.title || '未命名媒体',
+                url: playOptions.url,
+                originalUrl: playOptions.originalUrl || playOptions.url,
+                type: playOptions.type === 'bilibili-dash' || playOptions.type === 'bilibili' ? 'bilibili' : 'video',
+                startTime: playOptions.startTime,
+                endTime: playOptions.endTime,
+                isLoop: playOptions.isLoop,
+                loopCount: playOptions.loopCount,
+                bvid: playOptions.bvid
+            };
+
+            if (playOptions.type === 'bilibili-dash' || playOptions.type === 'bilibili') {
+                await player.play(playOptions.url, {
+                    type: playOptions.type,
+                    headers: playOptions.headers,
+                    title: playOptions.title
+                });
+            } else {
+                await player.play(playOptions.url);
+            }
+
+            if (playOptions.startTime !== undefined) {
+                player.setPlayTime(playOptions.startTime, playOptions.endTime);
+            }
+
+            if (playOptions.isLoop) {
+                player.setLoop(true, playOptions.loopCount);
+            }
+        } catch (error) {
+            showMessage('播放失败：' + error.message);
+        }
+    }
+
+    /**
+     * 处理流错误事件
+     */
+    async function handleStreamError(event: CustomEvent): Promise<void> {
+        const { type } = event.detail;
         
         if (type === 'bilibili' && currentItem?.bvid && currentItem?.cid) {
             try {
-                console.log('[播放器] 重新获取B站播放流');
                 const config = await configManager.getConfig();
                 const streamInfo = await BilibiliParser.getProcessedVideoStream(
                     currentItem.bvid,
                     currentItem.cid,
-                    0,  // 不限制清晰度，让系统自动选择
-                    config,
-                    currentItem.page  // 添加分P页码参数
+                    0,
+                    config
                 );
                 
-                // 使用新的播放流重新播放
                 if (player) {
-                    player.play(streamInfo.video.url, {
-                        type: 'bilibili',
-                        audioUrl: streamInfo.audio.url,
+                    const url = streamInfo.mpdUrl || streamInfo.video.url;
+                    const type = streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili';
+                    
+                    player.play(url, {
+                        type,
                         headers: streamInfo.headers,
                         title: currentItem.title
                     });
                 }
-            } catch (err) {
-                console.error('[播放器] 重新获取播放流失败:', err);
+            } catch {
                 showMessage('视频播放失败，请稍后重试');
             }
         }
     }
 
-    // 在组件挂载时添加事件监听
+    // =============== 生命周期钩子 ===============
     onMount(() => {
+        const init = async () => {
+            const config = await configManager.load();
+            playerConfig = config.settings;
+            if (!playerConfig.loopCount) {
+                playerConfig.loopCount = 3;
+            }
+
         const playerContainer = document.querySelector('.artplayer-app');
         if (playerContainer) {
             playerContainer.addEventListener('streamError', handleStreamError);
         }
+        };
+
+        init();
         
         return () => {
+            const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
                 playerContainer.removeEventListener('streamError', handleStreamError);
             }
         };
     });
 
-    // 监听播放器组件的挂载
-    $: if (player) {
-        // 确保播放器实例已经完全初始化
-        setTimeout(() => {
-            onPlayerReady(player);
-        }, 0);
+    onDestroy(() => {
+        if (linkHandler) {
+            linkHandler.setPlaylist(null);
+        }
+    });
+
+    // =============== 响应式声明 ===============
+    $: if (playlist && linkHandler) {
+        linkHandler.setPlaylist(playlist);
     }
 </script>
 
-<!-- 主容器: 处理鼠标移动事件以控制控制栏的显示/隐藏 -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div 
     class="media-player-tab"
     on:mousemove={handleMouseMove}
     on:mouseleave={handleMouseLeave}
 >
-    <!-- 内容区域: 包含播放器和侧边栏 -->
     <div class="content-area" class:with-sidebar={showPlaylist || showSettings}>
-        <!-- 播放器区域: 用于显示视频内容 -->
         <div class="player-area">
             <Player 
                 bind:this={player}
@@ -199,28 +449,29 @@
                 config={playerConfig}
             />
             
-            <!-- 控制栏: 顶部悬浮的控制按钮区域 -->
             <div class="control-bar" class:hidden={!showControls}>
                 <ControlBar 
-                    {currentItem}
+                    title={currentItem?.title}
+                    {loopStartTime}
                     on:screenshot={handleControlBarEvents}
                     on:timestamp={handleControlBarEvents}
+                    on:loopSegment={handleControlBarEvents}
                     on:playlist={handleControlBarEvents}
                     on:settings={handleControlBarEvents}
                 />
             </div>
         </div>
         
-        <!-- 侧边栏: 用于显示播放列表或设置面板 -->
         <div class="sidebar" class:show={showPlaylist || showSettings}>
-            {#if showPlaylist}
-                <PlayList 
-                    {configManager}
-                    {currentItem}
-                    on:select={handleSelect}
-                    on:play={handlePlay}
-                />
-            {/if}
+            <PlayList 
+                bind:this={playlist}
+                {configManager}
+                {currentItem}
+                className="playlist-container"
+                hidden={!showPlaylist}
+                on:select={handleSelect}
+                on:play={handlePlay}
+            />
             {#if showSettings}
                 <Setting 
                     group="mediaPlayer"

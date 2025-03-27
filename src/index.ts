@@ -13,11 +13,11 @@ import { LinkHandler } from "./core/LinkHandler";
 
 export default class MediaPlayerPlugin extends Plugin {
     private configManager: ConfigManager;
-    private mediaPlayerTab: any = null;
-    private activeContainer: HTMLElement | null = null;
-    private readonly TAB_TYPE = "MediaPlayerTab";
-    private isMobile: boolean;
     private linkHandler: LinkHandler;
+    private mediaPlayerTab: any;
+    private activeContainer: HTMLElement | null = null;
+    private readonly TAB_TYPE = "custom_tab";
+    private isMobile: boolean;
     
     async onload() {
         console.log("思源媒体播放器加载");
@@ -47,7 +47,12 @@ export default class MediaPlayerPlugin extends Plugin {
         this.registerHotkeys();
 
         // 初始化链接处理器
-        this.linkHandler = new LinkHandler(this.configManager, () => this.openMediaPlayerTab());
+        this.linkHandler = new LinkHandler(
+            this.configManager,
+            () => this.openMediaPlayerTab()
+        );
+        
+        // 开始监听链接点击
         this.linkHandler.startListening();
     }
 
@@ -55,7 +60,7 @@ export default class MediaPlayerPlugin extends Plugin {
         console.log("思源媒体播放器布局加载完成");
     }
 
-    async onunload() {
+    onunload() {
         console.log("思源媒体播放器卸载");
         try {
             // 确保播放器被销毁
@@ -65,23 +70,18 @@ export default class MediaPlayerPlugin extends Plugin {
                     this.mediaPlayerTab.player.pause();
                 }
                 
-                // 销毁B站音频插件
-                if (this.mediaPlayerTab.player.plugins) {
-                    const biliPlugin = this.mediaPlayerTab.player.plugins.bilibili;
-                    if (biliPlugin && typeof biliPlugin.destroy === 'function') {
-                        biliPlugin.destroy();
-                    }
-                }
-                
                 // 完全销毁播放器
                 this.mediaPlayerTab.player.destroy(true);
             }
             
             // 停止链接监听
-            this.linkHandler.stopListening();
+            if (this.linkHandler) {
+                this.linkHandler.stopListening();
+            }
             
             // 清理引用
             this.mediaPlayerTab = null;
+            this.activeContainer = null;
         } catch (error) {
             console.error("插件卸载时清理播放器失败:", error);
         }
@@ -110,12 +110,22 @@ export default class MediaPlayerPlugin extends Plugin {
                 this.handleHotkeyAction('timestamp');
             }
         });
+
+        // 添加循环片段快捷键
+        this.addCommand({
+            langKey: "loopSegment",
+            langText: this.i18n.loopSegment.text,
+            hotkey: "",
+            callback: () => {
+                this.handleHotkeyAction('loopSegment');
+            }
+        });
     }
 
     /**
      * 处理快捷键动作
      */
-    private async handleHotkeyAction(action: 'screenshot' | 'timestamp') {
+    private async handleHotkeyAction(action: 'screenshot' | 'timestamp' | 'loopSegment') {
         if (!this.activeContainer) {
             showMessage(this.i18n.openPlayer);
             return;
@@ -131,7 +141,8 @@ export default class MediaPlayerPlugin extends Plugin {
         // 获取按钮标题
         const buttonTitle = {
             screenshot: this.i18n.screenshot.name,
-            timestamp: this.i18n.timestamp.name
+            timestamp: this.i18n.timestamp.name,
+            loopSegment: this.i18n.loopSegment.name
         }[action];
 
         // 找到对应的按钮并触发点击事件
@@ -162,10 +173,7 @@ export default class MediaPlayerPlugin extends Plugin {
                     props: {
                         app: self.app,
                         configManager: self.configManager,
-                        onPlayerReady: (player) => {
-                            // 当播放器就绪时设置到链接处理器
-                            self.linkHandler.setPlayer(player);
-                        }
+                        linkHandler: self.linkHandler
                     }
                 });
                 
@@ -179,14 +187,6 @@ export default class MediaPlayerPlugin extends Plugin {
                         // 先暂停播放
                         if (typeof self.mediaPlayerTab.player.pause === 'function') {
                             self.mediaPlayerTab.player.pause();
-                        }
-                        
-                        // 销毁B站音频插件
-                        if (self.mediaPlayerTab.player.plugins) {
-                            const biliPlugin = self.mediaPlayerTab.player.plugins.bilibili;
-                            if (biliPlugin && typeof biliPlugin.destroy === 'function') {
-                                biliPlugin.destroy();
-                            }
                         }
                         
                         // 完全销毁播放器
@@ -204,7 +204,6 @@ export default class MediaPlayerPlugin extends Plugin {
                 // 清理引用
                 self.mediaPlayerTab = null;
                 self.activeContainer = null;
-                self.linkHandler.setPlayer(null);
             }
         });
 

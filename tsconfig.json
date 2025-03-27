@@ -49,7 +49,7 @@
         "src/**/*.tsx",
         "src/**/*.vue",
         "src/**/*.svelte"
-    ],
+, "src/core/LinkHandler.ts.1"    ],
     "references": [
         {
             "path": "./tsconfig.node.json"

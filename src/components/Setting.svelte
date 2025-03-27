@@ -10,6 +10,7 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage } from "siyuan";
     import type { ConfigManager } from "../core/config";
+    import type { ISettingItem } from "../core/types";
     import { BilibiliParser } from "../core/bilibili";
 
     export let group: string;
@@ -140,25 +141,11 @@
     // 初始设置项
     const defaultSettings: ISettingItem[] = [
         {
-            key: "autoplay",
-            value: false,
-            type: "checkbox",
-            title: "自动播放",
-            description: "打开媒体文件时自动开始播放"
-        },
-        {
-            key: "loop",
-            value: false,
-            type: "checkbox",
-            title: "循环播放",
-            description: "自动循环播放当前媒体"
-        },
-        {
             key: "volume",
             value: 70,
             type: "slider",
-            title: "默认音量",
-            description: "新打开媒体时的默认音量",
+            title: "音量",
+            description: "默认音量大小",
             slider: {
                 min: 0,
                 max: 100,
@@ -170,19 +157,31 @@
             value: 100,
             type: "slider",
             title: "播放速度",
-            description: "调整媒体播放速度",
+            description: "默认播放速度",
             slider: {
-                min: 10,
+                min: 25,
                 max: 200,
-                step: 10
+                step: 25
             }
         },
         {
-            key: "hotkey",
+            key: "loopCount",
+            value: 3,
+            type: "slider",
+            title: "循环次数",
+            description: "片段循环播放次数",
+            slider: {
+                min: 1,
+                max: 10,
+                step: 1
+            }
+        },
+        {
+            key: "insertAtCursor",
             value: true,
             type: "checkbox",
-            title: "启用快捷键",
-            description: "启用播放器快捷键控制"
+            title: "插入到光标处",
+            description: "链接插入到光标位置，否则复制到剪贴板"
         }
     ];
     
@@ -191,18 +190,19 @@
     // 组件加载时从配置加载设置
     onMount(async () => {
         const config = await configManager.load();
-        // 检查是否已登录
-        if (config.bilibiliLogin) {
-            loginSuccess = true;
-            loginTimestamp = config.bilibiliLogin.timestamp;
-            userInfo = config.bilibiliLogin.userInfo || null;
-        }
         
         // 更新设置项的值
         settingItems = settingItems.map(item => ({
             ...item,
             value: config.settings[item.key] ?? item.value
         }));
+
+        // 加载 B 站账号信息
+        if (config.bilibiliLogin) {
+            loginSuccess = true;
+            loginTimestamp = config.bilibiliLogin.timestamp;
+            userInfo = config.bilibiliLogin.userInfo;
+        }
     });
     
     const dispatch = createEventDispatcher();
@@ -217,8 +217,6 @@
         }), {});
         
         await configManager.updateSettings(settings);
-        
-        // 触发设置变更事件，确保播放器更新配置
         dispatch('changed', { settings });
         showMessage('设置已保存');
     }
@@ -228,12 +226,11 @@
      */
     function resetSettings() {
         settingItems = defaultSettings.map(item => ({...item}));
-        dispatch('changed', { 
-            settings: settingItems.reduce((acc, item) => ({
-                ...acc,
-                [item.key]: item.value
-            }), {})
-        });
+        const settings = settingItems.reduce((acc, item) => ({
+            ...acc,
+            [item.key]: item.value
+        }), {});
+        dispatch('changed', { settings });
         showMessage('设置已重置');
     }
 
@@ -242,17 +239,9 @@
      */
     function handleChange(event: Event, item: ISettingItem) {
         const target = event.target as HTMLInputElement | HTMLSelectElement;
-        let value: string | number | boolean = target.type === 'checkbox' 
+        let value: number | boolean = target.type === 'checkbox' 
             ? (target as HTMLInputElement).checked 
-            : target.value;
-        
-        if (item.type === 'slider') {
-            value = Number(value);
-            // 更新当前设置项的值
-            item.value = value;
-            // 强制更新视图
-            settingItems = settingItems;
-        }
+            : Number(target.value);
         
         // 更新设置项的值
         const index = settingItems.findIndex(i => i.key === item.key);

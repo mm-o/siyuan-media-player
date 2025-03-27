@@ -6,18 +6,25 @@ export interface MediaItem {
     title: string;        // 媒体标题
     artist?: string;      // 作者/UP主名称
     artistIcon?: string;  // 作者/UP主头像
-    duration: string;     // 媒体时长
-    thumbnail: string;    // 媒体缩略图
+    duration?: number;   // 媒体时长
+    thumbnail?: string;   // 媒体缩略图
     url: string;         // 媒体URL
-    originalUrl?: string; // 添加原始URL字段
-    type: 'bilibili' | 'video' | 'audio';
+    originalUrl?: string;  // 原始链接
+    type: 'video' | 'audio' | 'bilibili';
     isPinned?: boolean;   // 是否置顶
     isFavorite?: boolean; // 是否收藏
+    
+    // B站视频特有属性
     aid?: string;        // B站av号
     bvid?: string;       // B站bv号
     cid?: string;        // B站视频cid
-    audioUrl?: string;    // 音频URL
-    headers?: any;
+    headers?: Record<string, string>;
+    
+    // 播放控制属性
+    startTime?: number;
+    endTime?: number;
+    isLoop?: boolean;
+    loopCount?: number;
 }
 
 /**
@@ -49,8 +56,8 @@ export interface Config {
         hotkey: boolean;
         /** 是否循环播放 */
         loop: boolean;
-        /** 是否自动播放 */
-        autoplay: boolean;
+        /** 是否插入到光标处 */
+        insertAtCursor: boolean;
     };
     /** B站登录信息 */
     bilibiliLogin?: {
@@ -89,7 +96,12 @@ export interface Config {
         };
     };
     /** 播放列表 */
-    playlist: MediaItem[];
+    playlists: {
+        id: string;          // 列表ID
+        name: string;        // 列表名称
+        isFixed?: boolean;   // 是否为固定列表
+        items: MediaItem[];  // 媒体项列表
+    }[];
 }
 
 /**
@@ -105,4 +117,41 @@ export interface PlaylistConfig {
         bvid?: string;   // B站bv号
         cid?: string;    // B站视频cid
     }[];                 // 媒体项列表
+}
+
+export interface PlayOptions {
+    startTime?: number;
+    endTime?: number;
+    isLoop?: boolean;
+    loopCount?: number;
+    originalUrl?: string;
+    
+    // B站视频特有选项
+    type?: 'bilibili' | 'bilibili-dash';
+    bvid?: string;
+    headers?: Record<string, string>;
+    title?: string;
+}
+
+export interface VideoStream {
+    video: {
+        url: string
+        size?: number
+        // 保留视频其他属性
+    }
+    headers?: Record<string, string>
+    mpdUrl?: string
+}
+
+export interface ISettingItem {
+    key: string;
+    value: number | boolean;
+    type: 'slider' | 'checkbox';
+    title: string;
+    description?: string;
+    slider?: {
+        min: number;
+        max: number;
+        step: number;
+    };
 } 

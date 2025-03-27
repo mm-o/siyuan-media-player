@@ -37,7 +37,7 @@ export class ConfigManager {
                 speed: 100,
                 hotkey: true,
                 loop: false,
-                autoplay: false
+                insertAtCursor: true,
             }
         };
     }
