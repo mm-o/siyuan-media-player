@@ -1,0 +1,79 @@
+{
+  "name": "siyuan-media-player",
+  "version": "0.1.9",
+  "type": "module",
+  "description": {
+    "default": "A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.",
+    "zh_CN": "一个功能强大的思源笔记媒体播放器插件，支持多种媒体格式，提供丰富的播放功能。"
+  },
+  "author": "mm-o",
+  "license": "MIT",
+  "url": "https://github.com/mm-o/siyuan-media-player",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development VITE_SOURCEMAP=inline vite build --watch",
+    "build": "cross-env NODE_ENV=production vite build",
+    "make-link": "node --no-warnings ./scripts/make_dev_link.js",
+    "make-link-win": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./scripts/elevate.ps1 -scriptPath ./scripts/make_dev_link.js",
+    "update-version": "node --no-warnings ./scripts/update_version.js",
+    "make-install": "vite build && node --no-warnings ./scripts/make_install.js"
+  },
+  "minAppVersion": "2.10.13",
+  "backends": [
+    "windows",
+    "linux",
+    "darwin"
+  ],
+  "frontends": [
+    "desktop"
+  ],
+  "displayName": {
+    "default": "SiYuan Media Player",
+    "zh_CN": "思源媒体播放器"
+  },
+  "readme": {
+    "default": "README.md",
+    "zh_CN": "README_zh_CN.md"
+  },
+  "funding": {
+    "openCollective": "",
+    "patreon": "",
+    "github": "",
+    "custom": []
+  },
+  "keywords": [
+    "media player",
+    "audio",
+    "video",
+    "播放器",
+    "音频",
+    "视频"
+  ],
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.1.0",
+    "@tsconfig/svelte": "^4.0.1",
+    "@types/dplayer": "^1.25.5",
+    "@types/node": "^20.3.0",
+    "cross-env": "^7.0.3",
+    "dashjs": "^5.0.0",
+    "fast-glob": "^3.2.12",
+    "glob": "^10.0.0",
+    "js-yaml": "^4.1.0",
+    "minimist": "^1.2.8",
+    "rollup-plugin-livereload": "^2.0.5",
+    "sass": "^1.63.3",
+    "siyuan": "1.0.4",
+    "svelte": "^4.2.19",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3",
+    "vite": "^5.2.9",
+    "vite-plugin-static-copy": "^1.0.2",
+    "vite-plugin-zip-pack": "^1.0.5"
+  },
+  "dependencies": {
+    "@types/node": "^20.2.5",
+    "artplayer": "^5.2.1",
+    "artplayer-plugin-chapter": "^1.0.0",
+    "md5": "^2.3.0",
+    "qrcode": "^1.5.4"
+  }
+}

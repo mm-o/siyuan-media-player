@@ -1,0 +1,43 @@
+{
+    "addTopBarIcon": "使用插件添加一个顶栏按钮",
+    "cancel": "取消",
+    "save": "保存",
+    "byeMenu": "再见，菜单！",
+    "helloPlugin": "你好，插件！",
+    "byePlugin": "再见，插件！",
+    "showDialog": "弹出一个对话框",
+    "removedData": "数据已删除",
+    "confirmRemove": "确认删除 ${name} 中的数据？",
+    "insertEmoji": "插入表情",
+    "removeSpace": "移除空格",
+    "getTab": "在日志中打印出已打开的所有自定义页签",
+    "name": "思源媒体播放器",
+    "hello": {
+        "makesure": "使用这个模板之前，请阅读<a href=\"https://github.com/siyuan-note/plugin-sample\">官方教程</a>, 确保自己已经理解了插件的基本开发流程。"
+    },
+    "hintTitle": "关于",
+    "hintDesc": "思源笔记媒体播放器插件 <br> 作者: mm-o",
+    "play": "播放",
+    "pause": "暂停",
+    "stop": "停止",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "volume": "音量",
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏",
+    "screenshot": {
+        "name": "截图",
+        "desc": "将当前画面保存为图片",
+        "text": "截图"
+    },
+    "timestamp": {
+        "name": "添加时间戳",
+        "desc": "复制当前播放时间的时间戳链接",
+        "text": "时间戳"
+    },
+    "loopSegment": {
+        "name": "循环片段",
+        "desc": "设置循环片段起点和终点",
+        "text": "循环片段"
+    }
+}
