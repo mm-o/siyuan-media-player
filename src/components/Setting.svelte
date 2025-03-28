@@ -196,6 +196,13 @@
             ...item,
             value: config.settings[item.key] ?? item.value
         }));
+
+        // 加载 B 站账号信息
+        if (config.bilibiliLogin) {
+            loginSuccess = true;
+            loginTimestamp = config.bilibiliLogin.timestamp;
+            userInfo = config.bilibiliLogin.userInfo;
+        }
     });
     
     const dispatch = createEventDispatcher();
