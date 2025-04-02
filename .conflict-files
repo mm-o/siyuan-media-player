@@ -1,0 +1,3 @@
+ancestorEntries = ["README.md", "README_zh_CN.md", "dist/README.md", "dist/README_zh_CN.md", "dist/index.js", "package.zip", "src/components/Player.svelte"]
+ourEntries = ["README.md", "README_zh_CN.md", "dist/README.md", "dist/README_zh_CN.md", "dist/index.js", "package.zip", "src/components/Player.svelte"]
+theirEntries = ["README.md", "README_zh_CN.md", "dist/README.md", "dist/README_zh_CN.md", "dist/index.js", "package.zip", "src/components/Player.svelte"]
