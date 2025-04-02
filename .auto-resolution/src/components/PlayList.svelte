@@ -6,6 +6,7 @@
     // 从'../core/types'中导入MediaItem和PlaylistConfig类型
     import type { MediaItem, PlaylistConfig, MediaInfo } from '../core/types';
     // 从'../core/media'中导入MediaManager
+    // 从'../core/media'中导入MediaManager
     import { MediaManager } from '../core/media';
     // 从'../core/bilibili'中导入BilibiliParser
     import { BilibiliParser } from '../core/bilibili';

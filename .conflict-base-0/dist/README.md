@@ -4,30 +4,13 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
-### v0.2.0 (2025.3.28)
-- Add internationalization (i18n) support
-  - Fully localized interface in Chinese and English
-  - Dynamic language switching based on system settings
-  - Automatic playlist name translation when changing languages
-
-### v0.1.9 (2025.3.27)
-- Add bulk import media from local folders
-- Add clear playlist function
-- Fix playlist tab switching issue
-- Fix slash command menu alignment issue
-
-### v0.1.8 (2025.3.24)
-- Add Bilibili DASH stream support
-  - Fix audio and video synchronization issues
-  - Improve playback stability
-- Optimize link handling
-  - Fix timestamp and loop segment link issues
-  - Improve link click behavior when player tab is not open
-- Simplify settings options
-  - Remove redundant settings
-  - Add link insertion method selection (cursor position or clipboard)
-- Fix known issues and optimize performance
-
+### v0.2.1 (2025.4.2)
+- Add Bilibili video part list feature
+  - Automatically list all video parts
+  - Auto-collapse expanded part lists when playing other items
+- Enhance player language support
+  - Auto-switch player interface language based on SiYuan settings
+  - Improve English interface translations
 
 # 打赏、鼓励、催更 🎉
 

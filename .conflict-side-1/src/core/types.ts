@@ -6,7 +6,7 @@ export interface MediaItem {
     title: string;        // 媒体标题
     artist?: string;      // 作者/UP主名称
     artistIcon?: string;  // 作者/UP主头像
-    duration?: number;   // 媒体时长
+    duration?: string;   // 媒体时长，格式化后的时间字符串
     thumbnail?: string;   // 媒体缩略图
     url: string;         // 媒体URL
     originalUrl?: string;  // 原始链接

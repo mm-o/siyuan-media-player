@@ -455,9 +455,6 @@ export class BilibiliParser {
                 let currentVideoStream = null;
                 let mpdUrl = null;
 
-                let currentVideoStream = null;
-                let mpdUrl = null;
-
                 if (response.data.durl) {
                     // 直接播放流
                     currentVideoStream = {
