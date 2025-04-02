@@ -3,8 +3,8 @@
     import { createEventDispatcher, onMount } from "svelte";
     // 从"siyuan"中导入showMessage
     import { showMessage } from "siyuan";
-    // 从'../core/types'中导入MediaItem、Config和PlaylistConfig类型
-    import type { MediaItem, Config, PlaylistConfig } from '../core/types';
+    // 从'../core/types'中导入MediaItem和PlaylistConfig类型
+    import type { MediaItem, PlaylistConfig, MediaInfo } from '../core/types';
     // 从'../core/media'中导入MediaManager
     import { MediaManager } from '../core/media';
     // 从"siyuan"中导入Menu
@@ -13,9 +13,7 @@
     import { BilibiliParser } from '../core/bilibili';
     // 从'../core/config'中导入ConfigManager类型
     import type { ConfigManager } from '../core/config';
-    // 从'../types/media'中导入MediaInfo类型
-    import type { MediaInfo } from '../types/media';
-    
+
     // 组件属性
     export let items: MediaItem[] = [];
     export let currentItem: MediaItem | null = null;
@@ -30,6 +28,9 @@
     let isAddingTab = false;
     let inputValue = '';
     let newTabInput: HTMLInputElement;
+    // B站视频分P状态
+    let videoParts: Record<string, any[]> = {}; // 存储视频的分P信息，key为item.id
+    let expandedItems: Set<string> = new Set(); // 存储展开的视频分P的item.id
     
     // 计算属性
     $: activeTab = tabs.find(tab => tab.id === activeTabId);
@@ -53,8 +54,7 @@
         };
     }>();
 
-    // 点击计时器和最后点击的项目
-    let clickTimer: number;
+    // 最后点击的项目
     let lastClickedItem: string | null = null;
     let lastClickTime = 0;
     
@@ -130,21 +130,72 @@
     }
 
     /**
+     * 播放指定分P
+     */
+    async function playVideoPart(item: MediaItem, partInfo: any) {
+        if (!item.bvid) return;
+        
+        // 分p总是直接播放，因为它是小元素，单击就直接播放
+        try {
+            const partId = `${item.id}-p${partInfo.page}`;
+            const partTitle = `${item.title.split(' - P')[0]} - P${partInfo.page}${partInfo.part ? ': ' + partInfo.part : ''}`;
+            const partItem = {
+                ...item,
+                id: partId,
+                title: partTitle,
+                cid: String(partInfo.cid)
+            };
+            
+            // 播放分P并设置当前播放项
+            await handleMediaPlay(partItem);
+            currentItem = partItem; // 确保设置当前播放项
+        } catch (error) {
+            console.error("播放分P失败", error);
+        }
+    }
+
+    /**
      * 处理列表项点击
      */
     async function handleItemClick(item: MediaItem) {
         const now = Date.now();
+        
+        // 处理B站视频分P
+        if (item.type === 'bilibili' && item.bvid) {
+            // 只在展开/折叠时才加载分P列表
+            const needToToggle = !videoParts[item.id] || videoParts[item.id]?.length > 1;
+            
+            if (needToToggle) {
+                // 懒加载分P列表
+                if (!videoParts[item.id]) {
+                    try {
+                        videoParts[item.id] = await BilibiliParser.getVideoPartsList({ bvid: item.bvid }) || [];
+                    } catch (error) {
+                        console.error("获取视频分P列表失败", error);
+                    }
+                }
+                
+                // 多个分P时切换展开/折叠
+                if (videoParts[item.id]?.length > 1) {
+                    expandedItems = new Set(expandedItems);
+                    expandedItems.has(item.id) ? expandedItems.delete(item.id) : expandedItems.add(item.id);
+                    return;
+                }
+            }
+        }
+        
+        // 只在双击时执行播放操作
         if (lastClickedItem === item.id && now - lastClickTime < 300) {
-            // 双击播放
+            // 双击播放时设置当前播放项
             await handleMediaPlay(item);
-            // 重置点击状态
+            currentItem = item; // 确保设置当前播放项
             lastClickedItem = null;
             lastClickTime = 0;
         } else {
-            // 单击选择
+            // 单击仅记录点击状态，不执行任何操作
             lastClickedItem = item.id;
             lastClickTime = now;
-            dispatch('select', item);
+            // 移除 dispatch('select', item); 调用，防止单击时选中项目
         }
     }
 
@@ -182,7 +233,7 @@
             id: tab.id,
             name: tab.name,
             isFixed: tab.isFixed,
-            items: MediaManager.getMediaInfoFromItems(tab.items || [])
+            items: tab.items && MediaManager.getMediaInfoFromItems(tab.items)
         }));
         configManager.updatePlaylists(playlistsToSave);
     }
@@ -730,42 +781,57 @@
     
     <!-- Content -->
     <div class="playlist-content">
-        {#if !itemCount}
-            <div class="playlist-empty">{i18n.playList.empty}</div>
-        {:else}
+        {#if activeTab && activeTab.items && activeTab.items.length > 0}
             <div class="playlist-items">
                 {#each activeTab.items as item (item.id)}
                     <div 
-                        class="playlist-item"
-                        class:active={currentItem?.id === item.id}
+                        class="playlist-item {currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`) ? 'playing' : ''}" 
                         on:click={() => handleItemClick(item)}
                         on:contextmenu|preventDefault={(e) => itemActions.showContextMenu(e, item)}
                     >
-                        <!-- Thumbnail -->
-                        <div class="item-thumbnail">
-                            <img src={item.thumbnail} alt={item.title}>
-                            <span class="duration">{item.duration || '--:--'}</span>
-                        </div>
-                        
-                        <!-- Info -->
-                        <div class="item-info">
-                            <div class="item-title" title={item.title}>{item.title}</div>
-                            {#if item.artist}
-                                <div class="item-artist">
-                                    <img 
-                                        class="artist-icon" 
-                                        src={item.artistIcon || '/images/default-avatar.png'} 
-                                        alt={item.artist}
-                                    >
-                                    <span>{item.artist}</span>
-                                </div>
-                            {/if}
-                            <div class="item-meta-group">
-                                <div class="item-url" title={item.url}>{item.url}</div>
+                        <div class="item-content">
+                            <div class="item-thumbnail">
+                                <img src={item.thumbnail || '/plugins/siyuan-media-player/thumbnails/default.svg'} alt={item.title} />
+                                {#if item.duration}
+                                    <div class="duration">{item.duration}</div>
+                                {/if}
+                            </div>
+                            <div class="item-info">
+                                <div class="item-title">{item.title}</div>
+                                {#if item.artist}
+                                    <div class="item-artist">
+                                        {#if item.artistIcon}
+                                            <img class="artist-icon" src={item.artistIcon} alt={item.artist} />
+                                        {/if}
+                                        <span>{item.artist}</span>
+                                    </div>
+                                {/if}
+                                {#if item.url}
+                                    <div class="item-url">{item.url}</div>
+                                {/if}
                             </div>
                         </div>
+                        
+                        <!-- 分P列表 - 均匀排列 -->
+                        {#if expandedItems.has(item.id) && videoParts[item.id]?.length > 1}
+                            <div class="item-parts">
+                                {#each videoParts[item.id] as part}
+                                    <button 
+                                        class="part-item {currentItem?.id === `${item.id}-p${part.page}` ? 'playing' : ''}" 
+                                        on:click|stopPropagation={() => playVideoPart(item, part)}
+                                        title="{part.part || `P${part.page}`}"
+                                    >
+                                        {part.page}
+                                    </button>
+                                {/each}
+                            </div>
+                        {/if}
                     </div>
                 {/each}
+            </div>
+        {:else}
+            <div class="playlist-empty">
+                {i18n.playList.empty}
             </div>
         {/if}
     </div>
