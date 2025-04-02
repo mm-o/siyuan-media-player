@@ -33,6 +33,11 @@
      */
     function getBasePlayerOptions(url = ''): any {
         const safeConfig = { ...DEFAULT_CONFIG, ...config };
+        const siyuanLang = window.siyuan?.config?.lang || '';
+        let artPlayerLang = 'zh-cn'; // 默认使用中文
+        if (siyuanLang.toLowerCase() === 'en_us') {
+            artPlayerLang = 'en';
+        }
         
         return {
             container: playerContainer,
@@ -57,7 +62,7 @@
             playsInline: true,
             autoPlayback: true,
             theme: 'var(--b3-theme-primary)',
-            lang: i18n?.lang?.toLowerCase() === 'en_us' ? 'en' : 'zh-cn',
+            lang: artPlayerLang,
         };
     }
     

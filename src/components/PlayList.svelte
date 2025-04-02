@@ -189,13 +189,16 @@
             // 双击播放时设置当前播放项
             await handleMediaPlay(item);
             currentItem = item; // 确保设置当前播放项
+            
+            // 双击播放时，折叠所有已展开的分P列表
+            expandedItems = new Set();
+            
             lastClickedItem = null;
             lastClickTime = 0;
         } else {
             // 单击仅记录点击状态，不执行任何操作
             lastClickedItem = item.id;
             lastClickTime = now;
-            // 移除 dispatch('select', item); 调用，防止单击时选中项目
         }
     }
 
