@@ -96,7 +96,11 @@ export class MediaManager {
     /**
      * 创建临时媒体元素获取信息
      */
-    private static async getMediaInfoFromElement(url: string): Promise<MediaInfo> {
+    private static async getMediaInfoFromElement(url: string, retryCount = 0): Promise<MediaInfo> {
+        // 设置最大重试次数和超时时间
+        const MAX_RETRIES = 2; // 最多重试2次（总共尝试3次）
+        const TIMEOUT_MS = 20000; // 20秒超时（原来是10秒）
+        
         return new Promise((resolve, reject) => {
             const mediaUrl = this.convertToFileUrl(url);
 
@@ -139,7 +143,15 @@ export class MediaManager {
 
             const onError = () => {
                 cleanup();
-                reject(new Error('Failed to load media'));
+                
+                // 如果还有重试次数，则重试
+                if (retryCount < MAX_RETRIES) {
+                    console.warn(`媒体加载失败，正在重试 (${retryCount + 1}/${MAX_RETRIES})...`);
+                    // 递归调用，增加重试计数
+                    resolve(this.getMediaInfoFromElement(url, retryCount + 1));
+                } else {
+                    reject(new Error('Failed to load media after multiple attempts'));
+                }
             };
 
             const cleanup = () => {
@@ -155,8 +167,16 @@ export class MediaManager {
 
             timeoutId = window.setTimeout(() => {
                 cleanup();
-                reject(new Error('Media load timeout'));
-            }, 10000);
+                
+                // 如果超时但还有重试次数，则重试
+                if (retryCount < MAX_RETRIES) {
+                    console.warn(`媒体加载超时，正在重试 (${retryCount + 1}/${MAX_RETRIES})...`);
+                    // 递归调用，增加重试计数
+                    resolve(this.getMediaInfoFromElement(url, retryCount + 1));
+                } else {
+                    reject(new Error('Media load timeout after multiple attempts'));
+                }
+            }, TIMEOUT_MS);
 
             mediaEl.addEventListener('loadedmetadata', onMetadata);
             mediaEl.addEventListener('error', onError);

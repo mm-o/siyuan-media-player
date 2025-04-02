@@ -11,6 +11,10 @@
 - Enhance player language support
   - Auto-switch player interface language based on SiYuan settings
   - Improve English interface translations
+- Optimize network media loading
+  - Improve parsing success rate for Samba and other network videos
+  - Extend timeout duration and add automatic retry mechanism
+  - Better support for slow network environments
 
 # 打赏、鼓励、催更 🎉
 
