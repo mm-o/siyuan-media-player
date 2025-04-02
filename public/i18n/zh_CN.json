@@ -1,43 +1,206 @@
 {
-    "addTopBarIcon": "使用插件添加一个顶栏按钮",
-    "cancel": "取消",
-    "save": "保存",
-    "byeMenu": "再见，菜单！",
-    "helloPlugin": "你好，插件！",
-    "byePlugin": "再见，插件！",
-    "showDialog": "弹出一个对话框",
-    "removedData": "数据已删除",
-    "confirmRemove": "确认删除 ${name} 中的数据？",
-    "insertEmoji": "插入表情",
-    "removeSpace": "移除空格",
-    "getTab": "在日志中打印出已打开的所有自定义页签",
     "name": "思源媒体播放器",
-    "hello": {
-        "makesure": "使用这个模板之前，请阅读<a href=\"https://github.com/siyuan-note/plugin-sample\">官方教程</a>, 确保自己已经理解了插件的基本开发流程。"
+    "common": {
+        "cancel": "取消",
+        "save": "保存",
+        "ok": "确定",
+        "close": "关闭",
+        "confirm": "确认",
+        "delete": "删除",
+        "edit": "编辑",
+        "loading": "加载中...",
+        "error": "错误",
+        "success": "成功",
+        "warning": "警告",
+        "tip": "提示"
     },
-    "hintTitle": "关于",
-    "hintDesc": "思源笔记媒体播放器插件 <br> 作者: mm-o",
-    "play": "播放",
-    "pause": "暂停",
-    "stop": "停止",
-    "mute": "静音",
-    "unmute": "取消静音",
-    "volume": "音量",
-    "fullscreen": "全屏",
-    "exitFullscreen": "退出全屏",
+    "controlBar": {
     "screenshot": {
         "name": "截图",
         "desc": "将当前画面保存为图片",
-        "text": "截图"
+            "hint": "请先播放媒体"
     },
     "timestamp": {
         "name": "添加时间戳",
         "desc": "复制当前播放时间的时间戳链接",
-        "text": "时间戳"
+            "hint": "请先播放媒体" 
     },
     "loopSegment": {
         "name": "循环片段",
         "desc": "设置循环片段起点和终点",
-        "text": "循环片段"
-    }
+            "hint": "请先播放媒体",
+            "startHint": "已记录循环片段开始时间",
+            "endHint": "已记录循环片段结束时间"
+        },
+        "playlist": {
+            "name": "播放列表"
+        },
+        "settings": {
+            "name": "设置"
+        },
+        "notPlaying": "未播放"
+    },
+    "mediaPlayerTab": {
+        "block": {
+            "cursorNotFound": "未找到光标位置",
+            "targetBlockNotFound": "未找到目标块",
+            "updateError": "更新块失败",
+            "linkInserted": "链接已插入",
+            "copiedToClipboard": "链接已复制到剪贴板",
+            "insertFailed": "插入失败，已复制到剪贴板"
+        },
+        "timestamp": {
+            "noMediaLink": "无法获取媒体链接",
+            "generateFailed": "生成链接失败"
+        },
+        "screenshot": {
+            "failHint": "截图失败，请确保视频正在播放",
+            "defaultName": "截图",
+            "successHint": "截图已插入",
+            "errorHint": "截图失败，请重试",
+            "uploadFailed": "上传图片失败"
+        },
+        "play": {
+            "invalidOptions": "无效的播放选项",
+            "untitledMedia": "未命名媒体",
+            "failMessage": "播放失败："
+        },
+        "stream": {
+            "playbackError": "视频播放失败，请稍后重试"
+        }
+    },
+    "player": {
+        "loop": {
+            "endMessage": "循环播放结束",
+            "currentLoop": "第 ${current}/${total} 次循环"
+        },
+        "error": {
+            "clearDash": "清除dash实例失败:",
+            "playFailed": "播放失败:",
+            "playRetry": "播放失败，请重试",
+            "setTimeFailed": "设置播放时间失败",
+            "setLoopFailed": "设置循环播放失败:"
+        }
+    },
+    "playList": {
+        "title": "播放列表",
+        "itemCount": "个项目",
+        "empty": "暂无媒体文件",
+        "defaultList": "默认列表",
+        "favorites": "收藏夹",
+        "action": {
+            "add": "添加"
+        },
+        "placeholder": {
+            "mediaLink": "输入媒体链接...",
+            "newTab": "新标签",
+            "folderPath": "输入文件夹路径..."
+        },
+        "folder": {
+            "defaultName": "本地文件夹"
+        },
+        "menu": {
+            "play": "播放",
+            "pin": "置顶",
+            "unpin": "取消置顶",
+            "favorite": "收藏",
+            "unfavorite": "取消收藏",
+            "delete": "删除",
+            "rename": "重命名",
+            "clear": "清空",
+            "addLocalFolder": "添加本地文件夹",
+            "addAliCloud": "添加阿里云盘",
+            "addTianYiCloud": "添加天翼云盘",
+            "addQuarkCloud": "添加夸克云盘",
+            "addBilibiliFavorites": "添加B站收藏夹"
+        },
+        "message": {
+            "listCleared": "已清空\"${name}\"列表",
+            "folderAdded": "已添加文件夹 ${name} 中的 ${count} 个媒体文件",
+            "existingItemPlay": "媒体已在播放列表中，直接播放",
+            "addedAndPlay": "已添加到播放列表并开始播放"
+        },
+        "error": {
+            "emptyUrl": "请输入媒体链接",
+            "playFailed": "播放失败:",
+            "playRetry": "播放失败，请重试",
+            "cannotParse": "无法解析媒体文件",
+            "addMediaFailed": "添加媒体失败",
+            "selectFolderFailed": "选择文件夹失败",
+            "processLocalFolderFailed": "处理本地文件夹失败",
+            "processDirectoryFailed": "处理目录失败",
+            "processMediaItemFailed": "处理媒体项失败:",
+            "processMediaFailed": "处理媒体失败",
+            "parseLinkFailed": "解析链接失败:",
+            "noActiveTab": "未找到活动标签页"
+        },
+        "log": {
+            "parseLink": "开始解析链接:",
+            "parseResult": "解析结果:",
+            "usingExisting": "使用已存在项:",
+            "updatedItem": "更新后的媒体项:",
+            "newMediaItem": "创建新媒体项:",
+            "noTimeParam": "无时间参数:",
+            "parseLoopSegment": "解析循环片段:",
+            "parseTimestamp": "解析时间戳:"
+        }
+    },
+    "setting": {
+        "title": "设置",
+        "save": "保存",
+        "reset": "重置",
+        "saveSuccess": "设置已保存",
+        "resetSuccess": "设置已重置",
+        "items": {
+            "volume": {
+                "title": "音量",
+                "description": "默认音量大小"
+            },
+            "speed": {
+                "title": "播放速度",
+                "description": "默认播放速度"
+            },
+            "loopCount": {
+                "title": "循环次数",
+                "description": "片段循环播放次数"
+            },
+            "insertAtCursor": {
+                "title": "插入到光标处",
+                "description": "链接插入到光标位置，否则复制到剪贴板"
+            }
+        },
+        "bilibili": {
+            "account": "B站账号",
+            "login": "登录",
+            "logout": "退出",
+            "loginSuccess": "登录成功",
+            "logoutSuccess": "已退出登录",
+            "loginDescription": "登录B站账号以获取更多功能",
+            "avatar": "头像",
+            "getQRCodeFailed": "获取二维码失败",
+            "checkQRCodeFailed": "检查扫码状态失败",
+            "waitingScan": "等待扫码...",
+            "qrCodeExpired": "二维码已失效，请重新获取",
+            "qrCodeScanned": "二维码已扫描，请在手机上确认登录",
+            "unknownStatus": "未知状态",
+            "scanTitle": "哔哩哔哩扫码登录",
+            "scanDescription": "打开手机客户端扫描二维码",
+            "qrCode": "B站登录二维码"
+        }
+    },
+    "screenshot": {
+        "text": "截图",
+        "name": "截图"
+    },
+    "timestamp": {
+        "text": "添加时间戳",
+        "name": "添加时间戳"
+    },
+    "loopSegment": {
+        "text": "循环片段",
+        "name": "循环片段"
+    },
+    "openPlayer": "请先打开媒体播放器",
+    "playerNotReady": "播放器尚未就绪",
+    "buttonNotFound": "未找到对应按钮"
 }
