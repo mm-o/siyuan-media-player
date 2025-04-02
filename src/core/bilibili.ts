@@ -509,4 +509,12 @@ export class BilibiliParser {
 
         throw new Error('无法获取播放流');
     }
+
+    /**
+     * 获取视频分P列表
+     * 通过bvid或aid获取视频的所有分P信息
+     */
+    static async getVideoPartsList(params: { aid?: string; bvid?: string }): Promise<any[]> {
+        return this.getVideoPages(params);
+    }
 }
