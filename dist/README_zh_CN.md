@@ -4,6 +4,12 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
+### v0.2.0 (2025.3.28)
+- 新增国际化(i18n)支持
+  - 完整支持中英文界面本地化
+  - 根据系统设置动态切换语言
+  - 切换语言时自动翻译播放列表名称
+
 ### v0.1.9 (2024.3.27)
 - 新增本地文件夹批量导入媒体功能
 - 新增播放列表清空功能

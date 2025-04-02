@@ -9,6 +9,7 @@
     
     export let app: any;          // 应用实例（保留以保持API兼容）
     export let config: any;       // 播放器配置
+    export let i18n: any;         // 国际化对象
     
     // 播放器状态
     let art: any = null;          // Artplayer 实例
@@ -56,7 +57,7 @@
             playsInline: true,
             autoPlayback: true,
             theme: 'var(--b3-theme-primary)',
-            lang: 'zh-cn',
+            lang: i18n?.lang?.toLowerCase() === 'en_us' ? 'en' : 'zh-cn',
         };
     }
     
@@ -164,15 +165,15 @@
                 if (maxLoopCount > 0 && loopCount >= maxLoopCount) {
                     // 达到循环上限，重置状态
                     currentChapter = null;
-            loopCount = 0;
-                    artInstance.notice.show = '循环播放结束';
+                    loopCount = 0;
+                    artInstance.notice.show = i18n.player.loop.endMessage;
                     return;
                 }
                 
                 // 循环播放
                 artInstance.currentTime = currentChapter.start;
                 loopCount++;
-                artInstance.notice.show = `第 ${loopCount}/${maxLoopCount} 次循环`;
+                artInstance.notice.show = i18n.player.loop.currentLoop.replace('${current}', loopCount).replace('${total}', maxLoopCount);
             }
         });
         
@@ -206,13 +207,13 @@
                             art.dash.destroy();
                             art.dash = null;
                         } catch (e) {
-                            console.warn('[Player] 清除dash实例失败:', e);
+                            console.warn('[Player] ' + i18n.player.error.clearDash, e);
                         }
                     }
                     
                     art.option.customType = {};
                     art.option.type = '';
-            art.url = url;
+                    art.url = url;
                 }
             }
             
@@ -242,8 +243,8 @@
             // 开始播放
             art.play();
         } catch (error) {
-            console.error("[Player] 播放失败:", error);
-            showMessage("播放失败，请重试");
+            console.error("[Player] " + i18n.player.error.playFailed, error);
+            showMessage(i18n.player.error.playRetry);
             
             // 触发错误事件，允许外部处理
             if (art?.container) {
@@ -278,8 +279,8 @@
             // 跳转到开始时间
             art.currentTime = start;
         } catch (error) {
-            console.error('[Player] 设置播放时间失败:', error);
-            showMessage('设置播放时间失败');
+            console.error('[Player] ' + i18n.player.error.setTimeFailed, error);
+            showMessage(i18n.player.error.setTimeFailed);
         }
     }
     
@@ -298,7 +299,7 @@
                 config.loopCount = loopTimes;
             }
         } catch (error) {
-            console.error('[Player] 设置循环播放失败:', error);
+            console.error('[Player] ' + i18n.player.error.setLoopFailed, error);
         }
     }
     

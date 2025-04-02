@@ -140,9 +140,9 @@ export default class MediaPlayerPlugin extends Plugin {
 
         // 获取按钮标题
         const buttonTitle = {
-            screenshot: this.i18n.screenshot.name,
-            timestamp: this.i18n.timestamp.name,
-            loopSegment: this.i18n.loopSegment.name
+            screenshot: this.i18n.controlBar.screenshot.name,
+            timestamp: this.i18n.controlBar.timestamp.name,
+            loopSegment: this.i18n.controlBar.loopSegment.name
         }[action];
 
         // 找到对应的按钮并触发点击事件
@@ -171,7 +171,7 @@ export default class MediaPlayerPlugin extends Plugin {
                 self.mediaPlayerTab = new MediaPlayerTab({
                     target: container,
                     props: {
-                        app: self.app,
+                        app: { ...self.app, i18n: self.i18n },
                         configManager: self.configManager,
                         linkHandler: self.linkHandler
                     }

@@ -15,6 +15,7 @@
 
     export let group: string;
     export let configManager: ConfigManager;
+    export let i18n: any;
     
     let qrcodeData: string = '';
     let qrcodeKey: string = '';
@@ -29,7 +30,7 @@
         mid: number;
         uname: string;
     } | null = null;
-    let scanStatus: string = '等待扫码...';
+    let scanStatus: string = i18n.setting.bilibili.waitingScan;
     
     // 初始化时加载配置
     onMount(() => {
@@ -53,7 +54,7 @@
             // 开始轮询检查扫码状态
             startQRCodeCheck();
         } catch (e) {
-            showMessage(e.message || '获取二维码失败');
+            showMessage(e.message || i18n.setting.bilibili.getQRCodeFailed);
         }
     }
     
@@ -76,7 +77,7 @@
         };
         await configManager.save();
         
-        showMessage('登录成功');
+        showMessage(i18n.setting.bilibili.loginSuccess);
     }
     
     /**
@@ -92,7 +93,7 @@
         delete config.bilibiliLogin;
         await configManager.save();
         
-        showMessage('已退出登录');
+        showMessage(i18n.setting.bilibili.logoutSuccess);
     }
     
     /**
@@ -113,27 +114,27 @@
                 switch (status.code) {
                     case 0: // 登录成功
                         clearInterval(checkQRCodeTimer);
-                        scanStatus = '登录成功';
+                        scanStatus = i18n.setting.bilibili.loginSuccess;
                         await handleLoginSuccess(status);
                         break;
                     case 86038: // 二维码已失效
                         clearInterval(checkQRCodeTimer);
-                        scanStatus = '二维码已失效，请重新获取';
+                        scanStatus = i18n.setting.bilibili.qrCodeExpired;
                         qrcodeData = '';
                         break;
                     case 86090: // 二维码已扫描
-                        scanStatus = '二维码已扫描，请在手机上确认登录';
+                        scanStatus = i18n.setting.bilibili.qrCodeScanned;
                         break;
                     case 86101: // 未扫码
-                        scanStatus = '等待扫码...';
+                        scanStatus = i18n.setting.bilibili.waitingScan;
                         // 继续等待扫码，不做处理
                         break;
                     default:
-                        scanStatus = status.message || '未知状态';
+                        scanStatus = status.message || i18n.setting.bilibili.unknownStatus;
                 }
             } catch (e) {
                 clearInterval(checkQRCodeTimer);
-                showMessage('检查扫码状态失败');
+                showMessage(i18n.setting.bilibili.checkQRCodeFailed);
             }
         }, 3000);
     }
@@ -144,8 +145,8 @@
             key: "volume",
             value: 70,
             type: "slider",
-            title: "音量",
-            description: "默认音量大小",
+            title: i18n.setting.items.volume.title,
+            description: i18n.setting.items.volume.description,
             slider: {
                 min: 0,
                 max: 100,
@@ -156,8 +157,8 @@
             key: "speed",
             value: 100,
             type: "slider",
-            title: "播放速度",
-            description: "默认播放速度",
+            title: i18n.setting.items.speed.title,
+            description: i18n.setting.items.speed.description,
             slider: {
                 min: 25,
                 max: 200,
@@ -168,8 +169,8 @@
             key: "loopCount",
             value: 3,
             type: "slider",
-            title: "循环次数",
-            description: "片段循环播放次数",
+            title: i18n.setting.items.loopCount.title,
+            description: i18n.setting.items.loopCount.description,
             slider: {
                 min: 1,
                 max: 10,
@@ -180,8 +181,8 @@
             key: "insertAtCursor",
             value: true,
             type: "checkbox",
-            title: "插入到光标处",
-            description: "链接插入到光标位置，否则复制到剪贴板"
+            title: i18n.setting.items.insertAtCursor.title,
+            description: i18n.setting.items.insertAtCursor.description
         }
     ];
     
@@ -218,7 +219,7 @@
         
         await configManager.updateSettings(settings);
         dispatch('changed', { settings });
-        showMessage('设置已保存');
+        showMessage(i18n.setting.saveSuccess);
     }
     
     /**
@@ -231,7 +232,7 @@
             [item.key]: item.value
         }), {});
         dispatch('changed', { settings });
-        showMessage('设置已重置');
+        showMessage(i18n.setting.resetSuccess);
     }
 
     /**
@@ -255,13 +256,13 @@
 <div class="settings" data-name={group}>
     <!-- Header -->
     <div class="settings-header">
-        <h3>设置</h3>
+        <h3>{i18n.setting.title}</h3>
         <div class="header-actions">
             <button class="btn" on:click={resetSettings}>
-                <span>重置</span>
+                <span>{i18n.setting.reset}</span>
             </button>
             <button class="btn primary" on:click={saveSettings}>
-                <span>保存</span>
+                <span>{i18n.setting.save}</span>
             </button>
         </div>
     </div>
@@ -269,11 +270,11 @@
     <div class="setting-panel">
         <div class="setting-item">
             <div class="setting-info">
-                <div class="setting-title">B站账号</div>
+                <div class="setting-title">{i18n.setting.bilibili.account}</div>
                 <div class="setting-content">
                 {#if loginSuccess && userInfo}
                     <div class="user-wrapper">
-                        <img class="user-avatar" src={userInfo.face} alt="头像" />
+                        <img class="user-avatar" src={userInfo.face} alt={i18n.setting.bilibili.avatar} />
                         <div class="user-details">
                             <div class="user-name">
                                 {userInfo.uname}
@@ -283,7 +284,7 @@
                         </div>
                     </div>
                 {:else}
-                    <div class="setting-description">登录B站账号以获取更多功能</div>
+                    <div class="setting-description">{i18n.setting.bilibili.loginDescription}</div>
                 {/if}
                 </div>
             </div>
@@ -292,11 +293,11 @@
                 <button class="b3-button b3-button--outline" 
                     on:click={getBilibiliQRCode} 
                     disabled={!!qrcodeData}>
-                    登录
+                    {i18n.setting.bilibili.login}
                 </button>
                 {:else}
                 <button class="b3-button b3-button--outline" on:click={handleLogout}>
-                    退出
+                    {i18n.setting.bilibili.logout}
                 </button>
                 {/if}
             </div>
@@ -305,11 +306,11 @@
         {#if qrcodeData && !loginSuccess}
         <div class="bilibili-qrcode">
             <div class="qrcode-header">
-                <div class="qrcode-title">哔哩哔哩扫码登录</div>
-                <div class="qrcode-description">打开手机客户端扫描二维码</div>
+                <div class="qrcode-title">{i18n.setting.bilibili.scanTitle}</div>
+                <div class="qrcode-description">{i18n.setting.bilibili.scanDescription}</div>
             </div>
             <div class="qrcode-container">
-                <img src={qrcodeData} alt="B站登录二维码" />
+                <img src={qrcodeData} alt={i18n.setting.bilibili.qrCode} />
                 <div class="scan-status" class:success={loginSuccess}>
                     {scanStatus}
                 </div>

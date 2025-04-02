@@ -22,6 +22,7 @@
     export let configManager: ConfigManager;
     export let className = '';
     export let hidden = false;
+    export let i18n: any;
     
     // 组件状态
     let tabs: PlaylistConfig[] = [];
@@ -123,8 +124,8 @@
             currentItem = item;
             
         } catch (error) {
-            console.error("[Playlist] 播放失败:", error);
-            showMessage("播放失败，请重试");
+            console.error("[Playlist] " + i18n.playList.error.playFailed, error);
+            showMessage(i18n.playList.error.playRetry);
         }
     }
 
@@ -191,15 +192,15 @@
      */
     async function handleMediaAdd(url: string) {
         try {
-            console.log("[PlayList] 开始解析链接:", url);
+            console.log("[PlayList] " + i18n.playList.log.parseLink, url);
             // 1. 拆分链接
             const { mediaUrl, startTime, endTime } = parseMediaLink(url);
-            console.log("[PlayList] 解析结果:", { mediaUrl, startTime, endTime });
+            console.log("[PlayList] " + i18n.playList.log.parseResult, { mediaUrl, startTime, endTime });
             
             // 2. 检查是否已存在
             const existingItem = activeTab?.items?.find(item => item.url === mediaUrl);
             if (existingItem) {
-                console.log("[PlayList] 使用已存在项:", existingItem);
+                console.log("[PlayList] " + i18n.playList.log.usingExisting, existingItem);
                 // 更新已存在项的时间参数
                 const updatedItem = {
                     ...existingItem,
@@ -207,7 +208,7 @@
                     endTime,
                     originalUrl: url
                 };
-                console.log("[PlayList] 更新后的媒体项:", updatedItem);
+                console.log("[PlayList] " + i18n.playList.log.updatedItem, updatedItem);
                 // 存在则直接播放
                 await handleMediaPlay(updatedItem);
                 return;
@@ -219,10 +220,10 @@
                 endTime,
                 originalUrl: url
             });
-            console.log("[PlayList] 创建新媒体项:", mediaItem);
+            console.log("[PlayList] " + i18n.playList.log.newMediaItem, mediaItem);
             
             if (!mediaItem) {
-                showMessage('无法解析媒体文件');
+                showMessage(i18n.playList.error.cannotParse);
                 return;
             }
             
@@ -236,8 +237,8 @@
             await handleMediaPlay(mediaItem);
             
         } catch (error) {
-            console.error('[Playlist] 添加媒体失败:', error);
-            showMessage('添加媒体失败');
+            console.error('[Playlist] ' + i18n.playList.error.addMediaFailed, error);
+            showMessage(i18n.playList.error.addMediaFailed);
         }
     }
 
@@ -299,7 +300,7 @@
                 // 添加重命名项
                 menu.addItem({
                     icon: "iconEdit",
-                    label: "重命名",
+                    label: i18n.playList.menu.rename,
                     click: () => {
                         // 将当前标签设置为编辑状态
                         tabs = tabs.map(t => ({
@@ -317,7 +318,7 @@
                 // 添加删除项
                 menu.addItem({
                     icon: "iconTrashcan",
-                    label: "删除",
+                    label: i18n.playList.menu.delete,
                     click: () => {
                         // 从标签列表中移除当前标签
                         tabs = tabs.filter(t => t.id !== tab.id);
@@ -334,7 +335,7 @@
             // 为所有标签添加清空选项
             menu.addItem({
                 icon: "iconClear",
-                label: "清空",
+                label: i18n.playList.menu.clear,
                 click: () => {
                     // 清空标签内容
                     tabs = tabs.map(t => 
@@ -342,7 +343,7 @@
                         ? { ...t, items: [] }
                         : t
                     );
-                    showMessage(`已清空"${tab.name}"列表`);
+                    showMessage(i18n.playList.message.listCleared.replace('${name}', tab.name));
                 }
             });
             
@@ -358,7 +359,7 @@
         try {
             // 创建新标签
             const tabId = `folder-${Date.now()}`;
-            const folderName = folderPath.split(/[/\\]/).pop() || '本地文件夹';
+            const folderName = folderPath.split(/[/\\]/).pop() || i18n.playList.folder.defaultName;
             
             // 添加标签
             const newTab: PlaylistConfig = {
@@ -375,12 +376,12 @@
                 const dirHandle = await window.showDirectoryPicker();
                 await processDirectoryHandle(dirHandle, folderPath, tabId);
             } catch (error) {
-                console.error("选择文件夹失败:", error);
-                showMessage("选择文件夹失败");
+                console.error(i18n.playList.error.selectFolderFailed, error);
+                showMessage(i18n.playList.error.selectFolderFailed);
             }
         } catch (error) {
-            console.error("处理本地文件夹失败:", error);
-            showMessage("处理本地文件夹失败");
+            console.error(i18n.playList.error.processLocalFolderFailed, error);
+            showMessage(i18n.playList.error.processLocalFolderFailed);
         }
     }
     
@@ -412,10 +413,12 @@
                 }
             }
             
-            showMessage(`已添加文件夹 ${handle.name} 中的 ${addedCount} 个媒体文件`);
+            showMessage(i18n.playList.message.folderAdded
+                .replace('${name}', handle.name)
+                .replace('${count}', addedCount.toString()));
         } catch (error) {
-            console.error("处理目录失败:", error);
-            showMessage("处理目录失败");
+            console.error(i18n.playList.error.processDirectoryFailed, error);
+            showMessage(i18n.playList.error.processDirectoryFailed);
         }
     }
 
@@ -428,19 +431,19 @@
             
             menu.addItem({
                 icon: "iconPlay",
-                label: "播放",
+                label: i18n.playList.menu.play,
                 click: () => itemActions.play(item)
             });
             
             menu.addItem({
                 icon: "iconPin",
-                label: item.isPinned ? "取消置顶" : "置顶",
+                label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin,
                 click: () => itemActions.togglePin(item)
             });
             
             menu.addItem({
                 icon: "iconHeart",
-                label: item.isFavorite ? "取消收藏" : "收藏",
+                label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite,
                 click: () => itemActions.toggleFavorite(item)
             });
             
@@ -448,7 +451,7 @@
             
             menu.addItem({
                 icon: "iconTrashcan",
-                label: "删除",
+                label: i18n.playList.menu.delete,
                 click: () => {
                     const tab = tabs.find(t => t.id === activeTabId);
                     if (!tab) return;
@@ -533,22 +536,22 @@
             if (existingItem) {
                 // 如果已存在，直接播放
                 await handleMediaPlay(existingItem);
-                showMessage('媒体已在播放列表中，直接播放');
+                showMessage(i18n.playList.message.existingItemPlay);
             } else {
                 // 添加到当前标签页的播放列表中
                 const tab = tabs.find(t => t.id === activeTabId);
-                if (!tab) throw new Error('未找到活动标签页');
+                if (!tab) throw new Error(i18n.playList.error.noActiveTab);
 
                 tab.items = [...(tab.items || []), mediaItem];
                 tabs = tabs;  // 触发 Svelte 更新
 
                 // 播放新添加的媒体
                 await handleMediaPlay(mediaItem);
-                showMessage('已添加到播放列表并开始播放');
+                showMessage(i18n.playList.message.addedAndPlay);
             }
         } catch (error) {
-            console.error('[Playlist] 处理媒体项失败:', error);
-            showMessage('处理媒体失败');
+            console.error('[Playlist] ' + i18n.playList.error.processMediaItemFailed, error);
+            showMessage(i18n.playList.error.processMediaFailed);
             throw error; // 向上传播错误
         }
     }
@@ -581,14 +584,14 @@
             const mediaUrl = urlObj.toString();
             
             if (!timeParam) {
-                console.log("[PlayList] 无时间参数:", { mediaUrl });
+                console.log("[PlayList] " + i18n.playList.log.noTimeParam, { mediaUrl });
                 return { mediaUrl };
             }
             
             // 检查是否是循环片段（包含-）
             if (timeParam.includes('-')) {
                 const [start, end] = timeParam.split('-').map(Number);
-                console.log("[PlayList] 解析循环片段:", { mediaUrl, start, end });
+                console.log("[PlayList] " + i18n.playList.log.parseLoopSegment, { mediaUrl, start, end });
                 return {
                     mediaUrl,
                     startTime: isNaN(start) ? undefined : start,
@@ -597,14 +600,14 @@
             } else {
                 // 单个时间戳
                 const time = Number(timeParam);
-                console.log("[PlayList] 解析时间戳:", { mediaUrl, time });
+                console.log("[PlayList] " + i18n.playList.log.parseTimestamp, { mediaUrl, time });
                 return {
                     mediaUrl,
                     startTime: isNaN(time) ? undefined : time
                 };
             }
         } catch (error) {
-            console.error("[PlayList] 解析链接失败:", error);
+            console.error("[PlayList] " + i18n.playList.error.parseLinkFailed, error);
             return { mediaUrl: url };
         }
     }
@@ -615,7 +618,7 @@
     export async function handleSubmit(externalUrl?: string) {
         const url = externalUrl || inputValue.trim();
         if (!url) {
-            showMessage('请输入媒体链接');
+            showMessage(i18n.playList.error.emptyUrl);
             return;
         }
         
@@ -632,8 +635,8 @@
 <div class="playlist {className}" class:hidden>
     <!-- Header -->
     <div class="playlist-header">
-        <h3>播放列表</h3>
-        <span class="playlist-count">{itemCount} 个项目</span>
+        <h3>{i18n.playList.title}</h3>
+        <span class="playlist-count">{itemCount} {i18n.playList.itemCount}</span>
     </div>
     
     <!-- Tabs -->
@@ -671,7 +674,7 @@
                     type="text"
                     class="tab-input"
                     style="width: 100px; max-width: 100px;"
-                    placeholder={inputMode === 'localFolder' ? "输入文件夹路径..." : "新标签"}
+                    placeholder={inputMode === 'localFolder' ? i18n.playList.placeholder.folderPath : i18n.playList.placeholder.newTab}
                     on:blur={tabActions.save}
                     on:keydown={tabActions.save}
                 />
@@ -683,7 +686,7 @@
                         const menu = new Menu("addTabMenu");
                         menu.addItem({
                             icon: "iconFolder",
-                            label: "添加本地文件夹",
+                            label: i18n.playList.menu.addLocalFolder,
                             click: () => {
                                 isAddingTab = true;
                                 inputMode = 'localFolder';
@@ -692,28 +695,28 @@
                         });
                         menu.addItem({
                             icon: "iconCloud",
-                            label: "添加阿里云盘",
+                            label: i18n.playList.menu.addAliCloud,
                             click: () => {
                                 // TODO: 实现添加阿里云盘功能
                             }
                         });
                         menu.addItem({
                             icon: "iconCloud",
-                            label: "添加天翼云盘",
+                            label: i18n.playList.menu.addTianYiCloud,
                             click: () => {
                                 // TODO: 实现添加天翼云盘功能
                             }
                         });
                         menu.addItem({
                             icon: "iconCloud",
-                            label: "添加夸克云盘",
+                            label: i18n.playList.menu.addQuarkCloud,
                             click: () => {
                                 // TODO: 实现添加夸克云盘功能
                             }
                         });
                         menu.addItem({
                             icon: "iconHeart",
-                            label: "添加B站收藏夹",
+                            label: i18n.playList.menu.addBilibiliFavorites,
                             click: () => {
                                 // TODO: 实现添加B站收藏夹功能
                             }
@@ -728,7 +731,7 @@
     <!-- Content -->
     <div class="playlist-content">
         {#if !itemCount}
-            <div class="playlist-empty">暂无媒体文件</div>
+            <div class="playlist-empty">{i18n.playList.empty}</div>
         {:else}
             <div class="playlist-items">
                 {#each activeTab.items as item (item.id)}
@@ -773,7 +776,7 @@
             <input 
                 type="text" 
                 class="tab-input playlist-input" 
-                placeholder="输入媒体链接..."
+                placeholder={i18n.playList.placeholder.mediaLink}
                 bind:value={inputValue}
                 on:keydown={(e) => e.key === 'Enter' && handleSubmit()}
             />
@@ -785,7 +788,7 @@
             class="add-btn" 
             on:click={() => inputValue && handleSubmit()}
         >
-            添加
+            {i18n.playList.action.add}
         </button>
     </div>
 </div> 

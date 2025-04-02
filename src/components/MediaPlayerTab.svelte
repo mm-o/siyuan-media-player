@@ -33,6 +33,9 @@
     export let configManager: ConfigManager;
     export let linkHandler: LinkHandler;
     
+    // 获取i18n对象
+    let i18n = app.i18n;
+    
     // 状态管理
     let showControls = true;
     let controlTimer: number;
@@ -43,6 +46,7 @@
     let playerConfig: any;
     let loopStartTime: number | null = null;
     let playlist: PlayList;
+    let settingPanel: Setting;
 
     // =============== 工具函数 ===============
     /**
@@ -52,7 +56,7 @@
     function getCurrentBlockId(): string {
         const selection = window.getSelection();
         if (!selection?.focusNode) {
-            throw new Error('未找到光标位置');
+            throw new Error(i18n.mediaPlayerTab.block.cursorNotFound);
         }
 
         let element = selection.focusNode as HTMLElement;
@@ -61,7 +65,7 @@
         }
 
         if (!element?.dataset.nodeId) {
-            throw new Error('未找到目标块');
+            throw new Error(i18n.mediaPlayerTab.block.targetBlockNotFound);
         }
 
         return element.dataset.nodeId;
@@ -109,15 +113,15 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('更新块失败');
-                showMessage('链接已插入');
+                if (!response.ok) throw new Error(i18n.mediaPlayerTab.block.updateError);
+                showMessage(i18n.mediaPlayerTab.block.linkInserted);
             } else {
                 await navigator.clipboard.writeText(content);
-                showMessage('链接已复制到剪贴板');
+                showMessage(i18n.mediaPlayerTab.block.copiedToClipboard);
             }
         } catch (error) {
             await navigator.clipboard.writeText(content);
-            showMessage('插入失败，已复制到剪贴板');
+            showMessage(i18n.mediaPlayerTab.block.insertFailed);
         }
     }
 
@@ -139,7 +143,7 @@
             const endTime = options.endTime ?? (options.isLoop ? currentTime + 3 : undefined);
             const baseUrl = mediaItem.originalUrl || mediaItem.url;
             
-            if (!baseUrl) throw new Error('无法获取媒体链接');
+            if (!baseUrl) throw new Error(i18n.mediaPlayerTab.timestamp.noMediaLink);
 
             const urlObj = new URL(baseUrl);
             urlObj.searchParams.delete('t');
@@ -152,7 +156,7 @@
                 return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
             }
         } catch (error) {
-            showMessage('生成链接失败');
+            showMessage(i18n.mediaPlayerTab.timestamp.generateFailed);
             return null;
         }
     }
@@ -189,10 +193,10 @@
                                 body: formData
                             });
                             
-        if (!response.ok) throw new Error('上传图片失败');
+        if (!response.ok) throw new Error(i18n.mediaPlayerTab.screenshot.uploadFailed);
                             
                             const result = await response.json();
-        if (result.code !== 0) throw new Error(result.msg || '上传图片失败');
+        if (result.code !== 0) throw new Error(result.msg || i18n.mediaPlayerTab.screenshot.uploadFailed);
         
         return result.data.succMap[filename];
     }
@@ -240,7 +244,7 @@
         // 只有需要播放器的操作才检查播放器状态
         if (['screenshot', 'timestamp', 'loopSegment'].includes(type)) {
             if (!player || !currentItem) {
-                showMessage('请先播放媒体');
+                showMessage(i18n.controlBar.screenshot.hint);
                 return;
             }
         }
@@ -273,18 +277,18 @@
         try {
             const imageBlob = await getScreenshot();
             if (!imageBlob) {
-                showMessage('截图失败，请确保视频正在播放');
+                showMessage(i18n.mediaPlayerTab.screenshot.failHint);
                 return;
             }
 
             const timestamp = new Date().getTime();
-            const filename = `${currentItem.title || 'screenshot'}_${timestamp}.png`;
+            const filename = `${currentItem.title || i18n.mediaPlayerTab.screenshot.defaultName}_${timestamp}.png`;
             const imageUrl = await uploadScreenshot(imageBlob, filename);
             
             await insertBlock(`![${filename}](${imageUrl})`);
-            showMessage('截图已插入');
+            showMessage(i18n.mediaPlayerTab.screenshot.successHint);
         } catch {
-            showMessage('截图失败，请重试');
+            showMessage(i18n.mediaPlayerTab.screenshot.errorHint);
         }
     }
 
@@ -306,7 +310,7 @@
         const currentTime = player.getCurrentTime();
         if (loopStartTime === null) {
             loopStartTime = currentTime;
-            showMessage('已记录循环片段开始时间');
+            showMessage(i18n.controlBar.loopSegment.startHint);
         } else {
             const timestampLink = generateTimestampLink(currentItem, {
                 isLoop: true,
@@ -326,7 +330,7 @@
     async function handlePlay(event: CustomEvent<PlayOptions>): Promise<void> {
         const playOptions = event.detail;
         if (!playOptions?.url) {
-            showMessage('无效的播放选项');
+            showMessage(i18n.mediaPlayerTab.play.invalidOptions);
             return;
         }
 
@@ -334,7 +338,7 @@
             // 创建或更新 currentItem
             currentItem = {
                 id: `item-${Date.now()}`,
-                title: playOptions.title || '未命名媒体',
+                title: playOptions.title || i18n.mediaPlayerTab.play.untitledMedia,
                 url: playOptions.url,
                 originalUrl: playOptions.originalUrl || playOptions.url,
                 type: playOptions.type === 'bilibili-dash' || playOptions.type === 'bilibili' ? 'bilibili' : 'video',
@@ -363,7 +367,7 @@
                 player.setLoop(true, playOptions.loopCount);
             }
         } catch (error) {
-            showMessage('播放失败：' + error.message);
+            showMessage(i18n.mediaPlayerTab.play.failMessage + error.message);
         }
     }
 
@@ -394,7 +398,7 @@
                     });
                 }
             } catch {
-                showMessage('视频播放失败，请稍后重试');
+                showMessage(i18n.mediaPlayerTab.stream.playbackError);
             }
         }
     }
@@ -447,12 +451,14 @@
                 bind:this={player}
                 {app}
                 config={playerConfig}
+                {i18n}
             />
             
             <div class="control-bar" class:hidden={!showControls}>
                 <ControlBar 
                     title={currentItem?.title}
                     {loopStartTime}
+                    {i18n}
                     on:screenshot={handleControlBarEvents}
                     on:timestamp={handleControlBarEvents}
                     on:loopSegment={handleControlBarEvents}
@@ -469,13 +475,15 @@
                 {currentItem}
                 className="playlist-container"
                 hidden={!showPlaylist}
+                {i18n}
                 on:select={handleSelect}
                 on:play={handlePlay}
             />
             {#if showSettings}
                 <Setting 
-                    group="mediaPlayer"
+                    group="media-player"
                     {configManager}
+                    {i18n}
                     on:changed={handleSettingsChanged}
                 />
             {/if}
