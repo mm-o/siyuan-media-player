@@ -76,13 +76,17 @@ export class LinkHandler {
                 this.MEDIA_EXTENSIONS.some(ext => urlPath.endsWith(ext))
             );
 
-            return isMediaFile || isLocalFile;
+            // 检查是否包含时间戳参数
+            const hasTimeParam = urlObj.searchParams.has('t');
+
+            return isMediaFile || isLocalFile || hasTimeParam;
             
         } catch (e) {
             // 如果 URL 解析失败，尝试直接检查字符串
             const urlLower = url.toLowerCase();
             return this.MEDIA_EXTENSIONS.some(ext => urlLower.includes(ext)) ||
-                   urlLower.includes('bilibili.com');
+                   urlLower.includes('bilibili.com') ||
+                   urlLower.includes('t='); // 检查是否包含时间戳参数
         }
     }
 
@@ -91,11 +95,27 @@ export class LinkHandler {
      */
     private async handleMediaLink(url: string) {
         try {
-            // 打开媒体播放器标签页
-            this.openTabCallback();
+            // 检查播放器标签页是否已打开
+            const playerTab = document.querySelector('.media-player-tab');
+            if (!playerTab) {
+                // 如果标签页未打开，先打开标签页
+                this.openTabCallback();
+                // 等待标签页打开
+                await new Promise<void>((resolve) => {
+                    const checkTab = () => {
+                        const tab = document.querySelector('.media-player-tab');
+                        if (tab) {
+                            resolve();
+                        } else {
+                            setTimeout(checkTab, 100);
+                        }
+                    };
+                    checkTab();
+                });
+            }
             
-            // 等待标签页打开
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // 等待一小段时间确保组件已完全初始化
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             // 通过播放列表处理链接
             if (this.playlist) {

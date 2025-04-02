@@ -18,7 +18,6 @@ export interface MediaItem {
     aid?: string;        // B站av号
     bvid?: string;       // B站bv号
     cid?: string;        // B站视频cid
-    audioUrl?: string;    // 音频URL
     headers?: Record<string, string>;
     
     // 播放控制属性
@@ -57,6 +56,8 @@ export interface Config {
         hotkey: boolean;
         /** 是否循环播放 */
         loop: boolean;
+        /** 是否插入到光标处 */
+        insertAtCursor: boolean;
     };
     /** B站登录信息 */
     bilibiliLogin?: {
@@ -95,7 +96,12 @@ export interface Config {
         };
     };
     /** 播放列表 */
-    playlist: MediaItem[];
+    playlists: {
+        id: string;          // 列表ID
+        name: string;        // 列表名称
+        isFixed?: boolean;   // 是否为固定列表
+        items: MediaItem[];  // 媒体项列表
+    }[];
 }
 
 /**
@@ -121,9 +127,31 @@ export interface PlayOptions {
     originalUrl?: string;
     
     // B站视频特有选项
-    type?: 'bilibili';
+    type?: 'bilibili' | 'bilibili-dash';
     bvid?: string;
-    audioUrl?: string;
     headers?: Record<string, string>;
     title?: string;
+}
+
+export interface VideoStream {
+    video: {
+        url: string
+        size?: number
+        // 保留视频其他属性
+    }
+    headers?: Record<string, string>
+    mpdUrl?: string
+}
+
+export interface ISettingItem {
+    key: string;
+    value: number | boolean;
+    type: 'slider' | 'checkbox';
+    title: string;
+    description?: string;
+    slider?: {
+        min: number;
+        max: number;
+        step: number;
+    };
 } 

@@ -21,13 +21,13 @@ export class ConfigManager {
             playlists: [
                 {
                     id: 'default',
-                    name: '默认列表',
+                    name: this.plugin.i18n.playList?.defaultList || '默认列表',
                     items: [],
                     isFixed: true
                 },
                 {
                     id: 'favorites',
-                    name: '收藏夹',
+                    name: this.plugin.i18n.playList?.favorites || '收藏夹',
                     items: [],
                     isFixed: true
                 }
@@ -37,6 +37,7 @@ export class ConfigManager {
                 speed: 100,
                 hotkey: true,
                 loop: false,
+                insertAtCursor: true,
             }
         };
     }
@@ -48,6 +49,26 @@ export class ConfigManager {
         try {
             const saved = await this.plugin.loadData('config.json');
             if (saved) {
+                // 保留固定列表的i18n名称
+                if (saved.playlists) {
+                    // 更新固定列表的名称为当前语言
+                    saved.playlists = saved.playlists.map(playlist => {
+                        if (playlist.id === 'default' && playlist.isFixed) {
+                            return {
+                                ...playlist,
+                                name: this.plugin.i18n.playList?.defaultList || '默认列表'
+                            };
+                        }
+                        if (playlist.id === 'favorites' && playlist.isFixed) {
+                            return {
+                                ...playlist,
+                                name: this.plugin.i18n.playList?.favorites || '收藏夹'
+                            };
+                        }
+                        return playlist;
+                    });
+                }
+                
                 this.config = {
                     ...this.config,
                     ...saved

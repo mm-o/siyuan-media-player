@@ -86,6 +86,12 @@ $transition: 0.3s ease;   // 过渡动画
     }
 }
 
+.protyle [class*=hint--]:not(.fn__none) {
+    font-family: var(--b3-font-family);
+    display: flex;
+    position: fixed;
+  }
+
 /* --------------------------------
  * 媒体播放器标签页样式
  * -------------------------------- */

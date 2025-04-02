@@ -1,45 +1,206 @@
 {
-    "addTopBarIcon": "Add a top bar icon by plugin",
-    "cancel": "Cancel",
-    "save": "Save",
-    "byeMenu": "Bye, Menu!",
-    "helloPlugin": "Hello, Plugin!",
-    "byePlugin": "Bye, Plugin!",
-    "showDialog": "Show dialog",
-    "removedData": "Data deleted",
-    "confirmRemove": "Confirm to delete the data in ${name}?",
-    "insertEmoji": "Insert Emoji",
-    "removeSpace": "Remove Space",
-    "getTab": "Print out all opened custom tabs in the debugger",
     "name": "SiYuan Media Player",
-    "hello": {
-        "makesure": "Before using this plugin, please make sure you understand how it works."
+    "common": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "ok": "OK",
+        "close": "Close",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "warning": "Warning",
+        "tip": "Tip"
     },
-    "hintTitle": "About",
-    "hintDesc": "SiYuan Media Player Plugin <br> Author: mm-o",
-
-    "play": "Play",
-    "pause": "Pause",
-    "stop": "Stop", 
-    "mute": "Mute",
-    "unmute": "Unmute",
-    "volume": "Volume",
-    "fullscreen": "Fullscreen",
-    "exitFullscreen": "Exit Fullscreen",
-
+    "controlBar": {
     "screenshot": {
         "name": "Screenshot",
         "desc": "Save current frame as image",
-        "text": "Screenshot"
+            "hint": "Please play media first"
     },
     "timestamp": {
         "name": "Add Timestamp",
         "desc": "Copy timestamp link of current playback time",
-        "text": "Timestamp"
+            "hint": "Please play media first"
     },
     "loopSegment": {
         "name": "Loop Segment",
         "desc": "Set loop segment start and end points",
-        "text": "Loop Segment"
-    }
+            "hint": "Please play media first",
+            "startHint": "Loop segment start time recorded",
+            "endHint": "Loop segment end time recorded"
+        },
+        "playlist": {
+            "name": "Playlist"
+        },
+        "settings": {
+            "name": "Settings"
+        },
+        "notPlaying": "Not playing"
+    },
+    "mediaPlayerTab": {
+        "block": {
+            "cursorNotFound": "Cursor position not found",
+            "targetBlockNotFound": "Target block not found",
+            "updateError": "Failed to update block",
+            "linkInserted": "Link inserted",
+            "copiedToClipboard": "Link copied to clipboard",
+            "insertFailed": "Insert failed, copied to clipboard"
+        },
+        "timestamp": {
+            "noMediaLink": "Unable to get media link",
+            "generateFailed": "Failed to generate link"
+        },
+        "screenshot": {
+            "failHint": "Screenshot failed, please ensure video is playing",
+            "defaultName": "screenshot",
+            "successHint": "Screenshot inserted",
+            "errorHint": "Screenshot failed, please try again",
+            "uploadFailed": "Failed to upload image"
+        },
+        "play": {
+            "invalidOptions": "Invalid play options",
+            "untitledMedia": "Untitled Media",
+            "failMessage": "Playback failed: "
+        },
+        "stream": {
+            "playbackError": "Video playback failed, please try again later"
+        }
+    },
+    "player": {
+        "loop": {
+            "endMessage": "Loop playback ended",
+            "currentLoop": "Loop ${current}/${total}"
+        },
+        "error": {
+            "clearDash": "Failed to clear dash instance:",
+            "playFailed": "Playback failed:",
+            "playRetry": "Playback failed, please try again",
+            "setTimeFailed": "Failed to set playback time",
+            "setLoopFailed": "Failed to set loop playback:"
+        }
+    },
+    "playList": {
+        "title": "Playlist",
+        "itemCount": "items",
+        "empty": "No media files",
+        "defaultList": "Default List",
+        "favorites": "Favorites",
+        "action": {
+            "add": "Add"
+        },
+        "placeholder": {
+            "mediaLink": "Enter media link...",
+            "newTab": "New Tab",
+            "folderPath": "Enter folder path..."
+        },
+        "folder": {
+            "defaultName": "Local Folder"
+        },
+        "menu": {
+            "play": "Play",
+            "pin": "Pin",
+            "unpin": "Unpin",
+            "favorite": "Favorite",
+            "unfavorite": "Unfavorite",
+            "delete": "Delete",
+            "rename": "Rename",
+            "clear": "Clear",
+            "addLocalFolder": "Add Local Folder",
+            "addAliCloud": "Add Alibaba Cloud",
+            "addTianYiCloud": "Add TianYi Cloud",
+            "addQuarkCloud": "Add Quark Cloud",
+            "addBilibiliFavorites": "Add Bilibili Favorites"
+        },
+        "message": {
+            "listCleared": "Cleared \"${name}\" list",
+            "folderAdded": "Added ${count} media files from folder ${name}",
+            "existingItemPlay": "Media already in playlist, playing directly",
+            "addedAndPlay": "Added to playlist and started playback"
+        },
+        "error": {
+            "emptyUrl": "Please enter a media link",
+            "playFailed": "Playback failed:",
+            "playRetry": "Playback failed, please try again",
+            "cannotParse": "Cannot parse media file",
+            "addMediaFailed": "Failed to add media",
+            "selectFolderFailed": "Failed to select folder",
+            "processLocalFolderFailed": "Failed to process local folder",
+            "processDirectoryFailed": "Failed to process directory",
+            "processMediaItemFailed": "Failed to process media item:",
+            "processMediaFailed": "Failed to process media",
+            "parseLinkFailed": "Failed to parse link:",
+            "noActiveTab": "No active tab found"
+        },
+        "log": {
+            "parseLink": "Parsing link:",
+            "parseResult": "Parse result:",
+            "usingExisting": "Using existing item:",
+            "updatedItem": "Updated media item:",
+            "newMediaItem": "Created new media item:",
+            "noTimeParam": "No time parameter:",
+            "parseLoopSegment": "Parsing loop segment:",
+            "parseTimestamp": "Parsing timestamp:"
+        }
+    },
+    "setting": {
+        "title": "Settings",
+        "save": "Save",
+        "reset": "Reset",
+        "saveSuccess": "Settings saved",
+        "resetSuccess": "Settings reset",
+        "items": {
+            "volume": {
+                "title": "Volume",
+                "description": "Default volume level"
+            },
+            "speed": {
+                "title": "Playback Speed",
+                "description": "Default playback speed"
+            },
+            "loopCount": {
+                "title": "Loop Count",
+                "description": "Number of times to loop a segment"
+            },
+            "insertAtCursor": {
+                "title": "Insert at Cursor",
+                "description": "Insert links at cursor position, otherwise copy to clipboard"
+            }
+        },
+        "bilibili": {
+            "account": "Bilibili Account",
+            "login": "Login",
+            "logout": "Logout",
+            "loginSuccess": "Login successful",
+            "logoutSuccess": "Logged out",
+            "loginDescription": "Login to Bilibili for more features",
+            "avatar": "Avatar",
+            "getQRCodeFailed": "Failed to get QR code",
+            "checkQRCodeFailed": "Failed to check scan status",
+            "waitingScan": "Waiting for scan...",
+            "qrCodeExpired": "QR code expired, please refresh",
+            "qrCodeScanned": "QR code scanned, please confirm on your phone",
+            "unknownStatus": "Unknown status",
+            "scanTitle": "Bilibili QR Code Login",
+            "scanDescription": "Scan with the Bilibili mobile app",
+            "qrCode": "Bilibili login QR code"
+        }
+    },
+    "screenshot": {
+        "text": "Take Screenshot",
+        "name": "Screenshot"
+    },
+    "timestamp": {
+        "text": "Add Timestamp",
+        "name": "Add Timestamp"
+    },
+    "loopSegment": {
+        "text": "Loop Segment",
+        "name": "Loop Segment"
+    },
+    "openPlayer": "Please open the media player first",
+    "playerNotReady": "Player is not ready yet",
+    "buttonNotFound": "Button not found"
 }

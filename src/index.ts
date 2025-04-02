@@ -70,14 +70,6 @@ export default class MediaPlayerPlugin extends Plugin {
                     this.mediaPlayerTab.player.pause();
                 }
                 
-                // 销毁B站音频插件
-                if (this.mediaPlayerTab.player.plugins) {
-                    const biliPlugin = this.mediaPlayerTab.player.plugins.bilibili;
-                    if (biliPlugin && typeof biliPlugin.destroy === 'function') {
-                        biliPlugin.destroy();
-                    }
-                }
-                
                 // 完全销毁播放器
                 this.mediaPlayerTab.player.destroy(true);
             }
@@ -148,9 +140,9 @@ export default class MediaPlayerPlugin extends Plugin {
 
         // 获取按钮标题
         const buttonTitle = {
-            screenshot: this.i18n.screenshot.name,
-            timestamp: this.i18n.timestamp.name,
-            loopSegment: this.i18n.loopSegment.name
+            screenshot: this.i18n.controlBar.screenshot.name,
+            timestamp: this.i18n.controlBar.timestamp.name,
+            loopSegment: this.i18n.controlBar.loopSegment.name
         }[action];
 
         // 找到对应的按钮并触发点击事件
@@ -179,7 +171,7 @@ export default class MediaPlayerPlugin extends Plugin {
                 self.mediaPlayerTab = new MediaPlayerTab({
                     target: container,
                     props: {
-                        app: self.app,
+                        app: { ...self.app, i18n: self.i18n },
                         configManager: self.configManager,
                         linkHandler: self.linkHandler
                     }
@@ -195,14 +187,6 @@ export default class MediaPlayerPlugin extends Plugin {
                         // 先暂停播放
                         if (typeof self.mediaPlayerTab.player.pause === 'function') {
                             self.mediaPlayerTab.player.pause();
-                        }
-                        
-                        // 销毁B站音频插件
-                        if (self.mediaPlayerTab.player.plugins) {
-                            const biliPlugin = self.mediaPlayerTab.player.plugins.bilibili;
-                            if (biliPlugin && typeof biliPlugin.destroy === 'function') {
-                                biliPlugin.destroy();
-                            }
                         }
                         
                         // 完全销毁播放器

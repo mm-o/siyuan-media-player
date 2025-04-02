@@ -2,43 +2,42 @@
     import { onMount, onDestroy } from 'svelte';
     import { showMessage } from 'siyuan';
     import Artplayer from 'artplayer';
-    import artplayerPluginChapter from 'artplayer-plugin-chapter';
-    import type { MediaItem, PlayOptions } from '../types/media';
+    import * as dashjs from 'dashjs';
+    import type { PlayOptions } from '../core/types';
     
-    // 组件属性
-    export let app: any;
-    export let config: any;
+    // ===================== 属性和状态 =====================
     
-    // Artplayer 实例
-    let art: any = null;
-    //let chapterPlugin: any = null;  // 添加章节插件引用
-    // 播放器容器 DOM 元素引用
-    let playerContainer: HTMLElement;
-    // 当前循环片段
-    let currentChapter: { start: number; end: number; } | null = null;
-    // 循环计数器
-    let loopCount = 0;
+    export let app: any;          // 应用实例（保留以保持API兼容）
+    export let config: any;       // 播放器配置
+    export let i18n: any;         // 国际化对象
     
-    // ===================== 1. 初始化 Artplayer 播放器 =====================
+    // 播放器状态
+    let art: any = null;          // Artplayer 实例
+    let playerContainer: HTMLDivElement;   // 播放器容器元素
+    let currentChapter: { start: number; end: number; } | null = null;  // 当前循环片段
+    let loopCount = 0;            // 当前循环次数
     
-    onMount(() => {
-        if (!playerContainer) return;
+    // 默认配置
+    const DEFAULT_CONFIG = {
+        volume: 70,
+        speed: 100,
+        loopCount: 3
+    };
+    
+    // ===================== 核心功能：播放器创建 =====================
+    
+    /**
+     * 获取基础播放器选项
+     * @param url 媒体URL
+     * @returns Artplayer配置选项
+     */
+    function getBasePlayerOptions(url = ''): any {
+        const safeConfig = { ...DEFAULT_CONFIG, ...config };
         
-        // 使用传入的配置或默认配置
-        const defaultConfig = {
-            volume: 70,
-            speed: 100,
-            hotkey: true,
-            loop: false,
-            loopCount: 3  // 默认循环次数
-        };
-        const initialConfig = config ? { ...defaultConfig, ...config } : defaultConfig;
-        
-        // 初始化 Artplayer 播放器
-        art = new Artplayer({
+        return {
             container: playerContainer,
-            url: '',
-            volume: initialConfig.volume / 100,
+            url: url,
+            volume: safeConfig.volume / 100,
             isLive: false,
             muted: false,
             autoplay: true,
@@ -46,7 +45,6 @@
             autoSize: true,
             autoMini: true,
             setting: true,
-            loop: initialConfig.loop,
             flip: true,
             playbackRate: true,
             aspectRatio: true,
@@ -59,179 +57,165 @@
             playsInline: true,
             autoPlayback: true,
             theme: 'var(--b3-theme-primary)',
-            lang: 'zh-cn',
-            crossOrigin: 'anonymous',
-        });
+            lang: i18n?.lang?.toLowerCase() === 'en_us' ? 'en' : 'zh-cn',
+        };
+    }
+    
+    /**
+     * 创建默认播放器
+     * @param url 媒体URL
+     * @returns Artplayer实例
+     */
+    function createDefaultPlayer(url = ''): any {
+        destroyPlayer();
         
-        // 添加时间更新监听器
-        art.on('video:timeupdate', () => {
-            // 检查是否需要循环
-            if (currentChapter && art.currentTime >= currentChapter.end) {
-                // 从配置获取最大循环次数
-                const maxLoopCount = config.loopCount || 3;
-                
-                if (maxLoopCount > 0 && loopCount >= maxLoopCount) {
-                    // 达到循环次数限制，清除循环
-                    currentChapter = null;
-                    loopCount = 0;
-                    // 使用 notice 显示循环结束提示
-                    art.notice.show = '循环播放结束';
-                    return;
-                }
-                
-                // 跳转到开始位置
-                art.currentTime = currentChapter.start;
-                // 同步音频时间
-                if (audioPlugin.audio) {
-                    audioPlugin.audio.currentTime = currentChapter.start;
-                }
-                loopCount++;
-                // 使用 notice 显示当前循环次数
-                art.notice.show = `第 ${loopCount}/${maxLoopCount} 次循环`;
-            }
-        });
+        const playerOptions = getBasePlayerOptions(url);
+        art = new Artplayer(playerOptions);
         
-        // 确保播放器完全初始化
+        addLoopHandler(art);
+        
         art.on('ready', () => {
-            console.log("[Player] Artplayer 就绪");
-            if (initialConfig) {
-                updateConfig(initialConfig);
-            }
+            updateConfig(config);
         });
-    });
-    // 组件销毁时清理
-    onDestroy(() => {
+        
+        return art;
+    }
+    
+    /**
+     * 创建DASH播放器
+     * @param url DASH媒体URL（MPD文件）
+     * @param options 播放选项
+     * @returns Artplayer实例
+     */
+    function createDashPlayer(url: string, options: PlayOptions = {}): any {
+        destroyPlayer();
+        
+        // 保存原始的console.warn
+        const originalWarn = console.warn;
+        
+        // 重写console.warn来过滤dash.js的警告
+        console.warn = (...args) => {
+            if (!args[0]?.includes('[CapabilitiesFilter]')) {
+                originalWarn.apply(console, args);
+            }
+        };
+        
+        const playerOptions = {
+            ...getBasePlayerOptions(url),
+            type: 'mpd',
+            customType: {
+                mpd: function (video: HTMLVideoElement, url: string, art: any) {
+                    // 清理可能存在的dash实例
+                    if (art.dash) {
+                        art.dash.destroy();
+                        art.dash = null;
+                    }
+
+                    // 创建新的dash实例
+                    const dashPlayer = dashjs.MediaPlayer().create();
+                    dashPlayer.initialize(video, url, art.option.autoplay);
+                    art.dash = dashPlayer;
+
+                    // 注册清理函数
+                    art.on('destroy', () => {
+                        if (art.dash) {
+                            art.dash.destroy();
+                            art.dash = null;
+                        }
+                        // 恢复原始的console.warn
+                        console.warn = originalWarn;
+                    });
+                }
+            }
+        };
+        
+        art = new Artplayer(playerOptions);
+        
+        addLoopHandler(art);
+        
+        if (options.headers) {
+            art.headers = options.headers;
+        }
+        
+        return art;
+    }
+    
+    /**
+     * 销毁播放器实例及相关资源
+     */
+    function destroyPlayer(): void {
         if (art) {
-            audioPlugin.destroy();
             art.destroy(true);
             art = null;
         }
-    });
+    }
     
-    // ===================== 2. 音视频插件 =====================
-    
-    const audioPlugin = {
-        // B站音频元素
-        audio: null as HTMLAudioElement | null,
-
-        // 创建音频元素
-        createAudio: async (url: string, headers?: any) => {
-            audioPlugin.destroy();
-            
-            const audio = new Audio();
-            audio.preload = 'auto';
-            
-            // 添加请求头参数
-            if (headers) {
-                        const audioUrl = new URL(url);
-                if (headers.Referer) {
-                            audioUrl.searchParams.set('referer', headers.Referer);
-                        }
-                if (headers.Cookie) {
-                            audioUrl.searchParams.set('cookie', headers.Cookie);
-                }
-                audio.src = audioUrl.toString();
-            } else {
-                audio.src = url;
-            }
-            
-            await new Promise<void>((resolve) => {
-                audio.addEventListener('canplaythrough', () => {
-                    resolve();
-                });
-            });
-            
-            audioPlugin.audio = audio;
-        },
-
-        // 同步音频状态
-        syncState: () => {
-            if (!audioPlugin.audio || !art) return;
-            
-            audioPlugin.audio.currentTime = art.currentTime;
-            if (art.playing) {
-                audioPlugin.audio.play().catch(console.error);
-            } else {
-                audioPlugin.audio.pause();
-            }
-            audioPlugin.audio.playbackRate = art.playbackRate;
-            audioPlugin.audio.volume = art.volume;
-            audioPlugin.audio.muted = art.muted;
-        },
-
-        // 注册事件监听
-        registerEvents: () => {
-            if (!art) return;
-            
-            art.on('play', () => audioPlugin.syncState());
-            art.on('pause', () => audioPlugin.audio?.pause());
-            art.on('seek', () => {
-                if (audioPlugin.audio) audioPlugin.audio.currentTime = art.currentTime;
-            });
-            art.on('video:ratechange', () => {
-                if (audioPlugin.audio) audioPlugin.audio.playbackRate = art.playbackRate;
-            });
-            art.on('video:volumechange', () => {
-                if (audioPlugin.audio) {
-                    audioPlugin.audio.volume = art.volume;
-                    audioPlugin.audio.muted = art.muted;
-                }
-            });
-        },
-        
-        // 销毁音频
-        destroy: () => {
-            if (audioPlugin.audio) {
-                audioPlugin.audio.pause();
-                audioPlugin.audio.remove();
-                audioPlugin.audio = null;
-            }
-        }
-    };
-    
-    // ===================== 3. 统一的时间控制插件 =====================
+    // ===================== 核心功能：播放控制 =====================
     
     /**
-     * 设置播放时间和循环
+     * 添加循环播放处理器
+     * @param artInstance Artplayer实例
+     * @returns 更新后的实例
      */
-    function setPlayTime(start: number, end?: number) {
-        if (!art) return;
+    function addLoopHandler(artInstance: any): any {
+        artInstance.on('video:timeupdate', () => {
+            if (currentChapter && artInstance.currentTime >= currentChapter.end) {
+                const maxLoopCount = config?.loopCount || 3;
+                
+                if (maxLoopCount > 0 && loopCount >= maxLoopCount) {
+                    // 达到循环上限，重置状态
+                    currentChapter = null;
+                    loopCount = 0;
+                    artInstance.notice.show = i18n.player.loop.endMessage;
+                    return;
+                }
+                
+                // 循环播放
+                artInstance.currentTime = currentChapter.start;
+                loopCount++;
+                artInstance.notice.show = i18n.player.loop.currentLoop.replace('${current}', loopCount).replace('${total}', maxLoopCount);
+            }
+        });
         
-        try {
-            // 重置循环状态
-            loopCount = 0;
-            currentChapter = null;
-            
-            // 如果有结束时间，设置循环片段
-            if (end !== undefined) {
-                currentChapter = { start, end };
-            }
-            
-            // 跳转到开始时间
-            art.currentTime = start;
-            
-            // 同步音频时间
-            if (audioPlugin.audio) {
-                audioPlugin.audio.currentTime = start;
-            }
-        } catch (error) {
-            console.error('[Player] 设置播放时间失败:', error);
-            showMessage('设置播放时间失败');
-        }
+        return artInstance;
     }
-
-    // 播放媒体
-    export async function play(url: string, options: PlayOptions = {}) {
+    
+    /**
+     * 播放媒体
+     * @param url 媒体URL
+     * @param options 播放选项
+     */
+    export async function play(url: string, options: PlayOptions = {}): Promise<void> {
         try {
             // 重置循环状态
             currentChapter = null;
             loopCount = 0;
             
-            // 清理之前的音频
-            audioPlugin.destroy();
+            // 判断媒体类型
+            const isMPD = options.type === 'bilibili-dash' || url.endsWith('.mpd');
             
-            // 设置播放源
-            art.url = url;
+            // 根据类型创建或更新播放器
+            if (isMPD) {
+                art = createDashPlayer(url, options);
+            } else {
+                if (!art) {
+                    art = createDefaultPlayer(url);
+                } else {
+                    // 清理现有实例的DASH相关资源
+                    if (art.dash) {
+                        try {
+                            art.dash.destroy();
+                            art.dash = null;
+                        } catch (e) {
+                            console.warn('[Player] ' + i18n.player.error.clearDash, e);
+                        }
+                    }
+                    
+                    art.option.customType = {};
+                    art.option.type = '';
+                    art.url = url;
+                }
+            }
             
             // 等待视频就绪
             await new Promise<void>((resolve) => {
@@ -242,52 +226,27 @@
                 art.on('video:loadeddata', loadedHandler);
             });
             
-            // 如果有音频轨道，设置音频源
-            if (options.audioUrl) {
-                await audioPlugin.createAudio(options.audioUrl, options.headers);
-                audioPlugin.registerEvents();
-            }
-            
-            // 如果有自定义请求头，设置请求头
-            if (options.headers) {
+            // 设置额外选项
+            if (options.headers && !isMPD) {
                 art.headers = options.headers;
             }
             
             // 设置播放时间和循环
             if (options.startTime !== undefined) {
                 if (options.isLoop && options.endTime !== undefined) {
-                    // 循环片段模式
                     setPlayTime(options.startTime, options.endTime);
                 } else {
-                    // 时间戳模式
                     setPlayTime(options.startTime);
                 }
             }
 
             // 开始播放
             art.play();
-            
-            // 统一的播放状态日志
-            console.log("[Player] 开始播放:", {
-                url,
-                options: {
-                    time: options.startTime,
-                    loop: options.isLoop ? {
-                        start: options.startTime,
-                        end: options.endTime,
-                        maxCount: config.loopCount
-                    } : null,
-                    audio: !!options.audioUrl
-                }
-            });
-            
         } catch (error) {
-            console.error("[Player] 播放失败:", error);
-            showMessage("播放失败，请重试");
+            console.error("[Player] " + i18n.player.error.playFailed, error);
+            showMessage(i18n.player.error.playRetry);
             
-            // 清理音频
-            audioPlugin.destroy();
-            
+            // 触发错误事件，允许外部处理
             if (art?.container) {
                 const event = new CustomEvent('streamError', {
                     detail: { url, options }
@@ -297,34 +256,105 @@
         }
     }
     
-    // 更新配置
-    export function updateConfig(newConfig: any) {
+    // ===================== 外部接口：时间和控制 =====================
+    
+    /**
+     * 设置播放时间和循环片段
+     * @param start 开始时间（秒）
+     * @param end 结束时间（秒），可选
+     */
+    export function setPlayTime(start: number, end?: number): void {
         if (!art) return;
         
-            art.volume = newConfig.volume / 100;
-            art.playbackRate = newConfig.speed / 100;
-            art.loop = newConfig.loop;
+        try {
+            // 重置循环状态
+            loopCount = 0;
+            currentChapter = null;
             
-            if (newConfig.autoplay && art.url) {
-                art.play();
+            // 设置循环片段
+            if (end !== undefined) {
+                currentChapter = { start, end };
+            }
+            
+            // 跳转到开始时间
+            art.currentTime = start;
+        } catch (error) {
+            console.error('[Player] ' + i18n.player.error.setTimeFailed, error);
+            showMessage(i18n.player.error.setTimeFailed);
         }
     }
     
-    // 获取截图
+    /**
+     * 设置循环播放
+     * @param isLoop 是否循环
+     * @param loopTimes 循环次数
+     */
+    export function setLoop(isLoop: boolean, loopTimes?: number): void {
+        if (!art) return;
+        
+        try {
+            art.loop = isLoop;
+            
+            if (loopTimes !== undefined && config) {
+                config.loopCount = loopTimes;
+            }
+        } catch (error) {
+            console.error('[Player] ' + i18n.player.error.setLoopFailed, error);
+        }
+    }
+    
+    /**
+     * 更新播放器配置
+     * @param newConfig 新配置
+     */
+    export function updateConfig(newConfig: any): void {
+        if (!art) return;
+        
+        const safeConfig = { ...DEFAULT_CONFIG, ...newConfig };
+        
+        // 更新音量和播放速度
+        art.volume = safeConfig.volume / 100;
+        art.playbackRate = safeConfig.speed / 100;
+    }
+    
+    /**
+     * 跳转到指定时间
+     * @param time 目标时间（秒）
+     */
+    export function seekTo(time: number): void {
+        if (art) {
+            art.currentTime = time;
+        }
+    }
+    
+    /**
+     * 获取当前播放时间
+     * @returns 当前时间（秒）
+     */
+    export function getCurrentTime(): number {
+        return art?.currentTime || 0;
+    }
+    
+    /**
+     * 获取当前帧截图
+     * @returns 截图的DataURL
+     */
     export async function getScreenshotDataURL(): Promise<string | null> {
         if (!art) return null;
         return art.getDataURL();
     }
     
-    // 导出 seek 相关方法
-    export function seekTo(time: number) {
-        if (art) {
-            art.currentTime = time;
+    // ===================== 生命周期 =====================
+    
+    onMount(() => {
+        if (playerContainer) {
+            createDefaultPlayer('');
         }
-    }
-    export function getCurrentTime(): number {
-        return art?.currentTime || 0;
-    }
+    });
+    
+    onDestroy(() => {
+        destroyPlayer();
+    });
 </script>
 
 <div class="artplayer-app" bind:this={playerContainer}>
