@@ -3,8 +3,8 @@
   "version": "0.2.1",
   "type": "module",
   "description": {
-    "default": "A powerful media player plugin for SiYuan Note, supporting various media formats and providing rich playback features.",
-    "zh_CN": "一个功能强大的思源笔记媒体播放器插件，支持多种媒体格式，提供丰富的播放功能。"
+    "default": "A powerful media player plugin for SiYuan Note, supporting various media formats (including audio, video, and Bilibili), with features like timestamped playback, loop segments, and customizable playlists.",
+    "zh_CN": "一个用来在思源笔记中实现视频、音频、B站视频播放，支持时间点跳转、片段循环、播放列表管理等功能的强大媒体播放器插件。"
   },
   "author": "mm-o",
   "license": "MIT",
