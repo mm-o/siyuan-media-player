@@ -4,13 +4,19 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
-### v0.1.9 (2024.3.27)
+### v0.2.0 (2025.3.28)
+- Add internationalization (i18n) support
+  - Fully localized interface in Chinese and English
+  - Dynamic language switching based on system settings
+  - Automatic playlist name translation when changing languages
+
+### v0.1.9 (2025.3.27)
 - Add bulk import media from local folders
 - Add clear playlist function
 - Fix playlist tab switching issue
 - Fix slash command menu alignment issue
 
-### v0.1.8 (2024.3.24)
+### v0.1.8 (2025.3.24)
 - Add Bilibili DASH stream support
   - Fix audio and video synchronization issues
   - Improve playback stability
