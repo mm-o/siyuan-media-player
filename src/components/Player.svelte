@@ -24,27 +24,15 @@
         loopCount: 3
     };
     
-    // ===================== 核心功能：播放器创建 =====================
+    // ===================== 核心功能 =====================
     
-    /**
-     * 获取基础播放器选项
-     * @param url 媒体URL
-     * @returns Artplayer配置选项
-     */
-    function getBasePlayerOptions(url = ''): any {
+    // 获取播放器基础配置
+    function getPlayerOptions(url = ''): any {
         const safeConfig = { ...DEFAULT_CONFIG, ...config };
-        const siyuanLang = window.siyuan?.config?.lang || '';
-        let artPlayerLang = 'zh-cn'; // 默认使用中文
-        if (siyuanLang.toLowerCase() === 'en_us') {
-            artPlayerLang = 'en';
-        }
-        
         return {
             container: playerContainer,
-            url: url,
+            url,
             volume: safeConfig.volume / 100,
-            isLive: false,
-            muted: false,
             autoplay: true,
             pip: true,
             autoSize: true,
@@ -62,92 +50,73 @@
             playsInline: true,
             autoPlayback: true,
             theme: 'var(--b3-theme-primary)',
-            lang: artPlayerLang,
+            lang: window.siyuan?.config?.lang?.toLowerCase() === 'en_us' ? 'en' : 'zh-cn',
         };
     }
     
-    /**
-     * 创建默认播放器
-     * @param url 媒体URL
-     * @returns Artplayer实例
-     */
-    function createDefaultPlayer(url = ''): any {
+    // 创建和管理播放器
+    function createPlayer(url = '', type = ''): any {
         destroyPlayer();
         
-        const playerOptions = getBasePlayerOptions(url);
+        const playerOptions = getPlayerOptions(url);
+        
+        // 处理DASH媒体
+        if (type === 'mpd') {
+            const originalWarn = console.warn;
+            console.warn = (...args) => 
+                !args[0]?.includes('[CapabilitiesFilter]') && originalWarn.apply(console, args);
+            
+            playerOptions.type = 'mpd';
+            playerOptions.customType = {
+                mpd: (video: HTMLVideoElement, url: string, art: any) => {
+                    if (art.dash) art.dash.destroy();
+                    
+                    const dashPlayer = dashjs.MediaPlayer().create();
+                    dashPlayer.initialize(video, url, art.option.autoplay);
+                    art.dash = dashPlayer;
+                    
+                    art.on('destroy', () => {
+                        if (art.dash) art.dash.destroy();
+                        console.warn = originalWarn;
+                    });
+                }
+            };
+        }
+        
         art = new Artplayer(playerOptions);
         
-        addLoopHandler(art);
+        // 循环播放处理
+        art.on('video:timeupdate', () => {
+            if (!currentChapter) return;
+            
+            if (art.currentTime >= currentChapter.end) {
+                const maxLoopCount = config?.loopCount || DEFAULT_CONFIG.loopCount;
+                
+                if (maxLoopCount > 0 && loopCount >= maxLoopCount) {
+                    currentChapter = null;
+                    loopCount = 0;
+                    art.notice.show = i18n.player.loop.endMessage;
+                    return;
+                }
+                
+                art.currentTime = currentChapter.start;
+                art.notice.show = i18n.player.loop.currentLoop
+                    .replace('${current}', ++loopCount)
+                    .replace('${total}', maxLoopCount);
+            }
+        });
         
+        // 应用初始配置
         art.on('ready', () => {
-            updateConfig(config);
+            const safeConfig = { ...DEFAULT_CONFIG, ...config };
+            art.volume = safeConfig.volume / 100;
+            art.playbackRate = safeConfig.speed / 100;
         });
         
         return art;
     }
     
-    /**
-     * 创建DASH播放器
-     * @param url DASH媒体URL（MPD文件）
-     * @param options 播放选项
-     * @returns Artplayer实例
-     */
-    function createDashPlayer(url: string, options: PlayOptions = {}): any {
-        destroyPlayer();
-        
-        // 保存原始的console.warn
-        const originalWarn = console.warn;
-        
-        // 重写console.warn来过滤dash.js的警告
-        console.warn = (...args) => {
-            if (!args[0]?.includes('[CapabilitiesFilter]')) {
-                originalWarn.apply(console, args);
-            }
-        };
-        
-        const playerOptions = {
-            ...getBasePlayerOptions(url),
-            type: 'mpd',
-            customType: {
-                mpd: function (video: HTMLVideoElement, url: string, art: any) {
-                    // 清理可能存在的dash实例
-                    if (art.dash) {
-                        art.dash.destroy();
-                        art.dash = null;
-                    }
-
-                    // 创建新的dash实例
-                    const dashPlayer = dashjs.MediaPlayer().create();
-                    dashPlayer.initialize(video, url, art.option.autoplay);
-                    art.dash = dashPlayer;
-
-                    // 注册清理函数
-                    art.on('destroy', () => {
-                        if (art.dash) {
-                            art.dash.destroy();
-                            art.dash = null;
-                        }
-                        // 恢复原始的console.warn
-                        console.warn = originalWarn;
-                    });
-                }
-            }
-        };
-        
-        art = new Artplayer(playerOptions);
-        
-        addLoopHandler(art);
-        
-        if (options.headers) {
-            art.headers = options.headers;
-        }
-        
-        return art;
-    }
-    
-    /**
-     * 销毁播放器实例及相关资源
-     */
+    // 销毁播放器
     function destroyPlayer(): void {
         if (art) {
             art.destroy(true);
@@ -155,133 +124,74 @@
         }
     }
     
-    // ===================== 核心功能：播放控制 =====================
+    // ===================== 外部API =====================
     
-    /**
-     * 添加循环播放处理器
-     * @param artInstance Artplayer实例
-     * @returns 更新后的实例
-     */
-    function addLoopHandler(artInstance: any): any {
-        artInstance.on('video:timeupdate', () => {
-            if (currentChapter && artInstance.currentTime >= currentChapter.end) {
-                const maxLoopCount = config?.loopCount || 3;
-                
-                if (maxLoopCount > 0 && loopCount >= maxLoopCount) {
-                    // 达到循环上限，重置状态
-                    currentChapter = null;
-                    loopCount = 0;
-                    artInstance.notice.show = i18n.player.loop.endMessage;
-                    return;
-                }
-                
-                // 循环播放
-                artInstance.currentTime = currentChapter.start;
-                loopCount++;
-                artInstance.notice.show = i18n.player.loop.currentLoop.replace('${current}', loopCount).replace('${total}', maxLoopCount);
-            }
-        });
-        
-        return artInstance;
-    }
-    
-    /**
-     * 播放媒体
-     * @param url 媒体URL
-     * @param options 播放选项
-     */
+    // 播放媒体
     export async function play(url: string, options: PlayOptions = {}): Promise<void> {
         try {
-            // 重置循环状态
+            // 重置状态
             currentChapter = null;
             loopCount = 0;
             
-            // 判断媒体类型
-            const isMPD = options.type === 'bilibili-dash' || url.endsWith('.mpd');
+            const type = options.type === 'bilibili-dash' || url.endsWith('.mpd') ? 'mpd' : '';
             
-            // 根据类型创建或更新播放器
-            if (isMPD) {
-                art = createDashPlayer(url, options);
+            // 创建或更新播放器
+            if (!art || type === 'mpd') {
+                art = createPlayer(url, type);
             } else {
-                if (!art) {
-                    art = createDefaultPlayer(url);
-                } else {
-                    // 清理现有实例的DASH相关资源
-                    if (art.dash) {
-                        try {
-                            art.dash.destroy();
-                            art.dash = null;
-                        } catch (e) {
-                            console.warn('[Player] ' + i18n.player.error.clearDash, e);
-                        }
+                if (art.dash) {
+                    try {
+                        art.dash.destroy();
+                        art.dash = null;
+                    } catch (e) {
+                        console.warn('[Player] ' + i18n.player.error.clearDash, e);
                     }
-                    
-                    art.option.customType = {};
-                    art.option.type = '';
-                    art.url = url;
                 }
+                
+                art.option.customType = {};
+                art.option.type = '';
+                art.url = url;
             }
             
             // 等待视频就绪
-            await new Promise<void>((resolve) => {
-                const loadedHandler = () => {
+            await new Promise<void>(resolve => {
+                const handler = () => {
                     resolve();
-                    art.off('video:loadeddata', loadedHandler);
+                    art.off('video:loadeddata', handler);
                 };
-                art.on('video:loadeddata', loadedHandler);
+                art.on('video:loadeddata', handler);
             });
             
-            // 设置额外选项
-            if (options.headers && !isMPD) {
-                art.headers = options.headers;
-            }
+            // 应用选项
+            if (options.headers) art.headers = options.headers;
             
-            // 设置播放时间和循环
+            // 设置时间和循环
             if (options.startTime !== undefined) {
-                if (options.isLoop && options.endTime !== undefined) {
-                    setPlayTime(options.startTime, options.endTime);
-                } else {
-                    setPlayTime(options.startTime);
-                }
+                options.isLoop && options.endTime !== undefined
+                    ? setPlayTime(options.startTime, options.endTime)
+                    : setPlayTime(options.startTime);
             }
 
-            // 开始播放
             art.play();
         } catch (error) {
             console.error("[Player] " + i18n.player.error.playFailed, error);
             showMessage(i18n.player.error.playRetry);
             
-            // 触发错误事件，允许外部处理
             if (art?.container) {
-                const event = new CustomEvent('streamError', {
+                art.container.dispatchEvent(new CustomEvent('streamError', {
                     detail: { url, options }
-                });
-                art.container.dispatchEvent(event);
+                }));
             }
         }
     }
     
-    // ===================== 外部接口：时间和控制 =====================
-    
-    /**
-     * 设置播放时间和循环片段
-     * @param start 开始时间（秒）
-     * @param end 结束时间（秒），可选
-     */
+    // 设置播放时间和循环片段
     export function setPlayTime(start: number, end?: number): void {
         if (!art) return;
         
         try {
-            // 重置循环状态
             loopCount = 0;
-            currentChapter = null;
-            
-            // 设置循环片段
-            if (end !== undefined) {
-                currentChapter = { start, end };
-            }
-            
-            // 跳转到开始时间
+            currentChapter = end !== undefined ? { start, end } : null;
             art.currentTime = start;
         } catch (error) {
             console.error('[Player] ' + i18n.player.error.setTimeFailed, error);
@@ -289,77 +199,49 @@
         }
     }
     
-    /**
-     * 设置循环播放
-     * @param isLoop 是否循环
-     * @param loopTimes 循环次数
-     */
+    // 设置循环播放
     export function setLoop(isLoop: boolean, loopTimes?: number): void {
         if (!art) return;
         
         try {
             art.loop = isLoop;
-            
-            if (loopTimes !== undefined && config) {
-                config.loopCount = loopTimes;
-            }
+            if (loopTimes !== undefined && config) config.loopCount = loopTimes;
         } catch (error) {
             console.error('[Player] ' + i18n.player.error.setLoopFailed, error);
         }
     }
     
-    /**
-     * 更新播放器配置
-     * @param newConfig 新配置
-     */
+    // 更新播放器配置
     export function updateConfig(newConfig: any): void {
         if (!art) return;
         
         const safeConfig = { ...DEFAULT_CONFIG, ...newConfig };
-        
-        // 更新音量和播放速度
         art.volume = safeConfig.volume / 100;
         art.playbackRate = safeConfig.speed / 100;
     }
     
-    /**
-     * 跳转到指定时间
-     * @param time 目标时间（秒）
-     */
+    // 跳转到指定时间
     export function seekTo(time: number): void {
-        if (art) {
-            art.currentTime = time;
-        }
+        if (art) art.currentTime = time;
     }
     
-    /**
-     * 获取当前播放时间
-     * @returns 当前时间（秒）
-     */
+    // 获取当前播放时间
     export function getCurrentTime(): number {
         return art?.currentTime || 0;
     }
     
-    /**
-     * 获取当前帧截图
-     * @returns 截图的DataURL
-     */
-    export async function getScreenshotDataURL(): Promise<string | null> {
-        if (!art) return null;
-        return art.getDataURL();
+    // 获取当前帧截图
+    export function getScreenshotDataURL(): Promise<string | null> {
+        return art ? art.getDataURL() : Promise.resolve(null);
     }
     
     // ===================== 生命周期 =====================
     
     onMount(() => {
-        if (playerContainer) {
-            createDefaultPlayer('');
-        }
+        if (playerContainer) createPlayer();
     });
     
-    onDestroy(() => {
-        destroyPlayer();
-    });
+    onDestroy(destroyPlayer);
 </script>
 
 <div class="artplayer-app" bind:this={playerContainer}>

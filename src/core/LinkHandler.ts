@@ -1,5 +1,6 @@
 import { showMessage } from "siyuan";
 import type { ConfigManager } from "./config";
+import { isSupportedMediaLink } from './utils';
 
 export class LinkHandler {
     private configManager: ConfigManager;
@@ -34,7 +35,7 @@ export class LinkHandler {
             if (!url) return;
 
             // 检查是否为支持的链接类型
-            if (this.isSupportedLink(url)) {
+            if (isSupportedMediaLink(url)) {
                 e.preventDefault();
                 e.stopPropagation();
                 await this.handleMediaLink(url);

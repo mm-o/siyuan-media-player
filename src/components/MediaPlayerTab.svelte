@@ -9,34 +9,15 @@
     import type { MediaItem } from '../core/types';
     import { BilibiliParser } from '../core/bilibili';
     import { LinkHandler } from '../core/LinkHandler';
+    import { formatTime } from '../core/utils';
 
-    // 类型定义
-    interface PlayOptions {
-        url: string;
-        type?: 'bilibili-dash' | 'bilibili';
-        headers?: Record<string, string>;
-        title?: string;
-        startTime?: number;
-        endTime?: number;
-        isLoop?: boolean;
-        loopCount?: number;
-        originalUrl?: string;
-        bvid?: string;
-    }
-
-    interface ControlBarEvent {
-        type: 'screenshot' | 'timestamp' | 'loopSegment' | 'playlist' | 'settings';
-    }
-    
-    // 组件属性
+    // =============== 组件属性 ===============
     export let app: any;
     export let configManager: ConfigManager;
     export let linkHandler: LinkHandler;
     
-    // 获取i18n对象
+    // =============== 组件状态 ===============
     let i18n = app.i18n;
-    
-    // 状态管理
     let showControls = true;
     let controlTimer: number;
     let showPlaylist = false;
@@ -46,13 +27,9 @@
     let playerConfig: any;
     let loopStartTime: number | null = null;
     let playlist: PlayList;
-    let settingPanel: Setting;
 
-    // =============== 工具函数 ===============
-    /**
-     * 获取当前块ID
-     * @throws {Error} 当无法找到光标位置或目标块时
-     */
+    // =============== 通用函数 ===============
+    // 获取当前块ID
     function getCurrentBlockId(): string {
         const selection = window.getSelection();
         if (!selection?.focusNode) {
@@ -71,370 +48,297 @@
         return element.dataset.nodeId;
     }
 
-    /**
-     * 格式化时间戳
-     * @param seconds 秒数
-     * @param isAnchorText 是否作为锚点文本
-     */
-    function formatTime(seconds: number, isAnchorText: boolean = false): string {
-        if (isNaN(seconds)) return '0:00';
-        
-        const time = isAnchorText ? Math.round(seconds) : Number(seconds.toFixed(1));
-        const hours = Math.floor(time / 3600);
-        const minutes = Math.floor((time % 3600) / 60);
-        const secs = isAnchorText ? 
-            Math.floor(time % 60) : 
-            Number((time % 60).toFixed(1));
-        
-        return hours > 0
-            ? `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-            : `${minutes}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    // =============== 块操作相关 ===============
-    /**
-     * 插入块到当前位置的下方
-     * @param content 要插入的内容
-     */
-    async function insertBlock(content: string): Promise<void> {
+    // 插入内容到文档
+    async function insertContent(content: string): Promise<void> {
         try {
             const config = await configManager.getConfig();
-            const insertAtCursor = config.settings.insertAtCursor ?? true;
-
-            if (insertAtCursor) {
-                const currentBlockId = getCurrentBlockId();
+            
+            if (config.settings.insertAtCursor ?? true) {
+                const blockId = getCurrentBlockId();
                 const response = await fetch('/api/block/updateBlock', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         data: content,
                         dataType: "markdown",
-                        id: currentBlockId
+                        id: blockId
                     })
                 });
 
-                if (!response.ok) throw new Error(i18n.mediaPlayerTab.block.updateError);
+                if (!response.ok) throw new Error();
                 showMessage(i18n.mediaPlayerTab.block.linkInserted);
             } else {
                 await navigator.clipboard.writeText(content);
                 showMessage(i18n.mediaPlayerTab.block.copiedToClipboard);
             }
-        } catch (error) {
+        } catch {
+            // 失败时复制到剪贴板
             await navigator.clipboard.writeText(content);
             showMessage(i18n.mediaPlayerTab.block.insertFailed);
         }
     }
 
-    /**
-     * 生成时间戳链接
-     * @param mediaItem 媒体项
-     * @param options 时间戳选项
-     */
-    function generateTimestampLink(mediaItem: MediaItem, options: {
-        isLoop: boolean;
-        startTime?: number;
-        endTime?: number;
-        count?: number;
-    }): string | null {
-        if (!player) return null;
+    // 生成时间戳链接
+    function createTimestampLink(isLoop = false, startTime?: number, endTime?: number): string | null {
+        if (!player || !currentItem) return null;
 
         try {
-            const currentTime = options.startTime ?? player.getCurrentTime();
-            const endTime = options.endTime ?? (options.isLoop ? currentTime + 3 : undefined);
-            const baseUrl = mediaItem.originalUrl || mediaItem.url;
+            const currentTime = startTime ?? player.getCurrentTime();
+            const loopEndTime = endTime ?? (isLoop ? currentTime + 3 : undefined);
+            const baseUrl = currentItem.originalUrl || currentItem.url;
             
-            if (!baseUrl) throw new Error(i18n.mediaPlayerTab.timestamp.noMediaLink);
+            if (!baseUrl) throw new Error();
 
             const urlObj = new URL(baseUrl);
             urlObj.searchParams.delete('t');
             
-            if (options.isLoop && endTime) {
-                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${endTime.toFixed(1)}`);
-                return `- [${formatTime(currentTime, true)}-${formatTime(endTime, true)}](${urlObj.toString()})`;
+            if (isLoop && loopEndTime) {
+                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${loopEndTime.toFixed(1)}`);
+                return `- [${formatTime(currentTime, true)}-${formatTime(loopEndTime, true)}](${urlObj.toString()})`;
             } else {
                 urlObj.searchParams.set('t', currentTime.toFixed(1));
                 return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
             }
-        } catch (error) {
+        } catch {
             showMessage(i18n.mediaPlayerTab.timestamp.generateFailed);
             return null;
         }
     }
 
-    // =============== 截图相关 ===============
-    /**
-     * 获取截图数据
-     */
-    async function getScreenshot(): Promise<Blob | null> {
-        if (!player) return null;
-        
+    // =============== 媒体操作 ===============
+    // 截图功能
+    async function takeScreenshot(): Promise<void> {
+        if (!player || !currentItem) {
+            showMessage(i18n.controlBar.screenshot.hint);
+            return;
+        }
+
         try {
+            // 获取截图
             const dataUrl = await player.getScreenshotDataURL();
-            if (!dataUrl) return null;
-            
-            const res = await fetch(dataUrl);
-            return await res.blob();
-        } catch {
-            return null;
-        }
-    }
-
-    /**
-     * 上传截图
-     * @param imageBlob 图片数据
-     * @param filename 文件名
-     */
-    async function uploadScreenshot(imageBlob: Blob, filename: string): Promise<string> {
-                            const formData = new FormData();
-                            formData.append('file[]', imageBlob, filename);
-                            
-                            const response = await fetch('/api/asset/upload', {
-                                method: 'POST',
-                                body: formData
-                            });
-                            
-        if (!response.ok) throw new Error(i18n.mediaPlayerTab.screenshot.uploadFailed);
-                            
-                            const result = await response.json();
-        if (result.code !== 0) throw new Error(result.msg || i18n.mediaPlayerTab.screenshot.uploadFailed);
-        
-        return result.data.succMap[filename];
-    }
-
-    // =============== 事件处理 ===============
-    /**
-     * 处理鼠标移动事件
-     */
-    const handleMouseMove = () => {
-        showControls = true;
-        clearTimeout(controlTimer);
-        controlTimer = window.setTimeout(() => showControls = false, 3000);
-    };
-
-    /**
-     * 处理鼠标离开事件
-     */
-    const handleMouseLeave = () => {
-        clearTimeout(controlTimer);
-        showControls = false;
-    };
-
-    /**
-     * 处理设置变更事件
-     */
-    const handleSettingsChanged = (event: CustomEvent) => {
-        const { settings } = event.detail;
-        playerConfig = settings;
-        player?.updateConfig(settings);
-    };
-
-    /**
-     * 处理媒体选择事件
-     */
-    const handleSelect = (event: CustomEvent<MediaItem>) => {
-        currentItem = event.detail;
-    };
-
-    /**
-     * 处理控制栏事件
-     */
-    async function handleControlBarEvents(event: CustomEvent): Promise<void> {
-        const type = event.type.replace(':', '') as ControlBarEvent['type'];
-        
-        // 只有需要播放器的操作才检查播放器状态
-        if (['screenshot', 'timestamp', 'loopSegment'].includes(type)) {
-            if (!player || !currentItem) {
-                showMessage(i18n.controlBar.screenshot.hint);
-                return;
-            }
-        }
-
-        switch (type) {
-            case 'screenshot':
-                await handleScreenshot();
-                break;
-            case 'timestamp':
-                await handleTimestamp();
-                break;
-            case 'loopSegment':
-                await handleLoopSegment();
-                break;
-            case 'playlist':
-                showPlaylist = !showPlaylist;
-                if (showPlaylist) showSettings = false;
-                break;
-            case 'settings':
-                showSettings = !showSettings;
-                if (showSettings) showPlaylist = false;
-                break;
-        }
-    }
-
-    /**
-     * 处理截图事件
-     */
-    async function handleScreenshot(): Promise<void> {
-        try {
-            const imageBlob = await getScreenshot();
-            if (!imageBlob) {
+            if (!dataUrl) {
                 showMessage(i18n.mediaPlayerTab.screenshot.failHint);
                 return;
             }
-
-            const timestamp = new Date().getTime();
-            const filename = `${currentItem.title || i18n.mediaPlayerTab.screenshot.defaultName}_${timestamp}.png`;
-            const imageUrl = await uploadScreenshot(imageBlob, filename);
             
-            await insertBlock(`![${filename}](${imageUrl})`);
+            // 转换为Blob
+            const res = await fetch(dataUrl);
+            const imageBlob = await res.blob();
+            
+            // 上传截图
+            const timestamp = Date.now();
+            const filename = `${currentItem.title || i18n.mediaPlayerTab.screenshot.defaultName}_${timestamp}.png`;
+            
+            const formData = new FormData();
+            formData.append('file[]', imageBlob, filename);
+            
+            const response = await fetch('/api/asset/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) throw new Error();
+            
+            const result = await response.json();
+            if (result.code !== 0) throw new Error();
+            
+            // 插入图片
+            await insertContent(`![${filename}](${result.data.succMap[filename]})`);
             showMessage(i18n.mediaPlayerTab.screenshot.successHint);
         } catch {
             showMessage(i18n.mediaPlayerTab.screenshot.errorHint);
         }
     }
 
-    /**
-     * 处理时间戳事件
-     */
-    async function handleTimestamp(): Promise<void> {
-        const timestampLink = generateTimestampLink(currentItem, {
-            isLoop: false,
-            count: 0
-        });
-        if (timestampLink) await insertBlock(timestampLink);
+    // 创建时间戳
+    async function createTimestamp(): Promise<void> {
+        if (!player || !currentItem) {
+            showMessage(i18n.controlBar.screenshot.hint);
+            return;
+        }
+        
+        const link = createTimestampLink(false);
+        if (link) await insertContent(link);
     }
 
-    /**
-     * 处理循环片段事件
-     */
-    async function handleLoopSegment(): Promise<void> {
+    // 创建循环片段
+    async function createLoopSegment(): Promise<void> {
+        if (!player || !currentItem) {
+            showMessage(i18n.controlBar.screenshot.hint);
+            return;
+        }
+        
         const currentTime = player.getCurrentTime();
+        
         if (loopStartTime === null) {
             loopStartTime = currentTime;
             showMessage(i18n.controlBar.loopSegment.startHint);
         } else {
-            const timestampLink = generateTimestampLink(currentItem, {
-                isLoop: true,
-                startTime: loopStartTime,
-                endTime: currentTime,
-                count: playerConfig.loopCount
-            });
-            
-            if (timestampLink) await insertBlock(timestampLink);
+            const link = createTimestampLink(true, loopStartTime, currentTime);
+            if (link) await insertContent(link);
             loopStartTime = null;
         }
     }
 
-    /**
-     * 处理播放事件
-     */
-    async function handlePlay(event: CustomEvent<PlayOptions>): Promise<void> {
-        const playOptions = event.detail;
-        if (!playOptions?.url) {
+    // =============== 事件处理 ===============
+    // 控制栏显示/隐藏
+    function handleMouseMove() {
+        showControls = true;
+        clearTimeout(controlTimer);
+        controlTimer = window.setTimeout(() => showControls = false, 3000);
+    }
+
+    function handleMouseLeave() {
+        clearTimeout(controlTimer);
+        showControls = false;
+    }
+
+    // 设置变更
+    function handleSettingsChanged(event: CustomEvent) {
+        playerConfig = event.detail.settings;
+        player?.updateConfig(playerConfig);
+    }
+
+    // 媒体选择
+    function handleSelect(event: CustomEvent<MediaItem>) {
+        currentItem = event.detail;
+    }
+
+    // 控制栏事件
+    async function handleControlEvent(event: CustomEvent): Promise<void> {
+        const action = event.type.replace(':', '');
+        
+        switch (action) {
+            case 'screenshot': await takeScreenshot(); break;
+            case 'timestamp': await createTimestamp(); break;
+            case 'loopSegment': await createLoopSegment(); break;
+            case 'playlist': 
+                showPlaylist = !showPlaylist;
+                if (showPlaylist) showSettings = false;
+                break;
+            case 'settings': 
+                showSettings = !showSettings;
+                if (showSettings) showPlaylist = false;
+                break;
+        }
+    }
+
+    // 错误处理
+    function handleStreamError(event: CustomEvent): void {
+        if (event.detail.type === 'bilibili') {
+            handleBilibiliError();
+        }
+    }
+
+    // 播放媒体
+    async function playMedia(event: CustomEvent): Promise<void> {
+        // 从事件中获取播放选项
+        const options = event.detail;
+        
+        if (!options?.url) {
             showMessage(i18n.mediaPlayerTab.play.invalidOptions);
             return;
         }
 
         try {
-            // 创建或更新 currentItem
+            // 创建媒体项
             currentItem = {
                 id: `item-${Date.now()}`,
-                title: playOptions.title || i18n.mediaPlayerTab.play.untitledMedia,
-                url: playOptions.url,
-                originalUrl: playOptions.originalUrl || playOptions.url,
-                type: playOptions.type === 'bilibili-dash' || playOptions.type === 'bilibili' ? 'bilibili' : 'video',
-                startTime: playOptions.startTime,
-                endTime: playOptions.endTime,
-                isLoop: playOptions.isLoop,
-                loopCount: playOptions.loopCount,
-                bvid: playOptions.bvid
+                title: options.title || i18n.mediaPlayerTab.play.untitledMedia,
+                url: options.url,
+                originalUrl: options.originalUrl || options.url,
+                type: ['bilibili-dash', 'bilibili'].includes(options.type) ? 'bilibili' : 'video',
+                startTime: options.startTime,
+                endTime: options.endTime,
+                isLoop: options.isLoop,
+                loopCount: options.loopCount,
+                bvid: options.bvid,
+                cid: options.cid
             };
 
-            if (playOptions.type === 'bilibili-dash' || playOptions.type === 'bilibili') {
-                await player.play(playOptions.url, {
-                    type: playOptions.type,
-                    headers: playOptions.headers,
-                    title: playOptions.title
+            // 播放媒体
+            if (['bilibili-dash', 'bilibili'].includes(options.type)) {
+                await player.play(options.url, {
+                    type: options.type,
+                    headers: options.headers,
+                    title: options.title
                 });
             } else {
-                await player.play(playOptions.url);
+                await player.play(options.url);
             }
 
-            if (playOptions.startTime !== undefined) {
-                player.setPlayTime(playOptions.startTime, playOptions.endTime);
+            // 设置播放参数
+            if (options.startTime !== undefined) {
+                player.setPlayTime(options.startTime, options.endTime);
             }
 
-            if (playOptions.isLoop) {
-                player.setLoop(true, playOptions.loopCount);
+            if (options.isLoop) {
+                player.setLoop(true, options.loopCount);
             }
         } catch (error) {
             showMessage(i18n.mediaPlayerTab.play.failMessage + error.message);
         }
     }
 
-    /**
-     * 处理流错误事件
-     */
-    async function handleStreamError(event: CustomEvent): Promise<void> {
-        const { type } = event.detail;
+    // 处理B站视频错误
+    async function handleBilibiliError(): Promise<void> {
+        if (currentItem?.type !== 'bilibili' || !currentItem.bvid || !currentItem.cid) return;
         
-        if (type === 'bilibili' && currentItem?.bvid && currentItem?.cid) {
-            try {
-                const config = await configManager.getConfig();
-                const streamInfo = await BilibiliParser.getProcessedVideoStream(
-                    currentItem.bvid,
-                    currentItem.cid,
-                    0,
-                    config
-                );
+        try {
+            const config = await configManager.getConfig();
+            const streamInfo = await BilibiliParser.getProcessedVideoStream(
+                currentItem.bvid,
+                currentItem.cid,
+                0,
+                config
+            );
+            
+            if (player) {
+                const url = streamInfo.mpdUrl || streamInfo.video.url;
+                const type = streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili';
                 
-                if (player) {
-                    const url = streamInfo.mpdUrl || streamInfo.video.url;
-                    const type = streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili';
-                    
-                    player.play(url, {
-                        type,
-                        headers: streamInfo.headers,
-                        title: currentItem.title
-                    });
-                }
-            } catch {
-                showMessage(i18n.mediaPlayerTab.stream.playbackError);
+                player.play(url, {
+                    type,
+                    headers: streamInfo.headers,
+                    title: currentItem.title
+                });
             }
+        } catch {
+            showMessage(i18n.mediaPlayerTab.stream.playbackError);
         }
     }
 
-    // =============== 生命周期钩子 ===============
+    // =============== 生命周期 ===============
     onMount(() => {
-        const init = async () => {
+        // 初始化
+        async function init() {
             const config = await configManager.load();
             playerConfig = config.settings;
-            if (!playerConfig.loopCount) {
-                playerConfig.loopCount = 3;
-            }
+            if (!playerConfig.loopCount) playerConfig.loopCount = 3;
 
-        const playerContainer = document.querySelector('.artplayer-app');
-        if (playerContainer) {
-            playerContainer.addEventListener('streamError', handleStreamError);
+            // 添加错误处理
+            const playerContainer = document.querySelector('.artplayer-app');
+            if (playerContainer) {
+                playerContainer.addEventListener('streamError', handleStreamError as EventListener);
+            }
         }
-        };
 
         init();
         
         return () => {
+            // 清理
             const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
-                playerContainer.removeEventListener('streamError', handleStreamError);
+                playerContainer.removeEventListener('streamError', handleStreamError as EventListener);
             }
         };
     });
 
     onDestroy(() => {
-        if (linkHandler) {
-            linkHandler.setPlaylist(null);
-        }
+        linkHandler?.setPlaylist(null);
     });
 
-    // =============== 响应式声明 ===============
+    // 设置播放列表
     $: if (playlist && linkHandler) {
         linkHandler.setPlaylist(playlist);
     }
@@ -459,11 +363,11 @@
                     title={currentItem?.title}
                     {loopStartTime}
                     {i18n}
-                    on:screenshot={handleControlBarEvents}
-                    on:timestamp={handleControlBarEvents}
-                    on:loopSegment={handleControlBarEvents}
-                    on:playlist={handleControlBarEvents}
-                    on:settings={handleControlBarEvents}
+                    on:screenshot={handleControlEvent}
+                    on:timestamp={handleControlEvent}
+                    on:loopSegment={handleControlEvent}
+                    on:playlist={handleControlEvent}
+                    on:settings={handleControlEvent}
                 />
             </div>
         </div>
@@ -477,7 +381,7 @@
                 hidden={!showPlaylist}
                 {i18n}
                 on:select={handleSelect}
-                on:play={handlePlay}
+                on:play={playMedia}
             />
             {#if showSettings}
                 <Setting 

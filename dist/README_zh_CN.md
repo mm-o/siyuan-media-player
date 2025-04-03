@@ -4,6 +4,17 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
+### v0.2.2 (2025.4.10)
+- 修复问题
+  - 修复某些网络视频解析失败的问题
+  - 解决播放列表管理中的稳定性问题
+- 性能优化
+  - 优化内存使用，减少资源占用
+  - 提高播放器加载速度
+- UI改进
+  - 细节优化，提升用户体验
+  - 修复部分界面元素显示异常
+
 ### v0.2.1 (2025.4.2)
 - 新增B站分P列表功能
   - 自动罗列所有分P视频

@@ -1,18 +1,18 @@
 <script lang="ts">
     // 从"svelte"中导入createEventDispatcher和onMount
     import { createEventDispatcher, onMount } from "svelte";
-    // 从"siyuan"中导入showMessage
-    import { showMessage } from "siyuan";
+    // 从"siyuan"中导入showMessage和Menu
+    import { showMessage, Menu } from "siyuan";
     // 从'../core/types'中导入MediaItem和PlaylistConfig类型
     import type { MediaItem, PlaylistConfig, MediaInfo } from '../core/types';
     // 从'../core/media'中导入MediaManager
     import { MediaManager } from '../core/media';
-    // 从"siyuan"中导入Menu
-    import { Menu } from "siyuan";
     // 从'../core/bilibili'中导入BilibiliParser
     import { BilibiliParser } from '../core/bilibili';
     // 从'../core/config'中导入ConfigManager类型
     import type { ConfigManager } from '../core/config';
+    // 从'../core/utils'中导入parseMediaLink函数
+    import { parseMediaLink } from '../core/utils';
 
     // 组件属性
     export let items: MediaItem[] = [];
@@ -242,7 +242,7 @@
     }
 
     /**
-     * 处理媒体添加
+     * 处理添加媒体
      */
     async function handleMediaAdd(url: string) {
         try {
@@ -269,17 +269,22 @@
             }
             
             // 3. 创建新媒体项
-            const mediaItem = await MediaManager.createMediaItem(mediaUrl, {
-                startTime,
-                endTime,
-                originalUrl: url
-            });
+            const mediaItem = await MediaManager.createMediaItem(mediaUrl);
             console.log("[PlayList] " + i18n.playList.log.newMediaItem, mediaItem);
             
             if (!mediaItem) {
                 showMessage(i18n.playList.error.cannotParse);
                 return;
             }
+            
+            // 设置时间参数
+            if (startTime !== undefined) {
+                mediaItem.startTime = startTime;
+            }
+            if (endTime !== undefined) {
+                mediaItem.endTime = endTime;
+            }
+            mediaItem.originalUrl = url;
             
             // 4. 添加到播放列表
             if (activeTab) {
@@ -618,51 +623,6 @@
         // 如果是第一个项目,自动播放
         if (items.length === 1) {
             handleMediaPlay(item);
-        }
-    }
-
-    /**
-     * 拆分链接，提取原始链接和时间标记
-     */
-    function parseMediaLink(url: string): {
-        mediaUrl: string;
-        startTime?: number;
-        endTime?: number;
-    } {
-        try {
-            const urlObj = new URL(url);
-            const timeParam = urlObj.searchParams.get('t');
-            
-            // 移除时间参数得到原始链接
-            urlObj.searchParams.delete('t');
-            const mediaUrl = urlObj.toString();
-            
-            if (!timeParam) {
-                console.log("[PlayList] " + i18n.playList.log.noTimeParam, { mediaUrl });
-                return { mediaUrl };
-            }
-            
-            // 检查是否是循环片段（包含-）
-            if (timeParam.includes('-')) {
-                const [start, end] = timeParam.split('-').map(Number);
-                console.log("[PlayList] " + i18n.playList.log.parseLoopSegment, { mediaUrl, start, end });
-                return {
-                    mediaUrl,
-                    startTime: isNaN(start) ? undefined : start,
-                    endTime: isNaN(end) ? undefined : end
-                };
-            } else {
-                // 单个时间戳
-                const time = Number(timeParam);
-                console.log("[PlayList] " + i18n.playList.log.parseTimestamp, { mediaUrl, time });
-                return {
-                    mediaUrl,
-                    startTime: isNaN(time) ? undefined : time
-                };
-            }
-        } catch (error) {
-            console.error("[PlayList] " + i18n.playList.error.parseLinkFailed, error);
-            return { mediaUrl: url };
         }
     }
 

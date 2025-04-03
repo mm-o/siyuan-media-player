@@ -2,6 +2,7 @@ import QRCode from 'qrcode';
 import md5 from 'md5';
 import type { MediaInfo } from "./types";
 import { VideoStream, VideoStreamResponse, selectBestStream, generateMPD } from './dash';
+import { formatDuration } from './utils';
 
 /**
  * B站API响应接口
@@ -180,19 +181,6 @@ export class BilibiliParser {
     }
 
     /**
-     * 格式化视频时长
-     */
-    private static formatDuration(seconds: number): string {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-
-        return hours > 0
-            ? `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-            : `${minutes}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    /**
      * 生成登录二维码图片
      */
     private static async generateQRCode(text: string): Promise<string> {
@@ -280,7 +268,7 @@ export class BilibiliParser {
                     title: data.title,
                     artist: data.owner.name,
                     artistIcon: data.owner.face,
-                    duration: this.formatDuration(data.duration),
+                    duration: formatDuration(data.duration),
                     thumbnail: data.pic,
                     aid: String(data.aid),
                     bvid: data.bvid,
