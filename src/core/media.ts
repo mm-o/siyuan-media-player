@@ -1,5 +1,6 @@
 import type { MediaItem, MediaInfo, PlaylistConfig } from "./types";
 import { BilibiliParser } from "./bilibili";
+import { formatDuration, getMediaType, convertToFileUrl, extractTitleFromUrl } from './utils';
 
 /**
  * 媒体管理器
@@ -17,22 +18,6 @@ export class MediaManager {
     private static readonly CACHE_EXPIRY = 24 * 60 * 60 * 1000;
 
     /**
-     * 将本地路径转换为 file:// URL
-     */
-    private static convertToFileUrl(path: string): string {
-        if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('file://')) {
-            return path;
-        }
-        
-        // Windows 路径转换
-        if (/^[a-zA-Z]:\\/.test(path)) {
-            return 'file:///' + path.replace(/\\/g, '/');
-        }
-        // Unix 路径转换
-        return 'file://' + path;
-    }
-
-    /**
      * 从缓存获取媒体信息
      */
     private static getCachedInfo(url: string): MediaInfo | null {
@@ -41,14 +26,16 @@ export class MediaManager {
             if (!cached) return null;
             
             const { timestamp, info } = JSON.parse(cached);
-            // 检查缓存是否过期
+            
+            // 检查是否过期
             if (Date.now() - timestamp > this.CACHE_EXPIRY) {
                 localStorage.removeItem(`media_info_${url}`);
                 return null;
             }
             
             return info;
-        } catch {
+        } catch (e) {
+            console.warn('Failed to get cached info:', e);
             return null;
         }
     }
@@ -102,17 +89,17 @@ export class MediaManager {
         const TIMEOUT_MS = 20000; // 20秒超时（原来是10秒）
         
         return new Promise((resolve, reject) => {
-            const mediaUrl = this.convertToFileUrl(url);
+            const mediaUrl = convertToFileUrl(url);
 
-            const type = this.getMediaType(url);
-            const mediaEl = document.createElement(type);
+            const type = getMediaType(url);
+            const mediaEl = document.createElement(type === 'audio' ? 'audio' : 'video');
             mediaEl.style.display = 'none';
             document.body.appendChild(mediaEl);
 
             let timeoutId: number;
 
             const onMetadata = async () => {
-                const duration = this.formatDuration(mediaEl.duration);
+                const duration = formatDuration(mediaEl.duration);
                 let thumbnail = '';
                 
                 if (mediaEl instanceof HTMLVideoElement) {
@@ -133,7 +120,7 @@ export class MediaManager {
 
                 cleanup();
                 resolve({
-                    title: this.extractTitleFromUrl(url),
+                    title: extractTitleFromUrl(url),
                     duration,
                     thumbnail,
                     artist: '',
@@ -186,56 +173,12 @@ export class MediaManager {
     }
 
     /**
-     * 从URL中提取标题
-     */
-    private static extractTitleFromUrl(url: string): string {
-        try {
-            const urlObj = new URL(url);
-            const pathSegments = urlObj.pathname.split('/');
-            const filename = pathSegments[pathSegments.length - 1];
-            return decodeURIComponent(filename.split('.')[0]) || '未知标题';
-        } catch {
-            return '未知标题';
-        }
-    }
-
-    /**
-     * 格式化时长
-     */
-    private static formatDuration(seconds: number): string {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        
-        if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-        return `${minutes}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    /**
-     * 判断媒体类型
-     */
-    private static getMediaType(url: string): 'video' | 'audio' {
-        const videoExts = ['.mp4', '.webm', '.ogg', '.mov'];
-        const audioExts = ['.mp3', '.wav', '.aac', '.m4a'];
-        
-        if (videoExts.some(e => url.toLowerCase().endsWith(e))) {
-            return 'video';
-        } else if (audioExts.some(e => url.toLowerCase().endsWith(e))) {
-            return 'audio';
-        }
-        
-        return 'video';
-    }
-
-    /**
      * 创建媒体项
      */
     static async createMediaItem(url: string, savedInfo?: { aid?: string; bvid?: string; cid?: string }): Promise<MediaItem | null> {
         try {
             // 转换本地路径为 file:// URL
-            const mediaUrl = this.convertToFileUrl(url);
+            const mediaUrl = convertToFileUrl(url);
             
             // 首先尝试从缓存获取
             let mediaInfo = this.getCachedInfo(mediaUrl);
@@ -267,7 +210,7 @@ export class MediaManager {
             }
 
             // 确定媒体类型
-            const type = mediaUrl.includes('bilibili.com') ? 'bilibili' : this.getMediaType(mediaUrl);
+            const type = getMediaType(mediaUrl);
             
             return {
                 id: `media-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

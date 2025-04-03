@@ -4,6 +4,17 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
+### v0.2.2 (2025.4.10)
+- Bug fixes
+  - Fixed parsing issues with certain network videos
+  - Resolved stability issues in playlist management
+- Performance optimizations
+  - Optimized memory usage, reduced resource consumption
+  - Improved player loading speed
+- UI improvements
+  - Detail refinements for better user experience
+  - Fixed display anomalies in some interface elements
+
 ### v0.2.1 (2025.4.2)
 - Add Bilibili video part list feature
   - Automatically list all video parts
