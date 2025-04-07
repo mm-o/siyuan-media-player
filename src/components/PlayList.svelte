@@ -2,7 +2,7 @@
     // 从"svelte"中导入createEventDispatcher和onMount
     import { createEventDispatcher, onMount } from "svelte";
     // 从"siyuan"中导入showMessage和Menu
-    import { showMessage, Menu } from "siyuan";
+    import { showMessage } from "siyuan";
     // 从'../core/types'中导入MediaItem和PlaylistConfig类型
     import type { MediaItem, PlaylistConfig } from '../core/types';
     // 从'../core/media'中导入MediaManager
@@ -11,10 +11,10 @@
     import { BilibiliParser } from '../core/bilibili';
     // 从'../core/config'中导入ConfigManager类型
     import type { ConfigManager } from '../core/config';
-    // 从'../core/utils'中导入parseMediaLink函数
-    import { parseMediaLink } from '../core/utils';
-    // 从'./PlayListMenus'中导入createAddTabMenu和handleLocalFolder函数和handleBilibiliFavorites
-    import { createAddTabMenu, handleLocalFolder, handleBilibiliFavorites } from './PlayListMenus';
+    // 导入三个模块（从新的文件路径导入）
+    import { PlaylistInput } from './PlayList/PlaylistInput';
+    import { PlaylistTabs } from './PlayList/PlaylistTabs';
+    import { PlaylistItems } from './PlayList/PlaylistItems';
 
     // 组件属性
     export let items: MediaItem[] = [];
@@ -29,10 +29,7 @@
     let activeTabId = 'default';
     let isAddingTab = false;
     let inputValue = '';
-    let newTabInput: HTMLInputElement;
-    // B站视频分P状态
-    let videoParts: Record<string, any[]> = {}; // 存储视频的分P信息，key为item.id
-    let expandedItems: Set<string> = new Set(); // 存储展开的视频分P的item.id
+    let inputMode: 'normal' | 'localFolder' | 'bilibiliFavorites' = 'normal';
     
     // 计算属性
     $: activeTab = tabs.find(tab => tab.id === activeTabId);
@@ -56,37 +53,20 @@
         };
     }>();
 
-    // 最后点击的项目
-    let lastClickedItem: string | null = null;
-    let lastClickTime = 0;
-    
-    // 添加输入模式状态
-    let inputMode: 'normal' | 'localFolder' | 'bilibiliFavorites' = 'normal';
+    // 模块实例
+    let playlistInput: PlaylistInput;
+    let playlistTabs: PlaylistTabs;
+    let playlistItems: PlaylistItems;
     
     /**
      * 处理媒体播放
      */
     async function handleMediaPlay(item: MediaItem) {
         try {
-            // 1. 获取播放器配置
             const config = await configManager.getConfig();
+            let playOptions: any = {};
             
-            // 2. 准备播放参数
-            let playOptions: {
-                url: string;
-                audioUrl?: string;
-                headers?: any;
-                startTime?: number;
-                endTime?: number;
-                isLoop?: boolean;
-                title: string;
-                originalUrl: string;  // 添加原始链接
-                type: string;
-            };
-            
-            // 3. 处理不同类型的媒体
             if (item.type === 'bilibili' && item.bvid && item.cid) {
-                // B站视频：获取播放流
                 const streamInfo = await BilibiliParser.getProcessedVideoStream(
                     item.bvid,
                     item.cid,
@@ -95,23 +75,21 @@
                 );
                 
                 playOptions = {
-                    url: streamInfo.mpdUrl || streamInfo.video.url, // 优先使用MPD URL
+                    url: streamInfo.mpdUrl || streamInfo.video.url,
                     headers: streamInfo.headers,
                     title: item.title,
-                    originalUrl: item.originalUrl || item.url,  // 使用原始链接
-                    type: streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili' // 设置正确的类型
+                    originalUrl: item.originalUrl || item.url,
+                    type: streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili'
                 };
             } else {
-                // 普通媒体：直接使用原始链接
                 playOptions = {
                     url: item.url,
                     title: item.title,
-                    originalUrl: item.originalUrl || item.url,  // 使用原始链接
-                    type: item.type || 'video'  // 设置媒体类型
+                    originalUrl: item.originalUrl || item.url,
+                    type: item.type || 'video'
                 };
             }
             
-            // 4. 添加通用参数
             playOptions = {
                 ...playOptions,
                 startTime: item.startTime,
@@ -119,11 +97,9 @@
                 isLoop: item.startTime !== undefined && item.endTime !== undefined
             };
             
-            // 5. 触发播放事件
             dispatch('play', playOptions);
-            
-            // 6. 更新当前项
             currentItem = item;
+            playlistItems.setCurrentItem(item);
             
         } catch (error) {
             console.error("[Playlist] " + i18n.playList.error.playFailed, error);
@@ -131,83 +107,45 @@
         }
     }
 
-    /**
-     * 播放指定分P
-     */
-    async function playVideoPart(item: MediaItem, partInfo: any) {
-        if (!item.bvid) return;
-        
-        // 分p总是直接播放，因为它是小元素，单击就直接播放
-        try {
-            const partId = `${item.id}-p${partInfo.page}`;
-            const partTitle = `${item.title.split(' - P')[0]} - P${partInfo.page}${partInfo.part ? ': ' + partInfo.part : ''}`;
-            const partItem = {
-                ...item,
-                id: partId,
-                title: partTitle,
-                cid: String(partInfo.cid)
-            };
-            
-            // 播放分P并设置当前播放项
-            await handleMediaPlay(partItem);
-            currentItem = partItem; // 确保设置当前播放项
-        } catch (error) {
-            console.error("播放分P失败", error);
-        }
-    }
-
-    /**
-     * 处理列表项点击
-     */
-    async function handleItemClick(item: MediaItem) {
-        const now = Date.now();
-        
-        // 处理B站视频分P
-        if (item.type === 'bilibili' && item.bvid) {
-            // 只在展开/折叠时才加载分P列表
-            const needToToggle = !videoParts[item.id] || videoParts[item.id]?.length > 1;
-            
-            if (needToToggle) {
-                // 懒加载分P列表
-                if (!videoParts[item.id]) {
-                    try {
-                        videoParts[item.id] = await BilibiliParser.getVideoParts({ bvid: item.bvid }) || [];
-                    } catch (error) {
-                        console.error("获取视频分P列表失败", error);
-                    }
-                }
-                
-                // 多个分P时切换展开/折叠
-                if (videoParts[item.id]?.length > 1) {
-                    expandedItems = new Set(expandedItems);
-                    expandedItems.has(item.id) ? expandedItems.delete(item.id) : expandedItems.add(item.id);
-                    return;
-                }
-            }
-        }
-        
-        // 只在双击时执行播放操作
-        if (lastClickedItem === item.id && now - lastClickTime < 300) {
-            // 双击播放时设置当前播放项
-            await handleMediaPlay(item);
-            currentItem = item; // 确保设置当前播放项
-            
-            // 双击播放时，折叠所有已展开的分P列表
-            expandedItems = new Set();
-            
-            lastClickedItem = null;
-            lastClickTime = 0;
-        } else {
-            // 单击仅记录点击状态，不执行任何操作
-            lastClickedItem = item.id;
-            lastClickTime = now;
-        }
-    }
-
     // 生命周期
     onMount(async () => {
         // 清理过期缓存
         MediaManager.cleanupCache();
+        
+        // 初始化标签页管理器
+        playlistTabs = new PlaylistTabs(
+            i18n,
+            (data) => {
+                // 更新UI状态
+                tabs = data.tabs;
+                activeTabId = data.activeTabId;
+                isAddingTab = data.isAddingTab;
+                inputMode = data.inputMode as any;
+            },
+            configManager
+        );
+        
+        // 初始化媒体项管理器
+        playlistItems = new PlaylistItems(
+            i18n,
+            () => tabs,
+            () => activeTabId,
+            (tabId) => playlistTabs.findTab(tabId),
+            (updatedTabs) => {
+                tabs = updatedTabs;
+                savePlaylists();
+            },
+            handleMediaPlay
+        );
+        
+        // 初始化播放列表输入处理器
+        playlistInput = new PlaylistInput(
+            i18n, 
+            handleMediaPlay, 
+            () => playlistTabs.getActiveTab(), 
+            savePlaylists
+        );
+        
         await loadPlaylists();
     });
 
@@ -227,7 +165,7 @@
                 items: await MediaManager.createMediaItems(tab.items || [])
             }))
         );
-        tabs = loadedTabs;
+        playlistTabs.setTabs(loadedTabs);
     }
 
     /**
@@ -244,347 +182,83 @@
     }
 
     /**
-     * 处理添加媒体
+     * 处理提交
      */
-    async function handleMediaAdd(url: string) {
-        try {
-            console.log("[PlayList] " + i18n.playList.log.parseLink, url);
-            // 1. 拆分链接
-            const { mediaUrl, startTime, endTime } = parseMediaLink(url);
-            console.log("[PlayList] " + i18n.playList.log.parseResult, { mediaUrl, startTime, endTime });
-            
-            // 2. 检查是否已存在
-            const existingItem = activeTab?.items?.find(item => item.url === mediaUrl);
-            if (existingItem) {
-                console.log("[PlayList] " + i18n.playList.log.usingExisting, existingItem);
-                // 更新已存在项的时间参数
-                const updatedItem = {
-                    ...existingItem,
-                    startTime,
-                    endTime,
-                    originalUrl: url
-                };
-                console.log("[PlayList] " + i18n.playList.log.updatedItem, updatedItem);
-                // 存在则直接播放
-                await handleMediaPlay(updatedItem);
-                return;
-            }
-            
-            // 3. 创建新媒体项
-            const mediaItem = await MediaManager.createMediaItem(mediaUrl);
-            console.log("[PlayList] " + i18n.playList.log.newMediaItem, mediaItem);
-            
-            if (!mediaItem) {
-                showMessage(i18n.playList.error.cannotParse);
-                return;
-            }
-            
-            // 设置时间参数
-            if (startTime !== undefined) {
-                mediaItem.startTime = startTime;
-            }
-            if (endTime !== undefined) {
-                mediaItem.endTime = endTime;
-            }
-            mediaItem.originalUrl = url;
-            
-            // 4. 添加到播放列表
-            if (activeTab) {
-                activeTab.items = [...(activeTab.items || []), mediaItem];
-                await savePlaylists();
-            }
-            
-            // 添加成功提示（不自动播放）
-            showMessage(i18n.playList.message.added);
-            
-        } catch (error) {
-            console.error('[Playlist] ' + i18n.playList.error.addMediaFailed, error);
-            showMessage(i18n.playList.error.addMediaFailed);
-        }
+    export async function handleSubmit(externalUrl?: string) {
+        const url = externalUrl || inputValue.trim();
+        await playlistInput.handleSubmit(url, externalUrl ? undefined : {value: inputValue});
+        // 清空输入框
+        inputValue = '';
     }
-
-    /**
-     * 标签操作
-     */
-    const tabActions = {
-        add() {
-            if (!isAddingTab) {
-                isAddingTab = true;
-                // 设置添加普通标签状态
-                inputMode = 'normal';
-                setTimeout(() => newTabInput?.focus(), 0);
-            }
-        },
-
-        save(event: KeyboardEvent | FocusEvent, tab?: PlaylistConfig) {
-            if (event instanceof KeyboardEvent && event.key !== 'Enter') return;
-            
-            const input = event.target as HTMLInputElement;
-            const newName = input.value.trim();
-            
-            if (tab) {
-                // 保存已有标签
-                tabs = tabs.map(t => 
-                    t.id === tab.id 
-                    ? { ...t, name: newName || t.name, isEditing: false }
-                    : t
-                );
-            } else if (newName) {
-                if (inputMode === 'normal') {
-                    // 添加普通标签
-                    tabs = [...tabs, {
-                        id: `tab-${Date.now()}`,
-                        name: newName,
-                        items: []
-                    }];
-                } else if (inputMode === 'localFolder') {
-                    // 处理本地文件夹路径，使用PlayListMenus中的函数
-                    handleLocalFolder(
-                        newName, 
-                        i18n, 
-                        {
-                            onCreateTab: (newTab) => {
-                                tabs = [...tabs, newTab];
-                            },
-                            onSetActiveTab: (tabId) => {
-                                activeTabId = tabId;
-                            },
-                            onAddMedia: (mediaPath) => handleMediaAdd(mediaPath)
-                        }
-                    );
-                } else if (inputMode === 'bilibiliFavorites') {
-                    // 处理B站收藏夹，使用PlayListMenus中的函数
-                    handleBilibiliFavorites(
-                        newName, 
-                        i18n,
-                        configManager,
-                        {
-                            onCreateTab: (newTab) => {
-                                tabs = [...tabs, newTab];
-                            },
-                            onSetActiveTab: (tabId) => {
-                                activeTabId = tabId;
-                            },
-                            onAddMedia: (mediaPath) => handleMediaAdd(mediaPath)
-                        }
-                    );
-                }
-                
-                // 清空输入框与状态
-                isAddingTab = false;
-            } else {
-                // 空输入则取消添加标签
-                isAddingTab = false;
-            }
-            
-            input.value = '';
-        },
-
-        showContextMenu(event: MouseEvent, tab: PlaylistConfig) {
-            // 创建右键菜单
-            const menu = new Menu("tabContextMenu");
-            
-            // 仅对非固定标签显示编辑选项
-            if (!tab.isFixed) {
-                // 添加重命名项
-                menu.addItem({
-                    icon: "iconEdit",
-                    label: i18n.playList.menu.rename,
-                    click: () => {
-                        // 将当前标签设置为编辑状态
-                        tabs = tabs.map(t => ({
-                            ...t,
-                            isEditing: t.id === tab.id
-                        }));
-                        // 延迟执行，确保DOM更新后再获取输入框
-                        setTimeout(() => {
-                            const input = document.querySelector(`#tab-edit-${tab.id}`) as HTMLInputElement;
-                            input?.focus();
-                            input?.select();
-                        }, 0);
-                    }
-                });
-                // 添加删除项
-                menu.addItem({
-                    icon: "iconTrashcan",
-                    label: i18n.playList.menu.delete,
-                    click: () => {
-                        // 从标签列表中移除当前标签
-                        tabs = tabs.filter(t => t.id !== tab.id);
-                        // 如果当前标签是激活的，设置默认标签为激活
-                        if (activeTabId === tab.id) {
-                            activeTabId = 'default';
-                        }
-                    }
-                });
-                
-                menu.addSeparator();
-            }
-            
-            // 为所有标签添加清空选项
-            menu.addItem({
-                icon: "iconClear",
-                label: i18n.playList.menu.clear,
-                click: () => {
-                    // 清空标签内容
-                    tabs = tabs.map(t => 
-                        t.id === tab.id 
-                        ? { ...t, items: [] }
-                        : t
-                    );
-                    showMessage(i18n.playList.message.listCleared.replace('${name}', tab.name));
-                }
-            });
-            
-            // 打开右键菜单
-            menu.open({ x: event.clientX, y: event.clientY });
-        }
-    };
-
-    /**
-     * 媒体项操作
-     */
-    const itemActions = {
-        showContextMenu(event: MouseEvent, item: MediaItem) {
-            const menu = new Menu("mediaItemMenu");
-            
-            menu.addItem({
-                icon: "iconPlay",
-                label: i18n.playList.menu.play,
-                click: () => itemActions.play(item)
-            });
-            
-            menu.addItem({
-                icon: "iconPin",
-                label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin,
-                click: () => itemActions.togglePin(item)
-            });
-            
-            menu.addItem({
-                icon: "iconHeart",
-                label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite,
-                click: () => itemActions.toggleFavorite(item)
-            });
-            
-            menu.addSeparator();
-            
-            menu.addItem({
-                icon: "iconTrashcan",
-                label: i18n.playList.menu.delete,
-                click: () => {
-                    const tab = tabs.find(t => t.id === activeTabId);
-                    if (!tab) return;
-                    
-                    // 从当前标签页移除项目
-                    tab.items = tab.items.filter(i => i.id !== item.id);
-                    tabs = tabs;
-                    
-                    // 如果是收藏项，也从收藏夹移除
-                    if (item.isFavorite) {
-                        const favoritesTab = tabs.find(t => t.id === 'favorites');
-                        if (favoritesTab) {
-                            favoritesTab.items = favoritesTab.items.filter(i => i.id !== item.id);
-                        }
-                    }
-                }
-            });
-            
-            menu.open({ x: event.clientX, y: event.clientY });
-        },
-
-        togglePin(item: MediaItem) {
-            const tab = tabs.find(t => t.id === activeTabId);
-            if (!tab) return;
-            
-            const updatedItems = tab.items.map(i => 
-                i.id === item.id ? { ...i, isPinned: !i.isPinned } : i
-            );
-            
-            tab.items = [
-                ...updatedItems.filter(i => i.isPinned),
-                ...updatedItems.filter(i => !i.isPinned)
-            ];
-            tabs = tabs;
-        },
-
-        toggleFavorite(item: MediaItem) {
-            const favoritesTab = tabs.find(t => t.id === 'favorites');
-            const activeTab = tabs.find(t => t.id === activeTabId);
-            if (!favoritesTab || !activeTab) return;
-            
-            if (!item.isFavorite) {
-                favoritesTab.items = [...(favoritesTab.items || []), { ...item, isFavorite: true }];
-            } else {
-                favoritesTab.items = favoritesTab.items.filter(i => i.id !== item.id);
-            }
-            
-            activeTab.items = activeTab.items.map(i => 
-                i.id === item.id ? { ...i, isFavorite: !i.isFavorite } : i
-            );
-            
-            tabs = tabs;
-        },
-
-        async play(item: MediaItem) {
-            await handleMediaPlay(item);
-        }
-    };
 
     /**
      * 处理外部链接传入的媒体项
      */
     export async function handleMediaItem(mediaItem: MediaItem) {
-        try {
-            // 1. 检查是否已存在
-            const existingItem = activeTab?.items?.find(item => 
-                item.url === mediaItem.url || item.originalUrl === mediaItem.originalUrl
-            );
-
-            if (existingItem) {
-                // 如果已存在，直接播放
-                await handleMediaPlay(existingItem);
-                showMessage(i18n.playList.message.existingItemPlay);
-            } else {
-                // 添加到当前标签页的播放列表中
-                const tab = tabs.find(t => t.id === activeTabId);
-                if (!tab) throw new Error(i18n.playList.error.noActiveTab);
-
-                tab.items = [...(tab.items || []), mediaItem];
-                tabs = tabs;  // 触发 Svelte 更新
-                showMessage(i18n.playList.message.added);
-            }
-        } catch (error) {
-            console.error('[Playlist] ' + i18n.playList.error.processMediaItemFailed, error);
-            showMessage(i18n.playList.error.processMediaFailed);
-            throw error; // 向上传播错误
-        }
+        await playlistInput.handleMediaItem(mediaItem);
     }
 
     /**
      * 添加媒体项到播放列表
      */
     export function addItem(item: MediaItem) {
-        items = [...items, item];
-    }
-
-    /**
-     * 处理提交
-     */
-    export async function handleSubmit(externalUrl?: string) {
-        const url = externalUrl || inputValue.trim();
-        if (!url) {
-            showMessage(i18n.playList.error.emptyUrl);
-            return;
-        }
-        
-        await handleMediaAdd(url);
-        
-        // 清空输入框
-        if (!externalUrl) {
-            inputValue = '';
+        if (activeTab) {
+            playlistTabs.addMediaItemToTab(activeTab.id, item);
         }
     }
 
+    // UI处理函数
+    function handleTabClick(tabId: string) {
+        playlistTabs.setActiveTabId(tabId);
+    }
+
+    function handleTabContextMenu(event: MouseEvent, tab: PlaylistConfig) {
+        playlistTabs.showContextMenu(event, tab);
+    }
+
+    function handleAddTabClick() {
+        playlistTabs.add();
+    }
+
+    function handleAddTabContextMenu(event: MouseEvent) {
+        playlistTabs.createAddTabMenu(event);
+    }
+
+    function handleTabInputBlur(event: FocusEvent, tab?: PlaylistConfig) {
+        playlistTabs.save(event, tab);
+    }
+
+    function handleTabInputKeydown(event: KeyboardEvent, tab?: PlaylistConfig) {
+        playlistTabs.save(event, tab);
+    }
+
+    function handleItemClick(item: MediaItem) {
+        playlistItems.handleItemClick(item);
+    }
+
+    function handleItemContextMenu(event: MouseEvent, item: MediaItem) {
+        playlistItems.showContextMenu(event, item);
+    }
+
+    function handlePartClick(item: MediaItem, part: any) {
+        playlistItems.playVideoPart(item, part);
+    }
+
+    function isPlaying(item: MediaItem) {
+        return playlistItems.isPlaying(item);
+    }
+
+    function isPartPlaying(item: MediaItem, part: any) {
+        return playlistItems.isPartPlaying(item, part);
+    }
+
+    function isExpanded(item: MediaItem) {
+        return playlistItems.isExpanded(item);
+    }
+
+    function getVideoParts(item: MediaItem) {
+        return playlistItems.getVideoParts(item);
+    }
 </script>
 
 <div class="playlist {className}" class:hidden>
@@ -604,18 +278,16 @@
                         type="text"
                         class="tab-input"
                         value={tab.name}
-                        on:blur={(e) => tabActions.save(e, tab)}
-                        on:keydown={(e) => tabActions.save(e, tab)}
+                        on:blur={(e) => handleTabInputBlur(e, tab)}
+                        on:keydown={(e) => handleTabInputKeydown(e, tab)}
                     />
                 </div>
             {:else}
                 <button 
                     class="tab" 
                     class:active={activeTabId === tab.id}
-                    on:click={() => {
-                        activeTabId = tab.id;
-                    }}
-                    on:contextmenu|preventDefault={(e) => tabActions.showContextMenu(e, tab)}
+                    on:click={() => handleTabClick(tab.id)}
+                    on:contextmenu|preventDefault={(e) => handleTabContextMenu(e, tab)}
                 >
                     {tab.name}
                 </button>
@@ -625,39 +297,18 @@
         <div class="tab-add-wrapper">
             {#if isAddingTab}
                 <input
-                    bind:this={newTabInput}
                     type="text"
                     class="tab-input"
                     style="width: 100px; max-width: 100px;"
                     placeholder={inputMode === 'localFolder' ? i18n.playList.placeholder.folderPath : inputMode === 'bilibiliFavorites' ? i18n.playList.placeholder.bilibiliFavorites : i18n.playList.placeholder.newTab}
-                    on:blur={tabActions.save}
-                    on:keydown={tabActions.save}
+                    on:blur={handleTabInputBlur}
+                    on:keydown={handleTabInputKeydown}
                 />
             {:else}
                 <button 
                     class="tab tab-add" 
-                    on:click={tabActions.add}
-                    on:contextmenu|preventDefault={createAddTabMenu(i18n, {
-                        onAddLocalFolder: () => {
-                            isAddingTab = true;
-                            inputMode = 'localFolder';
-                            setTimeout(() => newTabInput?.focus(), 0);
-                        },
-                        onAddAliCloud: () => {
-                            // TODO: 实现添加阿里云盘功能
-                        },
-                        onAddTianYiCloud: () => {
-                            // TODO: 实现添加天翼云盘功能
-                        },
-                        onAddQuarkCloud: () => {
-                            // TODO: 实现添加夸克云盘功能
-                        },
-                        onAddBilibiliFavorites: () => {
-                            isAddingTab = true;
-                            inputMode = 'bilibiliFavorites';
-                            setTimeout(() => newTabInput?.focus(), 0);
-                        }
-                    })}
+                    on:click={handleAddTabClick}
+                    on:contextmenu|preventDefault={handleAddTabContextMenu}
                 >+</button>
             {/if}
         </div>
@@ -669,9 +320,9 @@
             <div class="playlist-items">
                 {#each activeTab.items as item (item.id)}
                     <div 
-                        class="playlist-item {currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`) ? 'playing' : ''}" 
+                        class="playlist-item {isPlaying(item) ? 'playing' : ''}" 
                         on:click={() => handleItemClick(item)}
-                        on:contextmenu|preventDefault={(e) => itemActions.showContextMenu(e, item)}
+                        on:contextmenu|preventDefault={(e) => handleItemContextMenu(e, item)}
                     >
                         <div class="item-content">
                             <div class="item-thumbnail">
@@ -697,12 +348,12 @@
                         </div>
                         
                         <!-- 分P列表 - 均匀排列 -->
-                        {#if expandedItems.has(item.id) && videoParts[item.id]?.length > 1}
+                        {#if isExpanded(item) && getVideoParts(item)?.length > 1}
                             <div class="item-parts">
-                                {#each videoParts[item.id] as part}
+                                {#each getVideoParts(item) as part}
                                     <button 
-                                        class="part-item {currentItem?.id === `${item.id}-p${part.page}` ? 'playing' : ''}" 
-                                        on:click|stopPropagation={() => playVideoPart(item, part)}
+                                        class="part-item {isPartPlaying(item, part) ? 'playing' : ''}" 
+                                        on:click|stopPropagation={() => handlePartClick(item, part)}
                                         title="{part.part || `P${part.page}`}"
                                     >
                                         {part.page}

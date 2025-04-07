@@ -1,7 +1,7 @@
 import { Menu, showMessage } from "siyuan";
-import type { MediaItem, PlaylistConfig } from '../core/types';
-import { BilibiliParser } from '../core/bilibili';
-import { extractFavMediaId } from '../core/biliUtils';
+import type { MediaItem, PlaylistConfig } from '../../core/types';
+import { BilibiliParser } from '../../core/bilibili';
+import { extractFavMediaId } from '../../core/biliUtils';
 
 /**
  * 创建添加标签右键菜单

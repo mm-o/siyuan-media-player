@@ -111,12 +111,8 @@ export interface PlaylistConfig {
     id: string;          // 列表ID
     name: string;        // 列表名称
     isFixed?: boolean;   // 是否为固定列表
-    items: {
-        url: string;     // 媒体URL
-        aid?: string;    // B站av号
-        bvid?: string;   // B站bv号
-        cid?: string;    // B站视频cid
-    }[];                 // 媒体项列表
+    items: MediaItem[];  // 媒体项列表
+    isEditing?: boolean; // 是否处于编辑状态
 }
 
 export interface PlayOptions {
