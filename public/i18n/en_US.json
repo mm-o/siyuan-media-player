@@ -94,7 +94,8 @@
         "placeholder": {
             "mediaLink": "Enter media link...",
             "newTab": "New Tab",
-            "folderPath": "Enter folder path..."
+            "folderPath": "Enter folder path...",
+            "bilibiliFavorites": "Enter Bilibili favorites URL..."
         },
         "folder": {
             "defaultName": "Local Folder"
@@ -118,7 +119,9 @@
             "listCleared": "Cleared \"${name}\" list",
             "folderAdded": "Added ${count} media files from folder ${name}",
             "existingItemPlay": "Media already in playlist, playing directly",
-            "addedAndPlay": "Added to playlist and started playback"
+            "added": "Added to playlist",
+            "processingFavorites": "Processing videos from Bilibili favorites...",
+            "favoritesAdded": "Added ${count} videos from favorite folder ${name}"
         },
         "error": {
             "emptyUrl": "Please enter a media link",
@@ -132,7 +135,10 @@
             "processMediaItemFailed": "Failed to process media item:",
             "processMediaFailed": "Failed to process media",
             "parseLinkFailed": "Failed to parse link:",
-            "noActiveTab": "No active tab found"
+            "noActiveTab": "No active tab found",
+            "invalidFavUrl": "Invalid Bilibili favorites URL",
+            "processFavoritesFailed": "Failed to process Bilibili favorites",
+            "emptyFavorites": "No videos in this favorites folder"
         },
         "log": {
             "parseLink": "Parsing link:",

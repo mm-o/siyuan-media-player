@@ -2,7 +2,7 @@ import type { Plugin } from "siyuan";
 import type { Config } from "./types";
 
 /**
- * 配置管理器
+ * 配置管理器 - 管理播放器配置和持久化
  */
 export class ConfigManager {
     private plugin: Plugin;
@@ -17,17 +17,18 @@ export class ConfigManager {
      * 获取默认配置
      */
     private getDefaultConfig(): Config {
+        const i18n = this.plugin.i18n.playList;
         return {
             playlists: [
                 {
                     id: 'default',
-                    name: this.plugin.i18n.playList?.defaultList || '默认列表',
+                    name: i18n?.defaultList || '默认列表',
                     items: [],
                     isFixed: true
                 },
                 {
                     id: 'favorites',
-                    name: this.plugin.i18n.playList?.favorites || '收藏夹',
+                    name: i18n?.favorites || '收藏夹',
                     items: [],
                     isFixed: true
                 }
@@ -45,37 +46,29 @@ export class ConfigManager {
     /**
      * 加载配置
      */
-    async load() {
+    async load(): Promise<Config> {
         try {
             const saved = await this.plugin.loadData('config.json');
-            if (saved) {
-                // 保留固定列表的i18n名称
-                if (saved.playlists) {
-                    // 更新固定列表的名称为当前语言
-                    saved.playlists = saved.playlists.map(playlist => {
-                        if (playlist.id === 'default' && playlist.isFixed) {
-                            return {
-                                ...playlist,
-                                name: this.plugin.i18n.playList?.defaultList || '默认列表'
-                            };
+            if (!saved) return this.config;
+            
+            // 更新固定列表的名称为当前语言
+            if (saved.playlists) {
+                const i18n = this.plugin.i18n.playList;
+                saved.playlists = saved.playlists.map(playlist => {
+                    if (playlist.isFixed) {
+                        if (playlist.id === 'default') {
+                            playlist.name = i18n?.defaultList || '默认列表';
+                        } else if (playlist.id === 'favorites') {
+                            playlist.name = i18n?.favorites || '收藏夹';
                         }
-                        if (playlist.id === 'favorites' && playlist.isFixed) {
-                            return {
-                                ...playlist,
-                                name: this.plugin.i18n.playList?.favorites || '收藏夹'
-                            };
-                        }
-                        return playlist;
-                    });
-                }
-                
-                this.config = {
-                    ...this.config,
-                    ...saved
-                };
+                    }
+                    return playlist;
+                });
             }
+            
+            this.config = { ...this.config, ...saved };
         } catch (e) {
-            console.error('Failed to load config:', e);
+            console.error('加载配置失败:', e);
         }
         return this.config;
     }
@@ -83,18 +76,18 @@ export class ConfigManager {
     /**
      * 保存配置
      */
-    async save() {
+    async save(): Promise<void> {
         try {
             await this.plugin.saveData('config.json', this.config);
         } catch (e) {
-            console.error('Failed to save config:', e);
+            console.error('保存配置失败:', e);
         }
     }
     
     /**
      * 更新播放列表
      */
-    async updatePlaylists(playlists: Config['playlists']) {
+    async updatePlaylists(playlists: Config['playlists']): Promise<void> {
         this.config.playlists = playlists;
         await this.save();
     }
@@ -102,7 +95,7 @@ export class ConfigManager {
     /**
      * 更新设置
      */
-    async updateSettings(settings: Config['settings']) {
+    async updateSettings(settings: Config['settings']): Promise<void> {
         this.config.settings = settings;
         await this.save();
     }
@@ -110,7 +103,7 @@ export class ConfigManager {
     /**
      * 获取配置
      */
-    getConfig() {
+    getConfig(): Config {
         return this.config;
     }
 } 
