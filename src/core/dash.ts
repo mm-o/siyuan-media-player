@@ -8,12 +8,15 @@
 export interface VideoStream {
     video: {
         url: string;        // 视频流地址
-        quality: number;    // 视频清晰度
-        codecs: string;     // 视频编码格式
-        bandwidth: number;  // 视频码率
-        frameRate: string;  // 视频帧率
+        quality?: number;    // 视频清晰度
+        codecs?: string;     // 视频编码格式
+        bandwidth?: number;  // 视频码率
+        frameRate?: string;  // 视频帧率
     };
-    headers: {             // 请求头信息
+    audio?: {
+        url: string;        // 音频流地址
+    };
+    headers?: {             // 请求头信息
         [key: string]: string;
     };
     mpdUrl?: string;      // MPD格式播放地址
@@ -92,17 +95,46 @@ export function selectBestStream(streams: any[], currentQuality: number | null =
 }
 
 /**
- * 生成MPD文件内容
+ * 生成MPD文件内容 
+ * 提供两种重载：
+ * 1. 传入VideoStreamResponse对象
+ * 2. 直接传入视频和音频流数组及时长
  */
-export function generateMPD(response: VideoStreamResponse): string {
-    if (!response.data.dash) {
-        throw new Error('无效的DASH数据');
+export function generateMPD(response: VideoStreamResponse): string;
+export function generateMPD(videoStreams: any[], audioStreams: any[], durationSeconds: number): string;
+export function generateMPD(
+    responseOrVideoStreams: VideoStreamResponse | any[], 
+    audioStreams?: any[], 
+    durationSeconds?: number
+): string {
+    // 处理参数判断是哪种调用方式
+    let videoStreams: any[] = [];
+    let finalAudioStreams: any[] = [];
+    let finalDuration = 3600;
+    let minBufferTime = 1.5;
+    
+    // 判断是否为VideoStreamResponse调用
+    if (!Array.isArray(responseOrVideoStreams)) {
+        const response = responseOrVideoStreams as VideoStreamResponse;
+        if (!response.data.dash) {
+            throw new Error('无效的DASH数据');
+        }
+        
+        // 获取视频时长（毫秒转为秒）
+        const duration = response.data.dash.duration || Math.floor(response.data.timelength / 1000);
+        finalDuration = (duration && !isNaN(duration) && duration > 0) ? duration : 3600;
+        minBufferTime = response.data.dash.min_buffer_time || 1.5;
+        
+        videoStreams = response.data.dash.video || [];
+        finalAudioStreams = response.data.dash.audio || [];
+    } else {
+        // 直接传入数组的调用
+        videoStreams = responseOrVideoStreams;
+        finalAudioStreams = audioStreams || [];
+        finalDuration = (durationSeconds && !isNaN(durationSeconds) && durationSeconds > 0) 
+            ? durationSeconds 
+            : 3600;
     }
-
-    // 获取视频时长（毫秒转为秒）
-    const duration = response.data.dash.duration || Math.floor(response.data.timelength / 1000);
-    const finalDuration = (duration && !isNaN(duration) && duration > 0) ? duration : 3600;
-    const minBufferTime = response.data.dash.min_buffer_time || 1.5;
     
     // MPD文件头部
     let mpd = `<?xml version="1.0" encoding="UTF-8"?>
@@ -116,8 +148,8 @@ export function generateMPD(response: VideoStreamResponse): string {
     <Period id="1" start="PT0S">`;
 
     // 添加视频流
-    if (response.data.dash.video?.length > 0) {
-        const validVideos = response.data.dash.video.filter(v => 
+    if (videoStreams?.length > 0) {
+        const validVideos = videoStreams.filter(v => 
             v && v.baseUrl && v.id && v.codecs && v.bandwidth && 
             v.width && v.height && v.frameRate
         );
@@ -162,8 +194,8 @@ export function generateMPD(response: VideoStreamResponse): string {
     }
 
     // 添加音频流
-    if (response.data.dash.audio?.length > 0) {
-        const validAudios = response.data.dash.audio.filter(a => 
+    if (finalAudioStreams?.length > 0) {
+        const validAudios = finalAudioStreams.filter(a => 
             a && a.baseUrl && a.codecs && a.bandwidth
         );
 

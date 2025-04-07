@@ -4,8 +4,7 @@
     // 从"siyuan"中导入showMessage和Menu
     import { showMessage, Menu } from "siyuan";
     // 从'../core/types'中导入MediaItem和PlaylistConfig类型
-    import type { MediaItem, PlaylistConfig, MediaInfo } from '../core/types';
-    // 从'../core/media'中导入MediaManager
+    import type { MediaItem, PlaylistConfig } from '../core/types';
     // 从'../core/media'中导入MediaManager
     import { MediaManager } from '../core/media';
     // 从'../core/bilibili'中导入BilibiliParser
@@ -14,6 +13,8 @@
     import type { ConfigManager } from '../core/config';
     // 从'../core/utils'中导入parseMediaLink函数
     import { parseMediaLink } from '../core/utils';
+    // 从'./PlayListMenus'中导入createAddTabMenu和handleLocalFolder函数和handleBilibiliFavorites
+    import { createAddTabMenu, handleLocalFolder, handleBilibiliFavorites } from './PlayListMenus';
 
     // 组件属性
     export let items: MediaItem[] = [];
@@ -60,7 +61,7 @@
     let lastClickTime = 0;
     
     // 添加输入模式状态
-    let inputMode: 'normal' | 'localFolder' = 'normal';
+    let inputMode: 'normal' | 'localFolder' | 'bilibiliFavorites' = 'normal';
     
     /**
      * 处理媒体播放
@@ -170,7 +171,7 @@
                 // 懒加载分P列表
                 if (!videoParts[item.id]) {
                     try {
-                        videoParts[item.id] = await BilibiliParser.getVideoPartsList({ bvid: item.bvid }) || [];
+                        videoParts[item.id] = await BilibiliParser.getVideoParts({ bvid: item.bvid }) || [];
                     } catch (error) {
                         console.error("获取视频分P列表失败", error);
                     }
@@ -293,8 +294,8 @@
                 await savePlaylists();
             }
             
-            // 5. 播放新添加的媒体
-            await handleMediaPlay(mediaItem);
+            // 添加成功提示（不自动播放）
+            showMessage(i18n.playList.message.added);
             
         } catch (error) {
             console.error('[Playlist] ' + i18n.playList.error.addMediaFailed, error);
@@ -337,8 +338,36 @@
                         items: []
                     }];
                 } else if (inputMode === 'localFolder') {
-                    // 处理本地文件夹路径
-                    handleLocalFolder(newName);
+                    // 处理本地文件夹路径，使用PlayListMenus中的函数
+                    handleLocalFolder(
+                        newName, 
+                        i18n, 
+                        {
+                            onCreateTab: (newTab) => {
+                                tabs = [...tabs, newTab];
+                            },
+                            onSetActiveTab: (tabId) => {
+                                activeTabId = tabId;
+                            },
+                            onAddMedia: (mediaPath) => handleMediaAdd(mediaPath)
+                        }
+                    );
+                } else if (inputMode === 'bilibiliFavorites') {
+                    // 处理B站收藏夹，使用PlayListMenus中的函数
+                    handleBilibiliFavorites(
+                        newName, 
+                        i18n,
+                        configManager,
+                        {
+                            onCreateTab: (newTab) => {
+                                tabs = [...tabs, newTab];
+                            },
+                            onSetActiveTab: (tabId) => {
+                                activeTabId = tabId;
+                            },
+                            onAddMedia: (mediaPath) => handleMediaAdd(mediaPath)
+                        }
+                    );
                 }
                 
                 // 清空输入框与状态
@@ -413,76 +442,6 @@
     };
 
     /**
-     * 处理本地文件夹
-     */
-    async function handleLocalFolder(folderPath: string) {
-        try {
-            // 创建新标签
-            const tabId = `folder-${Date.now()}`;
-            const folderName = folderPath.split(/[/\\]/).pop() || i18n.playList.folder.defaultName;
-            
-            // 添加标签
-            const newTab: PlaylistConfig = {
-                id: tabId,
-                name: folderName,
-                items: []
-            };
-            tabs = [...tabs, newTab];
-            activeTabId = tabId;
-            
-            // 1. 文件选择对话框选择文件夹
-            try {
-                // @ts-ignore
-                const dirHandle = await window.showDirectoryPicker();
-                await processDirectoryHandle(dirHandle, folderPath, tabId);
-            } catch (error) {
-                console.error(i18n.playList.error.selectFolderFailed, error);
-                showMessage(i18n.playList.error.selectFolderFailed);
-            }
-        } catch (error) {
-            console.error(i18n.playList.error.processLocalFolderFailed, error);
-            showMessage(i18n.playList.error.processLocalFolderFailed);
-        }
-    }
-    
-    /**
-     * 处理目录句柄
-     */
-    async function processDirectoryHandle(handle: any, basePath: string, tabId: string) {
-        try {
-            if (handle.kind !== 'directory') return;
-            
-            // 获取文件夹下的所有文件
-            const entries = await handle.entries();
-            // 创建媒体文件数组
-            let addedCount = 0;
-            
-            // 处理每个文件
-            for await (const [name, fileHandle] of entries) {
-                if (fileHandle.kind === 'file') {
-                    // 检查是否为媒体文件
-                    const isMedia = /\.(mp4|webm|avi|mkv|mov|flv|mp3|wav|ogg|flac)$/i.test(name);
-                    if (isMedia) {
-                        const mediaPath = `file://${basePath}/${name}`;
-                        await handleMediaAdd(mediaPath);
-                        addedCount++;
-                    }
-                } else if (fileHandle.kind === 'directory') {
-                    // 处理子文件夹
-                    await processDirectoryHandle(fileHandle, `${basePath}/${name}`, tabId);
-                }
-            }
-            
-            showMessage(i18n.playList.message.folderAdded
-                .replace('${name}', handle.name)
-                .replace('${count}', addedCount.toString()));
-        } catch (error) {
-            console.error(i18n.playList.error.processDirectoryFailed, error);
-            showMessage(i18n.playList.error.processDirectoryFailed);
-        }
-    }
-
-    /**
      * 媒体项操作
      */
     const itemActions = {
@@ -527,18 +486,6 @@
                             favoritesTab.items = favoritesTab.items.filter(i => i.id !== item.id);
                         }
                     }
-                    
-                    // 触发删除事件
-                    dispatch('play', {
-                        url: item.url,
-                        originalUrl: item.originalUrl || item.url,
-                        startTime: item.startTime,
-                        endTime: item.endTime,
-                        isLoop: item.startTime !== undefined && item.endTime !== undefined,
-                        type: item.type,
-                        bvid: item.bvid,
-                        title: item.title
-                    });
                 }
             });
             
@@ -604,10 +551,7 @@
 
                 tab.items = [...(tab.items || []), mediaItem];
                 tabs = tabs;  // 触发 Svelte 更新
-
-                // 播放新添加的媒体
-                await handleMediaPlay(mediaItem);
-                showMessage(i18n.playList.message.addedAndPlay);
+                showMessage(i18n.playList.message.added);
             }
         } catch (error) {
             console.error('[Playlist] ' + i18n.playList.error.processMediaItemFailed, error);
@@ -621,10 +565,6 @@
      */
     export function addItem(item: MediaItem) {
         items = [...items, item];
-        // 如果是第一个项目,自动播放
-        if (items.length === 1) {
-            handleMediaPlay(item);
-        }
     }
 
     /**
@@ -689,7 +629,7 @@
                     type="text"
                     class="tab-input"
                     style="width: 100px; max-width: 100px;"
-                    placeholder={inputMode === 'localFolder' ? i18n.playList.placeholder.folderPath : i18n.playList.placeholder.newTab}
+                    placeholder={inputMode === 'localFolder' ? i18n.playList.placeholder.folderPath : inputMode === 'bilibiliFavorites' ? i18n.playList.placeholder.bilibiliFavorites : i18n.playList.placeholder.newTab}
                     on:blur={tabActions.save}
                     on:keydown={tabActions.save}
                 />
@@ -697,47 +637,27 @@
                 <button 
                     class="tab tab-add" 
                     on:click={tabActions.add}
-                    on:contextmenu|preventDefault={(e) => {
-                        const menu = new Menu("addTabMenu");
-                        menu.addItem({
-                            icon: "iconFolder",
-                            label: i18n.playList.menu.addLocalFolder,
-                            click: () => {
-                                isAddingTab = true;
-                                inputMode = 'localFolder';
-                                setTimeout(() => newTabInput?.focus(), 0);
-                            }
-                        });
-                        menu.addItem({
-                            icon: "iconCloud",
-                            label: i18n.playList.menu.addAliCloud,
-                            click: () => {
-                                // TODO: 实现添加阿里云盘功能
-                            }
-                        });
-                        menu.addItem({
-                            icon: "iconCloud",
-                            label: i18n.playList.menu.addTianYiCloud,
-                            click: () => {
-                                // TODO: 实现添加天翼云盘功能
-                            }
-                        });
-                        menu.addItem({
-                            icon: "iconCloud",
-                            label: i18n.playList.menu.addQuarkCloud,
-                            click: () => {
-                                // TODO: 实现添加夸克云盘功能
-                            }
-                        });
-                        menu.addItem({
-                            icon: "iconHeart",
-                            label: i18n.playList.menu.addBilibiliFavorites,
-                            click: () => {
-                                // TODO: 实现添加B站收藏夹功能
-                            }
-                        });
-                        menu.open({ x: e.clientX, y: e.clientY });
-                    }}
+                    on:contextmenu|preventDefault={createAddTabMenu(i18n, {
+                        onAddLocalFolder: () => {
+                            isAddingTab = true;
+                            inputMode = 'localFolder';
+                            setTimeout(() => newTabInput?.focus(), 0);
+                        },
+                        onAddAliCloud: () => {
+                            // TODO: 实现添加阿里云盘功能
+                        },
+                        onAddTianYiCloud: () => {
+                            // TODO: 实现添加天翼云盘功能
+                        },
+                        onAddQuarkCloud: () => {
+                            // TODO: 实现添加夸克云盘功能
+                        },
+                        onAddBilibiliFavorites: () => {
+                            isAddingTab = true;
+                            inputMode = 'bilibiliFavorites';
+                            setTimeout(() => newTabInput?.focus(), 0);
+                        }
+                    })}
                 >+</button>
             {/if}
         </div>

@@ -94,7 +94,8 @@
         "placeholder": {
             "mediaLink": "输入媒体链接...",
             "newTab": "新标签",
-            "folderPath": "输入文件夹路径..."
+            "folderPath": "输入文件夹路径...",
+            "bilibiliFavorites": "输入B站收藏夹链接..."
         },
         "folder": {
             "defaultName": "本地文件夹"
@@ -118,7 +119,9 @@
             "listCleared": "已清空\"${name}\"列表",
             "folderAdded": "已添加文件夹 ${name} 中的 ${count} 个媒体文件",
             "existingItemPlay": "媒体已在播放列表中，直接播放",
-            "addedAndPlay": "已添加到播放列表并开始播放"
+            "added": "已添加到播放列表",
+            "processingFavorites": "正在处理B站收藏夹中的视频...",
+            "favoritesAdded": "已添加收藏夹 ${name} 中的 ${count} 个视频"
         },
         "error": {
             "emptyUrl": "请输入媒体链接",
@@ -132,7 +135,10 @@
             "processMediaItemFailed": "处理媒体项失败:",
             "processMediaFailed": "处理媒体失败",
             "parseLinkFailed": "解析链接失败:",
-            "noActiveTab": "未找到活动标签页"
+            "noActiveTab": "未找到活动标签页",
+            "invalidFavUrl": "无效的B站收藏夹链接",
+            "processFavoritesFailed": "处理B站收藏夹失败",
+            "emptyFavorites": "收藏夹中没有视频"
         },
         "log": {
             "parseLink": "开始解析链接:",

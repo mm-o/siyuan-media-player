@@ -2,39 +2,39 @@ import { showMessage } from "siyuan";
 import type { ConfigManager } from "./config";
 import { isSupportedMediaLink } from './utils';
 
+/**
+ * 链接处理器 - 捕获并处理文档中的媒体链接
+ */
 export class LinkHandler {
-    private configManager: ConfigManager;
-    private playlist: any; // Playlist 组件实例
-    private isListening: boolean = false;
-    private openTabCallback: () => void;
+    private playlist: any;
+    private isListening = false;
+    private clickHandler: ((e: MouseEvent) => void) | null = null;
 
-    // 支持的媒体文件扩展名
-    private readonly MEDIA_EXTENSIONS = [
-        // 视频格式
-        '.mp4', '.webm', '.ogg', '.mov', '.m4v',
-        // 音频格式
-        '.mp3', '.wav', '.aac', '.m4a'
-    ];
-
-    constructor(configManager: ConfigManager, openTabCallback: () => void) {
-        this.configManager = configManager;
-        this.openTabCallback = openTabCallback;
-    }
+    /**
+     * 创建链接处理器
+     * @param configManager 配置管理器
+     * @param openTabCallback 打开标签页的回调函数
+     */
+    constructor(
+        private configManager: ConfigManager,
+        private openTabCallback: () => void
+    ) {}
 
     /**
      * 开始监听链接点击事件
      */
-    public startListening() {
+    public startListening(): void {
         if (this.isListening) return;
         
         this.clickHandler = async (e: MouseEvent) => {
             const target = e.target as HTMLElement;
+            // 只处理思源笔记链接元素
             if (!target.matches('span[data-type="a"]')) return;
             
             const url = target.getAttribute('data-href');
             if (!url) return;
 
-            // 检查是否为支持的链接类型
+            // 检查是否为支持的媒体链接
             if (isSupportedMediaLink(url)) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -47,75 +47,19 @@ export class LinkHandler {
     }
 
     /**
-     * 检查是否为支持的链接类型
-     */
-    private isSupportedLink(url: string): boolean {
-        try {
-            const urlObj = new URL(url);
-            const urlPath = urlObj.pathname.toLowerCase();
-            const fullUrl = url.toLowerCase();
-            
-            // 检查是否为B站链接
-            if (urlObj.hostname.includes('bilibili.com')) {
-                return true;
-            }
-
-            // 检查是否包含媒体关键字
-            const mediaKeywords = ['mp3', 'mp4', 'webm', 'ogg', 'wav', 'm4v', 'mov', 'aac', 'm4a'];
-            if (mediaKeywords.some(keyword => fullUrl.includes(keyword))) {
-                return true;
-            }
-
-            // 检查文件扩展名
-            const isMediaFile = this.MEDIA_EXTENSIONS.some(ext => 
-                urlPath.endsWith(ext)
-            );
-            
-            // 检查是否为本地文件
-            const isLocalFile = urlObj.protocol === 'file:' && (
-                mediaKeywords.some(keyword => fullUrl.includes(keyword)) ||
-                this.MEDIA_EXTENSIONS.some(ext => urlPath.endsWith(ext))
-            );
-
-            // 检查是否包含时间戳参数
-            const hasTimeParam = urlObj.searchParams.has('t');
-
-            return isMediaFile || isLocalFile || hasTimeParam;
-            
-        } catch (e) {
-            // 如果 URL 解析失败，尝试直接检查字符串
-            const urlLower = url.toLowerCase();
-            return this.MEDIA_EXTENSIONS.some(ext => urlLower.includes(ext)) ||
-                   urlLower.includes('bilibili.com') ||
-                   urlLower.includes('t='); // 检查是否包含时间戳参数
-        }
-    }
-
-    /**
      * 处理媒体链接
      */
-    private async handleMediaLink(url: string) {
+    private async handleMediaLink(url: string): Promise<void> {
         try {
-            // 检查播放器标签页是否已打开
-            const playerTab = document.querySelector('.media-player-tab');
-            if (!playerTab) {
-                // 如果标签页未打开，先打开标签页
+            // 确保播放器标签页已打开
+            if (!document.querySelector('.media-player-tab')) {
+                // 打开标签页
                 this.openTabCallback();
-                // 等待标签页打开
-                await new Promise<void>((resolve) => {
-                    const checkTab = () => {
-                        const tab = document.querySelector('.media-player-tab');
-                        if (tab) {
-                            resolve();
-                        } else {
-                            setTimeout(checkTab, 100);
-                        }
-                    };
-                    checkTab();
-                });
+                // 等待标签页加载完成
+                await this.waitForElement('.media-player-tab');
             }
             
-            // 等待一小段时间确保组件已完全初始化
+            // 等待组件初始化
             await new Promise(resolve => setTimeout(resolve, 200));
             
             // 通过播放列表处理链接
@@ -124,20 +68,59 @@ export class LinkHandler {
             }
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
-            showMessage(error.message || "播放失败，请重试");
+            showMessage(error instanceof Error 
+                ? error.message 
+                : "播放失败，请重试");
         }
     }
 
-    public setPlaylist(playlist: any) {
+    /**
+     * 等待元素出现
+     */
+    private async waitForElement(selector: string, timeout = 3000): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            // 如果元素已存在，立即返回
+            if (document.querySelector(selector)) {
+                resolve();
+                return;
+            }
+
+            const observer = new MutationObserver(() => {
+                if (document.querySelector(selector)) {
+                    observer.disconnect();
+                    resolve();
+                }
+            });
+
+            // 监听DOM变化
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            // 设置超时
+            setTimeout(() => {
+                observer.disconnect();
+                reject(new Error(`等待元素 ${selector} 超时`));
+            }, timeout);
+        });
+    }
+
+    /**
+     * 设置播放列表组件
+     */
+    public setPlaylist(playlist: any): void {
         this.playlist = playlist;
     }
 
-    public stopListening() {
+    /**
+     * 停止监听链接点击事件
+     */
+    public stopListening(): void {
         if (this.clickHandler) {
             document.removeEventListener('click', this.clickHandler, true);
+            this.clickHandler = null;
         }
         this.isListening = false;
     }
-
-    private clickHandler: ((e: MouseEvent) => void) | null = null;
 } 
