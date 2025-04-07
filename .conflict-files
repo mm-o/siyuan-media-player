@@ -1,3 +1,0 @@
-ancestorEntries = ["dist/index.js", "package.zip"]
-ourEntries = ["dist/index.js", "package.zip"]
-theirEntries = ["dist/index.js", "package.zip"]
