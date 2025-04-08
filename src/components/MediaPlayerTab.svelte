@@ -28,43 +28,30 @@
     let loopStartTime: number | null = null;
     let playlist: PlayList;
 
-    // =============== 通用函数 ===============
-    // 获取当前块ID
-    function getCurrentBlockId(): string {
+    // =============== 工具函数 ===============
+    const getCurrentBlockId = (): string => {
         const selection = window.getSelection();
-        if (!selection?.focusNode) {
-            throw new Error(i18n.mediaPlayerTab.block.cursorNotFound);
-        }
+        if (!selection?.focusNode) throw new Error(i18n.mediaPlayerTab.block.cursorNotFound);
 
         let element = selection.focusNode as HTMLElement;
         while (element && !element.dataset?.nodeId) {
             element = element.parentElement as HTMLElement;
         }
 
-        if (!element?.dataset.nodeId) {
-            throw new Error(i18n.mediaPlayerTab.block.targetBlockNotFound);
-        }
-
+        if (!element?.dataset.nodeId) throw new Error(i18n.mediaPlayerTab.block.targetBlockNotFound);
         return element.dataset.nodeId;
-    }
+    };
 
-    // 插入内容到文档
-    async function insertContent(content: string): Promise<void> {
+    const insertContent = async (content: string): Promise<void> => {
         try {
             const config = await configManager.getConfig();
-            
             if (config.settings.insertAtCursor ?? true) {
                 const blockId = getCurrentBlockId();
                 const response = await fetch('/api/block/updateBlock', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        data: content,
-                        dataType: "markdown",
-                        id: blockId
-                    })
+                    body: JSON.stringify({ data: content, dataType: "markdown", id: blockId })
                 });
-
                 if (!response.ok) throw new Error();
                 showMessage(i18n.mediaPlayerTab.block.linkInserted);
             } else {
@@ -72,21 +59,18 @@
                 showMessage(i18n.mediaPlayerTab.block.copiedToClipboard);
             }
         } catch {
-            // 失败时复制到剪贴板
             await navigator.clipboard.writeText(content);
             showMessage(i18n.mediaPlayerTab.block.insertFailed);
         }
-    }
+    };
 
-    // 生成时间戳链接
-    function createTimestampLink(isLoop = false, startTime?: number, endTime?: number): string | null {
+    const createTimestampLink = (isLoop = false, startTime?: number, endTime?: number): string | null => {
         if (!player || !currentItem) return null;
 
         try {
             const currentTime = startTime ?? player.getCurrentTime();
             const loopEndTime = endTime ?? (isLoop ? currentTime + 3 : undefined);
             const baseUrl = currentItem.originalUrl || currentItem.url;
-            
             if (!baseUrl) throw new Error();
 
             const urlObj = new URL(baseUrl);
@@ -95,81 +79,66 @@
             if (isLoop && loopEndTime) {
                 urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${loopEndTime.toFixed(1)}`);
                 return `- [${formatTime(currentTime, true)}-${formatTime(loopEndTime, true)}](${urlObj.toString()})`;
-            } else {
-                urlObj.searchParams.set('t', currentTime.toFixed(1));
-                return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
             }
+            urlObj.searchParams.set('t', currentTime.toFixed(1));
+            return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
         } catch {
             showMessage(i18n.mediaPlayerTab.timestamp.generateFailed);
             return null;
         }
-    }
+    };
 
     // =============== 媒体操作 ===============
-    // 截图功能
-    async function takeScreenshot(): Promise<void> {
+    const takeScreenshot = async (): Promise<void> => {
         if (!player || !currentItem) {
             showMessage(i18n.controlBar.screenshot.hint);
             return;
         }
 
         try {
-            // 获取截图
             const dataUrl = await player.getScreenshotDataURL();
             if (!dataUrl) {
                 showMessage(i18n.mediaPlayerTab.screenshot.failHint);
                 return;
             }
             
-            // 转换为Blob
             const res = await fetch(dataUrl);
             const imageBlob = await res.blob();
-            
-            // 上传截图
             const timestamp = Date.now();
             const filename = `${currentItem.title || i18n.mediaPlayerTab.screenshot.defaultName}_${timestamp}.png`;
             
             const formData = new FormData();
             formData.append('file[]', imageBlob, filename);
             
-            const response = await fetch('/api/asset/upload', {
-                method: 'POST',
-                body: formData
-            });
-            
+            const response = await fetch('/api/asset/upload', { method: 'POST', body: formData });
             if (!response.ok) throw new Error();
             
             const result = await response.json();
             if (result.code !== 0) throw new Error();
             
-            // 插入图片
             await insertContent(`![${filename}](${result.data.succMap[filename]})`);
             showMessage(i18n.mediaPlayerTab.screenshot.successHint);
         } catch {
             showMessage(i18n.mediaPlayerTab.screenshot.errorHint);
         }
-    }
+    };
 
-    // 创建时间戳
-    async function createTimestamp(): Promise<void> {
+    const createTimestamp = async (): Promise<void> => {
         if (!player || !currentItem) {
             showMessage(i18n.controlBar.screenshot.hint);
             return;
         }
-        
         const link = createTimestampLink(false);
         if (link) await insertContent(link);
-    }
+    };
 
-    // 创建循环片段
-    async function createLoopSegment(): Promise<void> {
+    const createLoopSegment = async (): Promise<void> => {
         if (!player || !currentItem) {
             showMessage(i18n.controlBar.screenshot.hint);
             return;
         }
         
         const currentTime = player.getCurrentTime();
-        
         if (loopStartTime === null) {
             loopStartTime = currentTime;
             showMessage(i18n.controlBar.loopSegment.startHint);
@@ -178,36 +147,31 @@
             if (link) await insertContent(link);
             loopStartTime = null;
         }
-    }
+    };
 
     // =============== 事件处理 ===============
-    // 控制栏显示/隐藏
-    function handleMouseMove() {
+    const handleMouseMove = () => {
         showControls = true;
         clearTimeout(controlTimer);
         controlTimer = window.setTimeout(() => showControls = false, 3000);
-    }
+    };
 
-    function handleMouseLeave() {
+    const handleMouseLeave = () => {
         clearTimeout(controlTimer);
         showControls = false;
-    }
+    };
 
-    // 设置变更
-    function handleSettingsChanged(event: CustomEvent) {
+    const handleSettingsChanged = (event: CustomEvent) => {
         playerConfig = event.detail.settings;
         player?.updateConfig(playerConfig);
-    }
+    };
 
-    // 媒体选择
-    function handleSelect(event: CustomEvent<MediaItem>) {
+    const handleSelect = (event: CustomEvent<MediaItem>) => {
         currentItem = event.detail;
-    }
+    };
 
-    // 控制栏事件
-    async function handleControlEvent(event: CustomEvent): Promise<void> {
+    const handleControlEvent = async (event: CustomEvent): Promise<void> => {
         const action = event.type.replace(':', '');
-        
         switch (action) {
             case 'screenshot': await takeScreenshot(); break;
             case 'timestamp': await createTimestamp(); break;
@@ -221,29 +185,22 @@
                 if (showSettings) showPlaylist = false;
                 break;
         }
-    }
+    };
 
-    // 错误处理
-    function handleStreamError(event: CustomEvent): void {
-        if (event.detail.type === 'bilibili') {
-            handleBilibiliError();
-        }
-    }
+    const handleStreamError = (event: CustomEvent): void => {
+        if (event.detail.type === 'bilibili') handleBilibiliError();
+    };
 
-    // 播放媒体
-    async function playMedia(event: CustomEvent): Promise<void> {
-        // 从事件中获取播放选项
+    const playMedia = async (event: CustomEvent): Promise<void> => {
         const options = event.detail;
-        
         if (!options?.url) {
             showMessage(i18n.mediaPlayerTab.play.invalidOptions);
             return;
         }
 
         try {
-            // 创建媒体项
             currentItem = {
-                id: `item-${Date.now()}`,
+                id: options.id || `item-${Date.now()}`,
                 title: options.title || i18n.mediaPlayerTab.play.untitledMedia,
                 url: options.url,
                 originalUrl: options.originalUrl || options.url,
@@ -256,7 +213,6 @@
                 cid: options.cid
             };
 
-            // 播放媒体
             if (['bilibili-dash', 'bilibili'].includes(options.type)) {
                 await player.play(options.url, {
                     type: options.type,
@@ -267,7 +223,6 @@
                 await player.play(options.url);
             }
 
-            // 设置播放参数
             if (options.startTime !== undefined) {
                 player.setPlayTime(options.startTime, options.endTime);
             }
@@ -278,10 +233,9 @@
         } catch (error) {
             showMessage(i18n.mediaPlayerTab.play.failMessage + error.message);
         }
-    }
+    };
 
-    // 处理B站视频错误
-    async function handleBilibiliError(): Promise<void> {
+    const handleBilibiliError = async (): Promise<void> => {
         if (currentItem?.type !== 'bilibili' || !currentItem.bvid || !currentItem.cid) return;
         
         try {
@@ -296,7 +250,6 @@
             if (player) {
                 const url = streamInfo.mpdUrl || streamInfo.video.url;
                 const type = streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili';
-                
                 player.play(url, {
                     type,
                     headers: streamInfo.headers,
@@ -306,27 +259,24 @@
         } catch {
             showMessage(i18n.mediaPlayerTab.stream.playbackError);
         }
-    }
+    };
 
     // =============== 生命周期 ===============
     onMount(() => {
-        // 初始化
-        async function init() {
+        const init = async () => {
             const config = await configManager.load();
             playerConfig = config.settings;
             if (!playerConfig.loopCount) playerConfig.loopCount = 3;
 
-            // 添加错误处理
             const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
                 playerContainer.addEventListener('streamError', handleStreamError as EventListener);
             }
-        }
+        };
 
         init();
         
         return () => {
-            // 清理
             const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
                 playerContainer.removeEventListener('streamError', handleStreamError as EventListener);
@@ -338,7 +288,6 @@
         linkHandler?.setPlaylist(null);
     });
 
-    // 设置播放列表
     $: if (playlist && linkHandler) {
         linkHandler.setPlaylist(playlist);
     }
@@ -393,4 +342,3 @@
             {/if}
         </div>
     </div>
-</div> 

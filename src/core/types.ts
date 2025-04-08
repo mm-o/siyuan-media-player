@@ -1,6 +1,34 @@
 /**
  * 媒体项接口定义
  */
+export type MediaType = 'video' | 'audio' | 'bilibili';
+export type SettingType = 'slider' | 'checkbox';
+
+// B站相关类型
+export interface BilibiliUserInfo {
+    face: string;
+    level_info: {
+        current_level: number;
+        current_min: number;
+        current_exp: number;
+        next_exp: string | number;
+    };
+    mid: number;
+    uname: string;
+    wbi_img?: {
+        img_url: string;
+        sub_url: string;
+    };
+}
+
+export interface BilibiliLogin {
+    url?: string;
+    refresh_token?: string;
+    timestamp?: number;
+    userInfo?: BilibiliUserInfo;
+}
+
+// 媒体相关类型
 export interface MediaItem {
     id: string;           // 唯一标识符
     title: string;        // 媒体标题
@@ -10,7 +38,7 @@ export interface MediaItem {
     thumbnail?: string;   // 媒体缩略图
     url: string;         // 媒体URL
     originalUrl?: string;  // 原始链接
-    type: 'video' | 'audio' | 'bilibili';
+    type: MediaType;
     isPinned?: boolean;   // 是否置顶
     isFavorite?: boolean; // 是否收藏
     
@@ -60,48 +88,9 @@ export interface Config {
         insertAtCursor: boolean;
     };
     /** B站登录信息 */
-    bilibiliLogin?: {
-        /** 登录URL，包含登录凭证 */
-        url?: string;
-        /** 刷新令牌 */
-        refresh_token?: string;
-        /** 登录时间戳 */
-        timestamp?: number;
-        /** 用户信息 */
-        userInfo?: {
-            /** 用户头像URL */
-            face: string;
-            /** 等级信息 */
-            level_info: {
-                /** 当前等级 */
-                current_level: number;
-                /** 当前等级最小经验值 */
-                current_min: number;
-                /** 当前经验值 */
-                current_exp: number;
-                /** 下一等级所需经验值 */
-                next_exp: string | number;
-            };
-            /** 用户ID */
-            mid: number;
-            /** 用户名 */
-            uname: string;
-            /** WBI签名图片信息 */
-            wbi_img?: {
-                /** 主图片URL */
-                img_url: string;
-                /** 子图片URL */
-                sub_url: string;
-            };
-        };
-    };
+    bilibiliLogin?: BilibiliLogin;
     /** 播放列表 */
-    playlists: {
-        id: string;          // 列表ID
-        name: string;        // 列表名称
-        isFixed?: boolean;   // 是否为固定列表
-        items: MediaItem[];  // 媒体项列表
-    }[];
+    playlists: PlaylistConfig[];
 }
 
 /**
@@ -111,12 +100,7 @@ export interface PlaylistConfig {
     id: string;          // 列表ID
     name: string;        // 列表名称
     isFixed?: boolean;   // 是否为固定列表
-    items: {
-        url: string;     // 媒体URL
-        aid?: string;    // B站av号
-        bvid?: string;   // B站bv号
-        cid?: string;    // B站视频cid
-    }[];                 // 媒体项列表
+    items: MediaItem[];  // 媒体项列表
 }
 
 export interface PlayOptions {
@@ -146,7 +130,7 @@ export interface VideoStream {
 export interface ISettingItem {
     key: string;
     value: number | boolean;
-    type: 'slider' | 'checkbox';
+    type: SettingType;
     title: string;
     description?: string;
     slider?: {
@@ -154,4 +138,3 @@ export interface ISettingItem {
         max: number;
         step: number;
     };
-} 

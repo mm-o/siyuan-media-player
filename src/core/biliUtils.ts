@@ -19,23 +19,21 @@ export const BILI_HEADERS = {
     'Origin': 'https://www.bilibili.com'
 };
 
-/**
- * 从URL提取SESSDATA
- */
-export function getSessData(url: string): string | null {
+// URL解析工具
+export const getSessData = (url: string): string | null => {
     try {
         return new URL(url).searchParams.get('SESSDATA');
     } catch {
         return null;
     }
-}
+};
 
 /**
  * 解析B站视频URL
  * @param url B站视频URL
  * @returns 解析结果，包含bvid/aid和分P信息
  */
-export function parseBiliUrl(url: string): { bvid?: string; aid?: string; p?: number } | null {
+export const parseBiliUrl = (url: string): { bvid?: string; aid?: string; p?: number } | null => {
     try {
         const urlObj = new URL(url);
         if (urlObj.hostname === 'b23.tv') return null; // 短链接暂不支持
@@ -50,21 +48,18 @@ export function parseBiliUrl(url: string): { bvid?: string; aid?: string; p?: nu
         const aid = urlObj.searchParams.get('aid');
         const bvid = urlObj.searchParams.get('bvid');
         
-        if (aid) return { aid, p };
-        if (bvid) return { bvid, p };
-        
-        return null;
+        return aid ? { aid, p } : bvid ? { bvid, p } : null;
     } catch {
         return null;
     }
-}
+};
 
 /**
  * 从收藏夹URL中提取媒体ID
  * @param url 收藏夹URL
  * @returns 媒体ID
  */
-export function extractFavMediaId(url: string): string | null {
+export const extractFavMediaId = (url: string): string | null => {
     try {
         const urlObj = new URL(url);
         
@@ -72,8 +67,7 @@ export function extractFavMediaId(url: string): string | null {
         const fid = urlObj.searchParams.get('fid');
         const mediaId = urlObj.searchParams.get('media_id');
         
-        if (fid) return fid;
-        if (mediaId) return mediaId;
+        if (fid || mediaId) return fid || mediaId;
         
         // 从URL路径中提取
         const patterns = [
@@ -83,22 +77,17 @@ export function extractFavMediaId(url: string): string | null {
         
         for (const pattern of patterns) {
             const match = url.match(pattern);
-            if (match && match[1]) return match[1];
+            if (match?.[1]) return match[1];
         }
         
         return null;
     } catch {
         return null;
     }
-}
+};
 
-/**
- * 发送B站网络请求通过代理
- * @param url API端点URL
- * @param headers 请求头
- * @returns 请求结果
- */
-export async function biliRequest<T>(url: string, headers: Record<string, string> = {}): Promise<T> {
+// 网络请求工具
+export const biliRequest = async <T>(url: string, headers: Record<string, string> = {}): Promise<T> => {
     try {
         const response = await fetch(BILI_API.PROXY, {
             method: 'POST',
@@ -118,13 +107,10 @@ export async function biliRequest<T>(url: string, headers: Record<string, string
     } catch (error) {
         throw new Error(`网络请求失败: ${error instanceof Error ? error.message : String(error)}`);
     }
-}
+};
 
-/**
- * 生成B站登录二维码
- * @returns 二维码数据和二维码key
- */
-export async function generateBiliQRCode(): Promise<{qrcodeData: string, qrcode_key: string}> {
+// 登录相关工具
+export const generateBiliQRCode = async (): Promise<{qrcodeData: string, qrcode_key: string}> => {
     try {
         const response = await biliRequest<any>(BILI_API.QR_LOGIN);
         if (response.code !== 0) {
@@ -144,19 +130,19 @@ export async function generateBiliQRCode(): Promise<{qrcodeData: string, qrcode_
     } catch (error) {
         throw new Error(`生成登录二维码失败: ${error instanceof Error ? error.message : String(error)}`);
     }
-}
+};
 
 /**
  * 检查二维码扫描状态
  * @param qrcode_key 二维码的key
  * @returns 登录状态
  */
-export async function checkBiliQRCodeStatus(qrcode_key: string): Promise<{
+export const checkBiliQRCodeStatus = async (qrcode_key: string): Promise<{
     code: number;
     message: string;
     url?: string;
     userInfo?: any;
-}> {
+}> => {
     try {
         const response = await biliRequest<any>(`${BILI_API.QR_POLL}?qrcode_key=${qrcode_key}`);
         
@@ -184,14 +170,14 @@ export async function checkBiliQRCodeStatus(qrcode_key: string): Promise<{
             message: `检查二维码状态失败: ${error instanceof Error ? error.message : String(error)}`
         };
     }
-}
+};
 
 /**
  * 获取B站用户信息
  * @param sessdata 会话数据
  * @returns 用户信息
  */
-export async function getBiliUserInfo(sessdata: string): Promise<any | null> {
+export const getBiliUserInfo = async (sessdata: string): Promise<any | null> => {
     try {
         const response = await biliRequest<any>(
             BILI_API.USER_INFO, 
@@ -202,7 +188,7 @@ export async function getBiliUserInfo(sessdata: string): Promise<any | null> {
     } catch {
         return null;
     }
-}
+};
 
 /**
  * 获取B站请求头，包含登录信息
@@ -210,7 +196,7 @@ export async function getBiliUserInfo(sessdata: string): Promise<any | null> {
  * @param bvid 可选的BV号，用于设置Referer
  * @returns 请求头
  */
-export function getBiliHeaders(config: any, bvid?: string): Record<string, string> {
+export const getBiliHeaders = (config: any, bvid?: string): Record<string, string> => {
     const headers = { 
         ...BILI_HEADERS,
         'Referer': bvid ? `https://www.bilibili.com/video/${bvid}/` : 'https://www.bilibili.com'
@@ -235,4 +221,4 @@ export function getBiliHeaders(config: any, bvid?: string): Record<string, strin
     }
 
     return headers;
-} 
+}; 

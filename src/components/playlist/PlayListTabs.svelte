@@ -28,62 +28,22 @@
         addMedia: { url: string };
     }>();
 
+    const menuConfigs = {
+        addTab: [
+            { icon: "iconFolder", label: i18n.playList.menu.addLocalFolder, action: () => startAddingTab('localFolder') },
+            { icon: "iconCloud", label: i18n.playList.menu.addAliCloud, action: () => showMessage(i18n.playList.message.notImplemented) },
+            { icon: "iconCloud", label: i18n.playList.menu.addTianYiCloud, action: () => showMessage(i18n.playList.message.notImplemented) },
+            { icon: "iconCloud", label: i18n.playList.menu.addQuarkCloud, action: () => showMessage(i18n.playList.message.notImplemented) },
+            { icon: "iconHeart", label: i18n.playList.menu.addBilibiliFavorites, action: () => startAddingTab('bilibiliFavorites') }
+        ]
+    };
+
     /**
      * 创建添加标签右键菜单
      */
-    function createAddTabMenu(event: MouseEvent) {
-        const menu = new Menu("addTabMenu");
-        
-        // 添加本地文件夹
-        menu.addItem({
-            icon: "iconFolder",
-            label: i18n.playList.menu.addLocalFolder,
-            click: () => {
-                isAddingTab = true;
-                inputMode = 'localFolder';
-                setTimeout(() => newTabInput?.focus(), 0);
-            }
-        });
-        
-        // 添加阿里云盘
-        menu.addItem({
-            icon: "iconCloud",
-            label: i18n.playList.menu.addAliCloud,
-            click: () => {
-                showMessage(i18n.playList.message.notImplemented);
-            }
-        });
-        
-        // 添加天翼云盘
-        menu.addItem({
-            icon: "iconCloud",
-            label: i18n.playList.menu.addTianYiCloud,
-            click: () => {
-                showMessage(i18n.playList.message.notImplemented);
-            }
-        });
-        
-        // 添加夸克云盘
-        menu.addItem({
-            icon: "iconCloud",
-            label: i18n.playList.menu.addQuarkCloud,
-            click: () => {
-                showMessage(i18n.playList.message.notImplemented);
-            }
-        });
-        
-        // 添加B站收藏夹
-        menu.addItem({
-            icon: "iconHeart",
-            label: i18n.playList.menu.addBilibiliFavorites,
-            click: () => {
-                isAddingTab = true;
-                inputMode = 'bilibiliFavorites';
-                setTimeout(() => newTabInput?.focus(), 0);
-            }
-        });
-        
-        // 打开菜单
+    function createMenu(menuId: string, items: any[], event: MouseEvent) {
+        const menu = new Menu(menuId);
+        items.forEach(({ icon, label, action }) => menu.addItem({ icon, label, click: action }));
         menu.open({ x: event.clientX, y: event.clientY });
     }
     
@@ -231,14 +191,7 @@
      * 标签操作
      */
     const tabActions = {
-        add() {
-            if (!isAddingTab) {
-                isAddingTab = true;
-                // 设置添加普通标签状态
-                inputMode = 'normal';
-                setTimeout(() => newTabInput?.focus(), 0);
-            }
-        },
+        add: () => startAddingTab('normal'),
 
         save(event: KeyboardEvent | FocusEvent, tab?: PlaylistConfig) {
             if (event instanceof KeyboardEvent && event.key !== 'Enter') return;
@@ -284,79 +237,49 @@
             }
             
             input.value = '';
+            dispatch('tabsUpdate', { tabs });
         },
 
         showContextMenu(event: MouseEvent, tab: PlaylistConfig) {
-            // 创建右键菜单
-            const menu = new Menu("tabContextMenu");
-            
-            // 仅对非固定标签显示编辑选项
-            if (!tab.isFixed) {
-                // 添加重命名项
-                menu.addItem({
-                    icon: "iconEdit",
-                    label: i18n.playList.menu.rename,
-                    click: () => {
-                        // 将当前标签设置为编辑状态
-                        tabs = tabs.map(t => ({
-                            ...t,
-                            isEditing: t.id === tab.id
-                        }));
-                        
-                        // 触发标签更新事件
-                        dispatch('tabsUpdate', { tabs });
-                        
-                        // 延迟执行，确保DOM更新后再获取输入框
-                        setTimeout(() => {
-                            const input = document.querySelector(`#tab-edit-${tab.id}`) as HTMLInputElement;
-                            input?.focus();
-                            input?.select();
-                        }, 0);
-                    }
-                });
-                
-                // 添加删除项
-                menu.addItem({
-                    icon: "iconTrashcan",
-                    label: i18n.playList.menu.delete,
-                    click: () => {
-                        // 从标签列表中移除当前标签
-                        tabs = tabs.filter(t => t.id !== tab.id);
-                        
-                        // 如果当前标签是激活的，设置默认标签为激活
-                        if (activeTabId === tab.id) {
-                            setActiveTab('default');
-                        }
-                        
-                        // 触发标签更新事件
-                        dispatch('tabsUpdate', { tabs });
-                    }
-                });
-                
-                menu.addSeparator();
-            }
-            
-            // 为所有标签添加清空选项
-            menu.addItem({
-                icon: "iconClear",
-                label: i18n.playList.menu.clear,
-                click: () => {
-                    // 清空标签内容
+            const menuItems = [];
+            const actions = {
+                rename: () => {
+                    tabs = tabs.map(t => ({
+                        ...t,
+                        isEditing: t.id === tab.id
+                    }));
+                    dispatch('tabsUpdate', { tabs });
+                    setTimeout(() => {
+                        const input = document.querySelector(`#tab-edit-${tab.id}`) as HTMLInputElement;
+                        input?.focus();
+                        input?.select();
+                    }, 0);
+                },
+                delete: () => {
+                    tabs = tabs.filter(t => t.id !== tab.id);
+                    if (activeTabId === tab.id) setActiveTab('default');
+                    dispatch('tabsUpdate', { tabs });
+                },
+                clear: () => {
                     tabs = tabs.map(t => 
                         t.id === tab.id 
                         ? { ...t, items: [] }
                         : t
                     );
-                    
-                    // 触发标签更新事件
                     dispatch('tabsUpdate', { tabs });
-                    
                     showMessage(i18n.playList.message.listCleared.replace('${name}', tab.name));
                 }
-            });
+            };
             
-            // 打开右键菜单
-            menu.open({ x: event.clientX, y: event.clientY });
+            if (!tab.isFixed) {
+                menuItems.push(
+                    { icon: "iconEdit", label: i18n.playList.menu.rename, action: actions.rename },
+                    { icon: "iconTrashcan", label: i18n.playList.menu.delete, action: actions.delete }
+                );
+            }
+            
+            menuItems.push({ icon: "iconClear", label: i18n.playList.menu.clear, action: actions.clear });
+            createMenu("tabContextMenu", menuItems, event);
         }
     };
     
@@ -366,6 +289,12 @@
     function setActiveTab(tabId: string) {
         activeTabId = tabId;
         dispatch('tabChange', { tabId });
+    }
+
+    function startAddingTab(mode: typeof inputMode) {
+        isAddingTab = true;
+        inputMode = mode;
+        setTimeout(() => newTabInput?.focus(), 0);
     }
 </script>
 
@@ -409,7 +338,7 @@
             <button 
                 class="tab tab-add" 
                 on:click={tabActions.add}
-                on:contextmenu|preventDefault={createAddTabMenu}
+                on:contextmenu|preventDefault={(e) => createMenu("addTabMenu", menuConfigs.addTab, e)}
             >+</button>
         {/if}
     </div>

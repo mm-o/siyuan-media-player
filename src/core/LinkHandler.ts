@@ -1,6 +1,6 @@
 import { showMessage } from "siyuan";
 import type { ConfigManager } from "./config";
-import { isSupportedMediaLink } from './utils';
+import { isSupportedMediaLink, parseMediaLink } from './utils';
 
 /**
  * 链接处理器 - 捕获并处理文档中的媒体链接
@@ -60,9 +60,7 @@ export class LinkHandler {
         try {
             // 确保播放器标签页已打开
             if (!document.querySelector('.media-player-tab')) {
-                // 打开标签页
                 this.openTabCallback();
-                // 等待标签页加载完成
                 await this.waitForElement('.media-player-tab');
             }
             
@@ -71,7 +69,7 @@ export class LinkHandler {
             
             // 通过播放列表处理链接
             if (this.playlist) {
-                await this.playlist.handleMediaItem(url);
+                await this.playlist.addMedia(url);
             }
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
