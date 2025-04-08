@@ -106,4 +106,3 @@ export class LinkHandler {
         }
         this.isListening = false;
     }
-} 
