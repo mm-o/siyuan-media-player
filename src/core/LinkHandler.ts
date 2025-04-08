@@ -21,6 +21,13 @@ export class LinkHandler {
     ) {}
 
     /**
+     * 设置播放列表组件
+     */
+    public setPlaylist(playlist: any): void {
+        this.playlist = playlist;
+    }
+
+    /**
      * 开始监听链接点击事件
      */
     public startListening(): void {
@@ -64,7 +71,7 @@ export class LinkHandler {
             
             // 通过播放列表处理链接
             if (this.playlist) {
-                await this.playlist.handleSubmit(url);
+                await this.playlist.handleMediaItem(url);
             }
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
@@ -77,40 +84,16 @@ export class LinkHandler {
     /**
      * 等待元素出现
      */
-    private async waitForElement(selector: string, timeout = 3000): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            // 如果元素已存在，立即返回
-            if (document.querySelector(selector)) {
-                resolve();
-                return;
-            }
-
-            const observer = new MutationObserver(() => {
-                if (document.querySelector(selector)) {
-                    observer.disconnect();
-                    resolve();
-                }
-            });
-
-            // 监听DOM变化
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-
-            // 设置超时
-            setTimeout(() => {
-                observer.disconnect();
-                reject(new Error(`等待元素 ${selector} 超时`));
-            }, timeout);
-        });
-    }
-
-    /**
-     * 设置播放列表组件
-     */
-    public setPlaylist(playlist: any): void {
-        this.playlist = playlist;
+    private async waitForElement(selector: string, timeout = 5000): Promise<Element> {
+        const startTime = Date.now();
+        
+        while (Date.now() - startTime < timeout) {
+            const element = document.querySelector(selector);
+            if (element) return element;
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        throw new Error(`等待元素超时: ${selector}`);
     }
 
     /**
