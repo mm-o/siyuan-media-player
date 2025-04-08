@@ -14,9 +14,9 @@
     // 从'../core/utils'中导入parseMediaLink函数
     import { parseMediaLink } from '../core/utils';
     // 导入子组件
-    import PlayListTabs from './playlist/PlayListTabs.svelte';
-    import PlayListItem from './playlist/PlayListItem.svelte';
-    import PlayListFooter from './playlist/PlayListFooter.svelte';
+    import PlayListTabs from './PlayList/PlayListTabs.svelte';
+    import PlayListItem from './PlayList/PlayListItem.svelte';
+    import PlayListFooter from './PlayList/PlayListFooter.svelte';
 
     // 组件属性
     export let items: MediaItem[] = [];
@@ -44,7 +44,19 @@
         try {
             // 获取配置和准备播放选项
             const config = await configManager.getConfig();
-            let playOptions: any = {};
+            const playOptions = {
+                id: item.id,
+                url: item.url,
+                title: item.title,
+                originalUrl: item.originalUrl || item.url,
+                type: item.type || 'video',
+                startTime: item.startTime,
+                endTime: item.endTime,
+                isLoop: item.isLoop,
+                loopCount: item.loopCount,
+                bvid: item.bvid,
+                cid: item.cid
+            };
             
             // 处理不同类型的媒体
             if (item.type === 'bilibili' && item.bvid && item.cid) {
@@ -53,30 +65,12 @@
                     item.bvid, item.cid, 0, config
                 );
                 
-                playOptions = {
+                Object.assign(playOptions, {
                     url: streamInfo.mpdUrl || streamInfo.video.url,
                     headers: streamInfo.headers,
-                    title: item.title,
-                    originalUrl: item.originalUrl || item.url,
                     type: streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili'
-                };
-            } else {
-                // 普通媒体处理
-                playOptions = {
-                    url: item.url,
-                    title: item.title,
-                    originalUrl: item.originalUrl || item.url,
-                    type: item.type || 'video'
-                };
+                });
             }
-            
-            // 添加时间控制参数
-            playOptions = {
-                ...playOptions,
-                startTime: item.startTime,
-                endTime: item.endTime,
-                isLoop: item.startTime !== undefined && item.endTime !== undefined
-            };
             
             // 触发播放事件并更新当前项
             dispatch('play', playOptions);
@@ -120,7 +114,22 @@
             id: tab.id,
             name: tab.name,
             isFixed: tab.isFixed,
-            items: tab.items && MediaManager.getMediaInfoFromItems(tab.items)
+            items: (tab.items || []).map(item => ({
+                id: item.id,
+                title: item.title,
+                type: item.type,
+                url: item.url,
+                originalUrl: item.originalUrl,
+                aid: item.aid,
+                bvid: item.bvid,
+                cid: item.cid,
+                startTime: item.startTime,
+                endTime: item.endTime,
+                isLoop: item.isLoop,
+                loopCount: item.loopCount,
+                isPinned: item.isPinned,
+                isFavorite: item.isFavorite
+            }))
         }));
         configManager.updatePlaylists(playlistsToSave);
     }
@@ -160,10 +169,11 @@
             if (endTime !== undefined) mediaItem.endTime = endTime;
             mediaItem.originalUrl = url;
             
-            // 添加到播放列表
+            // 添加到播放列表并立即播放
             if (activeTab) {
                 activeTab.items = [...(activeTab.items || []), mediaItem];
                 await savePlaylists();
+                await handleMediaPlay(mediaItem);
                 showMessage(i18n.playList.message.added);
             }
         } catch (error) {
@@ -247,26 +257,49 @@
     const handleAddMedia = (event) => handleMediaAdd(event.detail.url);
     
     /**
-     * 导出方法：处理外部媒体项
+     * 处理外部媒体项
      */
     export async function handleMediaItem(mediaItem: MediaItem) {
-        const existingItem = activeTab?.items?.find(item => 
-            item.url === mediaItem.url || item.originalUrl === mediaItem.originalUrl
-        );
+        // 查找完全匹配的项（包括时间参数）
+        const existingItem = activeTab?.items?.find(item => {
+            const urlMatch = item.url === mediaItem.url || item.originalUrl === mediaItem.originalUrl;
+            const timeMatch = mediaItem.startTime === item.startTime && mediaItem.endTime === item.endTime;
+            return urlMatch && timeMatch;
+        });
 
         if (existingItem) {
-            await handleMediaPlay(existingItem as MediaItem);
+            // 如果找到完全匹配的项，直接播放
+            await handleMediaPlay(existingItem);
             showMessage(i18n.playList.message.existingItemPlay);
         } else {
-            const tab = tabs.find(t => t.id === activeTabId);
-            if (!tab) {
-                showMessage(i18n.playList.error.noActiveTab);
-                return;
-            }
+            // 查找仅URL匹配的项
+            const urlMatchItem = activeTab?.items?.find(item => 
+                item.url === mediaItem.url || item.originalUrl === mediaItem.originalUrl
+            );
 
-            tab.items = [...(tab.items || []), mediaItem];
-            tabs = [...tabs];
-            showMessage(i18n.playList.message.added);
+            if (urlMatchItem) {
+                // 如果找到URL匹配的项，更新其时间参数并播放
+                const updatedItem = {
+                    ...urlMatchItem,
+                    startTime: mediaItem.startTime,
+                    endTime: mediaItem.endTime,
+                    isLoop: mediaItem.isLoop,
+                    loopCount: mediaItem.loopCount
+                };
+                await handleMediaPlay(updatedItem);
+                showMessage(i18n.playList.message.existingItemPlay);
+            } else {
+                // 如果没找到匹配项，添加到播放列表并播放
+                const tab = tabs.find(t => t.id === activeTabId);
+                if (!tab) {
+                    showMessage(i18n.playList.error.noActiveTab);
+                    return;
+                }
+                tab.items = [...(tab.items || []), mediaItem];
+                tabs = [...tabs];
+                await handleMediaPlay(mediaItem);
+                showMessage(i18n.playList.message.added);
+            }
         }
     }
 
@@ -275,6 +308,13 @@
      */
     export function addItem(item: MediaItem) {
         items = [...items, item];
+    }
+
+    /**
+     * 导出方法：添加媒体
+     */
+    export function addMedia(url: string) {
+        handleMediaAdd(url);
     }
 </script>
 

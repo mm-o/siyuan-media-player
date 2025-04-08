@@ -17,14 +17,9 @@
      */
     function handleSubmit() {
         const url = inputValue.trim();
-        if (!url) {
-            return;
-        }
+        if (!url) return;
         
-        // 分发添加媒体事件
         dispatch('addMedia', { url });
-        
-        // 清空输入框
         inputValue = '';
     }
     
@@ -35,13 +30,6 @@
         if (event.key === 'Enter') {
             handleSubmit();
         }
-    }
-    
-    /**
-     * 清除输入框
-     */
-    function clearInput() {
-        inputValue = '';
     }
 </script>
 
@@ -55,7 +43,7 @@
             on:keydown={handleKeydown}
         />
         {#if inputValue}
-            <span class="clear-icon" on:click={clearInput}>×</span>
+            <span class="clear-icon" on:click={() => inputValue = ''}>×</span>
         {/if}
     </div>
     <button 
