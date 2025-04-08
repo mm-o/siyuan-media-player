@@ -342,4 +342,3 @@
             >+</button>
         {/if}
     </div>
-</div> 

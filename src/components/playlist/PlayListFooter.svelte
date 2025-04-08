@@ -53,4 +53,3 @@
     >
         {i18n.playList.action.add}
     </button>
-</div> 

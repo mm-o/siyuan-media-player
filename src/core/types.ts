@@ -138,4 +138,3 @@ export interface ISettingItem {
         max: number;
         step: number;
     };
-} 

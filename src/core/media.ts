@@ -201,4 +201,3 @@ export class MediaManager {
         const results = await Promise.all(items.map(item => this.createMediaItem(item.url, item)));
         return results.filter((item): item is MediaItem => item !== null);
     }
-} 
