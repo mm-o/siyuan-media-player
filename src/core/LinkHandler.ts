@@ -69,7 +69,8 @@ export class LinkHandler {
             
             // 通过播放列表处理链接
             if (this.playlist) {
-                await this.playlist.addMedia(url);
+                // 时间戳链接总是自动播放
+                await this.playlist.addMedia(url, { autoPlay: true });
             }
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
@@ -104,3 +105,4 @@ export class LinkHandler {
         }
         this.isListening = false;
     }
+}

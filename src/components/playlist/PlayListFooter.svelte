@@ -9,7 +9,7 @@
     
     // 事件分发器
     const dispatch = createEventDispatcher<{
-        addMedia: { url: string };
+        addMedia: { url: string; options?: { autoPlay?: boolean } };
     }>();
     
     /**
@@ -19,7 +19,7 @@
         const url = inputValue.trim();
         if (!url) return;
         
-        dispatch('addMedia', { url });
+        dispatch('addMedia', { url, options: { autoPlay: false } });
         inputValue = '';
     }
     
@@ -53,3 +53,4 @@
     >
         {i18n.playList.action.add}
     </button>
+</div>

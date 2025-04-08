@@ -190,7 +190,10 @@ export class MediaManager {
 
     static getMediaInfoFromItems(items: MediaItem[]): PlaylistConfig['items'] {
         return items.map(item => ({
+            id: item.id,
+            title: item.title,
             url: item.url,
+            type: item.type,
             ...(item.aid ? { aid: item.aid } : {}),
             ...(item.bvid ? { bvid: item.bvid } : {}),
             ...(item.cid ? { cid: item.cid } : {})
@@ -201,3 +204,4 @@ export class MediaManager {
         const results = await Promise.all(items.map(item => this.createMediaItem(item.url, item)));
         return results.filter((item): item is MediaItem => item !== null);
     }
+}

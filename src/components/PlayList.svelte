@@ -14,9 +14,9 @@
     // 从'../core/utils'中导入parseMediaLink函数
     import { parseMediaLink } from '../core/utils';
     // 导入子组件
-    import PlayListTabs from './PlayList/PlayListTabs.svelte';
-    import PlayListItem from './PlayList/PlayListItem.svelte';
-    import PlayListFooter from './PlayList/PlayListFooter.svelte';
+    import PlayListTabs from './Playlist/PlayListTabs.svelte';
+    import PlayListItem from './Playlist/PlayListItem.svelte';
+    import PlayListFooter from './Playlist/PlayListFooter.svelte';
 
     // 组件属性
     export let items: MediaItem[] = [];
@@ -137,7 +137,7 @@
     /**
      * 处理媒体添加
      */
-    async function handleMediaAdd(url: string) {
+    async function handleMediaAdd(url: string, autoPlay: boolean = true) {
         try {
             // 解析媒体链接
             const { mediaUrl, startTime, endTime } = parseMediaLink(url);
@@ -153,7 +153,9 @@
                     originalUrl: url 
                 } as MediaItem;
                 
-                await handleMediaPlay(updatedItem);
+                if (autoPlay) {
+                    await handleMediaPlay(updatedItem);
+                }
                 return;
             }
             
@@ -169,11 +171,15 @@
             if (endTime !== undefined) mediaItem.endTime = endTime;
             mediaItem.originalUrl = url;
             
-            // 添加到播放列表并立即播放
+            // 添加到播放列表
             if (activeTab) {
                 activeTab.items = [...(activeTab.items || []), mediaItem];
                 await savePlaylists();
-                await handleMediaPlay(mediaItem);
+                
+                // 如果需要自动播放
+                if (autoPlay) {
+                    await handleMediaPlay(mediaItem);
+                }
                 showMessage(i18n.playList.message.added);
             }
         } catch (error) {
@@ -254,7 +260,7 @@
     // 事件处理函数
     const handleTabChange = (event) => activeTabId = event.detail.tabId;
     const handleTabsUpdate = (event) => tabs = event.detail.tabs;
-    const handleAddMedia = (event) => handleMediaAdd(event.detail.url);
+    const handleAddMedia = (event) => handleMediaAdd(event.detail.url, event.detail.options?.autoPlay);
     
     /**
      * 处理外部媒体项
@@ -313,8 +319,8 @@
     /**
      * 导出方法：添加媒体
      */
-    export function addMedia(url: string) {
-        handleMediaAdd(url);
+    export function addMedia(url: string, options?: { autoPlay?: boolean }) {
+        handleMediaAdd(url, options?.autoPlay !== false);
     }
 </script>
 

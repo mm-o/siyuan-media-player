@@ -25,7 +25,7 @@
     const dispatch = createEventDispatcher<{
         tabChange: { tabId: string };
         tabsUpdate: { tabs: PlaylistConfig[] };
-        addMedia: { url: string };
+        addMedia: { url: string; options?: { autoPlay?: boolean } };
     }>();
 
     const menuConfigs = {
@@ -104,7 +104,7 @@
                     const isMedia = /\.(mp4|webm|avi|mkv|mov|flv|mp3|wav|ogg|flac)$/i.test(name);
                     if (isMedia) {
                         const mediaPath = `file://${basePath}/${name}`;
-                        dispatch('addMedia', { url: mediaPath });
+                        dispatch('addMedia', { url: mediaPath, options: { autoPlay: false } });
                         addedCount++;
                     }
                 } else if (fileHandle.kind === 'directory') {
@@ -170,7 +170,8 @@
                 try {
                     // 创建B站视频链接并添加到播放列表
                     const bvLink = `https://www.bilibili.com/video/${item.bvid}`;
-                    dispatch('addMedia', { url: bvLink });
+                    // 对所有视频设置 autoPlay 为 false，避免自动播放
+                    dispatch('addMedia', { url: bvLink, options: { autoPlay: false } });
                     addedCount++;
                 } catch (error) {
                     console.error(`添加视频 ${item.bvid} 失败:`, error);
@@ -342,3 +343,4 @@
             >+</button>
         {/if}
     </div>
+</div>

@@ -4,6 +4,12 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
+### v0.2.5 (2025.4.10)
+1. 新增B站收藏夹导入功能，可直接导入整个收藏夹视频
+2. 重构播放列表系统，提升用户体验
+3. 修复添加媒体自动播放行为，统一处理逻辑
+4. 优化界面交互和性能表现
+
 ### v0.2.2 (2025.4.10)
 - 修复问题
   - 修复某些网络视频解析失败的问题
