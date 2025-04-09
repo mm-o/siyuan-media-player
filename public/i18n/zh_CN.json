@@ -84,10 +84,16 @@
     },
     "playList": {
         "title": "播放列表",
-        "itemCount": "个项目",
-        "empty": "暂无媒体文件",
+        "itemCount": "项",
+        "empty": "播放列表为空",
         "defaultList": "默认列表",
         "favorites": "收藏夹",
+        "viewMode": {
+            "detailed": "详细视图",
+            "compact": "简洁视图",
+            "grid": "网格视图",
+            "grid-single": "封面视图"
+        },
         "action": {
             "add": "添加"
         },

@@ -85,9 +85,15 @@
     "playList": {
         "title": "Playlist",
         "itemCount": "items",
-        "empty": "No media files",
+        "empty": "Playlist is empty",
         "defaultList": "Default List",
         "favorites": "Favorites",
+        "viewMode": {
+            "detailed": "Detailed View",
+            "compact": "Compact View",
+            "grid": "Grid View",
+            "grid-single": "Cover View"
+        },
         "action": {
             "add": "Add"
         },

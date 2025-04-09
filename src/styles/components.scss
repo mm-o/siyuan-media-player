@@ -197,10 +197,34 @@ $transition: 0.3s ease;   // 过渡动画
             color: var(--b3-theme-on-background);
         }
         
-        .playlist-count {
-            font-size: 12px;
-            color: var(--b3-theme-on-surface);
-            opacity: 0.86;
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            
+            .playlist-count {
+                font-size: 12px;
+                color: var(--b3-theme-on-surface);
+                opacity: 0.86;
+            }
+            
+            .view-mode-btn {
+                @extend %button-base;
+                padding: 4px;
+                color: var(--b3-theme-on-surface);
+                opacity: 0.7;
+                transition: opacity 0.2s;
+                display: flex;
+                align-items: center;
+                
+                &:hover {
+                    opacity: 1;
+                }
+                
+                svg {
+                    fill: currentColor;
+                }
+            }
         }
     }
     
@@ -282,6 +306,62 @@ $transition: 0.3s ease;   // 过渡动画
         padding: $spacing;
         background: var(--b3-theme-background);
         
+        &.grid-view {
+            .playlist-items {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: $spacing;
+                align-items: start;
+                
+                &.grid-single {
+                    grid-template-columns: 1fr;
+                    
+                    .playlist-item {
+                        height: auto;
+                        
+                        .item-thumbnail {
+                            height: auto;
+                        }
+                    }
+                }
+                
+                .playlist-item {
+                    padding: 0;
+                    
+                    &.grid {
+                        .item-thumbnail {
+                            aspect-ratio: 16/9;
+                            width: 100%;
+                            border-radius: $radius;
+                            
+                            img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                            }
+                            
+                            .duration {
+                                right: 4px;
+                                bottom: 24px;
+                            }
+                            
+                            .item-title {
+                                position: absolute;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                padding: 4px 8px;
+                                background: rgba(0, 0, 0, 0.7);
+                                color: #fff;
+                                font-size: 12px;
+                                @include text-ellipsis;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         .playlist-empty {
             height: 100%;
             display: flex;
@@ -307,6 +387,17 @@ $transition: 0.3s ease;   // 过渡动画
                 cursor: pointer;
                 position: relative;
                 flex-direction: column;
+                
+                &.compact {
+                    padding: 8px 12px;
+                    min-height: 0;
+                    
+                    .item-title {
+                        margin: 0;
+                        font-size: 14px;
+                        @include text-ellipsis;
+                    }
+                }
                 
                 &:hover {
                     background: var(--b3-theme-surface);
@@ -442,6 +533,14 @@ $transition: 0.3s ease;   // 过渡动画
                     border-radius: $radius;
                     width: 100%;
                     box-sizing: border-box;
+                    
+                    &.grid-parts {
+                        grid-template-columns: repeat(5, 1fr);
+                    }
+                    
+                    &.single-parts {
+                        grid-template-columns: repeat(10, 1fr);
+                    }
                     
                     .part-item {
                         display: flex;

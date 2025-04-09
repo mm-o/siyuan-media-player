@@ -29,6 +29,7 @@
     // 组件状态
     let tabs: PlaylistConfig[] = [];
     let activeTabId = 'default';
+    let viewMode: 'detailed' | 'compact' | 'grid' | 'grid-single' = 'detailed';
     
     // 计算属性
     $: activeTab = tabs.find(tab => tab.id === activeTabId);
@@ -322,13 +323,39 @@
     export function addMedia(url: string, options?: { autoPlay?: boolean }) {
         handleMediaAdd(url, options?.autoPlay !== false);
     }
+
+    // 切换视图模式
+    function toggleViewMode() {
+        const modes: ('detailed' | 'compact' | 'grid' | 'grid-single')[] = ['detailed', 'compact', 'grid', 'grid-single'];
+        const currentIndex = modes.indexOf(viewMode);
+        viewMode = modes[(currentIndex + 1) % modes.length];
+    }
 </script>
 
 <div class="playlist {className}" class:hidden>
     <!-- 头部 -->
     <div class="playlist-header">
         <h3>{i18n.playList.title}</h3>
-        <span class="playlist-count">{itemCount} {i18n.playList.itemCount}</span>
+        <div class="header-controls">
+            <span class="playlist-count">{itemCount} {i18n.playList.itemCount}</span>
+            <button 
+                class="view-mode-btn" 
+                on:click={toggleViewMode}
+                title={i18n.playList.viewMode[viewMode]}
+            >
+                <svg viewBox="0 0 24 24" width="16" height="16">
+                    {#if viewMode === 'detailed'}
+                        <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z"/>
+                    {:else if viewMode === 'compact'}
+                        <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2z"/>
+                    {:else if viewMode === 'grid'}
+                        <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z"/>
+                    {:else}
+                        <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z"/>
+                    {/if}
+                </svg>
+            </button>
+        </div>
     </div>
     
     <!-- 标签页 -->
@@ -343,9 +370,9 @@
     />
     
     <!-- 内容区 -->
-    <div class="playlist-content">
+    <div class="playlist-content" class:grid-view={viewMode === 'grid' || viewMode === 'grid-single'}>
         {#if activeTab?.items?.length > 0}
-            <div class="playlist-items">
+            <div class="playlist-items" class:grid-single={viewMode === 'grid-single'}>
                 {#each activeTab.items as item (item.id)}
                     <PlayListItem 
                         {item}
@@ -353,6 +380,7 @@
                         {tabs}
                         {activeTabId}
                         {i18n}
+                        {viewMode}
                         on:play={handleMediaItemAction}
                         on:playPart={handleMediaItemAction}
                         on:togglePin={handleMediaItemAction}
