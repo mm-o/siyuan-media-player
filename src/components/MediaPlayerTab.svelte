@@ -76,6 +76,13 @@
             const urlObj = new URL(baseUrl);
             urlObj.searchParams.delete('t');
             
+            if (currentItem.type === 'bilibili' && currentItem.id && currentItem.id.includes('-p')) {
+                const partMatch = currentItem.id.match(/-p(\d+)$/);
+                if (partMatch && partMatch[1]) {
+                    urlObj.searchParams.set('p', partMatch[1]);
+                }
+            }
+            
             if (isLoop && loopEndTime) {
                 urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${loopEndTime.toFixed(1)}`);
                 return `- [${formatTime(currentTime, true)}-${formatTime(loopEndTime, true)}](${urlObj.toString()})`;

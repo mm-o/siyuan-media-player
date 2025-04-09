@@ -4,28 +4,11 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
-### v0.2.2 (2025.4.10)
-- Bug fixes
-  - Fixed parsing issues with certain network videos
-  - Resolved stability issues in playlist management
-- Performance optimizations
-  - Optimized memory usage, reduced resource consumption
-  - Improved player loading speed
-- UI improvements
-  - Detail refinements for better user experience
-  - Fixed display anomalies in some interface elements
-
-### v0.2.1 (2025.4.2)
-- Add Bilibili video part list feature
-  - Automatically list all video parts
-  - Auto-collapse expanded part lists when playing other items
-- Enhance player language support
-  - Auto-switch player interface language based on SiYuan settings
-  - Improve English interface translations
-- Optimize network media loading
-  - Improve parsing success rate for Samba and other network videos
-  - Extend timeout duration and add automatic retry mechanism
-  - Better support for slow network environments
+### v0.2.5 (2025.4.10)
+1. Added Bilibili favorites direct import feature, allowing one-click addition of entire favorite folders to playlist
+2. Added 4 playlist view modes (detailed view, simple view, grid view, and cover view) to suit different browsing preferences
+3. Fixed timestamp and loop segment links for Bilibili multi-part videos, links now correctly jump to the corresponding part
+4. Refactored playlist system, split into multiple functional modules for improved performance and user experience
 
 # 打赏、鼓励、催更 🎉
 

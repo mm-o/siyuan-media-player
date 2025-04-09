@@ -343,16 +343,8 @@
                 on:click={toggleViewMode}
                 title={i18n.playList.viewMode[viewMode]}
             >
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                    {#if viewMode === 'detailed'}
-                        <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z"/>
-                    {:else if viewMode === 'compact'}
-                        <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2z"/>
-                    {:else if viewMode === 'grid'}
-                        <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z"/>
-                    {:else}
-                        <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z"/>
-                    {/if}
+                <svg viewBox="0 0 24 24" width="16" height="16" class={"view-" + viewMode}>
+                    <path />
                 </svg>
             </button>
         </div>

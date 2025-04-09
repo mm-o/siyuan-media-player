@@ -1,1006 +1,904 @@
-/* --------------------------------
- * 通用变量定义
- * -------------------------------- */
-$header-height: 48px;     // 头部高度
-$tabs-height: 40px;       // 标签栏高度
-$footer-height: 48px;     // 底部高度
-$spacing: 8px;            // 基础间距
-$radius: 4px;            // 基础圆角
-$sidebar-width: 300px;    // 侧边栏宽度
-$transition: 0.3s ease;   // 过渡动画
+/* -----------------------------------------
+ * 变量与Mixins
+ * ----------------------------------------- */
+// 基础变量
+$header-height: 48px;
+$tabs-height: 40px;
+$footer-height: 48px;
+$spacing: 8px;
+$radius: 4px;
+$sidebar-width: 300px;
+$transition: 0.3s ease;
 
-/* --------------------------------
- * Mixins
- * -------------------------------- */
-// 文本省略混入
+// 颜色与主题
+$primary: var(--b3-theme-primary);
+$primary-lighter: var(--b3-theme-primary-lighter);
+$surface: var(--b3-theme-surface);
+$surface-lighter: var(--b3-theme-surface-lighter);
+$background: var(--b3-theme-background);
+$border: var(--b3-border-color);
+$on-background: var(--b3-theme-on-background);
+$on-surface: var(--b3-theme-on-surface);
+$on-surface-variant: var(--b3-theme-on-surface-variant);
+$on-primary: var(--b3-theme-on-primary);
+
+// 文本省略
 @mixin text-ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* --------------------------------
- * 基础组件样式
- * -------------------------------- */
-
-/* 按钮基础样式 */
-%button-base {
-    padding: 6px;
-    border: none;
-    background: none;
-    border-radius: $radius;
-    cursor: pointer;
-    transition: all 0.2s;
-    
-    &:hover {
-        background: var(--b3-theme-surface-lighter);
-    }
+// 弹性布局
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $gap: 0) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  @if $gap != 0 { gap: $gap; }
 }
 
-/* 输入框基础样式 */
-%input-base {
-    padding: 4px 8px;
-    border: 1px solid var(--b3-border-color);
-    border-radius: $radius;
-    background: var(--b3-theme-background);
-    color: var(--b3-theme-on-background);
-    outline: none;
-    font-size: 14px;
-    line-height: 18px;
-    
-    &:hover {
-        border-color: var(--b3-theme-primary);
-    }
-    
-    &:focus {
-        border-color: var(--b3-theme-primary);
-        background: var(--b3-theme-background);
-        box-shadow: var(--b3-theme-primary-lighter) 0 0 0 2px;
-    }
+// 绝对定位
+@mixin position-absolute($top: null, $right: null, $bottom: null, $left: null) {
+  position: absolute;
+  @if $top != null { top: $top; }
+  @if $right != null { right: $right; }
+  @if $bottom != null { bottom: $bottom; }
+  @if $left != null { left: $left; }
 }
 
-/* 播放器容器 */
-.artplayer-app {
-    position: relative;
-    z-index: 2 !important;
+// 常用组合样式
+@mixin bordered($color: $border) {
+  border: 1px solid $color;
+  border-radius: $radius;
+}
+
+@mixin header-section {
+  height: $header-height;
+  padding: 0 16px;
+  border-bottom: 1px solid $surface-lighter;
+  @include flex(row, space-between, center);
+  
+  h3 {
+    margin: 0;
+    @include standard-text(16px, 600);
+  }
+}
+
+@mixin standard-text($size: 14px, $weight: normal) {
+  font-size: $size;
+  font-weight: $weight;
+  color: $on-background;
+}
+
+// 缩略图通用样式
+@mixin thumbnail($width: 120px, $height: 68px) {
+  position: relative;
+  width: $width;
+  height: $height;
+  border-radius: calc($radius - 1px);
+  overflow: hidden;
+  flex-shrink: 0;
+  @include flex(row, center, center);
+  background: $surface-lighter;
+  
+  img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
     
-    // 移除多余的样式,让artplayer控制背景
-    display: block;
-    
-    // artplayer 容器样式覆盖
-    .art-video-player {
-        // 确保播放器填充整个容器
-        width: 100% !important;
-        height: 100% !important;
-        
-        // 视频未播放时的背景色
-        background-color: #000;
-        
-        // 视频控件样式微调
-        .art-controls {
-            // 确保控件在底部
-            bottom: 0;
-        }
+    &[src^="data:image/svg"] {
+      width: 60%;
+      height: 60%;
+      object-fit: contain;
     }
+  }
+  
+  .duration {
+    @include position-absolute(null, 4px, 4px, null);
+    padding: 2px 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 2px;
+  }
+}
+
+// 交互状态
+@mixin interactive($hover-bg: null) {
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    @if $hover-bg { background: $hover-bg; }
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+/* -----------------------------------------
+ * 基础组件
+ * ----------------------------------------- */
+%button-base {
+  padding: 6px;
+  border: none;
+  background: none;
+  border-radius: $radius;
+  @include interactive($surface-lighter);
+}
+
+%input-base {
+  padding: 4px 8px;
+  @include bordered;
+  background: $background;
+  color: $on-background;
+  outline: none;
+  font-size: 14px;
+  line-height: 18px;
+  
+  &:hover, &:focus {
+    border-color: $primary;
+  }
+  
+  &:focus {
+    box-shadow: $primary-lighter 0 0 0 2px;
+  }
+}
+
+%panel-base {
+  @include position-absolute(0, 0, 0, 0);
+  @include flex(column);
+  @include bordered($surface-lighter);
+  background: $background;
+  box-sizing: border-box;
+}
+
+%item-title {
+  @include standard-text(14px, 500);
+  @include text-ellipsis;
+  transition: color 0.2s;
+}
+
+%hover-active {
+  &:hover {
+    border-color: $primary;
+  }
+  
+  &.active, &.playing {
+    background: $primary-lighter;
+    border-color: $primary;
+  }
+}
+
+%section-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing;
+  background: $background;
+}
+
+/* -----------------------------------------
+ * 播放器容器
+ * ----------------------------------------- */
+.artplayer-app {
+  position: relative;
+  z-index: 2 !important;
+  width: 100%;
+  height: 100%;
+  display: block;
+  
+  .art-video-player {
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #000;
+    
+    .art-controls {
+      bottom: 0;
+    }
+  }
 }
 
 .protyle [class*=hint--]:not(.fn__none) {
-    font-family: var(--b3-font-family);
-    display: flex;
-    position: fixed;
-  }
-
-/* --------------------------------
- * 媒体播放器标签页样式
- * -------------------------------- */
-.media-player-tab {
-    position: absolute;
-    inset: 0;  // 四周贴边
-    padding: $spacing;
-    box-sizing: border-box;
-    background: var(--b3-theme-background);
-    
-    // 内容区域布局
-    .content-area {
-        position: relative;
-        display: flex;
-        gap: $spacing;
-        width: 100%;
-        height: 100%;
-        
-        // 播放器区域
-        .player-area {
-            flex: 1;
-            position: relative;
-            border-radius: $radius;
-            overflow: hidden;
-            background: var(--b3-theme-surface);
-            
-            // 控制栏样式
-            .control-bar {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 3;
-                border-radius: $radius $radius 0 0;
-                transition: opacity $transition;
-                background: linear-gradient(
-                    to bottom, 
-                    rgba(0, 0, 0, 0.5) 0%,
-                    rgba(0, 0, 0, 0.3) 60%,
-                    rgba(0, 0, 0, 0) 100%
-                );
-                
-                &.hidden {
-                    opacity: 0;
-                    pointer-events: none;
-                }
-            }
-        }
-        
-        // 侧边栏样式
-        .sidebar {
-            position: relative;
-            width: 0;
-            height: 100%;
-            transition: width $transition;
-            background: var(--b3-theme-surface);
-            border-radius: $radius;
-            overflow: hidden;
-            
-            &.show {
-                width: $sidebar-width;
-                border: 1px solid var(--b3-theme-on-surface);
-            }
-        }
-    }
+  font-family: var(--b3-font-family);
+  display: flex;
+  position: fixed;
 }
 
-/* --------------------------------
- * 播放列表样式
- * -------------------------------- */
-.playlist {
-    position: absolute;
-    inset: 0;
-    background: var(--b3-theme-background);
-    border: 1px solid var(--b3-theme-surface-lighter);
-    border-radius: $radius;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+/* -----------------------------------------
+ * 媒体播放器标签页
+ * ----------------------------------------- */
+.media-player-tab {
+  @include position-absolute(0, 0, 0, 0);
+  padding: $spacing;
+  box-sizing: border-box;
+  background: $background;
+  
+  // 内容区域
+  .content-area {
+    position: relative;
+    @include flex(row, flex-start, stretch, $spacing);
+    width: 100%;
+    height: 100%;
     
-    // 播放列表容器样式
-    &.playlist-container {
+    // 播放器区域
+    .player-area {
+      flex: 1;
+      position: relative;
+      border-radius: $radius;
+      overflow: hidden;
+      background: $surface;
+      
+      // 控制栏
+      .control-bar {
+        @include position-absolute(0, 0, null, 0);
+        z-index: 3;
+        border-radius: $radius $radius 0 0;
         transition: opacity $transition;
+        background: linear-gradient(
+          to bottom, 
+          rgba(0, 0, 0, 0.5) 0%,
+          rgba(0, 0, 0, 0.3) 60%,
+          rgba(0, 0, 0, 0) 100%
+        );
         
         &.hidden {
-            opacity: 0;
-            pointer-events: none;
+          opacity: 0;
+          pointer-events: none;
         }
+      }
     }
     
-    // 播放列表头部
-    .playlist-header {
-        height: $header-height;
-        padding: 0 16px;
-        border-bottom: 1px solid var(--b3-theme-surface-lighter);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        
-        h3 {
-            margin: 0;
-            font-size: 16px;
-            color: var(--b3-theme-on-background);
-        }
-        
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            
-            .playlist-count {
-                font-size: 12px;
-                color: var(--b3-theme-on-surface);
-                opacity: 0.86;
-            }
-            
-            .view-mode-btn {
-                @extend %button-base;
-                padding: 4px;
-                color: var(--b3-theme-on-surface);
-                opacity: 0.7;
-                transition: opacity 0.2s;
-                display: flex;
-                align-items: center;
-                
-                &:hover {
-                    opacity: 1;
-                }
-                
-                svg {
-                    fill: currentColor;
-                }
-            }
-        }
+    // 侧边栏
+    .sidebar {
+      position: relative;
+      width: 0;
+      height: 100%;
+      transition: width $transition;
+      background: $surface;
+      border-radius: $radius;
+      overflow: hidden;
+      
+      &.show {
+        width: $sidebar-width;
+        @include bordered($on-surface);
+      }
     }
-    
-    // 标签栏
-    .playlist-tabs {
-        height: $tabs-height;
-        padding: 0 $spacing;
-        display: flex;
-        align-items: center;
-        gap: $spacing;
-        border-bottom: 1px solid var(--b3-border-color);
-        overflow-x: auto;
-        background: var(--b3-theme-surface);
-        
-        // 滚动条样式
-        &::-webkit-scrollbar {
-            height: 4px;
-            
-            &-track {
-                background: transparent;
-            }
-            
-            &-thumb {
-                background: var(--b3-scroll-color);
-                border-radius: 2px;
-                
-                &:hover {
-                    background: var(--b3-scroll-hover-color);
-                }
-            }
-        }
-    }
-
-    // 标签按钮
-    // 标签按钮样式
-    .tab {
-        @extend %button-base;
-        // 设置内边距
-        padding: 4px 12px;
-        // 添加边框
-        border: 1px solid var(--b3-border-color);
-        // 设置文字颜色
-        color: var(--b3-theme-on-surface);
-        // 防止文字换行
-        white-space: nowrap;
-        // 设置字体大小
-        font-size: 14px;
-        // 设置行高
-        line-height: 20px;
-        
-        // 鼠标悬停且非激活状态时的样式
-        &:hover:not(.active) {
-            // 边框颜色变为主题色
-            border-color: var(--b3-theme-primary);
-            // 文字颜色变为主题色
-            color: var(--b3-theme-primary);
-        }
-        
-        // 激活状态的样式
-        &.active {
-            // 背景色为主题色
-            background: var(--b3-theme-primary);
-            // 文字颜色为白色
-            color: #fff;
-            // 边框颜色为主题色
-            border-color: var(--b3-theme-primary);
-        }
-    }
-
-    // 输入框
-    .tab-input {
-        @extend %input-base;
-    }
-
-    // 内容区域
-    .playlist-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: $spacing;
-        background: var(--b3-theme-background);
-        
-        &.grid-view {
-            .playlist-items {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: $spacing;
-                align-items: start;
-                
-                &.grid-single {
-                    grid-template-columns: 1fr;
-                    
-                    .playlist-item {
-                        height: auto;
-                        
-                        .item-thumbnail {
-                            height: auto;
-                        }
-                    }
-                }
-                
-                .playlist-item {
-                    padding: 0;
-                    
-                    &.grid {
-                        .item-thumbnail {
-                            aspect-ratio: 16/9;
-                            width: 100%;
-                            border-radius: $radius;
-                            
-                            img {
-                                width: 100%;
-                                height: 100%;
-                                object-fit: cover;
-                            }
-                            
-                            .duration {
-                                right: 4px;
-                                bottom: 24px;
-                            }
-                            
-                            .item-title {
-                                position: absolute;
-                                left: 0;
-                                right: 0;
-                                bottom: 0;
-                                padding: 4px 8px;
-                                background: rgba(0, 0, 0, 0.7);
-                                color: #fff;
-                                font-size: 12px;
-                                @include text-ellipsis;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        .playlist-empty {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--b3-theme-on-surface);
-            opacity: 0.5;
-        }
-        
-        .playlist-items {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            
-            .playlist-item {
-                display: flex;
-                padding: 12px;
-                gap: 12px;
-                border: 1px solid var(--b3-border-color);
-                border-radius: $radius;
-                background: var(--b3-theme-surface);
-                transition: all 0.2s;
-                cursor: pointer;
-                position: relative;
-                flex-direction: column;
-                
-                &.compact {
-                    padding: 8px 12px;
-                    min-height: 0;
-                    
-                    .item-title {
-                        margin: 0;
-                        font-size: 14px;
-                        @include text-ellipsis;
-                    }
-                }
-                
-                &:hover {
-                    background: var(--b3-theme-surface);
-                    border-color: var(--b3-theme-primary);
-                }
-                
-                &.playing {
-                    background: var(--b3-theme-primary-lighter);
-                    border-color: var(--b3-theme-primary);
-                    
-                    .item-info {
-                        .item-title {
-                            color: var(--b3-theme-primary);
-                        }
-                    }
-                }
-                
-                // 内容区域
-                .item-content {
-                    display: flex;
-                    gap: 12px;
-                }
-                
-                // 缩略图区域
-                .item-thumbnail {
-                    position: relative;
-                    width: 120px;
-                    height: 68px;
-                    border-radius: calc($radius - 1px);
-                    overflow: hidden;
-                    flex-shrink: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: var(--b3-theme-surface-lighter);
-                    
-                    img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                        
-                        // 音频缩略图特殊样式
-                        &[src^="data:image/svg"] {
-                            width: 60px;
-                            height: 60px;
-                            object-fit: contain;
-                        }
-                    }
-                    
-                    .duration {
-                        position: absolute;
-                        right: 4px;
-                        bottom: 4px;
-                        padding: 2px 4px;
-                        background: rgba(0, 0, 0, 0.7);
-                        color: #fff;
-                        font-size: 12px;
-                        border-radius: 2px;
-                    }
-                }
-                
-                // 信息区域
-                .item-info {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    min-width: 0;
-                    
-                    .item-title {
-                        font-size: 14px;
-                        font-weight: 500;
-                        color: var(--b3-theme-on-background);
-                        @include text-ellipsis;
-                        transition: color 0.2s;
-                    }
-                    
-                    .item-artist {
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-                        font-size: 12px;
-                        color: var(--b3-theme-on-surface);
-                        
-                        .artist-icon {
-                            width: 16px;
-                            height: 16px;
-                            border-radius: 50%;
-                        }
-                    }
-                    
-                    // 元数据组
-                    .item-meta-group {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 2px;
-                    }
-                    
-                    .item-meta {
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        font-size: 12px;
-                        color: var(--b3-theme-on-surface-variant);
-                        
-                        // 分P切换图标样式
-                        .icon {
-                            width: 16px;
-                            height: 16px;
-                            fill: var(--b3-theme-on-surface-variant);
-                            
-                            &:hover {
-                                fill: var(--b3-theme-primary);
-                            }
-                        }
-                    }
-                    
-                    .item-url {
-                        @include text-ellipsis;
-                        font-size: 12px;
-                        color: var(--b3-theme-on-surface-variant);
-                        opacity: 0.6;
-                    }
-                }
-                
-                // 内嵌视频分P列表样式
-                .item-parts {
-                    display: grid;
-                    grid-template-columns: repeat(10, 1fr);
-                    gap: 2px;
-                    margin-top: 2px;
-                    padding: 2px 2px;
-                    border-radius: $radius;
-                    width: 100%;
-                    box-sizing: border-box;
-                    
-                    &.grid-parts {
-                        grid-template-columns: repeat(5, 1fr);
-                    }
-                    
-                    &.single-parts {
-                        grid-template-columns: repeat(10, 1fr);
-                    }
-                    
-                    .part-item {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        aspect-ratio: 1/1;
-                        min-width: 0;
-                        border: 1px solid var(--b3-border-color);
-                        border-radius: $radius;
-                        background: var(--b3-theme-surface);
-                        font-size: 12px;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                        
-                        &:hover {
-                            background: var(--b3-theme-surface);
-                            border-color: var(--b3-theme-primary);
-                            color: var(--b3-theme-primary);
-                        }
-                        
-                        &.playing {
-                            background: var(--b3-theme-primary);
-                            border-color: var(--b3-theme-primary);
-                            color: #fff;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    // 底部操作栏
-    .playlist-footer {
-        height: $footer-height;
-        padding: $spacing;
-        border-top: 1px solid var(--b3-theme-surface-lighter);
-        display: flex;
-        align-items: center;
-        gap: $spacing;
-        background: var(--b3-theme-surface);
-        
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        .playlist-input {
-            @extend %input-base;
-            width: 100%;
-            height: 20px;
-            padding-right: 24px;
-            
-            &::placeholder {
-                color: var(--b3-theme-on-surface);
-                opacity: 0.5;
-            }
-        }
-        
-        .clear-icon {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--b3-theme-on-surface);
-            opacity: 0.5;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            
-            &:hover {
-                opacity: 0.8;
-            }
-        }
-        
-        // 添加按钮样式
-        .add-btn {
-            @extend %button-base;  // 继承基础按钮样式
-            height: 28px;          // 设置按钮高度
-            padding: 0 16px;       // 设置内边距
-            border: 1px solid var(--b3-border-color);// 边框颜色变为主题色
-            border-color: var(--b3-theme-primary);// 文字颜色变为主题色
-            color: var(--b3-theme-primary);
-            font-size: 14px;       // 设置字体大小
-            
-            // 鼠标悬停时的样式
-            &:hover {
-                // 背景色为主题色
-                background: var(--b3-theme-primary);
-                // 文字颜色为白色
-                color: #fff;
-                // 边框颜色为主题色
-                border-color: var(--b3-theme-primary);
-            }
-        }
-    }
+  }
 }
 
-/* --------------------------------
+/* -----------------------------------------
  * 控制栏样式
- * -------------------------------- */
+ * ----------------------------------------- */
 .control-bar {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
+  @include flex(row, flex-start, center);
+  padding: 8px 16px;
+  
+  .left-controls, .right-controls {
+    @include flex(row, flex-start, center, 8px);
+  }
+  
+  .title-area {
+    flex: 1;
+    text-align: center;
+    margin: 0 16px;
     
-    // 左侧控制区
-    .left-controls {
-        display: flex;
-        gap: 8px;
+    .media-title {
+      color: #fff;
+      font-size: 14px;
+      @include text-ellipsis;
+      max-width: 500px;
+      display: inline-block;
     }
+  }
+  
+  .control-btn {
+    @extend %button-base;
+    color: $on-surface;
     
-    // 中间标题区
-    .title-area {
-        flex: 1;
-        text-align: center;
-        margin: 0 16px;
-        
-        .media-title {
-            color: #fff;
-            font-size: 14px;
-            @include text-ellipsis;
-            max-width: 500px;
-            display: inline-block;
-        }
+    .icon {
+      width: 16px;
+      height: 16px;
+      fill: #fff;
     }
-    
-    // 右侧控制区
-    .right-controls {
-        display: flex;
-        gap: 8px;
-    }
-    
-    // 控制按钮
-    .control-btn {
-        @extend %button-base;
-        color: var(--b3-theme-on-surface);
-        
-        .icon {
-            width: 16px;
-            height: 16px;
-            fill: #fff;
-        }
-    }
+  }
 }
 
-/* --------------------------------
- * 设置面板样式
- * -------------------------------- */
-.settings {
-    position: absolute;
-    inset: 0;
-    background: var(--b3-theme-background);
-    border: 1px solid var(--b3-theme-surface-lighter);
-    border-radius: $radius;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+/* -----------------------------------------
+ * 播放列表
+ * ----------------------------------------- */
+.playlist {
+  @extend %panel-base;
+  
+  &.playlist-container {
+    transition: opacity $transition;
     
-    // 头部
-    .settings-header {
-        height: $header-height;
-        padding: 0 16px;
-        border-bottom: 1px solid var(--b3-theme-surface-lighter);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        
-        h3 {
-            margin: 0;
-            font-size: 16px;
-            color: var(--b3-theme-on-background);
-        }
-        
-        // 头部按钮
-        .header-actions {
-            display: flex;
-            gap: 8px;
-            
-            .btn {
-                display: flex;
-                align-items: center;
-                padding: 4px 8px;
-                border: 1px solid var(--b3-border-color);
-                border-radius: $radius;
-                background: var(--b3-theme-surface);
-                color: var(--b3-theme-on-surface);
-                cursor: pointer;
-                transition: all 0.2s;
-                font-size: 12px;
-                
-                &:hover {
-                    border-color: var(--b3-theme-primary);
-                    color: var(--b3-theme-primary);
-                }
-                
-                &.primary {
-                    background: var(--b3-theme-primary);
-                    border-color: var(--b3-theme-primary);
-                    color: #fff;
-                    
-                    &:hover {
-                        opacity: 0.9;
-                    }
-                }
-            }
-        }
+    &.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
+  }
+  
+  // 头部
+  .playlist-header {
+    @include header-section;
     
-    // 设置面板内容区域
-    .setting-panel {
-        flex: 1;
-        overflow-y: auto;
-        padding: $spacing;
-        background: var(--b3-theme-background);
-    }
-    
-    // 设置项
-    .setting-item {
-        margin-bottom: 8px;
-        border: 1px solid var(--b3-border-color);
-        border-radius: $radius;
-        background: var(--b3-theme-surface);
-        transition: all 0.2s;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        padding: 16px;
+    .header-controls {
+      @include flex(row, flex-start, center, 16px);
+      
+      .playlist-count {
+        font-size: 12px;
+        color: $on-surface;
+        opacity: 0.86;
+      }
+      
+      .view-mode-btn {
+        @extend %button-base;
+        padding: 4px;
+        color: $on-surface;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        @include flex(row, center, center);
         
         &:hover {
-            border-color: var(--b3-theme-primary);
+          opacity: 1;
         }
         
-        // 设置项信息区域
-        .setting-info {
+        svg {
+          fill: currentColor;
+          
+          // 四种视图模式的不同图标路径
+          &.view-detailed path { d: path('M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z'); }
+          &.view-compact path { d: path('M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z'); }
+          &.view-grid path { d: path('M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z'); }
+          &.view-grid-single path { d: path('M3 3h18v6H3V3zm0 8h18v6H3v-8z'); }
+        }
+      }
+    }
+  }
+  
+  // 标签栏
+  .playlist-tabs {
+    height: $tabs-height;
+    padding: 0 $spacing;
+    @include flex(row, flex-start, center, $spacing);
+    border-bottom: 1px solid $border;
+    overflow-x: auto;
+    background: $surface;
+    
+    &::-webkit-scrollbar {
+      height: 4px;
+      
+      &-track {
+        background: transparent;
+      }
+      
+      &-thumb {
+        background: var(--b3-scroll-color);
+        border-radius: 2px;
+        
+        &:hover {
+          background: var(--b3-scroll-hover-color);
+        }
+      }
+    }
+  }
+  
+  // 标签按钮
+  .tab {
+    @extend %button-base;
+    padding: 4px 12px;
+    @include bordered;
+    color: $on-surface;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 20px;
+    
+    &:hover:not(.active) {
+      border-color: $primary;
+      color: $primary;
+    }
+    
+    &.active {
+      background: $primary;
+      color: #fff;
+      border-color: $primary;
+    }
+  }
+  
+  // 输入框
+  .tab-input {
+    @extend %input-base;
+  }
+  
+  // 内容区域
+  .playlist-content {
+    @extend %section-container;
+    
+    // 空列表提示
+    .playlist-empty {
+      height: 100%;
+      @include flex(row, center, center);
+      color: $on-surface;
+      opacity: 0.5;
+    }
+  }
+}
+
+/* -----------------------------------------
+ * 播放列表项样式
+ * ----------------------------------------- */
+// 基础列表项容器
+.playlist-items {
+  @include flex(column, flex-start, stretch, 8px);
+}
+
+// 网格视图
+.playlist-content.grid-view {
+  .playlist-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing;
+    align-items: start;
+    
+    &.grid-single {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  // 网格视图项样式
+  .playlist-item {
+    padding: 0;
+    
+    &.grid .item-thumbnail {
+      @include thumbnail(100%, auto);
+      aspect-ratio: 16/9;
+      
+      .item-title {
+        @include position-absolute(null, 0, 0, 0);
+        padding: 4px 8px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        font-size: 12px;
+        @include text-ellipsis;
+      }
+      
+      .duration {
+        right: 4px;
+        bottom: 24px;
+      }
+    }
+  }
+}
+
+// 播放列表项通用样式
+.playlist-item {
+  @include flex(column, flex-start, stretch, 12px);
+  padding: 12px;
+  @include bordered;
+  background: $surface;
+  transition: all 0.2s;
+  @include interactive;
+  position: relative;
+  @extend %hover-active;
+  
+  // 紧凑视图
+  &.compact {
+    padding: 8px 12px;
+    min-height: 0;
+    
+    .item-title {
+      margin: 0;
+      font-size: 14px;
+      @include text-ellipsis;
+    }
+  }
+  
+  // 播放中状态
+  &.playing .item-info .item-title {
+    color: $primary;
+  }
+  
+  // 内容区域
+  .item-content {
+    @include flex(row, flex-start, stretch, 12px);
+  }
+  
+  // 缩略图区域
+  .item-thumbnail {
+    @include thumbnail;
+  }
+  
+  // 信息区域
+  .item-info {
+    flex: 1;
+    @include flex(column, flex-start, stretch, 4px);
+    min-width: 0;
+    
+    .item-title {
+      @extend %item-title;
+    }
+    
+    .item-artist {
+      @include flex(row, flex-start, center, 6px);
+      font-size: 12px;
+      color: $on-surface;
+      
+      .artist-icon {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+      }
+    }
+    
+    .item-meta-group {
+      @include flex(column, flex-start, stretch, 2px);
+    }
+    
+    .item-meta {
+      @include flex(row, flex-start, center, 4px);
+      font-size: 12px;
+      color: $on-surface-variant;
+      
+      .icon {
+        width: 16px;
+        height: 16px;
+        fill: $on-surface-variant;
+        
+        &:hover {
+          fill: $primary;
+        }
+      }
+    }
+    
+    .item-url {
+      @include text-ellipsis;
+      font-size: 12px;
+      color: $on-surface-variant;
+      opacity: 0.6;
+    }
+  }
+}
+
+// 分P列表
+.item-parts {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  margin-top: 2px;
+  padding: 2px;
+  border-radius: $radius;
+  width: 100%;
+  box-sizing: border-box;
+  
+  &.grid-parts {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  &.single-parts {
+    grid-template-columns: repeat(10, 1fr);
+  }
+  
+  .part-item {
+    @include flex(row, center, center);
+    aspect-ratio: 1/1;
+    min-width: 0;
+    @include bordered;
+    background: $surface;
+    font-size: 12px;
+    @include interactive;
+    
+    &.playing {
+      background: $primary;
+      border-color: $primary;
+      color: #fff;
+    }
+  }
+}
+
+// 底部操作栏
+.playlist-footer {
+  height: $footer-height;
+  padding: $spacing;
+  border-top: 1px solid $surface-lighter;
+  @include flex(row, flex-start, center, $spacing);
+  background: $surface;
+  
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+    @include flex(row, flex-start, center);
+  }
+  
+  .playlist-input {
+    @extend %input-base;
+    width: 100%;
+    height: 20px;
+    padding-right: 24px;
+    
+    &::placeholder {
+      color: $on-surface;
+      opacity: 0.5;
+    }
+  }
+  
+  .clear-icon {
+    @include position-absolute(50%, 8px, null, null);
+    transform: translateY(-50%);
+    color: $on-surface;
+    opacity: 0.5;
+    cursor: pointer;
+    font-size: 16px;
+    @include flex(row, center, center);
+    width: 16px;
+    height: 16px;
+    
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  
+  .add-btn {
+    @extend %button-base;
+    height: 28px;
+    padding: 0 16px;
+    @include bordered($primary);
+    color: $primary;
+    font-size: 14px;
+    
+    &:hover {
+      background: $primary;
+      color: #fff;
+    }
+  }
+}
+
+/* -----------------------------------------
+ * 设置面板
+ * ----------------------------------------- */
+.settings {
+  @extend %panel-base;
+  
+  // 头部
+  .settings-header {
+    @include header-section;
+    
+    .header-actions {
+      @include flex(row, flex-start, center, 8px);
+      
+      .btn {
+        @include flex(row, center, center);
+        padding: 4px 8px;
+        @include bordered;
+        background: $surface;
+        color: $on-surface;
+        font-size: 12px;
+        @include interactive;
+        
+        &.primary {
+          background: $primary;
+          border-color: $primary;
+          color: #fff;
+          
+          &:hover {
+            opacity: 0.9;
+          }
+        }
+      }
+    }
+  }
+  
+  // 内容区域
+  .setting-panel {
+    @extend %section-container;
+  }
+  
+  // 设置项
+  .setting-item {
+    margin-bottom: 8px;
+    padding: 16px;
+    @include bordered;
+    background: $surface;
+    transition: all 0.2s;
+    @include flex(row, space-between, center, 16px);
+    @extend %hover-active;
+    
+    // 信息区域
+    .setting-info {
+      flex: 1;
+      min-width: 0;
+      
+      .setting-title {
+        @include standard-text(14px, 500);
+      }
+      
+      .setting-description {
+        font-size: 12px;
+        color: $on-surface;
+        margin-top: 4px;
+      }
+      
+      // 设置内容
+      .setting-content {
+        margin-top: 12px;
+        
+        // 滑块
+        .slider-wrapper {
+          @include flex(row, flex-start, center, 12px);
+          
+          input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: $surface-lighter;
+            border-radius: 2px;
+            cursor: pointer;
+            
+            &::-webkit-slider-thumb {
+              width: 12px;
+              height: 12px;
+              border-radius: 50%;
+              background: $primary;
+              cursor: pointer;
+              transition: all 0.2s;
+              
+              &:hover {
+                transform: scale(1.2);
+              }
+            }
+          }
+          
+          .slider-value {
+            min-width: 40px;
+            text-align: right;
+            color: $on-surface;
+          }
+        }
+        
+        // 用户信息
+        .user-wrapper {
+          @include flex(row, flex-start, center, 12px);
+          
+          .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            @include bordered($surface-lighter);
+          }
+          
+          .user-details {
             flex: 1;
             min-width: 0;
             
-            // 设置项标题
-            .setting-title {
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--b3-theme-on-background);
-            }
-            
-            // 设置项描述
-            .setting-description {
+            .user-name {
+              @include standard-text(14px, 500);
+              margin-bottom: 2px;
+              @include text-ellipsis;
+              
+              .user-level {
+                display: inline-block;
+                margin-left: 8px;
                 font-size: 12px;
-                color: var(--b3-theme-on-surface);
-                margin-top: 4px;
+                color: $primary;
+                background: $background;
+                padding: 0 4px;
+                border-radius: 2px;
+                font-weight: normal;
+              }
             }
             
-            // 设置项内容
-            .setting-content {
-                margin-top: 12px;
-                
-                // 滑块包装器
-                .slider-wrapper {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    
-                    input[type="range"] {
-                        flex: 1;
-                        height: 4px;
-                        background: var(--b3-theme-surface-lighter);
-                        border-radius: 2px;
-                        cursor: pointer;
-                        
-                        &::-webkit-slider-thumb {
-                            width: 12px;
-                            height: 12px;
-                            border-radius: 50%;
-                            background: var(--b3-theme-primary);
-                            cursor: pointer;
-                            transition: all 0.2s;
-                            
-                            &:hover {
-                                transform: scale(1.2);
-                            }
-                        }
-                    }
-                    
-                    .slider-value {
-                        min-width: 40px;
-                        text-align: right;
-                        color: var(--b3-theme-on-surface);
-                    }
-                }
-                
-                // B站用户信息样式
-                .user-wrapper {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    
-                    .user-avatar {
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 50%;
-                        object-fit: cover;
-                        border: 1px solid var(--b3-theme-surface-lighter);
-                    }
-                    
-                    .user-details {
-                        flex: 1;
-                        min-width: 0;
-                        
-                        .user-name {
-                            font-size: 14px;
-                            font-weight: 500;
-                            color: var(--b3-theme-on-background);
-                            margin-bottom: 2px;
-                            @include text-ellipsis;
-                            
-                            .user-level {
-                                display: inline-block;
-                                margin-left: 8px;
-                                font-size: 12px;
-                                color: var(--b3-theme-primary);
-                                background: var(--b3-theme-background);
-                                padding: 0 4px;
-                                border-radius: 2px;
-                                font-weight: normal;
-                            }
-                        }
-                        
-                        .user-id {
-                            font-size: 12px;
-                            color: var(--b3-theme-on-surface-variant);
-                            @include text-ellipsis;
-                        }
-                    }
-                }
+            .user-id {
+              font-size: 12px;
+              color: $on-surface-variant;
+              @include text-ellipsis;
             }
+          }
+        }
+      }
+    }
+    
+    // 控制区域
+    .setting-control {
+      @include flex(row, flex-start, center, 8px);
+      
+      // 切换开关
+      .checkbox-wrapper {
+        position: relative;
+        width: 40px;
+        height: 20px;
+        
+        input[type="checkbox"] {
+          opacity: 0;
+          width: 0;
+          height: 0;
+          
+          &:checked + .checkbox-custom {
+            background: $primary;
+            
+            &:after {
+              transform: translateX(20px);
+            }
+          }
         }
         
-        // 设置项控制区域
-        .setting-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            
-            // 复选框样式
-            .checkbox-wrapper {
-                position: relative;
-                width: 40px;
-                height: 20px;
-                
-                input[type="checkbox"] {
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                    
-                    &:checked + .checkbox-custom {
-                        background: var(--b3-theme-primary);
-                        
-                        &:after {
-                            transform: translateX(20px);
-                        }
-                    }
-                }
-                
-                .checkbox-custom {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 40px;
-                    height: 20px;
-                    background: var(--b3-theme-surface-lighter);
-                    border-radius: 10px;
-                    transition: all 0.2s;
-                    cursor: pointer;
-                    
-                    &:after {
-                        content: '';
-                        position: absolute;
-                        top: 2px;
-                        left: 2px;
-                        width: 16px;
-                        height: 16px;
-                        background: #fff;
-                        border-radius: 50%;
-                        transition: all 0.2s;
-                    }
-                }
-            }
+        .checkbox-custom {
+          @include position-absolute(0, null, null, 0);
+          width: 40px;
+          height: 20px;
+          background: $surface-lighter;
+          border-radius: 10px;
+          transition: all 0.2s;
+          cursor: pointer;
+          
+          &:after {
+            content: '';
+            @include position-absolute(2px, null, null, 2px);
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.2s;
+          }
         }
+      }
     }
+  }
 }
 
-/* --------------------------------
- * B站二维码样式
- * -------------------------------- */
+/* -----------------------------------------
+ * B站二维码
+ * ----------------------------------------- */
 .bilibili-qrcode {
-    margin: 16px 0;
-    padding: 16px;
-    background-color: var(--b3-theme-background);
-    border: 1px solid var(--b3-border-color);
-    border-radius: 4px;
+  margin: 16px 0;
+  padding: 16px;
+  background-color: $background;
+  @include bordered;
+  
+  .qrcode-header {
+    margin-bottom: 12px;
     
-    .qrcode-header {
-        margin-bottom: 12px;
-        
-        .qrcode-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--b3-theme-on-surface);
-            margin-bottom: 4px;
-        }
-        
-        .qrcode-description {
-            font-size: 12px;
-            color: var(--b3-theme-on-surface-variant);
-            margin-top: 4px;
-        }
+    .qrcode-title {
+      @include standard-text(14px, 500);
+      margin-bottom: 4px;
     }
     
-    .qrcode-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        
-        img {
-            width: 180px;
-            height: 180px;
-            border-radius: 4px;
-            background-color: white;
-            border: 1px solid var(--b3-border-color);
-        }
-        
-        .scan-status {
-            width: 100%;
-            padding: 6px;
-            border-radius: 4px;
-            background-color: var(--b3-theme-surface);
-            color: var(--b3-theme-on-surface);
-            text-align: center;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            
-            &.success {
-                background-color: var(--b3-theme-primary);
-                color: var(--b3-theme-on-primary);
-            }
-        }
+    .qrcode-description {
+      font-size: 12px;
+      color: $on-surface-variant;
+      margin-top: 4px;
     }
+  }
+  
+  .qrcode-container {
+    @include flex(column, flex-start, center, 8px);
+    
+    img {
+      width: 180px;
+      height: 180px;
+      border-radius: 4px;
+      background-color: white;
+      @include bordered;
+    }
+    
+    .scan-status {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      background-color: $surface;
+      color: $on-surface;
+      text-align: center;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      
+      &.success {
+        background-color: $primary;
+        color: $on-primary;
+      }
+    }
+  }
 }
 
-/* 设置标签样式 */
+// 通用设置标签
 .setting-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--b3-theme-on-background);
-    margin-bottom: 4px;
+  @include standard-text(14px, 500);
+  margin-bottom: 4px;
 }
