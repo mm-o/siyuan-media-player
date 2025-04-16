@@ -21,7 +21,6 @@
     let qrcodeKey: string = '';
     let checkQRCodeTimer: number;
     let loginSuccess = false;
-    let loginTimestamp: number | null = null;
     let userInfo: {
         face: string;
         level_info: {
@@ -64,7 +63,6 @@
      */
     async function handleLoginSuccess(status: any) {
         loginSuccess = true;
-        loginTimestamp = status.timestamp;
         userInfo = status.userInfo;
         
         // 保存登录信息到配置文件
@@ -85,7 +83,6 @@
      */
     async function handleLogout() {
         loginSuccess = false;
-        loginTimestamp = null;
         userInfo = null;
         
         // 清除配置文件中的登录信息
@@ -183,10 +180,23 @@
             type: "checkbox",
             title: i18n.setting.items.insertAtCursor.title,
             description: i18n.setting.items.insertAtCursor.description
+        },
+        {
+            key: "playerType",
+            value: "built-in",
+            type: "select",
+            title: i18n.setting.items.playerType.title,
+            description: i18n.setting.items.playerType.description,
+            options: [
+                { label: i18n.setting.items.playerType.builtIn, value: "built-in" },
+                { label: i18n.setting.items.playerType.potPlayer, value: "potplayer" },
+                { label: i18n.setting.items.playerType.browser, value: "browser" }
+            ]
         }
     ];
     
     let settingItems = [...defaultSettings];
+    let playerPath = "PotPlayerMini64.exe"; // 添加playerPath状态变量
     
     // 组件加载时从配置加载设置
     onMount(async () => {
@@ -197,11 +207,13 @@
             ...item,
             value: config.settings[item.key] ?? item.value
         }));
+        
+        // 加载播放器路径
+        playerPath = config.settings.playerPath || "PotPlayerMini64.exe";
 
         // 加载 B 站账号信息
         if (config.bilibiliLogin) {
             loginSuccess = true;
-            loginTimestamp = config.bilibiliLogin.timestamp;
             userInfo = config.bilibiliLogin.userInfo;
         }
     });
@@ -215,7 +227,7 @@
         const settings = settingItems.reduce((acc, item) => ({
             ...acc,
             [item.key]: item.value
-        }), {});
+        }), { playerPath } as { volume: number; speed: number; hotkey: boolean; loop: boolean; insertAtCursor: boolean; playerType: string; playerPath: string });
         
         await configManager.updateSettings(settings);
         dispatch('changed', { settings });
@@ -227,10 +239,11 @@
      */
     function resetSettings() {
         settingItems = defaultSettings.map(item => ({...item}));
+        playerPath = "PotPlayerMini64.exe";
         const settings = settingItems.reduce((acc, item) => ({
             ...acc,
             [item.key]: item.value
-        }), {});
+        }), { playerPath } as { volume: number; speed: number; hotkey: boolean; loop: boolean; insertAtCursor: boolean; playerType: string; playerPath: string });
         dispatch('changed', { settings });
         showMessage(i18n.setting.resetSuccess);
     }
@@ -240,9 +253,15 @@
      */
     function handleChange(event: Event, item: ISettingItem) {
         const target = event.target as HTMLInputElement | HTMLSelectElement;
-        let value: number | boolean = target.type === 'checkbox' 
-            ? (target as HTMLInputElement).checked 
-            : Number(target.value);
+        let value: number | boolean | string;
+        
+        if (target.type === 'checkbox') {
+            value = (target as HTMLInputElement).checked;
+        } else if (item.type === 'select') {
+            value = target.value;
+        } else {
+            value = Number(target.value);
+        }
         
         // 更新设置项的值
         const index = settingItems.findIndex(i => i.key === item.key);
@@ -319,7 +338,7 @@
         {/if}
 
         {#each settingItems as item (item.key)}
-            <div class="setting-item">
+            <div class="setting-item" class:with-path={item.key === 'playerType' && item.value === 'potplayer'}>
                 <div class="setting-info">
                     <div class="setting-title">{item.title}</div>
                     {#if item.description}
@@ -338,7 +357,7 @@
                                 />
                                 <span class="slider-value">
                                     {#if item.key === 'speed'}
-                                        {item.value / 100}x
+                                        {Number(item.value) / 100}x
                                     {:else}
                                         {item.value}
                                     {/if}
@@ -352,13 +371,32 @@
                         <label class="checkbox-wrapper">
                             <input
                                 type="checkbox"
-                                checked={item.value}
+                                checked={Boolean(item.value)}
                                 on:change={(e) => handleChange(e, item)}
                             />
                             <span class="checkbox-custom"></span>
                         </label>
+                    {:else if item.type === 'select'}
+                        <select
+                            class="select-wrapper"
+                            value={item.value}
+                            on:change={(e) => handleChange(e, item)}
+                        >
+                            {#each item.options || [] as option}
+                                <option value={option.value}>{option.label}</option>
+                            {/each}
+                        </select>
                     {/if}
                 </div>
+                
+                {#if item.key === 'playerType' && item.value === 'potplayer'}
+                    <input 
+                        type="text" 
+                        class="player-path-input" 
+                        bind:value={playerPath} 
+                        placeholder={i18n.setting.items.playerPath.title}
+                    />
+                {/if}
             </div>
         {/each}
     </div>

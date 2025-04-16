@@ -79,6 +79,9 @@ export function getMediaType(url: string): 'video' | 'audio' | 'bilibili' {
  * @returns 标准化后的URL
  */
 export function convertToFileUrl(path: string): string {
+    // 去除路径两端的引号
+    path = path.replace(/^["']|["']$/g, '');
+    
     // 已经是URL格式的直接返回
     if (/^(https?|file):\/\//.test(path)) return path;
     
@@ -123,13 +126,29 @@ export function isSupportedMediaLink(url: string): boolean {
     
     const urlLower = url.toLowerCase();
     
+    // 排除不支持的协议
+    const unsupportedProtocols = ['obsidian:', 'notion:', 'zotero:', 'evernote:', 'onenote:'];
+    for (const protocol of unsupportedProtocols) {
+        if (urlLower.startsWith(protocol)) return false;
+    }
+    
     // 快速检查常见情况
     if (urlLower.includes('bilibili.com')) return true;
-    if (MEDIA_KEYWORDS.some(kw => urlLower.includes(kw))) return true;
-    if (urlLower.includes('t=')) return true; // 时间戳参数
+    
+    // 更精确地检查媒体关键字（防止部分词语误判）
+    if (MEDIA_KEYWORDS.some(kw => {
+        // 确保关键字是独立的部分，不是其他词的一部分
+        const pattern = new RegExp(`[/\\\\._-]${kw}[/\\\\._-]|[/\\\\._-]${kw}$|^${kw}[/\\\\._-]|^${kw}$`);
+        return pattern.test(urlLower);
+    })) return true;
     
     try {
         const urlObj = new URL(url);
+        
+        // 检查协议，只支持http/https/file
+        const supportedProtocols = ['http:', 'https:', 'file:'];
+        if (!supportedProtocols.includes(urlObj.protocol)) return false;
+        
         const urlPath = urlObj.pathname.toLowerCase();
         
         // 检查扩展名
@@ -140,10 +159,16 @@ export function isSupportedMediaLink(url: string): boolean {
             return MEDIA_EXTENSIONS.ALL.some(ext => urlPath.endsWith(ext));
         }
         
-        // 检查是否有时间参数
-        return urlObj.searchParams.has('t');
+        // 检查是否有时间参数（只对http/https/file协议有效）
+        if (urlObj.searchParams.has('t')) {
+            // 确保t参数可能是时间值（数字或范围）
+            const tParam = urlObj.searchParams.get('t') || '';
+            return /^(\d+(\.\d+)?(-\d+(\.\d+)?)?)$/.test(tParam);
+        }
+        
+        return false;
     } catch {
-        // URL解析失败，尝试检查字符串中的扩展名
+        // URL解析失败，谨慎判断字符串扩展名
         return MEDIA_EXTENSIONS.ALL.some(ext => urlLower.endsWith(ext));
     }
 }

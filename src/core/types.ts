@@ -2,7 +2,7 @@
  * 媒体项接口定义
  */
 export type MediaType = 'video' | 'audio' | 'bilibili';
-export type SettingType = 'slider' | 'checkbox';
+export type SettingType = 'slider' | 'checkbox' | 'select';
 
 // B站相关类型
 export interface BilibiliUserInfo {
@@ -86,6 +86,10 @@ export interface Config {
         loop: boolean;
         /** 是否插入到光标处 */
         insertAtCursor: boolean;
+        /** 播放器类型 */
+        playerType: string;
+        /** 外部播放器路径 */
+        playerPath: string;
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
@@ -129,7 +133,7 @@ export interface VideoStream {
 
 export interface ISettingItem {
     key: string;
-    value: number | boolean;
+    value: number | boolean | string;
     type: SettingType;
     title: string;
     description?: string;
@@ -138,3 +142,17 @@ export interface ISettingItem {
         max: number;
         step: number;
     };
+    options?: Array<{
+        label: string;
+        value: string;
+    }>;
+}
+
+/**
+ * 播放器类型枚举
+ */
+export enum PlayerType {
+    BUILT_IN = 'built-in',
+    POT_PLAYER = 'potplayer',
+    BROWSER = 'browser'
+}

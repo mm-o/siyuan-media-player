@@ -7,6 +7,7 @@
     import ControlBar from './ControlBar.svelte';
     import type { ConfigManager } from '../core/config';
     import type { MediaItem } from '../core/types';
+    import { PlayerType } from '../core/types';
     import { BilibiliParser } from '../core/bilibili';
     import { LinkHandler } from '../core/LinkHandler';
     import { formatTime } from '../core/utils';
@@ -75,7 +76,16 @@
 
             const urlObj = new URL(baseUrl);
             urlObj.searchParams.delete('t');
+            urlObj.searchParams.delete('p');
             
+            // 先设置时间戳t参数
+            if (isLoop && loopEndTime) {
+                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${loopEndTime.toFixed(1)}`);
+            } else {
+                urlObj.searchParams.set('t', currentTime.toFixed(1));
+            }
+            
+            // 后设置分p参数
             if (currentItem.type === 'bilibili' && currentItem.id && currentItem.id.includes('-p')) {
                 const partMatch = currentItem.id.match(/-p(\d+)$/);
                 if (partMatch && partMatch[1]) {
@@ -84,10 +94,8 @@
             }
             
             if (isLoop && loopEndTime) {
-                urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${loopEndTime.toFixed(1)}`);
                 return `- [${formatTime(currentTime, true)}-${formatTime(loopEndTime, true)}](${urlObj.toString()})`;
             }
-            urlObj.searchParams.set('t', currentTime.toFixed(1));
             return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
         } catch {
             showMessage(i18n.mediaPlayerTab.timestamp.generateFailed);
@@ -96,6 +104,72 @@
     };
 
     // =============== 媒体操作 ===============
+    const openWithPotPlayer = async (url: string, playerPath: string): Promise<void> => {
+        try {
+            // 检查是否为Electron环境
+            if (window.navigator.userAgent.includes('Electron')) {
+                // 使用Electron方式调用外部程序
+                const { exec } = require('child_process');
+                const os = require('os');
+                
+                // 去除路径两端可能存在的引号
+                playerPath = playerPath.replace(/^["']|["']$/g, '');
+                
+                if (os.platform() === 'win32') {
+                    // Windows平台调用
+                    exec(`"${playerPath}" "${url}"`, (error) => {
+                        if (error) {
+                            console.error("打开外部播放器失败:", error);
+                            showMessage(`打开外部播放器失败: ${error.message}`);
+                        }
+                    });
+                } else if (os.platform() === 'darwin') {
+                    // macOS平台调用
+                    exec(`open -a "${playerPath}" "${url}"`, (error) => {
+                        if (error) {
+                            console.error("打开外部播放器失败:", error);
+                            showMessage(`打开外部播放器失败: ${error.message}`);
+                        }
+                    });
+                }
+            } else {
+                // 浏览器环境使用API调用
+                const response = await fetch('/api/system/execCommand', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        command: `start "${playerPath}" "${url}"`
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error("命令执行失败");
+                }
+            }
+        } catch (error) {
+            console.error("打开外部播放器失败:", error);
+            showMessage(`打开外部播放器失败: ${error.message}`);
+        }
+    };
+
+    const openInBrowser = async (url: string): Promise<void> => {
+        try {
+            // 检查是否为Electron环境
+            if (window.navigator.userAgent.includes('Electron')) {
+                // 使用Electron方式打开浏览器
+                const { shell } = require('electron');
+                await shell.openExternal(url);
+            } else {
+                // 浏览器环境直接打开新窗口
+                window.open(url, '_blank');
+            }
+            showMessage(i18n.mediaPlayerTab.browser.openSuccess);
+        } catch (error) {
+            console.error("在浏览器中打开失败:", error);
+            showMessage(`在浏览器中打开失败: ${error.message}`);
+        }
+    };
+
     const takeScreenshot = async (): Promise<void> => {
         if (!player || !currentItem) {
             showMessage(i18n.controlBar.screenshot.hint);
@@ -219,7 +293,41 @@
                 bvid: options.bvid,
                 cid: options.cid
             };
+            
+            // 根据配置决定使用哪个播放器
+            const config = await configManager.getConfig();
+            
+            // 处理URL和时间戳
+            const prepareUrl = (url: string) => {
+                if (currentItem?.startTime !== undefined && !url.includes('t=')) {
+                    try {
+                        const urlObj = new URL(url);
+                        urlObj.searchParams.set('t', currentItem.startTime.toString());
+                        return urlObj.toString();
+                    } catch {
+                        return url;
+                    }
+                }
+                return url;
+            };
+            
+            // 获取要播放的URL
+            const urlToPlay = (currentItem.type === 'bilibili' && currentItem.originalUrl) 
+                ? currentItem.originalUrl 
+                : options.url;
+            
+            // 根据播放器类型选择打开方式
+            if (config.settings.playerType === PlayerType.POT_PLAYER) {
+                // 使用PotPlayer播放
+                await openWithPotPlayer(prepareUrl(urlToPlay), config.settings.playerPath);
+                return;
+            } else if (config.settings.playerType === PlayerType.BROWSER) {
+                // 使用浏览器打开
+                await openInBrowser(prepareUrl(urlToPlay));
+                return;
+            }
 
+            // 使用内置播放器播放
             if (['bilibili-dash', 'bilibili'].includes(options.type)) {
                 await player.play(options.url, {
                     type: options.type,

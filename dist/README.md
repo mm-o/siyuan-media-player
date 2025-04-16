@@ -4,6 +4,12 @@
 
 # [CHANGELOG 更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-QBqHdeY0VoHRKYxW42ec1M7Anyh)
 
+### v0.2.6 (2025.4.16)
+1. Added external player options: PotPlayer and browser, for more flexible media viewing
+2. Added quick browser opening: hold Ctrl key while clicking a link to open in browser
+3. Media URLs in playlist are now clickable for easy browser viewing
+4. Fixed the issue of duplicate Bilibili multi-part videos in playlists
+
 ### v0.2.5 (2025.4.10)
 1. Added Bilibili favorites direct import feature, allowing one-click addition of entire favorite folders to playlist
 2. Added 4 playlist view modes (detailed view, simple view, grid view, and cover view) to suit different browsing preferences

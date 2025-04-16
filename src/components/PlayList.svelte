@@ -13,6 +13,8 @@
     import type { ConfigManager } from '../core/config';
     // 从'../core/utils'中导入parseMediaLink函数
     import { parseMediaLink } from '../core/utils';
+    // 从'../core/biliUtils'中导入parseBiliUrl函数
+    import { parseBiliUrl } from '../core/biliUtils';
     // 导入子组件
     import PlayListTabs from './Playlist/PlayListTabs.svelte';
     import PlayListItem from './Playlist/PlayListItem.svelte';
@@ -140,13 +142,26 @@
      */
     async function handleMediaAdd(url: string, autoPlay: boolean = true) {
         try {
-            // 解析媒体链接
+            // 统一解析媒体链接及参数
             const { mediaUrl, startTime, endTime } = parseMediaLink(url);
             
+            // 使用现有函数解析B站视频信息
+            const biliInfo = parseBiliUrl(mediaUrl);
+            const currentBvid = biliInfo?.bvid;
+            const currentP = biliInfo?.p;
+            
             // 检查是否已存在
-            const existingItem = activeTab?.items?.find(item => item.url === mediaUrl);
+            let existingItem;
+            if (currentBvid) {
+                // 对于B站视频，仅基于BV号比较
+                existingItem = activeTab?.items?.find(item => item.bvid === currentBvid);
+            } else {
+                // 对于其他类型媒体，使用完整URL比较
+                existingItem = activeTab?.items?.find(item => item.url === mediaUrl);
+            }
+            
             if (existingItem) {
-                // 更新已存在项的参数并播放
+                // 基本参数更新
                 const updatedItem = { 
                     ...existingItem, 
                     startTime, 
@@ -154,33 +169,41 @@
                     originalUrl: url 
                 } as MediaItem;
                 
-                if (autoPlay) {
-                    await handleMediaPlay(updatedItem);
+                // 处理B站分P信息
+                if (currentP && currentBvid && existingItem.type === 'bilibili') {
+                    try {
+                        const parts = await BilibiliParser.getVideoParts({ bvid: currentBvid });
+                        const currentPart = parts.find(part => part.page === currentP);
+                        
+                        if (currentPart) {
+                            // 更新分P信息
+                            const baseId = existingItem.id.split('-p')[0];
+                            updatedItem.id = `${baseId}-p${currentP}`;
+                            updatedItem.title = `${existingItem.title.split(' - P')[0]} - P${currentP}${currentPart.part ? ': ' + currentPart.part : ''}`;
+                            updatedItem.cid = String(currentPart.cid);
+                        }
+                    } catch {}
                 }
+                
+                if (autoPlay) await handleMediaPlay(updatedItem);
                 return;
             }
             
-            // 创建新媒体项
+            // 创建新媒体项并设置参数
             const mediaItem = await MediaManager.createMediaItem(mediaUrl);
             if (!mediaItem) {
                 showMessage(i18n.playList.error.cannotParse);
                 return;
             }
             
-            // 设置参数
-            if (startTime !== undefined) mediaItem.startTime = startTime;
-            if (endTime !== undefined) mediaItem.endTime = endTime;
-            mediaItem.originalUrl = url;
+            // 设置参数并添加到播放列表
+            Object.assign(mediaItem, { startTime, endTime, originalUrl: url });
             
-            // 添加到播放列表
             if (activeTab) {
                 activeTab.items = [...(activeTab.items || []), mediaItem];
                 await savePlaylists();
                 
-                // 如果需要自动播放
-                if (autoPlay) {
-                    await handleMediaPlay(mediaItem);
-                }
+                if (autoPlay) await handleMediaPlay(mediaItem);
                 showMessage(i18n.playList.message.added);
             }
         } catch (error) {
@@ -267,46 +290,51 @@
      * 处理外部媒体项
      */
     export async function handleMediaItem(mediaItem: MediaItem) {
-        // 查找完全匹配的项（包括时间参数）
-        const existingItem = activeTab?.items?.find(item => {
-            const urlMatch = item.url === mediaItem.url || item.originalUrl === mediaItem.originalUrl;
-            const timeMatch = mediaItem.startTime === item.startTime && mediaItem.endTime === item.endTime;
-            return urlMatch && timeMatch;
-        });
-
-        if (existingItem) {
-            // 如果找到完全匹配的项，直接播放
-            await handleMediaPlay(existingItem);
-            showMessage(i18n.playList.message.existingItemPlay);
+        // 检查媒体项是否有效
+        if (!mediaItem || !activeTab) return;
+        
+        // 提取BV号
+        const currentBvid = mediaItem.bvid;
+        
+        // 查找已存在项
+        let existingItem;
+        if (currentBvid) {
+            // B站视频根据BV号查找
+            existingItem = activeTab.items.find(item => item.bvid === currentBvid);
         } else {
-            // 查找仅URL匹配的项
-            const urlMatchItem = activeTab?.items?.find(item => 
+            // 其他媒体根据URL查找
+            existingItem = activeTab.items.find(item => 
                 item.url === mediaItem.url || item.originalUrl === mediaItem.originalUrl
             );
-
-            if (urlMatchItem) {
-                // 如果找到URL匹配的项，更新其时间参数并播放
-                const updatedItem = {
-                    ...urlMatchItem,
-                    startTime: mediaItem.startTime,
-                    endTime: mediaItem.endTime,
-                    isLoop: mediaItem.isLoop,
-                    loopCount: mediaItem.loopCount
-                };
-                await handleMediaPlay(updatedItem);
-                showMessage(i18n.playList.message.existingItemPlay);
-            } else {
-                // 如果没找到匹配项，添加到播放列表并播放
-                const tab = tabs.find(t => t.id === activeTabId);
-                if (!tab) {
-                    showMessage(i18n.playList.error.noActiveTab);
-                    return;
-                }
-                tab.items = [...(tab.items || []), mediaItem];
-                tabs = [...tabs];
-                await handleMediaPlay(mediaItem);
-                showMessage(i18n.playList.message.added);
+        }
+        
+        if (existingItem) {
+            // 更新已存在项的参数
+            const updatedItem = {
+                ...existingItem,
+                startTime: mediaItem.startTime,
+                endTime: mediaItem.endTime,
+                isLoop: mediaItem.isLoop,
+                loopCount: mediaItem.loopCount
+            };
+            
+            // 处理B站分P信息
+            if (currentBvid && mediaItem.cid && existingItem.cid !== mediaItem.cid) {
+                Object.assign(updatedItem, {
+                    id: mediaItem.id,
+                    title: mediaItem.title,
+                    cid: mediaItem.cid
+                });
             }
+            
+            await handleMediaPlay(updatedItem);
+            showMessage(i18n.playList.message.existingItemPlay);
+        } else {
+            // 添加新项并播放
+            activeTab.items = [...activeTab.items, mediaItem];
+            tabs = [...tabs];
+            await handleMediaPlay(mediaItem);
+            showMessage(i18n.playList.message.added);
         }
     }
 

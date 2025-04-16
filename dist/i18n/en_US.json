@@ -61,12 +61,15 @@
             "uploadFailed": "Failed to upload image"
         },
         "play": {
-            "invalidOptions": "Invalid play options",
             "untitledMedia": "Untitled Media",
+            "invalidOptions": "Invalid playback options",
             "failMessage": "Playback failed: "
         },
+        "browser": {
+            "openSuccess": "Media opened in browser"
+        },
         "stream": {
-            "playbackError": "Video playback failed, please try again later"
+            "playbackError": "Video playback error, please try again"
         }
     },
     "player": {
@@ -179,6 +182,17 @@
             "insertAtCursor": {
                 "title": "Insert at Cursor",
                 "description": "Insert links at cursor position, otherwise copy to clipboard"
+            },
+            "playerType": {
+                "title": "Player Selection",
+                "description": "Choose the media player to use",
+                "builtIn": "Built-in Player",
+                "potPlayer": "PotPlayer",
+                "browser": "Browser"
+            },
+            "playerPath": {
+                "title": "Player Path",
+                "description": "Path to the external player executable"
             }
         },
         "bilibili": {

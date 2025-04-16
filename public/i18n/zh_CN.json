@@ -61,12 +61,15 @@
             "uploadFailed": "上传图片失败"
         },
         "play": {
-            "invalidOptions": "无效的播放选项",
             "untitledMedia": "未命名媒体",
-            "failMessage": "播放失败："
+            "invalidOptions": "无效的播放选项",
+            "failMessage": "播放失败: "
+        },
+        "browser": {
+            "openSuccess": "已在浏览器中打开媒体"
         },
         "stream": {
-            "playbackError": "视频播放失败，请稍后重试"
+            "playbackError": "视频播放出错，请重试"
         }
     },
     "player": {
@@ -179,6 +182,17 @@
             "insertAtCursor": {
                 "title": "插入到光标处",
                 "description": "链接插入到光标位置，否则复制到剪贴板"
+            },
+            "playerType": {
+                "title": "播放器选择",
+                "description": "选择用于播放媒体的播放器",
+                "builtIn": "内置播放器",
+                "potPlayer": "PotPlayer",
+                "browser": "浏览器"
+            },
+            "playerPath": {
+                "title": "播放器路径",
+                "description": "外部播放器的可执行文件路径"
             }
         },
         "bilibili": {

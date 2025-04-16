@@ -152,7 +152,12 @@
                     </div>
                 {/if}
                 {#if item.url}
-                    <div class="item-url" title={item.url}>{item.url}</div>
+                    <div class="item-url" title={item.url}>
+                        <a href={item.url} 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           on:click|stopPropagation>{item.url}</a>
+                    </div>
                 {/if}
             </div>
         </div>

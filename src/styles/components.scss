@@ -701,6 +701,29 @@ $on-primary: var(--b3-theme-on-primary);
     transition: all 0.2s;
     @include flex(row, space-between, center, 16px);
     @extend %hover-active;
+    position: relative;
+    
+    &.with-path {
+      padding-bottom: 52px;
+    }
+    
+    // 播放器路径输入框
+    .player-path-input {
+      @extend %input-base;
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      width: calc(100% - 32px);
+      height: 28px;
+      box-sizing: border-box;
+      
+      &:focus {
+        border-color: $primary;
+        outline: none;
+        box-shadow: $primary-lighter 0 0 0 2px;
+      }
+    }
     
     // 信息区域
     .setting-info {
@@ -720,6 +743,29 @@ $on-primary: var(--b3-theme-on-primary);
       // 设置内容
       .setting-content {
         margin-top: 12px;
+        
+        // 设置子标题
+        .setting-subtitle {
+          font-size: 13px;
+          font-weight: 500;
+          color: $on-surface;
+          margin-bottom: 8px;
+        }
+        
+        // 播放器路径输入框
+        .player-path-input {
+          @extend %input-base;
+          width: 100%;
+          height: 28px;
+          padding: 0 8px;
+          box-sizing: border-box;
+          
+          &:focus {
+            border-color: $primary;
+            outline: none;
+            box-shadow: $primary-lighter 0 0 0 2px;
+          }
+        }
         
         // 滑块
         .slider-wrapper {
@@ -799,6 +845,59 @@ $on-primary: var(--b3-theme-on-primary);
     // 控制区域
     .setting-control {
       @include flex(row, flex-start, center, 8px);
+      
+      // 下拉选择框
+      .select-wrapper {
+        @extend %input-base;
+        height: 28px;
+        min-width: 120px;
+        padding: 0 24px 0 8px;
+        cursor: pointer;
+        appearance: none;
+        color: $on-background;
+        background-color: $background;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 4px center;
+        background-size: 18px;
+        transition: all 0.2s;
+        
+        &:hover {
+          border-color: $primary;
+        }
+        
+        &:focus {
+          border-color: $primary;
+          outline: none;
+          box-shadow: $primary-lighter 0 0 0 2px;
+        }
+
+        // 选项样式
+        option {
+          background-color: $background;
+          color: $on-background;
+          padding: 8px;
+        }
+      }
+      
+      // 输入框
+      .input-wrapper {
+        @extend %input-base;
+        height: 28px;
+        min-width: 180px;
+        padding: 0 8px;
+        transition: all 0.2s;
+        
+        &:hover {
+          border-color: $primary;
+        }
+        
+        &:focus {
+          border-color: $primary;
+          outline: none;
+          box-shadow: $primary-lighter 0 0 0 2px;
+        }
+      }
       
       // 切换开关
       .checkbox-wrapper {

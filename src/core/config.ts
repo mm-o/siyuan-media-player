@@ -39,6 +39,8 @@ export class ConfigManager {
                 hotkey: true,
                 loop: false,
                 insertAtCursor: true,
+                playerType: 'built-in',
+                playerPath: 'PotPlayerMini64.exe',
             }
         };
     }
