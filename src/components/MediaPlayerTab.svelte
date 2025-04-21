@@ -5,6 +5,7 @@
     import PlayList from './PlayList.svelte';
     import Setting from './Setting.svelte';
     import ControlBar from './ControlBar.svelte';
+    import Assistant from './Assistant.svelte';
     import type { ConfigManager } from '../core/config';
     import type { MediaItem } from '../core/types';
     import { PlayerType } from '../core/types';
@@ -23,11 +24,18 @@
     let controlTimer: number;
     let showPlaylist = false;
     let showSettings = false;
+    let showAssistant = false;
     let currentItem: MediaItem | null = null;
     let player: Player;
     let playerConfig: any;
     let loopStartTime: number | null = null;
     let playlist: PlayList;
+    let proEnabled: boolean = false;
+
+    // 监听currentItem变化，同步到全局对象
+    $: if (typeof window !== 'undefined' && (window as any).siyuanMediaPlayer) {
+        (window as any).siyuanMediaPlayer.currentItem = currentItem;
+    }
 
     // =============== 工具函数 ===============
     const getCurrentBlockId = (): string => {
@@ -65,41 +73,78 @@
         }
     };
 
-    const createTimestampLink = (isLoop = false, startTime?: number, endTime?: number): string | null => {
+    // 创建时间戳链接函数，供其他组件使用
+    export const createTimestampLink = async (isLoop = false, startTime?: number, endTime?: number, subtitleText?: string): Promise<string | null> => {
         if (!player || !currentItem) return null;
 
         try {
+            // 1. 准备URL参数
             const currentTime = startTime ?? player.getCurrentTime();
             const loopEndTime = endTime ?? (isLoop ? currentTime + 3 : undefined);
             const baseUrl = currentItem.originalUrl || currentItem.url;
-            if (!baseUrl) throw new Error();
+            if (!baseUrl) throw new Error("没有有效的URL");
 
+            // 2. 构建URL
             const urlObj = new URL(baseUrl);
             urlObj.searchParams.delete('t');
             urlObj.searchParams.delete('p');
             
-            // 先设置时间戳t参数
+            // 设置时间戳参数
             if (isLoop && loopEndTime) {
                 urlObj.searchParams.set('t', `${currentTime.toFixed(1)}-${loopEndTime.toFixed(1)}`);
             } else {
                 urlObj.searchParams.set('t', currentTime.toFixed(1));
             }
             
-            // 后设置分p参数
+            // 设置分p参数，仅当不是默认分P（P1）时才添加
             if (currentItem.type === 'bilibili' && currentItem.id && currentItem.id.includes('-p')) {
                 const partMatch = currentItem.id.match(/-p(\d+)$/);
-                if (partMatch && partMatch[1]) {
+                if (partMatch && partMatch[1] && partMatch[1] !== '1') {
                     urlObj.searchParams.set('p', partMatch[1]);
                 }
             }
+
+            // 3. 准备变量值
+            const timeText = isLoop && loopEndTime 
+                ? `${formatTime(currentTime, true)}-${formatTime(loopEndTime, true)}`
+                : formatTime(currentTime, true);
             
-            if (isLoop && loopEndTime) {
-                return `- [${formatTime(currentTime, true)}-${formatTime(loopEndTime, true)}](${urlObj.toString()})`;
-            }
-            return `- [${formatTime(currentTime, true)}](${urlObj.toString()})`;
-        } catch {
+            // 4. 获取模板
+            const config = await configManager.getConfig();
+            const template = config?.settings?.linkFormat || "- [时间 字幕](链接)";
+            
+            // 5. 使用同时支持中文文本和变量标记的替换
+            return template
+                .replace(/\{\{time\}\}/g, timeText)
+                .replace(/\{\{subtitle\}\}/g, subtitleText || '')
+                .replace(/\{\{title\}\}/g, currentItem.title || '')
+                .replace(/\{\{artist\}\}/g, currentItem.artist || '')
+                .replace(/\{\{custom\}\}/g, '')
+                .replace(/\{\{url\}\}/g, urlObj.toString())
+                .replace(/时间/g, timeText)
+                .replace(/字幕/g, subtitleText || '')
+                .replace(/标题/g, currentItem.title || '')
+                .replace(/艺术家/g, currentItem.artist || '')
+                .replace(/链接/g, urlObj.toString());
+            
+        } catch (error) {
+            console.error('[createTimestampLink]', error);
             showMessage(i18n.mediaPlayerTab.timestamp.generateFailed);
-            return null;
+            
+            // 发生错误时返回基本格式
+            try {
+                const currentTime = startTime ?? player.getCurrentTime();
+                const timeText = isLoop && endTime 
+                    ? `${formatTime(currentTime, true)}-${formatTime(endTime, true)}`
+                    : formatTime(currentTime, true);
+                
+                const text = subtitleText ? `${timeText} ${subtitleText}` : timeText;
+                const url = currentItem?.originalUrl || currentItem?.url || '';
+                
+                return `- [${text}](${url})`;
+            } catch {
+                return null;
+            }
         }
     };
 
@@ -114,6 +159,11 @@
                 
                 // 去除路径两端可能存在的引号
                 playerPath = playerPath.replace(/^["']|["']$/g, '');
+                
+                // 处理本地文件URL格式
+                if (url.startsWith('file:///')) {
+                    url = url.substring(8).replace(/\//g, '\\');  // Windows路径转换
+                }
                 
                 if (os.platform() === 'win32') {
                     // Windows平台调用
@@ -134,6 +184,12 @@
                 }
             } else {
                 // 浏览器环境使用API调用
+                
+                // 处理本地文件URL格式
+                if (url.startsWith('file:///')) {
+                    url = url.substring(8).replace(/\//g, '\\');  // Windows路径转换
+                }
+                
                 const response = await fetch('/api/system/execCommand', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -209,7 +265,7 @@
             showMessage(i18n.controlBar.screenshot.hint);
             return;
         }
-        const link = createTimestampLink(false);
+        const link = await createTimestampLink(false);
         if (link) await insertContent(link);
     };
 
@@ -224,7 +280,7 @@
             loopStartTime = currentTime;
             showMessage(i18n.controlBar.loopSegment.startHint);
         } else {
-            const link = createTimestampLink(true, loopStartTime, currentTime);
+            const link = await createTimestampLink(true, loopStartTime, currentTime);
             if (link) await insertContent(link);
             loopStartTime = null;
         }
@@ -245,6 +301,11 @@
     const handleSettingsChanged = (event: CustomEvent) => {
         playerConfig = event.detail.settings;
         player?.updateConfig(playerConfig);
+        
+        // 检查Pro状态是否变更
+        if (event.detail.proEnabled !== undefined) {
+            proEnabled = event.detail.proEnabled;
+        }
     };
 
     const handleSelect = (event: CustomEvent<MediaItem>) => {
@@ -259,11 +320,25 @@
             case 'loopSegment': await createLoopSegment(); break;
             case 'playlist': 
                 showPlaylist = !showPlaylist;
-                if (showPlaylist) showSettings = false;
+                if (showPlaylist) {
+                    showSettings = false;
+                    showAssistant = false;
+                }
                 break;
             case 'settings': 
                 showSettings = !showSettings;
-                if (showSettings) showPlaylist = false;
+                if (showSettings) {
+                    showPlaylist = false;
+                    showAssistant = false;
+                }
+                break;
+            case 'assistant':
+                // 处理助手按钮点击事件
+                showAssistant = !showAssistant;
+                if (showAssistant) {
+                    showPlaylist = false;
+                    showSettings = false;
+                }
                 break;
         }
     };
@@ -332,7 +407,8 @@
                 await player.play(options.url, {
                     type: options.type,
                     headers: options.headers,
-                    title: options.title
+                    title: options.title,
+                    cid: currentItem.cid
                 });
             } else {
                 await player.play(options.url);
@@ -368,7 +444,8 @@
                 player.play(url, {
                     type,
                     headers: streamInfo.headers,
-                    title: currentItem.title
+                    title: currentItem.title,
+                    cid: currentItem.cid
                 });
             }
         } catch {
@@ -382,10 +459,28 @@
             const config = await configManager.load();
             playerConfig = config.settings;
             if (!playerConfig.loopCount) playerConfig.loopCount = 3;
+            
+            // 加载Pro状态
+            // @ts-ignore
+            proEnabled = config.proEnabled || false;
 
             const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
                 playerContainer.addEventListener('streamError', handleStreamError as EventListener);
+            }
+            
+            // 注册到全局对象，供链接处理器调用
+            if (typeof window !== 'undefined') {
+                (window as any).siyuanMediaPlayer = {
+                    currentItem,
+                    seekTo: (time: number) => {
+                        if (player) player.seekTo(time);
+                    },
+                    setLoopSegment: (start: number, end: number) => {
+                        if (player) player.setPlayTime(start, end);
+                    },
+                    getCurrentMedia: () => currentItem
+                };
             }
         };
 
@@ -395,6 +490,11 @@
             const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
                 playerContainer.removeEventListener('streamError', handleStreamError as EventListener);
+            }
+            
+            // 清理全局对象
+            if (typeof window !== 'undefined' && (window as any).siyuanMediaPlayer) {
+                (window as any).siyuanMediaPlayer = undefined;
             }
         };
     });
@@ -413,7 +513,7 @@
     on:mousemove={handleMouseMove}
     on:mouseleave={handleMouseLeave}
 >
-    <div class="content-area" class:with-sidebar={showPlaylist || showSettings}>
+    <div class="content-area" class:with-sidebar={showPlaylist || showSettings || showAssistant}>
         <div class="player-area">
             <Player 
                 bind:this={player}
@@ -427,16 +527,18 @@
                     title={currentItem?.title}
                     {loopStartTime}
                     {i18n}
+                    {proEnabled}
                     on:screenshot={handleControlEvent}
                     on:timestamp={handleControlEvent}
                     on:loopSegment={handleControlEvent}
                     on:playlist={handleControlEvent}
                     on:settings={handleControlEvent}
+                    on:assistant={handleControlEvent}
                 />
             </div>
         </div>
         
-        <div class="sidebar" class:show={showPlaylist || showSettings}>
+        <div class="sidebar" class:show={showPlaylist || showSettings || showAssistant}>
             <PlayList 
                 bind:this={playlist}
                 {configManager}
@@ -453,6 +555,18 @@
                     {configManager}
                     {i18n}
                     on:changed={handleSettingsChanged}
+                />
+            {/if}
+            {#if showAssistant}
+                <Assistant 
+                    {configManager}
+                    currentMedia={currentItem}
+                    className="assistant-container"
+                    hidden={!showAssistant}
+                    {i18n}
+                    {player}
+                    insertContentCallback={insertContent}
+                    createTimestampLinkCallback={createTimestampLink}
                 />
             {/if}
         </div>

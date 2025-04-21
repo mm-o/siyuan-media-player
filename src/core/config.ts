@@ -17,18 +17,23 @@ export class ConfigManager {
      * 获取默认配置
      */
     private getDefaultConfig(): Config {
-        const i18n = this.plugin.i18n.playList;
+        const i18n = this.plugin.i18n;
+        const playListI18n = i18n.playList;
+        
+        // 默认链接格式，使用带表情符号的示例
+        const defaultLinkFormat = '- [😄标题 时间 艺术家 字幕](链接)';
+        
         return {
             playlists: [
                 {
                     id: 'default',
-                    name: i18n?.defaultList || '默认列表',
+                    name: playListI18n?.defaultList || '默认列表',
                     items: [],
                     isFixed: true
                 },
                 {
                     id: 'favorites',
-                    name: i18n?.favorites || '收藏夹',
+                    name: playListI18n?.favorites || '收藏夹',
                     items: [],
                     isFixed: true
                 }
@@ -39,8 +44,10 @@ export class ConfigManager {
                 hotkey: true,
                 loop: false,
                 insertAtCursor: true,
+                showSubtitles: true,
                 playerType: 'built-in',
                 playerPath: 'PotPlayerMini64.exe',
+                linkFormat: defaultLinkFormat,
             }
         };
     }

@@ -22,6 +22,10 @@ $on-surface: var(--b3-theme-on-surface);
 $on-surface-variant: var(--b3-theme-on-surface-variant);
 $on-primary: var(--b3-theme-on-primary);
 
+// 新增 Pro 相关变量
+$pro-gradient-text: linear-gradient(90deg, #d4af37 0%, #f9d423 100%);
+$pro-gradient: linear-gradient(135deg, #f7f1cf 0%, #ffeaa4 100%);
+
 // 文本省略
 @mixin text-ellipsis {
   overflow: hidden;
@@ -194,6 +198,12 @@ $on-primary: var(--b3-theme-on-primary);
     
     .art-controls {
       bottom: 0;
+    }
+    
+    /* 简化字幕样式 */
+    .art-subtitle {
+      bottom: 65px !important;
+      font-family: var(--b3-font-family);
     }
   }
 }
@@ -707,6 +717,104 @@ $on-primary: var(--b3-theme-on-primary);
       padding-bottom: 52px;
     }
     
+    // Pro设置项样式
+    &.pro-setting-item {
+      background: $pro-gradient;
+      
+      .pro-title {
+        background: $pro-gradient-text;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: 600;
+      }
+    }
+    
+    // Pro面板内容
+    &.pro-panel-content {
+      margin-top: $spacing;
+      
+      .price-tag {
+        margin-bottom: $spacing * 2;
+        
+        .price-main {
+          font-size: 32px;
+          font-weight: bold;
+        }
+      }
+      
+      .divider {
+        border-top: 1px dashed $border;
+        margin: $spacing 0;
+        border-bottom: none;
+        height: 0;
+      }
+      
+      .github-link {
+        color: $primary;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      .b3-button {
+        margin: $spacing * 2 0;
+      }
+      
+      .payment-qrcodes {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: $spacing * 2 0;
+        
+        .qrcode-item {
+          width: 96%;
+          text-align: center;
+          margin-bottom: $spacing;
+          
+          img {
+            max-width: 100%;
+            background-color: white;
+            border-radius: $radius;
+            @include bordered;
+          }
+        }
+      }
+      
+      .activation-toggle {
+        @extend .setting-item;
+        margin: $spacing * 2 0;
+        padding: 0;
+        border: none;
+        
+        &:hover {
+          border-color: transparent;
+          transform: none;
+        }
+      }
+      
+      .feature-single {
+        margin-top: $spacing * 2;
+        
+        .feature-item {
+          @include flex(row, flex-start, center);
+          padding: $spacing;
+          background: $surface-lighter;
+          border-radius: $radius;
+          margin-bottom: $spacing * 1;
+          
+          .feature-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: $spacing;
+            fill: $primary;
+          }
+        }
+      }
+    }
+    
     // 播放器路径输入框
     .player-path-input {
       @extend %input-base;
@@ -1000,4 +1108,119 @@ $on-primary: var(--b3-theme-on-primary);
 .setting-label {
   @include standard-text(14px, 500);
   margin-bottom: 4px;
+}
+
+/* -----------------------------------------
+ * 助手组件
+ * ----------------------------------------- */
+.assistant {
+  &.assistant-container {
+    transition: opacity $transition;
+    
+    &.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+  
+  .subtitle-list {
+    width: 100%;
+    
+    .subtitle-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+      
+      .export-btn {
+        display: flex;
+        align-items: center;
+        padding: 6px 12px;
+        background-color: $primary-lighter;
+        border: none;
+        border-radius: $radius;
+        color: $on-surface;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background-color $transition, color $transition;
+        
+        .icon {
+          margin-right: 4px;
+          fill: currentColor;
+        }
+        
+        span { font-weight: 500; }
+        
+        &:hover {
+          background-color: $primary;
+          color: $on-primary;
+        }
+      }
+    }
+    
+    .subtitle-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      background-color: $surface;
+      border-radius: $radius;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      transition: background-color $transition, transform $transition, border-left-color $transition;
+      
+      .subtitle-time {
+        flex-shrink: 0;
+        width: 52px;
+        color: $primary;
+        font-size: 14px;
+        font-weight: 500;
+        padding-right: 12px;
+      }
+      
+      .subtitle-text {
+        flex: 1;
+        font-size: 14px;
+        color: $on-background;
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+      
+      .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        margin-left: 8px;
+        background: none;
+        border: none;
+        border-radius: $radius;
+        cursor: pointer;
+        opacity: 0.4;
+        transition: opacity $transition, background-color $transition;
+        
+        .icon { fill: $on-surface; }
+      }
+      
+      &:hover {
+        background-color: $primary-lighter;
+        transform: translateX(2px);
+        border-left-color: $primary;
+        
+        .action-btn {
+          opacity: 1;
+          
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            .icon { fill: $primary; }
+          }
+        }
+      }
+    }
+  }
 }

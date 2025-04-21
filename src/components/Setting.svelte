@@ -31,8 +31,21 @@
     } | null = null;
     let scanStatus: string = i18n.setting.bilibili.waitingScan;
     
+    let linkFormat = "- [{{time}} {{subtitle}}]({{url}})"; // 链接格式模板默认值
+    let showProPanel = false; // 控制Pro面板显示
+    let proEnabled = false; // 控制Pro功能启用状态
+    let showPaymentQRCodes = false; // 控制付款码显示
+    let showPaymentInfo = true; // 控制付款说明显示
+    
     // 初始化时加载配置
     onMount(() => {
+        const loadConfig = async () => {
+            const config = await configManager.load();
+            // @ts-ignore
+            proEnabled = config.proEnabled || false;
+        };
+        loadConfig();
+        
         return () => {
             // 组件卸载时清理定时器
             if (checkQRCodeTimer) {
@@ -182,6 +195,13 @@
             description: i18n.setting.items.insertAtCursor.description
         },
         {
+            key: "showSubtitles",
+            value: true,
+            type: "checkbox",
+            title: i18n.setting.items.showSubtitles?.title || "自动显示字幕",
+            description: i18n.setting.items.showSubtitles?.description || "播放时自动显示字幕（如果有）"
+        },
+        {
             key: "playerType",
             value: "built-in",
             type: "select",
@@ -210,12 +230,20 @@
         
         // 加载播放器路径
         playerPath = config.settings.playerPath || "PotPlayerMini64.exe";
+        
+        // 加载链接格式模板
+        linkFormat = config.settings.linkFormat || "- [{{time}} {{subtitle}}]({{url}})";
 
         // 加载 B 站账号信息
         if (config.bilibiliLogin) {
             loginSuccess = true;
             userInfo = config.bilibiliLogin.userInfo;
         }
+        
+        // 加载Pro状态并设置付款信息显示状态
+        // @ts-ignore
+        proEnabled = config.proEnabled || false;
+        showPaymentInfo = !proEnabled; // 根据Pro状态设置付款信息显示
     });
     
     const dispatch = createEventDispatcher();
@@ -227,7 +255,17 @@
         const settings = settingItems.reduce((acc, item) => ({
             ...acc,
             [item.key]: item.value
-        }), { playerPath } as { volume: number; speed: number; hotkey: boolean; loop: boolean; insertAtCursor: boolean; playerType: string; playerPath: string });
+        }), { playerPath, linkFormat } as { 
+            volume: number; 
+            speed: number; 
+            hotkey: boolean; 
+            loop: boolean; 
+            insertAtCursor: boolean; 
+            showSubtitles: boolean;
+            playerType: string; 
+            playerPath: string; 
+            linkFormat: string 
+        });
         
         await configManager.updateSettings(settings);
         dispatch('changed', { settings });
@@ -240,12 +278,31 @@
     function resetSettings() {
         settingItems = defaultSettings.map(item => ({...item}));
         playerPath = "PotPlayerMini64.exe";
+        linkFormat = "- [😄标题 时间 艺术家 字幕](链接)";
+            
         const settings = settingItems.reduce((acc, item) => ({
             ...acc,
             [item.key]: item.value
-        }), { playerPath } as { volume: number; speed: number; hotkey: boolean; loop: boolean; insertAtCursor: boolean; playerType: string; playerPath: string });
+        }), { playerPath, linkFormat } as { 
+            volume: number; 
+            speed: number; 
+            hotkey: boolean; 
+            loop: boolean; 
+            insertAtCursor: boolean; 
+            showSubtitles: boolean;
+            playerType: string; 
+            playerPath: string; 
+            linkFormat: string 
+        });
         dispatch('changed', { settings });
         showMessage(i18n.setting.resetSuccess);
+    }
+
+    /**
+     * 显示Pro版面板
+     */
+    function toggleProPanel() {
+        showProPanel = !showProPanel;
     }
 
     /**
@@ -270,6 +327,21 @@
             settingItems = settingItems;
         }
     }
+
+    /**
+     * 切换Pro状态
+     */
+    async function handleProToggle(e) {
+        proEnabled = e.target.checked;
+        showPaymentInfo = !proEnabled; // 启用时隐藏付款信息，禁用时显示
+        const config = await configManager.getConfig();
+        // @ts-ignore
+        config.proEnabled = proEnabled;
+        await configManager.save();
+        // 通知状态变更
+        dispatch('changed', { proEnabled, settings: configManager.getConfig().settings });
+        showMessage(proEnabled ? "Media Player Pro 已启用" : "Media Player Pro 已禁用");
+    }
 </script>
 
 <div class="settings" data-name={group}>
@@ -287,6 +359,94 @@
     </div>
 
     <div class="setting-panel">
+        <!-- Media Player Pro 设置项 -->
+        <div class="setting-item pro-setting-item" on:click={toggleProPanel}>
+            <div class="setting-info">
+                <div class="setting-title pro-title">
+                    Media Player Pro
+                </div>
+                <div class="setting-description">
+                    {proEnabled ? "已启用" : "已禁用"} - 点击查看详情
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pro Panel -->
+        {#if showProPanel}
+        <div class="setting-item pro-panel-content">
+            <div class="setting-info">
+                {#if showPaymentInfo}
+                <div class="price-tag">
+                    <div class="price-main">¥ 18.00</div>
+                    <div class="price-options">
+                        <div>或 ¥ 16.00 + <a href="https://github.com/mm-o/siyuan-media-player" target="_blank" class="github-link">Github Star</a> 关注</div>
+                    </div>
+                </div>
+                
+                <div class="setting-description">
+                    若你喜欢Media Player，可以尝试为其付费哦～<br>
+                    采取诚信授权模式，灵感来自椒盐音乐<br>
+                    理论上是可以直接使用的，付费后再使用是诚信的表现<br>
+                    <hr class="divider">
+                    可以通过扫描二维码以支付宝或微信的方式支付18.00元（或￥16.00+<a href="https://github.com/mm-o/siyuan-media-player" target="_blank" class="github-link">Github Star</a> 关注)<br>
+                    ☆*.o.(≡▽≡)o..*☆<br>
+                    请仔细考虑后再付款 🧠<br>
+                    <hr class="divider">
+                </div>
+                
+                <button class="b3-button b3-button--primary fn__block" on:click={() => showPaymentQRCodes = !showPaymentQRCodes}>
+                    {showPaymentQRCodes ? "隐藏付款码" : "点击付款"}
+                </button>
+                
+                {#if showPaymentQRCodes}
+                <div class="payment-qrcodes">
+                    <div class="qrcode-item">
+                        <img src="https://745201.xyz/e43d21e2c04f47ddcc294cd62a64e6f.jpg" alt="支付宝付款码" />
+                    </div>
+                    <div class="qrcode-item">
+                        <img src="https://745201.xyz/c42d51ea098d3a8687eb50012d1689e.jpg" alt="微信付款码" />
+                    </div>
+                </div>
+                {/if}
+                {/if}
+                
+                <div class="activation-toggle">
+                    <div class="setting-info">
+                        <div class="setting-title">我已诚信付款，启用Media Player Pro</div>
+                    </div>
+                    <div class="setting-control">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" bind:checked={proEnabled} on:change={handleProToggle} />
+                            <span class="checkbox-custom"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="feature-single">
+                    <div class="feature-item">
+                        <svg viewBox="0 0 1024 1024" class="feature-icon">
+                            <path d="M510.4 220.8c-156.8 0-284.8 128-284.8 284.8s128 284.8 284.8 284.8 284.8-128 284.8-284.8-128-284.8-284.8-284.8z M510.4 705.6c-113.6 0-204.8-91.2-204.8-204.8 0-113.6 91.2-204.8 204.8-204.8s204.8 91.2 204.8 204.8c0 113.6-91.2 204.8-204.8 204.8zM633.6 820.8H388.8c-22.4 0-40 17.6-40 40s17.6 40 40 40h244.8c22.4 0 40-17.6 40-40s-17.6-40-40-40zM569.6 929.6h-118.4c-22.4 0-40 17.6-40 40s17.6 40 40 40h118.4c22.4 0 40-17.6 40-40s-17.6-40-40-40zM510.4 179.2c24 0 43.2-19.2 43.2-43.2V52.8c0-24-19.2-43.2-43.2-43.2s-43.2 19.2-43.2 43.2v83.2c0 22.4 19.2 43.2 43.2 43.2zM276.8 275.2c17.6-17.6 17.6-44.8 0-60.8l-59.2-59.2c-8-8-19.2-12.8-30.4-12.8s-22.4 4.8-30.4 12.8c-9.6 8-12.8 19.2-12.8 30.4s4.8 22.4 12.8 30.4l59.2 59.2c8 8 19.2 12.8 30.4 12.8s20.8-4.8 30.4-12.8zM864 155.2c-8-8-19.2-12.8-30.4-12.8s-22.4 4.8-30.4 12.8l-59.2 59.2c-17.6 17.6-17.6 44.8 0 60.8 8 8 19.2 12.8 30.4 12.8s22.4-4.8 30.4-12.8l59.2-59.2c17.6-16 17.6-43.2 0-60.8zM136 462.4H52.8c-24 0-43.2 19.2-43.2 43.2s19.2 43.2 43.2 43.2h83.2c24 0 43.2-19.2 43.2-43.2s-19.2-43.2-43.2-43.2zM968 462.4h-83.2c-24 0-43.2 19.2-43.2 43.2s19.2 43.2 43.2 43.2h83.2c24 0 43.2-19.2 43.2-43.2s-19.2-43.2-43.2-43.2z"/>
+                        </svg>
+                        <div class="feature-info">
+                            <div class="feature-title pro-title">媒体助手</div>
+                            <div class="setting-description">字幕列表、视频总结</div>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <svg viewBox="0 0 1024 1024" class="feature-icon">
+                            <path d="M448.487619 97.52381l130.096762 0.170666c40.399238 0.073143 73.142857 32.792381 73.191619 73.216l0.048762 21.211429a345.283048 345.283048 0 0 1 71.143619 39.960381l17.408-10.044953a73.313524 73.313524 0 0 1 99.961905 26.819048l65.219047 112.566857a73.313524 73.313524 0 0 1-22.893714 97.816381l-3.974095 2.438095-17.481143 10.093715a341.479619 341.479619 0 0 1-1.292191 83.968l12.361143 7.168a73.313524 73.313524 0 0 1 28.867048 96.329142l-2.023619 3.803429-61.098667 105.813333a73.313524 73.313524 0 0 1-96.329143 28.867048l-3.803428-2.048-16.896-9.752381a341.918476 341.918476 0 0 1-68.291048 38.083048l0.024381 29.062095a73.313524 73.313524 0 0 1-68.754286 73.264762l-4.632381 0.146285-130.121142-0.170666a73.313524 73.313524 0 0 1-73.191619-73.216l-0.048762-35.035429a346.599619 346.599619 0 0 1-57.368381-34.035809l-31.158857 17.944381a73.313524 73.313524 0 0 1-99.986286-26.819048l-65.219048-112.566857a73.313524 73.313524 0 0 1 22.918095-97.816381l3.949715-2.438095 31.719619-18.285715c-2.438095-23.161905-2.56-46.665143-0.219429-70.119619l-35.206095-20.333714a73.313524 73.313524 0 0 1-28.891429-96.329143l2.048-3.803428 61.098667-105.813334a73.313524 73.313524 0 0 1 96.329143-28.867047l3.803429 2.048 30.72 17.724952a341.284571 341.284571 0 0 1 64.609523-39.716571l-0.048762-27.89181a73.313524 73.313524 0 0 1 68.754286-73.264762L448.487619 97.52381z"/>
+                        </svg>
+                        <div class="feature-info">
+                            <div class="feature-title pro-title">待开发</div>
+                            <div class="setting-description">功能开发中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/if}
+
         <div class="setting-item">
             <div class="setting-info">
                 <div class="setting-title">{i18n.setting.bilibili.account}</div>
@@ -399,5 +559,25 @@
                 {/if}
             </div>
         {/each}
+
+        <!-- 链接格式设置 -->
+        <div class="setting-item">
+            <div class="setting-info">
+                <div class="setting-title">{i18n.setting.items?.linkFormat?.title || "链接格式"}</div>
+                <div class="setting-description">{i18n.setting.items?.linkFormat?.description || "设置链接显示格式，可使用 时间 字幕 标题 艺术家 链接，还可添加表情符号，例如：- [😄标题 时间 艺术家 字幕](链接)"}</div>
+                <div class="setting-content">
+                    <input 
+                        type="text"
+                        class="b3-text-field fn__block"
+                        bind:value={linkFormat} 
+                        placeholder="- [😄标题 时间 艺术家 字幕](链接)"
+                    />
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    /* 样式已移至 src/styles/components.scss */
+</style>

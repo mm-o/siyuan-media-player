@@ -86,10 +86,14 @@ export interface Config {
         loop: boolean;
         /** 是否插入到光标处 */
         insertAtCursor: boolean;
+        /** 是否自动显示字幕 */
+        showSubtitles: boolean;
         /** 播放器类型 */
         playerType: string;
         /** 外部播放器路径 */
         playerPath: string;
+        /** 链接格式模板 */
+        linkFormat: string;
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
@@ -117,8 +121,18 @@ export interface PlayOptions {
     // B站视频特有选项
     type?: 'bilibili' | 'bilibili-dash';
     bvid?: string;
+    cid?: string;
     headers?: Record<string, string>;
     title?: string;
+    
+    // 字幕选项
+    subtitle?: {
+        url: string;         // 字幕URL
+        type?: string;       // 字幕类型 (vtt, srt, ass)
+        encoding?: string;   // 字幕编码
+        escape?: boolean;    // 是否转义HTML标签
+        style?: Record<string, string>; // 字幕样式
+    };
 }
 
 export interface VideoStream {
@@ -155,4 +169,27 @@ export enum PlayerType {
     BUILT_IN = 'built-in',
     POT_PLAYER = 'potplayer',
     BROWSER = 'browser'
+}
+
+// =============== 链接格式部分 ===============
+
+/**
+ * 链接格式支持的变量类型
+ */
+export enum LinkFormatVariable {
+    TIME = 'time',           // 时间戳
+    TITLE = 'title',         // 标题
+    ARTIST = 'artist',       // 作者
+    SUBTITLE = 'subtitle',   // 字幕
+    CUSTOM = 'custom'        // 自定义文本
+}
+
+/**
+ * 链接格式变量描述
+ */
+export interface LinkFormatVariableInfo {
+    id: LinkFormatVariable;
+    label: string;
+    description: string;
+    placeholder: string;
 }

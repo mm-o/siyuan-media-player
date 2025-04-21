@@ -38,6 +38,11 @@
         "settings": {
             "name": "Settings"
         },
+        "assistant": {
+            "name": "Assistant",
+            "desc": "Media assistant functions",
+            "hint": "Assistant features coming soon"
+        },
         "notPlaying": "Not playing"
     },
     "mediaPlayerTab": {
@@ -83,6 +88,14 @@
             "playRetry": "Playback failed, please try again",
             "setTimeFailed": "Failed to set playback time",
             "setLoopFailed": "Failed to set loop playback:"
+        },
+        "settings": {
+            "subtitleControl": "Subtitle Control",
+            "subtitleControlTip": "Show/Hide Subtitles"
+        },
+        "subtitle": {
+            "enabled": "Subtitles Enabled",
+            "disabled": "Subtitles Disabled"
         }
     },
     "playList": {
@@ -183,6 +196,10 @@
                 "title": "Insert at Cursor",
                 "description": "Insert links at cursor position, otherwise copy to clipboard"
             },
+            "showSubtitles": {
+                "title": "Auto Show Subtitles",
+                "description": "Automatically show subtitles when playing (if available)"
+            },
             "playerType": {
                 "title": "Player Selection",
                 "description": "Choose the media player to use",
@@ -193,6 +210,10 @@
             "playerPath": {
                 "title": "Player Path",
                 "description": "Path to the external player executable"
+            },
+            "linkFormat": {
+                "title": "Link Format",
+                "description": "Set link display format. You can use time, subtitle, title, artist, url variables and add emojis, example: - [😄title time artist subtitle](url)"
             }
         },
         "bilibili": {
@@ -228,5 +249,27 @@
     },
     "openPlayer": "Please open the media player first",
     "playerNotReady": "Player is not ready yet",
-    "buttonNotFound": "Button not found"
+    "buttonNotFound": "Button not found",
+    "assistant": {
+        "title": "Media Assistant",
+        "currentMedia": "Current media: ${title}",
+        "noMedia": "No media selected",
+        "tabs": {
+            "subtitles": "Subtitles",
+            "summary": "Video Summary"
+        },
+        "subtitles": {
+            "noSubtitles": "No subtitles available. Play media with subtitles to view them here.",
+            "jumpTo": "Jump to",
+            "export": "Export Subtitle",
+            "exportAll": "Export All Subtitles",
+            "exportFailed": "Failed to export subtitles"
+        },
+        "summary": {
+            "notAvailable": "Video summary feature coming soon.",
+            "generate": "Generate Summary",
+            "generating": "Generating summary...",
+            "copyToNote": "Copy to Note"
+        }
+    }
 }
