@@ -464,6 +464,9 @@
             // @ts-ignore
             proEnabled = config.proEnabled || false;
 
+            // 检查B站登录状态
+            checkBiliLoginStatus(config);
+            
             const playerContainer = document.querySelector('.artplayer-app');
             if (playerContainer) {
                 playerContainer.addEventListener('streamError', handleStreamError as EventListener);
@@ -506,6 +509,21 @@
     $: if (playlist && linkHandler) {
         linkHandler.setPlaylist(playlist);
     }
+
+    // 检查B站登录状态
+    async function checkBiliLoginStatus(config: any) {
+        try {
+            if (config.bilibiliLogin?.userInfo?.mid) {
+                // 存在登录信息
+                const event = new CustomEvent('biliLoginStatusChange', { 
+                    detail: { isLoggedIn: true, userInfo: config.bilibiliLogin.userInfo } 
+                });
+                window.dispatchEvent(event);
+            }
+        } catch (error) {
+            console.error('检查B站登录状态失败:', error);
+        }
+    }
 </script>
 
 <div 
@@ -528,6 +546,7 @@
                     {loopStartTime}
                     {i18n}
                     {proEnabled}
+                    config={configManager.getConfig()}
                     on:screenshot={handleControlEvent}
                     on:timestamp={handleControlEvent}
                     on:loopSegment={handleControlEvent}

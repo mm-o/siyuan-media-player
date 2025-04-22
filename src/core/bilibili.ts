@@ -7,7 +7,6 @@ import {
     biliRequest,
     parseBiliUrl,
     getBiliHeaders,
-    extractFavMediaId,
     generateBiliQRCode,
     checkBiliQRCodeStatus
 } from './biliUtils';
@@ -320,11 +319,34 @@ export class BilibiliParser {
     }
 
     /**
-     * 从收藏夹URL中提取媒体ID
-     * @param url 收藏夹URL
-     * @returns 媒体ID
+     * 获取用户收藏夹列表
+     * @param config 配置信息
+     * @returns 收藏夹列表
      */
-    static extractMediaIdFromUrl(url: string): string | null {
-        return extractFavMediaId(url);
+    static async getUserFavoriteFolders(config: any): Promise<{id: number, title: string, media_count: number}[]> {
+        try {
+            if (!config.bilibiliLogin?.userInfo?.mid) {
+                throw new Error('未登录或无法获取用户信息');
+            }
+            
+            const mid = config.bilibiliLogin.userInfo.mid;
+            const response = await biliRequest<BiliApiResponse>(
+                `${BILI_API.FAVORITE_FOLDER_LIST}?up_mid=${mid}`,
+                getBiliHeaders(config)
+            );
+            
+            if (response.code !== 0 || !Array.isArray(response.data?.list)) {
+                return [];
+            }
+            
+            return response.data.list.map(item => ({
+                id: item.id,
+                title: item.title,
+                media_count: item.media_count
+            }));
+        } catch (error) {
+            console.error('获取用户收藏夹列表失败：', error);
+            return [];
+        }
     }
 }

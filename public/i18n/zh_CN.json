@@ -14,6 +14,9 @@
         "warning": "警告",
         "tip": "提示"
     },
+    "pro": {
+        "notEnabled": "此功能需要Pro版本，请在设置中启用Media Player Pro"
+    },
     "controlBar": {
     "screenshot": {
         "name": "截图",
@@ -158,9 +161,12 @@
             "processMediaFailed": "处理媒体失败",
             "parseLinkFailed": "解析链接失败:",
             "noActiveTab": "未找到活动标签页",
-            "invalidFavUrl": "无效的B站收藏夹链接",
-            "processFavoritesFailed": "处理B站收藏夹失败",
-            "emptyFavorites": "收藏夹中没有视频"
+            "invalidFavUrl": "无效的收藏夹链接",
+            "processFavoritesFailed": "处理收藏夹失败",
+            "emptyFavorites": "收藏夹为空",
+            "needBiliLogin": "需要登录B站才能获取收藏夹列表",
+            "emptyFavFolders": "未找到收藏夹",
+            "getFavFoldersFailed": "获取收藏夹列表失败"
         },
         "log": {
             "parseLink": "开始解析链接:",

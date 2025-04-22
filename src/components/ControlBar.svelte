@@ -1,6 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { showMessage } from "siyuan";
+    import { showProFeatureNotEnabledMessage } from "../core/utils";
     
     // 创建事件分发器
     const dispatch = createEventDispatcher<{
@@ -17,6 +18,7 @@
     export let loopStartTime: number | null = null;
     export let i18n: any; // 接收i18n对象
     export let proEnabled: boolean = false; // 接收Pro状态
+    export let config: any; // 接收配置对象
     
     /**
      * 处理截图按钮点击
@@ -72,7 +74,11 @@
     
     // 处理助手按钮点击
     function handleAssistant() {
-        dispatch('assistant');
+        if (proEnabled) {
+            dispatch('assistant');
+        } else {
+            showProFeatureNotEnabledMessage(i18n);
+        }
     }
 </script>
 
@@ -126,7 +132,6 @@
     <!-- 右侧功能按钮区域 -->
     <div class="right-controls">
          <!-- 助手按钮 -->
-         {#if proEnabled}
          <button 
          class="control-btn" 
          on:click={handleAssistant}
@@ -136,7 +141,6 @@
                  <path d="M510.4 220.8c-156.8 0-284.8 128-284.8 284.8s128 284.8 284.8 284.8 284.8-128 284.8-284.8-128-284.8-284.8-284.8z m0 489.6c-113.6 0-204.8-91.2-204.8-204.8 0-113.6 91.2-204.8 204.8-204.8s204.8 91.2 204.8 204.8c0 113.6-91.2 204.8-204.8 204.8zM633.6 820.8H388.8c-22.4 0-40 17.6-40 40s17.6 40 40 40h244.8c22.4 0 40-17.6 40-40s-17.6-40-40-40zM569.6 929.6h-118.4c-22.4 0-40 17.6-40 40s17.6 40 40 40h118.4c22.4 0 40-17.6 40-40s-17.6-40-40-40zM510.4 179.2c24 0 43.2-19.2 43.2-43.2V52.8c0-24-19.2-43.2-43.2-43.2s-43.2 19.2-43.2 43.2v83.2c0 22.4 19.2 43.2 43.2 43.2zM276.8 275.2c17.6-17.6 17.6-44.8 0-60.8l-59.2-59.2c-8-8-19.2-12.8-30.4-12.8s-22.4 4.8-30.4 12.8c-9.6 8-12.8 19.2-12.8 30.4s4.8 22.4 12.8 30.4l59.2 59.2c8 8 19.2 12.8 30.4 12.8s20.8-4.8 30.4-12.8zM864 155.2c-8-8-19.2-12.8-30.4-12.8s-22.4 4.8-30.4 12.8l-59.2 59.2c-17.6 17.6-17.6 44.8 0 60.8 8 8 19.2 12.8 30.4 12.8s22.4-4.8 30.4-12.8l59.2-59.2c17.6-16 17.6-43.2 0-60.8zM136 462.4H52.8c-24 0-43.2 19.2-43.2 43.2s19.2 43.2 43.2 43.2h83.2c24 0 43.2-19.2 43.2-43.2s-19.2-43.2-43.2-43.2zM968 462.4h-83.2c-24 0-43.2 19.2-43.2 43.2s19.2 43.2 43.2 43.2h83.2c24 0 43.2-19.2 43.2-43.2s-19.2-43.2-43.2-43.2z"/>
              </svg>
          </button>
-         {/if}
      
         <!-- 播放列表按钮 -->
         <button 

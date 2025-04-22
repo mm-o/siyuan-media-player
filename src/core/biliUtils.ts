@@ -10,7 +10,8 @@ export const BILI_API = {
     VIDEO_PAGES: "https://api.bilibili.com/x/player/pagelist",
     VIDEO_STREAM: "https://api.bilibili.com/x/player/wbi/playurl",
     FAVORITE_LIST: "https://api.bilibili.com/x/v3/fav/resource/list", // 收藏夹内容明细列表
-    FAVORITE_IDS: "https://api.bilibili.com/x/v3/fav/resource/ids"    // 收藏夹全部内容id
+    FAVORITE_IDS: "https://api.bilibili.com/x/v3/fav/resource/ids",   // 收藏夹全部内容id
+    FAVORITE_FOLDER_LIST: "https://api.bilibili.com/x/v3/fav/folder/created/list-all" // 用户创建的收藏夹列表
 };
 
 // 标准请求头
@@ -49,38 +50,6 @@ export const parseBiliUrl = (url: string): { bvid?: string; aid?: string; p?: nu
         const bvid = urlObj.searchParams.get('bvid');
         
         return aid ? { aid, p } : bvid ? { bvid, p } : null;
-    } catch {
-        return null;
-    }
-};
-
-/**
- * 从收藏夹URL中提取媒体ID
- * @param url 收藏夹URL
- * @returns 媒体ID
- */
-export const extractFavMediaId = (url: string): string | null => {
-    try {
-        const urlObj = new URL(url);
-        
-        // 优先从URL参数中获取
-        const fid = urlObj.searchParams.get('fid');
-        const mediaId = urlObj.searchParams.get('media_id');
-        
-        if (fid || mediaId) return fid || mediaId;
-        
-        // 从URL路径中提取
-        const patterns = [
-            /\/favlist\/(\d+)/,    // 普通收藏夹URL
-            /\/medialist\/media\/(\d+)/ // 媒体列表URL
-        ];
-        
-        for (const pattern of patterns) {
-            const match = url.match(pattern);
-            if (match?.[1]) return match[1];
-        }
-        
-        return null;
     } catch {
         return null;
     }

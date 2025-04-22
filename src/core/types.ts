@@ -99,6 +99,8 @@ export interface Config {
     bilibiliLogin?: BilibiliLogin;
     /** 播放列表 */
     playlists: PlaylistConfig[];
+    /** Pro版本启用状态 */
+    proEnabled?: boolean;
 }
 
 /**

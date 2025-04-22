@@ -48,7 +48,8 @@ export class ConfigManager {
                 playerType: 'built-in',
                 playerPath: 'PotPlayerMini64.exe',
                 linkFormat: defaultLinkFormat,
-            }
+            },
+            proEnabled: false // 默认不启用Pro版本
         };
     }
     

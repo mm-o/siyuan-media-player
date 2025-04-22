@@ -58,18 +58,9 @@ export const MEDIA_KEYWORDS = ['mp3', 'mp4', 'webm', 'ogg', 'wav', 'm4v', 'mov',
  */
 export function getMediaType(url: string): 'video' | 'audio' | 'bilibili' {
     const urlLower = url.toLowerCase();
-    
-    // B站链接快速判断
     if (urlLower.includes('bilibili.com')) return 'bilibili';
-    
-    // 通过扩展名识别媒体类型
-    const isVideo = MEDIA_EXTENSIONS.VIDEO.some(ext => urlLower.endsWith(ext));
-    if (isVideo) return 'video';
-    
-    const isAudio = MEDIA_EXTENSIONS.AUDIO.some(ext => urlLower.endsWith(ext));
-    if (isAudio) return 'audio';
-    
-    // 默认为视频类型
+    if (MEDIA_EXTENSIONS.VIDEO.some(ext => urlLower.endsWith(ext))) return 'video';
+    if (MEDIA_EXTENSIONS.AUDIO.some(ext => urlLower.endsWith(ext))) return 'audio';
     return 'video';
 }
 
@@ -79,18 +70,9 @@ export function getMediaType(url: string): 'video' | 'audio' | 'bilibili' {
  * @returns 标准化后的URL
  */
 export function convertToFileUrl(path: string): string {
-    // 去除路径两端的引号
     path = path.replace(/^["']|["']$/g, '');
-    
-    // 已经是URL格式的直接返回
     if (/^(https?|file):\/\//.test(path)) return path;
-    
-    // Windows路径转换 (C:\path\to\file.mp4 -> file:///C:/path/to/file.mp4)
-    if (/^[a-zA-Z]:\\/.test(path)) {
-        return 'file:///' + path.replace(/\\/g, '/');
-    }
-    
-    // Unix路径转换
+    if (/^[a-zA-Z]:\\/.test(path)) return 'file:///' + path.replace(/\\/g, '/');
     return 'file://' + path;
 }
 
@@ -104,14 +86,10 @@ export function extractTitleFromUrl(url: string): string {
         const urlObj = new URL(url);
         const pathSegments = urlObj.pathname.split('/');
         const filename = pathSegments[pathSegments.length - 1];
-        // 移除扩展名并解码
-        const title = decodeURIComponent(filename.split('.')[0]);
-        return title || '未知标题';
+        return decodeURIComponent(filename.split('.')[0]) || '未知标题';
     } catch {
-        // URL解析失败时，尝试从字符串中提取文件名
         const parts = url.split(/[/\\]/);
-        const lastPart = parts[parts.length - 1].split('.')[0];
-        return lastPart || '未知标题';
+        return parts[parts.length - 1].split('.')[0] || '未知标题';
     }
 }
 
@@ -121,54 +99,34 @@ export function extractTitleFromUrl(url: string): string {
  * @returns 是否支持
  */
 export function isSupportedMediaLink(url: string): boolean {
-    // 空链接直接返回false
     if (!url) return false;
     
     const urlLower = url.toLowerCase();
-    
-    // 排除不支持的协议
     const unsupportedProtocols = ['obsidian:', 'notion:', 'zotero:', 'evernote:', 'onenote:'];
-    for (const protocol of unsupportedProtocols) {
-        if (urlLower.startsWith(protocol)) return false;
-    }
-    
-    // 快速检查常见情况
+    if (unsupportedProtocols.some(protocol => urlLower.startsWith(protocol))) return false;
     if (urlLower.includes('bilibili.com')) return true;
     
-    // 更精确地检查媒体关键字（防止部分词语误判）
-    if (MEDIA_KEYWORDS.some(kw => {
-        // 确保关键字是独立的部分，不是其他词的一部分
+    const hasMediaKeyword = MEDIA_KEYWORDS.some(kw => {
         const pattern = new RegExp(`[/\\\\._-]${kw}[/\\\\._-]|[/\\\\._-]${kw}$|^${kw}[/\\\\._-]|^${kw}$`);
         return pattern.test(urlLower);
-    })) return true;
+    });
+    if (hasMediaKeyword) return true;
     
     try {
         const urlObj = new URL(url);
-        
-        // 检查协议，只支持http/https/file
         const supportedProtocols = ['http:', 'https:', 'file:'];
         if (!supportedProtocols.includes(urlObj.protocol)) return false;
         
         const urlPath = urlObj.pathname.toLowerCase();
-        
-        // 检查扩展名
         if (MEDIA_EXTENSIONS.ALL.some(ext => urlPath.endsWith(ext))) return true;
         
-        // 本地文件特殊检查
         if (urlObj.protocol === 'file:') {
             return MEDIA_EXTENSIONS.ALL.some(ext => urlPath.endsWith(ext));
         }
         
-        // 检查是否有时间参数（只对http/https/file协议有效）
-        if (urlObj.searchParams.has('t')) {
-            // 确保t参数可能是时间值（数字或范围）
-            const tParam = urlObj.searchParams.get('t') || '';
-            return /^(\d+(\.\d+)?(-\d+(\.\d+)?)?)$/.test(tParam);
-        }
-        
-        return false;
+        const tParam = urlObj.searchParams.get('t');
+        return tParam ? /^(\d+(\.\d+)?(-\d+(\.\d+)?)?)$/.test(tParam) : false;
     } catch {
-        // URL解析失败，谨慎判断字符串扩展名
         return MEDIA_EXTENSIONS.ALL.some(ext => urlLower.endsWith(ext));
     }
 }
@@ -183,21 +141,16 @@ export function parseMediaLink(url: string): {
     startTime?: number;
     endTime?: number;
 } {
-    // 空链接处理
     if (!url) return { mediaUrl: '' };
     
     try {
         const urlObj = new URL(url);
         const timeParam = urlObj.searchParams.get('t');
-        
-        // 没有时间参数，直接返回原始链接
         if (!timeParam) return { mediaUrl: url };
         
-        // 移除时间参数获取干净的URL
         urlObj.searchParams.delete('t');
         const mediaUrl = urlObj.toString();
         
-        // 解析时间范围 (例如 t=10-30 表示从10秒到30秒)
         if (timeParam.includes('-')) {
             const [start, end] = timeParam.split('-').map(Number);
             return {
@@ -205,16 +158,32 @@ export function parseMediaLink(url: string): {
                 startTime: isNaN(start) ? undefined : start,
                 endTime: isNaN(end) ? undefined : end
             };
-        } 
+        }
         
-        // 单一时间点 (例如 t=10 表示从10秒开始)
         const time = Number(timeParam);
         return {
             mediaUrl,
             startTime: isNaN(time) ? undefined : time
         };
     } catch {
-        // URL解析失败，返回原始URL
         return { mediaUrl: url };
     }
+}
+
+/**
+ * 检查Pro功能是否启用
+ * @param config 配置对象
+ * @returns boolean 是否启用Pro功能
+ */
+export function checkProEnabled(config: any): boolean {
+    return config?.proEnabled === true;
+}
+
+/**
+ * 显示Pro功能未启用的提示信息
+ * @param i18n 国际化对象
+ */
+export function showProFeatureNotEnabledMessage(i18n?: any): void {
+    const { showMessage } = require('siyuan');
+    showMessage(i18n?.pro?.notEnabled || "此功能需要Pro版本，请在设置中启用Media Player Pro");
 } 
