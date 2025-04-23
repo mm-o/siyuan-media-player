@@ -10,11 +10,11 @@
 
 <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
   <div style="text-align: center; margin: 10px;">
-    <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg" alt="Alipay QR Code" width="300" />
+    <img src="https://github.com/mm-o/siyuan-media-player/blob/main/public/assets/images/alipay.jpg" alt="Alipay QR Code" width="300" />
     <p>Alipay</p>
   </div>
   <div style="text-align: center; margin: 10px;">
-    <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg" alt="WeChat QR Code" width="300" />
+    <img src="https://github.com/mm-o/siyuan-media-player/blob/main/public/assets/images/wechat.jpg" alt="WeChat QR Code" width="300" />
     <p>WeChat</p>
   </div>
 </div>
