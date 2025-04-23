@@ -2,6 +2,7 @@
  * 字幕处理工具类
  * 用于处理播放器的字幕功能
  */
+import { BILI_API, getBiliHeaders } from './biliUtils';
 
 /**
  * 字幕配置对象
@@ -23,67 +24,156 @@ export interface SubtitleCue {
 }
 
 /**
+ * B站字幕数据结构
+ */
+interface BiliSubtitleData {
+    from: number;        // 开始时间（秒）
+    to: number;          // 结束时间（秒）
+    content: string;     // 内容
+}
+
+/**
+ * B站字幕响应
+ */
+interface BiliSubtitleResponse {
+    code: number;
+    message: string;
+    data?: {
+        subtitle?: {
+            allow_submit: boolean;
+            lan?: string;
+            lan_doc?: string;
+            list?: Array<{
+                id: number;
+                lan: string;
+                lan_doc: string;
+                is_lock: boolean;
+                subtitle_url: string;
+            }>;
+            subtitles?: Array<{
+                id: number | string;
+                id_str?: string;
+                lan: string;
+                lan_doc: string;
+                is_lock: boolean;
+                subtitle_url: string;
+                type?: number;
+                ai_type?: number;
+                ai_status?: number;
+            }>;
+        }
+    };
+}
+
+/**
  * 字幕处理工具类
  */
 export class SubtitleManager {
-    private static subtitleCache: Map<string, SubtitleCue[]> = new Map();
-    private static currentSubtitles: SubtitleCue[] = [];
-    private static supportedFormats = ['srt', 'vtt', 'ass'];
+    private static cache = new Map<string, SubtitleCue[]>();
+    private static current: SubtitleCue[] = [];
+    private static formats = ['srt', 'vtt', 'ass'];
 
     /**
      * 获取当前加载的字幕
      */
-    static getSubtitles(): SubtitleCue[] {
-        return this.currentSubtitles;
-    }
+    static getSubtitles = (): SubtitleCue[] => SubtitleManager.current;
 
     /**
      * 设置当前字幕
      */
-    static setSubtitles(subtitles: SubtitleCue[]): void {
-        this.currentSubtitles = subtitles;
-    }
+    static setSubtitles = (subtitles: SubtitleCue[]): void => { SubtitleManager.current = subtitles; };
 
     /**
      * 获取媒体文件对应的字幕
      */
     static async getSubtitleForMedia(mediaUrl: string): Promise<SubtitleOptions | null> {
-        if (!mediaUrl?.startsWith('file://')) return null;
+        if (!mediaUrl || mediaUrl.includes('bilibili.com/video/') || !mediaUrl.startsWith('file://')) return null;
         
         try {
-            // 解析URL获取文件信息
             const { pathname } = new URL(mediaUrl);
-            const pathParts = pathname.split('/');
-            const filename = pathParts.pop() || '';
+            const parts = pathname.split('/');
+            const filename = parts.pop() || '';
             const fileBase = filename.substring(0, filename.lastIndexOf('.'));
-            const dirPath = pathParts.join('/');
+            const dirPath = parts.join('/');
             
             if (!fileBase) return null;
             
-            // 尝试不同格式的字幕文件
-            for (const format of this.supportedFormats) {
-                const subtitlePath = `${dirPath}/${fileBase}.${format}`;
-                const subtitleUrl = `file://${subtitlePath}`;
-                
+            for (const format of this.formats) {
                 try {
+                    const subtitleUrl = `file://${dirPath}/${fileBase}.${format}`;
                     const response = await fetch(subtitleUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        return { 
-                            url: subtitleUrl, 
-                            type: format,
-                            encoding: 'utf-8',
-                            escape: true 
-                        };
-                    }
-                } catch {
-                    continue;
-                }
+                    if (response.ok) return { url: subtitleUrl, type: format, encoding: 'utf-8', escape: true };
+                } catch {}
             }
+        } catch (e) {
+            console.error('[字幕] 查找失败:', e);
+        }
+        
+        return null;
+    }
+
+    /**
+     * 获取B站视频字幕
+     * @param bvid B站视频BV号
+     * @param cid B站视频分P的cid
+     * @param config 配置信息，包含登录状态
+     * @returns 字幕列表
+     */
+    static async loadBilibiliSubtitle(bvid: string, cid: string, config?: any): Promise<SubtitleCue[]> {
+        const key = `bili_${bvid}_${cid}`;
+        if (this.cache.has(key)) return this.cache.get(key) || [];
+        
+        try {
+            // 获取字幕信息
+            const headers = config ? getBiliHeaders(config, bvid) : {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Referer': `https://www.bilibili.com/video/${bvid}/`
+            };
             
-            return null;
-        } catch (error) {
-            console.error('[字幕] 查找字幕文件失败:', error);
-            return null;
+            const response = await fetch('/api/network/forwardProxy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    url: `${BILI_API.VIDEO_SUBTITLE}?bvid=${bvid}&cid=${cid}`, 
+                    method: 'GET', 
+                    timeout: 7000,
+                    headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
+                })
+            });
+            
+            const result = await response.json();
+            if (result.code !== 0) return this.save(key, []);
+            
+            const data = JSON.parse(result.data.body);
+            if (data.code !== 0) return this.save(key, []);
+            
+            // 获取字幕列表并选择字幕
+            const list = data.data?.subtitle?.list || data.data?.subtitle?.subtitles || [];
+            if (!list.length) return this.save(key, []);
+            
+            const subtitleInfo = list.find(sub => sub.lan === 'zh-CN' || sub.lan === 'ai-zh') || list[0];
+            const subtitleUrl = subtitleInfo.subtitle_url.startsWith('//') 
+                ? `https:${subtitleInfo.subtitle_url}` 
+                : subtitleInfo.subtitle_url;
+            
+            // 获取字幕内容
+            try {
+                const subtitleRes = await fetch(subtitleUrl);
+                if (!subtitleRes.ok) return this.save(key, []);
+                
+                const content = await subtitleRes.json();
+                if (!content?.body?.length) return this.save(key, []);
+                
+                return this.save(key, content.body.map(item => ({
+                    startTime: item.from,
+                    endTime: item.to,
+                    text: item.content
+                })));
+            } catch {
+                return this.save(key, []);
+            }
+        } catch {
+            return [];
         }
     }
 
@@ -92,44 +182,21 @@ export class SubtitleManager {
      */
     static async loadSubtitle(url: string, type: string = 'srt'): Promise<SubtitleCue[]> {
         if (!url) return [];
-        
-        // 检查缓存
-        if (this.subtitleCache.has(url)) {
-            const cached = this.subtitleCache.get(url);
-            this.currentSubtitles = cached || [];
-            return this.currentSubtitles;
-        }
+        if (this.cache.has(url)) return this.cache.get(url) || [];
         
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`状态码：${response.status}`);
+            if (!response.ok) return [];
             
             const content = await response.text();
-            let subtitles: SubtitleCue[] = [];
-            
-            // 根据类型解析
-            switch (type.toLowerCase()) {
-                case 'srt':
-                    subtitles = this.parseSRT(content);
-                    break;
-                case 'vtt':
-                    // 保留VTT解析支持，待实现
-                    console.warn('[字幕] VTT解析尚未实现');
-                    break;
-                case 'ass':
-                    // 保留ASS解析支持，待实现
-                    console.warn('[字幕] ASS解析尚未实现');
-                    break;
-                default:
-                    console.warn(`[字幕] 不支持的格式: ${type}`);
+            if (type.toLowerCase() === 'srt') {
+                return this.save(url, this.parseSRT(content));
             }
             
-            // 更新当前字幕和缓存
-            this.currentSubtitles = subtitles;
-            this.subtitleCache.set(url, subtitles);
-            return subtitles;
-        } catch (error) {
-            console.error('[字幕] 加载失败:', error);
+            console.warn(`[字幕] 不支持的格式: ${type}`);
+            return [];
+        } catch (e) {
+            console.error('[字幕] 加载失败:', e);
             return [];
         }
     }
@@ -141,30 +208,23 @@ export class SubtitleManager {
         if (!content?.trim()) return [];
         
         try {
-            // 优化正则表达式，一次性匹配字幕块
             const regex = /(\d+)\r?\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\r?\n([\s\S]*?)(?=\r?\n\r?\n\d+\r?\n|\r?\n\r?\n$|$)/g;
             const subtitles: SubtitleCue[] = [];
             let match;
             
             while ((match = regex.exec(content)) !== null) {
-                const [_, __, startTimeStr, endTimeStr, text] = match;
-                
+                const [_, __, startTime, endTime, text] = match;
                 if (!text?.trim()) continue;
                 
-                // 转换时间为秒
-                const startTime = this.timeToSeconds(startTimeStr);
-                const endTime = this.timeToSeconds(endTimeStr);
-                
                 subtitles.push({
-                    startTime,
-                    endTime,
+                    startTime: this.timeToSeconds(startTime),
+                    endTime: this.timeToSeconds(endTime),
                     text: text.replace(/\r?\n/g, ' ').trim()
                 });
             }
             
             return subtitles;
-        } catch (error) {
-            console.error('[字幕] 解析失败:', error);
+        } catch {
             return [];
         }
     }
@@ -172,9 +232,8 @@ export class SubtitleManager {
     /**
      * 将时间字符串转换为秒
      */
-    private static timeToSeconds(timeStr: string): number {
-        // 优化：直接使用数组解构和数值转换
-        const [h, m, s] = timeStr.split(':').map(part => 
+    private static timeToSeconds(time: string): number {
+        const [h, m, s] = time.split(':').map(part => 
             part.includes(',') 
                 ? Number(part.split(',')[0]) + Number(part.split(',')[1]) / 1000
                 : Number(part)
@@ -188,16 +247,21 @@ export class SubtitleManager {
      */
     static formatTime(seconds: number): string {
         if (isNaN(seconds) || seconds < 0) return '00:00';
-        
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        const min = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
     }
 
     /**
      * 清除字幕缓存
      */
     static clearCache(): void {
-        this.subtitleCache.clear();
+        this.cache.clear();
+    }
+
+    private static save(key: string, subtitles: SubtitleCue[]): SubtitleCue[] {
+        this.current = subtitles;
+        this.cache.set(key, subtitles);
+        return subtitles;
     }
 } 

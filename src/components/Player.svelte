@@ -133,7 +133,9 @@
         });
         
         // 应用初始配置
-        art.on('ready', () => applyPlayerConfig(art, config));
+        art.on('ready', () => {
+            applyPlayerConfig(art, config);
+        });
         
         return art;
     }
@@ -163,8 +165,11 @@
                 loadDanmaku(options)
             ]);
             
-            // 添加弹幕插件（即使是空弹幕）
-            const finalDanmakuPlugin = danmakuPlugin || DanmakuManager.createEmptyDanmakuPlugin();
+            // 添加弹幕插件（仅当需要时）
+            const plugins = [];
+            if (danmakuPlugin || config?.enableDanmaku) {
+                plugins.push(danmakuPlugin || DanmakuManager.createEmptyDanmakuPlugin());
+            }
             
             // 创建或更新播放器
             if (!art || type === 'mpd') {
@@ -176,7 +181,7 @@
                     console.info('[字幕] 已加载:', subtitle.url);
                 }
                 
-                playerOptions.plugins = [finalDanmakuPlugin];
+                playerOptions.plugins = plugins;
                 art = createPlayer(url, type, playerOptions);
             } else {
                 // 对于有弹幕的情况，重新创建播放器以避免弹幕冲突
@@ -189,7 +194,7 @@
                     console.info('[字幕] 已加载:', subtitle.url);
                 }
                 
-                playerOptions.plugins = [finalDanmakuPlugin];
+                playerOptions.plugins = plugins;
                 art = createPlayer(url, type, playerOptions);
             }
             
@@ -221,6 +226,9 @@
     
     // 加载弹幕插件
     async function loadDanmaku(options: PlayOptions): Promise<any> {
+        // 默认不加载弹幕，节省资源
+        if (!config?.enableDanmaku) return null;
+        
         const isBilibili = ['bilibili', 'bilibili-dash'].includes(options.type || '');
         if (!isBilibili || !options.cid) return null;
         

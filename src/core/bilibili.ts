@@ -103,10 +103,11 @@ export class BilibiliParser {
         try {
             const { p, ...params } = videoId;
             // 获取视频基本信息
-            const info = await biliRequest<BiliApiResponse>(
-                `${BILI_API.VIDEO_INFO}?${new URLSearchParams(params).toString()}`
-            );
+            const info = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_INFO}?${new URLSearchParams(params).toString()}`);
             if (info.code !== 0) return null;
+            
+            // 记录UP主ID
+            const upMid = info.data.owner?.mid ? String(info.data.owner.mid) : undefined;
             
             // 获取视频分P列表
             const pages = await this.getVideoParts(params);
@@ -128,15 +129,17 @@ export class BilibiliParser {
             return {
                 url,
                 title: info.data.title,
-                artist: info.data.owner.name,
-                artistIcon: info.data.owner.face,
+                artist: info.data.owner?.name,
+                artistIcon: info.data.owner?.face,
+                artistId: upMid,
                 duration: formatDuration(info.data.duration),
                 thumbnail: info.data.pic,
                 aid: String(info.data.aid),
                 bvid: info.data.bvid,
                 cid: String(cid)
             };
-        } catch {
+        } catch (error) {
+            console.error('获取视频信息失败:', error);
             return null;
         }
     }
@@ -146,9 +149,7 @@ export class BilibiliParser {
      */
     static async getVideoParts(params: { aid?: string; bvid?: string }): Promise<any[]> {
         try {
-            const response = await biliRequest<BiliApiResponse>(
-                `${BILI_API.VIDEO_PAGES}?${new URLSearchParams(params).toString()}`
-            );
+            const response = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_PAGES}?${new URLSearchParams(params).toString()}`);
             return response.code === 0 && Array.isArray(response.data) ? response.data : [];
         } catch {
             return [];
@@ -160,9 +161,7 @@ export class BilibiliParser {
      */
     static async getVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<VideoStreamResponse> {
         const params = {
-            bvid,
-            cid,
-            qn,
+            bvid, cid, qn,
             fnval: 16,  // 开启DASH格式
             fnver: 0,
             fourk: 1,   // 允许4K
@@ -201,14 +200,12 @@ export class BilibiliParser {
             else if (response.data.dash) {
                 if (response.data.dash.video) {
                     response.data.dash.video = response.data.dash.video.map(v => ({
-                        ...v,
-                        baseUrl: decodeURIComponent(v.baseUrl)
+                        ...v, baseUrl: decodeURIComponent(v.baseUrl)
                     }));
                 }
                 if (response.data.dash.audio) {
                     response.data.dash.audio = response.data.dash.audio.map(a => ({
-                        ...a,
-                        baseUrl: decodeURIComponent(a.baseUrl)
+                        ...a, baseUrl: decodeURIComponent(a.baseUrl)
                     }));
                 }
             }
@@ -347,6 +344,30 @@ export class BilibiliParser {
         } catch (error) {
             console.error('获取用户收藏夹列表失败：', error);
             return [];
+        }
+    }
+
+    /**
+     * 获取视频AI总结
+     * @param bvid 视频bvid
+     * @param cid 视频cid
+     * @param upMid UP主mid，可选
+     * @param config 配置信息
+     * @returns 视频AI总结信息
+     */
+    static async getVideoAiSummary(bvid: string, cid: string, upMid: string | undefined, config: any): Promise<any> {
+        try {
+            const params: Record<string, any> = { bvid, cid };
+            if (upMid) params.up_mid = upMid;
+            
+            const wbiKeys = this.getWbiKeys(config);
+            const signedParams = this.sign(params, wbiKeys.imgKey, wbiKeys.subKey);
+            const headers = getBiliHeaders(config, bvid);
+
+            return await biliRequest<any>(`${BILI_API.VIDEO_AI_SUMMARY}?${signedParams}`, headers);
+        } catch (error) {
+            console.error('[BiliAPI] 获取视频AI总结失败:', error);
+            return { code: -1, message: '获取AI总结失败', data: null };
         }
     }
 }

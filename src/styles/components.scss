@@ -1182,11 +1182,8 @@ $pro-gradient: linear-gradient(135deg, #f7f1cf 0%, #ffeaa4 100%);
         font-size: 14px;
         color: $on-background;
         line-height: 1.4;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+        word-break: break-word;
+        white-space: normal;
       }
       
       .action-btn {

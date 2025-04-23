@@ -45,6 +45,7 @@ export class ConfigManager {
                 loop: false,
                 insertAtCursor: true,
                 showSubtitles: true,
+                enableDanmaku: false,
                 playerType: 'built-in',
                 playerPath: 'PotPlayerMini64.exe',
                 linkFormat: defaultLinkFormat,

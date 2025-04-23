@@ -15,7 +15,37 @@
         "tip": "提示"
     },
     "pro": {
-        "notEnabled": "此功能需要Pro版本，请在设置中启用Media Player Pro"
+        "notEnabled": "此功能需要Pro版本，请在设置中启用Media Player Pro",
+        "title": "Media Player Pro",
+        "enabled": "已启用",
+        "disabled": "已禁用",
+        "clickForDetails": "点击查看详情",
+        "priceTag": "¥ 18.00",
+        "priceWithStar": "或 ¥ 16.00 + GitHub Star 关注",
+        "description": "若你喜欢Media Player，可以尝试为其付费哦～",
+        "honorSystem": "采取诚信授权模式，灵感来自椒盐音乐",
+        "usageNote": "理论上是可以直接使用的，付费后再使用是诚信的表现",
+        "paymentMethod": "可以通过扫描二维码以支付宝或微信的方式支付",
+        "considerBeforePay": "请仔细考虑后再付款 🧠",
+        "showQRCode": "点击付款",
+        "hideQRCode": "隐藏付款码",
+        "activationTitle": "我已诚信付款，启用Media Player Pro",
+        "activationSuccess": "Media Player Pro 已启用",
+        "activationDisabled": "Media Player Pro 已禁用",
+        "features": {
+            "assistant": {
+                "title": "媒体助手",
+                "description": "字幕列表、视频总结"
+            },
+            "tagExtension": {
+                "title": "标签拓展",
+                "description": "本地文件夹、B站收藏夹、更多"
+            },
+            "comingSoon": {
+                "title": "待开发",
+                "description": "功能开发中"
+            }
+        }
     },
     "controlBar": {
     "screenshot": {
@@ -203,8 +233,12 @@
                 "description": "链接插入到光标位置，否则复制到剪贴板"
             },
             "showSubtitles": {
-                "title": "自动显示字幕",
-                "description": "播放时自动显示字幕（如果有）"
+                "title": "显示字幕",
+                "description": "播放时显示字幕（如果有）"
+            },
+            "enableDanmaku": {
+                "title": "启用弹幕",
+                "description": "播放时启用弹幕（如果有）"
             },
             "playerType": {
                 "title": "播放器选择",
@@ -257,25 +291,37 @@
     "playerNotReady": "播放器尚未就绪",
     "buttonNotFound": "未找到对应按钮",
     "assistant": {
-        "title": "媒体助手",
+        "title": "助手",
         "currentMedia": "当前媒体: ${title}",
         "noMedia": "未选中媒体",
         "tabs": {
             "subtitles": "字幕列表",
-            "summary": "视频总结"
+            "summary": "视频总结",
+            "exportAll": "全部导出"
         },
         "subtitles": {
-            "noSubtitles": "当前没有可用的字幕。播放带有字幕的媒体文件后将在此显示字幕内容。",
-            "jumpTo": "跳转到",
-            "export": "导出字幕",
-            "exportAll": "导出全部字幕",
-            "exportFailed": "导出字幕失败"
+            "noItems": "当前视频没有可用的字幕",
+            "loading": "正在加载字幕...",
+            "export": "导出此条"
         },
         "summary": {
-            "notAvailable": "视频总结功能即将推出，敬请期待。",
-            "generate": "生成总结",
-            "generating": "正在生成总结...",
-            "copyToNote": "复制到笔记"
-        }
+            "noItems": "当前视频没有可用的AI总结",
+            "loading": "正在加载AI总结...",
+            "onlyForBilibili": "AI总结功能仅支持哔哩哔哩视频",
+            "summary": "总结",
+            "chapter": "章节",
+            "export": "导出此条"
+        },
+        "exportFailed": "导出失败",
+        "exportSuccess": "导出成功",
+        "noItems": "没有可导出的内容"
+    },
+    "docs": {
+        "title": "文档",
+        "help": "帮助文档",
+        "feedback": "反馈与交流",
+        "changelog": "更新日志",
+        "features": "功能说明",
+        "acknowledgments": "鸣谢"
     }
 }

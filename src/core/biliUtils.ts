@@ -9,6 +9,8 @@ export const BILI_API = {
     VIDEO_INFO: "https://api.bilibili.com/x/web-interface/view",
     VIDEO_PAGES: "https://api.bilibili.com/x/player/pagelist",
     VIDEO_STREAM: "https://api.bilibili.com/x/player/wbi/playurl",
+    VIDEO_SUBTITLE: "https://api.bilibili.com/x/player/wbi/v2",
+    VIDEO_AI_SUMMARY: "https://api.bilibili.com/x/web-interface/view/conclusion/get",
     FAVORITE_LIST: "https://api.bilibili.com/x/v3/fav/resource/list", // 收藏夹内容明细列表
     FAVORITE_IDS: "https://api.bilibili.com/x/v3/fav/resource/ids",   // 收藏夹全部内容id
     FAVORITE_FOLDER_LIST: "https://api.bilibili.com/x/v3/fav/folder/created/list-all" // 用户创建的收藏夹列表
@@ -20,7 +22,7 @@ export const BILI_HEADERS = {
     'Origin': 'https://www.bilibili.com'
 };
 
-// URL解析工具
+// 从URL中提取SESSDATA
 export const getSessData = (url: string): string | null => {
     try {
         return new URL(url).searchParams.get('SESSDATA');
@@ -55,16 +57,16 @@ export const parseBiliUrl = (url: string): { bvid?: string; aid?: string; p?: nu
     }
 };
 
-// 网络请求工具
+/**
+ * 通用请求工具
+ */
 export const biliRequest = async <T>(url: string, headers: Record<string, string> = {}): Promise<T> => {
     try {
         const response = await fetch(BILI_API.PROXY, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                url,
-                method: 'GET',
-                timeout: 7000,
+                url, method: 'GET', timeout: 7000,
                 headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
             })
         });
@@ -78,24 +80,19 @@ export const biliRequest = async <T>(url: string, headers: Record<string, string
     }
 };
 
-// 登录相关工具
+/**
+ * 生成B站登录二维码
+ */
 export const generateBiliQRCode = async (): Promise<{qrcodeData: string, qrcode_key: string}> => {
     try {
         const response = await biliRequest<any>(BILI_API.QR_LOGIN);
-        if (response.code !== 0) {
-            throw new Error(`生成登录二维码失败: ${response.message}`);
-        }
+        if (response.code !== 0) throw new Error(`生成登录二维码失败: ${response.message}`);
         
         const qrcodeData = await QRCode.toDataURL(response.data.url, {
-            width: 200,
-            margin: 2,
-            color: { dark: '#000000', light: '#ffffff' }
+            width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' }
         });
         
-        return {
-            qrcodeData,
-            qrcode_key: response.data.qrcode_key
-        };
+        return { qrcodeData, qrcode_key: response.data.qrcode_key };
     } catch (error) {
         throw new Error(`生成登录二维码失败: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -171,23 +168,24 @@ export const getBiliHeaders = (config: any, bvid?: string): Record<string, strin
         'Referer': bvid ? `https://www.bilibili.com/video/${bvid}/` : 'https://www.bilibili.com'
     };
 
+    if (!config.bilibiliLogin?.url) return headers;
+
     // 添加登录信息
-    if (config.bilibiliLogin?.url) {
-        const sessdata = getSessData(config.bilibiliLogin.url);
-        if (sessdata) {
-            headers['Cookie'] = `SESSDATA=${sessdata}`;
-        } else {
-            try {
-                const loginUrl = new URL(config.bilibiliLogin.url);
-                const cookies = Array.from(loginUrl.searchParams.entries())
-                    .filter(([k]) => k !== 'url')
-                    .map(([k, v]) => `${k}=${v}`)
-                    .join('; ');
-                
-                if (cookies) headers['Cookie'] = cookies;
-            } catch {}
-        }
+    const sessdata = getSessData(config.bilibiliLogin.url);
+    if (sessdata) {
+        headers['Cookie'] = `SESSDATA=${sessdata}`;
+        return headers;
     }
+    
+    try {
+        const loginUrl = new URL(config.bilibiliLogin.url);
+        const cookies = Array.from(loginUrl.searchParams.entries())
+            .filter(([k]) => k !== 'url')
+            .map(([k, v]) => `${k}=${v}`)
+            .join('; ');
+        
+        if (cookies) headers['Cookie'] = cookies;
+    } catch {}
 
     return headers;
 }; 

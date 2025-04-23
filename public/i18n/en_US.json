@@ -15,7 +15,37 @@
         "tip": "Tip"
     },
     "pro": {
-        "notEnabled": "This feature requires Pro version. Please enable Media Player Pro in settings"
+        "notEnabled": "This feature requires Pro version. Please enable Media Player Pro in settings",
+        "title": "Media Player Pro",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "clickForDetails": "Click for details",
+        "priceTag": "¥ 18.00",
+        "priceWithStar": "or ¥ 16.00 + GitHub Star",
+        "description": "If you like Media Player, consider supporting it!",
+        "honorSystem": "Using an honor system model, inspired by Salt Player",
+        "usageNote": "It's usable straight away, but paying first shows good faith",
+        "paymentMethod": "You can pay via Alipay or WeChat by scanning the QR codes",
+        "considerBeforePay": "Please consider carefully before payment 🧠",
+        "showQRCode": "Show Payment QR",
+        "hideQRCode": "Hide Payment QR",
+        "activationTitle": "I have paid honestly, enable Media Player Pro",
+        "activationSuccess": "Media Player Pro Enabled",
+        "activationDisabled": "Media Player Pro Disabled",
+        "features": {
+            "assistant": {
+                "title": "Media Assistant",
+                "description": "Subtitles & Video Summary"
+            },
+            "tagExtension": {
+                "title": "Tag Extensions",
+                "description": "Local Folders, Bilibili Favorites & More"
+            },
+            "comingSoon": {
+                "title": "Coming Soon",
+                "description": "Features in development"
+            }
+        }
     },
     "controlBar": {
     "screenshot": {
@@ -200,8 +230,12 @@
                 "description": "Insert links at cursor position, otherwise copy to clipboard"
             },
             "showSubtitles": {
-                "title": "Auto Show Subtitles",
-                "description": "Automatically show subtitles when playing (if available)"
+                "title": "Show Subtitles",
+                "description": "Show subtitles when playing (if available)"
+            },
+            "enableDanmaku": {
+                "title": "Enable Danmaku",
+                "description": "Enable danmaku comments when playing (if available)"
             },
             "playerType": {
                 "title": "Player Selection",
@@ -254,25 +288,37 @@
     "playerNotReady": "Player is not ready yet",
     "buttonNotFound": "Button not found",
     "assistant": {
-        "title": "Media Assistant",
+        "title": "Assistant",
         "currentMedia": "Current media: ${title}",
         "noMedia": "No media selected",
         "tabs": {
             "subtitles": "Subtitles",
-            "summary": "Video Summary"
+            "summary": "Summary",
+            "exportAll": "Export All"
         },
         "subtitles": {
-            "noSubtitles": "No subtitles available. Play media with subtitles to view them here.",
-            "jumpTo": "Jump to",
-            "export": "Export Subtitle",
-            "exportAll": "Export All Subtitles",
-            "exportFailed": "Failed to export subtitles"
+            "noItems": "No subtitles available for this video",
+            "loading": "Loading subtitles...",
+            "export": "Export"
         },
         "summary": {
-            "notAvailable": "Video summary feature coming soon.",
-            "generate": "Generate Summary",
-            "generating": "Generating summary...",
-            "copyToNote": "Copy to Note"
-        }
+            "noItems": "No AI summary available for this video",
+            "loading": "Loading AI summary...",
+            "onlyForBilibili": "AI summary is only available for Bilibili videos",
+            "summary": "Summary",
+            "chapter": "Chapter",
+            "export": "Export"
+        },
+        "exportFailed": "Export failed",
+        "exportSuccess": "Export successful",
+        "noItems": "No content to export"
+    },
+    "docs": {
+        "title": "Documentation",
+        "help": "Help",
+        "feedback": "Feedback & Discussion",
+        "changelog": "Changelog",
+        "features": "Features Guide",
+        "acknowledgments": "Acknowledgments"
     }
 }

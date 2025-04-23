@@ -1,10 +1,12 @@
 /**
- * 媒体项接口定义
+ * 基础类型定义
  */
 export type MediaType = 'video' | 'audio' | 'bilibili';
 export type SettingType = 'slider' | 'checkbox' | 'select';
 
-// B站相关类型
+/**
+ * B站相关类型
+ */
 export interface BilibiliUserInfo {
     face: string;
     level_info: {
@@ -28,27 +30,36 @@ export interface BilibiliLogin {
     userInfo?: BilibiliUserInfo;
 }
 
-// 媒体相关类型
-export interface MediaItem {
+/**
+ * 媒体相关基础字段
+ */
+interface MediaBase {
     id: string;           // 唯一标识符
     title: string;        // 媒体标题
+    url: string;          // 媒体URL
+    type: MediaType;
     artist?: string;      // 作者/UP主名称
     artistIcon?: string;  // 作者/UP主头像
-    duration?: string;   // 媒体时长，格式化后的时间字符串
+    artistId?: string;    // 作者/UP主ID
+    duration?: string;    // 媒体时长，格式化后的时间字符串
     thumbnail?: string;   // 媒体缩略图
-    url: string;         // 媒体URL
-    originalUrl?: string;  // 原始链接
-    type: MediaType;
-    isPinned?: boolean;   // 是否置顶
-    isFavorite?: boolean; // 是否收藏
-    
-    // B站视频特有属性
-    aid?: string;        // B站av号
-    bvid?: string;       // B站bv号
-    cid?: string;        // B站视频cid
+    originalUrl?: string; // 原始链接
+}
+
+/**
+ * B站视频特有属性
+ */
+interface BilibiliProps {
+    aid?: string;         // B站av号
+    bvid?: string;        // B站bv号
+    cid?: string;         // B站视频cid
     headers?: Record<string, string>;
-    
-    // 播放控制属性
+}
+
+/**
+ * 播放控制属性
+ */
+interface PlayControlProps {
     startTime?: number;
     endTime?: number;
     isLoop?: boolean;
@@ -56,19 +67,17 @@ export interface MediaItem {
 }
 
 /**
- * 媒体信息接口
+ * 媒体项（合并多个相关接口）
  */
-export interface MediaInfo {
-    title: string;        // 媒体标题
-    artist?: string;      // 作者名称
-    artistIcon?: string;  // 作者头像
-    duration: string;     // 时长
-    thumbnail: string;    // 缩略图
-    url?: string;        // 媒体URL
-    aid?: string;        // B站av号
-    bvid?: string;       // B站bv号
-    cid?: string;        // B站视频cid
+export interface MediaItem extends MediaBase, BilibiliProps, PlayControlProps {
+    isPinned?: boolean;   // 是否置顶
+    isFavorite?: boolean; // 是否收藏
 }
+
+/**
+ * 媒体信息接口（简化版本的MediaItem）
+ */
+export interface MediaInfo extends MediaBase, BilibiliProps {}
 
 /**
  * 配置文件类型定义
@@ -86,8 +95,10 @@ export interface Config {
         loop: boolean;
         /** 是否插入到光标处 */
         insertAtCursor: boolean;
-        /** 是否自动显示字幕 */
+        /** 是否显示字幕 */
         showSubtitles: boolean;
+        /** 是否启用弹幕 */
+        enableDanmaku: boolean;
         /** 播放器类型 */
         playerType: string;
         /** 外部播放器路径 */
@@ -113,40 +124,37 @@ export interface PlaylistConfig {
     items: MediaItem[];  // 媒体项列表
 }
 
-export interface PlayOptions {
-    startTime?: number;
-    endTime?: number;
-    isLoop?: boolean;
-    loopCount?: number;
+/**
+ * 播放选项，包含字幕配置
+ */
+export interface PlayOptions extends PlayControlProps, BilibiliProps {
     originalUrl?: string;
-    
-    // B站视频特有选项
     type?: 'bilibili' | 'bilibili-dash';
-    bvid?: string;
-    cid?: string;
-    headers?: Record<string, string>;
     title?: string;
-    
-    // 字幕选项
     subtitle?: {
-        url: string;         // 字幕URL
+        url: string;
         type?: string;       // 字幕类型 (vtt, srt, ass)
         encoding?: string;   // 字幕编码
         escape?: boolean;    // 是否转义HTML标签
-        style?: Record<string, string>; // 字幕样式
+        style?: Record<string, string>;
     };
 }
 
+/**
+ * 视频流数据
+ */
 export interface VideoStream {
     video: {
-        url: string
-        size?: number
-        // 保留视频其他属性
-    }
-    headers?: Record<string, string>
-    mpdUrl?: string
+        url: string;
+        size?: number;
+    };
+    headers?: Record<string, string>;
+    mpdUrl?: string;
 }
 
+/**
+ * 设置项
+ */
 export interface ISettingItem {
     key: string;
     value: number | boolean | string;
@@ -173,25 +181,48 @@ export enum PlayerType {
     BROWSER = 'browser'
 }
 
-// =============== 链接格式部分 ===============
-
 /**
- * 链接格式支持的变量类型
+ * 链接格式相关类型
  */
 export enum LinkFormatVariable {
-    TIME = 'time',           // 时间戳
-    TITLE = 'title',         // 标题
-    ARTIST = 'artist',       // 作者
-    SUBTITLE = 'subtitle',   // 字幕
-    CUSTOM = 'custom'        // 自定义文本
+    TIME = 'time',
+    TITLE = 'title',
+    ARTIST = 'artist',
+    SUBTITLE = 'subtitle',
+    CUSTOM = 'custom'
 }
 
-/**
- * 链接格式变量描述
- */
 export interface LinkFormatVariableInfo {
     id: LinkFormatVariable;
     label: string;
     description: string;
     placeholder: string;
+}
+
+/**
+ * B站视频AI总结响应接口
+ */
+export interface BiliVideoAiSummary {
+    code: number;
+    message: string;
+    ttl: number;
+    data: {
+        code: number;
+        model_result: {
+            result_type: number;
+            summary: string;
+            outline?: {
+                title: string;
+                part_outline: {
+                    timestamp: number;
+                    content: string;
+                }[];
+                timestamp: number;
+            }[];
+        };
+        stid: string;
+        status: number;
+        like_num: number;
+        dislike_num: number;
+    };
 }
