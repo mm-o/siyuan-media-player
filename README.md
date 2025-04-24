@@ -16,7 +16,7 @@
   <div style="text-align: center; margin: 10px;">
     <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg" alt="WeChat QR Code" width="300" />
     <p>WeChat</p>
-  </div>
+</div>
 </div>
 
 ## 🚀 Recent Updates

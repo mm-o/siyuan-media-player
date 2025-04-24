@@ -160,10 +160,14 @@
             const type = options.type === 'bilibili-dash' || url.endsWith('.mpd') ? 'mpd' : '';
             
             // 在创建播放器前加载资源
+            console.info('[Player] 开始加载资源，参数:', options);
             const [subtitle, danmakuPlugin] = await Promise.all([
-                SubtitleManager.getSubtitleForMedia(url),
+                (options.type === 'bilibili' || options.type === 'bilibili-dash') && options.bvid && options.cid
+                    ? SubtitleManager.loadBilibiliSubtitleForPlayer(options.bvid, options.cid, config)
+                    : SubtitleManager.getSubtitleForMedia(url),
                 loadDanmaku(options)
             ]);
+            console.info('[Player] 资源加载完成，字幕:', subtitle);
             
             // 添加弹幕插件（仅当需要时）
             const plugins = [];
