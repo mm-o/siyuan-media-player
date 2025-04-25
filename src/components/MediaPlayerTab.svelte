@@ -404,17 +404,10 @@
 
             // 使用内置播放器播放
             if (['bilibili-dash', 'bilibili'].includes(options.type)) {
-                console.info('[MediaPlayerTab] 播放B站视频:', {
-                    type: options.type,
-                    bvid: currentItem.bvid,
-                    cid: currentItem.cid,
-                    url: options.url
-                });
                 await player.play(options.url, {
                     type: options.type,
                     headers: options.headers,
                     title: options.title,
-                    bvid: currentItem.bvid,
                     cid: currentItem.cid
                 });
             } else {
@@ -434,16 +427,9 @@
     };
 
     const handleBilibiliError = async (): Promise<void> => {
-        if (currentItem?.type !== 'bilibili' || !currentItem.bvid || !currentItem.cid) {
-            console.warn('[MediaPlayerTab] 处理B站错误: 不是B站视频或缺少必要参数, currentItem:', currentItem);
-            return;
-        }
+        if (currentItem?.type !== 'bilibili' || !currentItem.bvid || !currentItem.cid) return;
         
         try {
-            console.info('[MediaPlayerTab] 尝试重新获取B站视频流:', {
-                bvid: currentItem.bvid,
-                cid: currentItem.cid
-            });
             const config = await configManager.getConfig();
             const streamInfo = await BilibiliParser.getProcessedVideoStream(
                 currentItem.bvid,
@@ -455,24 +441,14 @@
             if (player) {
                 const url = streamInfo.mpdUrl || streamInfo.video.url;
                 const type = streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili';
-                console.info('[MediaPlayerTab] 重新播放B站视频:', {
-                    url,
-                    type,
-                    bvid: currentItem.bvid,
-                    cid: currentItem.cid
-                });
                 player.play(url, {
                     type,
                     headers: streamInfo.headers,
                     title: currentItem.title,
-                    bvid: currentItem.bvid,
                     cid: currentItem.cid
                 });
-            } else {
-                console.warn('[MediaPlayerTab] 播放器实例不存在');
             }
-        } catch (error) {
-            console.error('[MediaPlayerTab] 处理B站视频流错误:', error);
+        } catch {
             showMessage(i18n.mediaPlayerTab.stream.playbackError);
         }
     };

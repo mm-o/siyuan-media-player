@@ -206,6 +206,23 @@ $pro-gradient: linear-gradient(135deg, #f7f1cf 0%, #ffeaa4 100%);
       font-family: var(--b3-font-family);
     }
   }
+  
+  /* 浮动字幕样式 */
+  .floating-subtitle {
+    position: absolute;
+    left: 50%;
+    bottom: 70px;
+    transform: translateX(-50%);
+    max-width: 80%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 16px;
+    text-align: center;
+    z-index: 30;
+    pointer-events: none;
+  }
 }
 
 .protyle [class*=hint--]:not(.fn__none) {
@@ -1167,6 +1184,12 @@ $pro-gradient: linear-gradient(135deg, #f7f1cf 0%, #ffeaa4 100%);
       border-left: 2px solid transparent;
       cursor: pointer;
       transition: background-color $transition, transform $transition, border-left-color $transition;
+      
+      &.current {
+        background-color: $primary-lighter;
+        border-left-color: $primary;
+        transform: translateX(2px);
+      }
       
       .subtitle-time {
         flex-shrink: 0;

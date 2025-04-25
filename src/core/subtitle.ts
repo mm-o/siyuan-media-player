@@ -122,26 +122,22 @@ export class SubtitleManager {
     static async loadBilibiliSubtitle(bvid: string, cid: string, config?: any): Promise<SubtitleCue[]> {
         const key = `bili_${bvid}_${cid}`;
         if (this.cache.has(key)) {
-            console.info(`[字幕] 使用缓存的字幕数据 ${key}`);
-            return this.cache.get(key) || [];
+            this.current = this.cache.get(key) || [];
+            return this.current;
         }
         
         try {
-            console.info(`[字幕] 开始请求B站字幕API, bvid=${bvid}, cid=${cid}`);
             // 获取字幕信息
             const headers = config ? getBiliHeaders(config, bvid) : {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Referer': `https://www.bilibili.com/video/${bvid}/`
             };
-            
-            const apiUrl = `${BILI_API.VIDEO_SUBTITLE}?bvid=${bvid}&cid=${cid}`;
-            console.info(`[字幕] 请求B站字幕API: ${apiUrl}`);
             
             const response = await fetch('/api/network/forwardProxy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    url: apiUrl, 
+                    url: `${BILI_API.VIDEO_SUBTITLE}?bvid=${bvid}&cid=${cid}`, 
                     method: 'GET', 
                     timeout: 7000,
                     headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
@@ -149,24 +145,10 @@ export class SubtitleManager {
             });
             
             const result = await response.json();
-            console.info(`[字幕] B站字幕API响应:`, result);
-            if (result.code !== 0) {
-                console.error(`[字幕] 请求失败: ${result.msg}`);
-                return this.save(key, []);
-            }
+            if (result.code !== 0) return this.save(key, []);
             
-            let data;
-            try {
-                data = JSON.parse(result.data.body);
-                console.info(`[字幕] B站字幕数据:`, data);
-                if (data.code !== 0) {
-                    console.error(`[字幕] B站返回错误: ${data.message}`);
-                    return this.save(key, []);
-                }
-            } catch (e) {
-                console.error(`[字幕] 解析B站字幕数据失败:`, e);
-                return this.save(key, []);
-            }
+            const data = JSON.parse(result.data.body);
+            if (data.code !== 0) return this.save(key, []);
             
             // 获取字幕列表并选择字幕
             const list = data.data?.subtitle?.list || data.data?.subtitle?.subtitles || [];
@@ -203,7 +185,10 @@ export class SubtitleManager {
      */
     static async loadSubtitle(url: string, type: string = 'srt'): Promise<SubtitleCue[]> {
         if (!url) return [];
-        if (this.cache.has(url)) return this.cache.get(url) || [];
+        if (this.cache.has(url)) {
+            this.current = this.cache.get(url) || [];
+            return this.current;
+        }
         
         try {
             const response = await fetch(url);
@@ -278,76 +263,12 @@ export class SubtitleManager {
      */
     static clearCache(): void {
         this.cache.clear();
+        this.current = [];
     }
 
     private static save(key: string, subtitles: SubtitleCue[]): SubtitleCue[] {
         this.current = subtitles;
         this.cache.set(key, subtitles);
         return subtitles;
-    }
-
-    /**
-     * 获取B站视频字幕并转换为播放器可用格式
-     * @param bvid B站视频BV号
-     * @param cid B站视频分P的cid
-     * @param config 配置信息
-     * @returns 播放器可用的字幕配置
-     */
-    static async loadBilibiliSubtitleForPlayer(bvid: string, cid: string, config?: any): Promise<SubtitleOptions | null> {
-        try {
-            console.info(`[字幕] 开始加载B站字幕, bvid=${bvid}, cid=${cid}`);
-            const subtitles = await this.loadBilibiliSubtitle(bvid, cid, config);
-            console.info(`[字幕] B站字幕加载结果:`, subtitles?.length || 0, '条');
-            if (!subtitles || subtitles.length === 0) {
-                console.warn(`[字幕] 未找到B站字幕，返回null`);
-                return null;
-            }
-            
-            // 将字幕数组转换为WebVTT格式
-            let vtt = 'WEBVTT\n\n';
-            
-            subtitles.forEach((item, index) => {
-                const startTime = this.formatVttTime(item.startTime);
-                const endTime = this.formatVttTime(item.endTime);
-                vtt += `${startTime} --> ${endTime}\n${item.text}\n\n`;
-            });
-            
-            console.info(`[字幕] 成功生成WebVTT字幕，包含 ${subtitles.length} 条字幕`);
-            
-            try {
-                // 创建Blob并生成URL
-                const blob = new Blob([vtt], { type: 'text/vtt' });
-                const url = URL.createObjectURL(blob);
-                
-                // 返回播放器可用的字幕配置
-                console.info(`[字幕] 成功创建字幕URL: ${url}`);
-                return {
-                    url,
-                    type: 'vtt',
-                    encoding: 'utf-8',
-                    escape: true
-                };
-            } catch (e) {
-                console.error('[字幕] 创建字幕URL失败:', e);
-                return null;
-            }
-        } catch (e) {
-            console.error('[字幕] 加载B站字幕失败:', e);
-            return null;
-        }
-    }
-    
-    /**
-     * 格式化时间为VTT格式 (00:00:00.000)
-     */
-    private static formatVttTime(seconds: number): string {
-        if (isNaN(seconds) || seconds < 0) return '00:00:00.000';
-        
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = Math.floor(seconds % 60);
-        const ms = Math.floor((seconds % 1) * 1000);
-        
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
     }
 } 

@@ -17,6 +17,9 @@
     let playerContainer: HTMLDivElement;    // 播放器容器元素
     let currentChapter: { start: number; end: number; } | null = null;  // 当前循环片段
     let loopCount = 0;            // 当前循环次数
+    let currentSubtitle = '';     // 当前字幕文本
+    let subtitleVisible = true;   // 字幕显示状态
+    let subtitleTimer: number;    // 字幕更新定时器
     
     const DEFAULT_CONFIG = { volume: 70, speed: 100, loopCount: 3 };
     
@@ -25,7 +28,7 @@
     // 获取播放器基础配置
     function getPlayerOptions(url = ''): any {
         const safeConfig = { ...DEFAULT_CONFIG, ...config };
-        return {
+        const options = {
             container: playerContainer,
             url,
             volume: safeConfig.volume / 100,
@@ -55,14 +58,15 @@
                 html: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>',
                 tooltip: i18n.player?.settings?.subtitleControlTip || '字幕开关',
                 click: function() {
-                    // 切换字幕显示状态
                     this.subtitle.show = !this.subtitle.show;
+                    subtitleVisible = this.subtitle.show;
                     showMessage(this.subtitle.show ? 
                         (i18n.player?.subtitle?.enabled || '已启用字幕') : 
                         (i18n.player?.subtitle?.disabled || '已禁用字幕'));
-                },
+                }
             }]
         };
+        return options;
     }
     
     // 配置DASH媒体播放器
@@ -96,9 +100,9 @@
         art.volume = safeConfig.volume / 100;
         art.playbackRate = safeConfig.speed / 100;
         
-        // 根据配置设置字幕显示状态
-        if (art.subtitle && art.subtitle.url) {
+        if (art.subtitle?.url) {
             art.subtitle.show = safeConfig.showSubtitles !== undefined ? safeConfig.showSubtitles : true;
+            subtitleVisible = art.subtitle.show;
         }
     }
     
@@ -135,6 +139,7 @@
         // 应用初始配置
         art.on('ready', () => {
             applyPlayerConfig(art, config);
+            startSubtitleTracking();
         });
         
         return art;
@@ -142,10 +147,37 @@
     
     // 销毁播放器
     function destroyPlayer(): void {
+        stopSubtitleTracking();
         if (art) {
             art.destroy(true);
             art = null;
         }
+    }
+    
+    // 开始字幕追踪
+    function startSubtitleTracking(): void {
+        stopSubtitleTracking();
+        subtitleTimer = window.setInterval(() => {
+            if (!art) return;
+            
+            const subtitles = SubtitleManager.getSubtitles();
+            if (!subtitles.length || !subtitleVisible) {
+                currentSubtitle = '';
+                return;
+            }
+            
+            const time = art.currentTime;
+            currentSubtitle = subtitles.find(
+                cue => time >= cue.startTime && time <= cue.endTime
+            )?.text || '';
+        }, 200);
+    }
+    
+    // 停止字幕追踪
+    function stopSubtitleTracking(): void {
+        if (subtitleTimer) window.clearInterval(subtitleTimer);
+        subtitleTimer = null;
+        currentSubtitle = '';
     }
     
     // ===================== 外部API =====================
@@ -156,18 +188,15 @@
             // 重置状态
             currentChapter = null;
             loopCount = 0;
+            currentSubtitle = '';
             
             const type = options.type === 'bilibili-dash' || url.endsWith('.mpd') ? 'mpd' : '';
             
             // 在创建播放器前加载资源
-            console.info('[Player] 开始加载资源，参数:', options);
             const [subtitle, danmakuPlugin] = await Promise.all([
-                (options.type === 'bilibili' || options.type === 'bilibili-dash') && options.bvid && options.cid
-                    ? SubtitleManager.loadBilibiliSubtitleForPlayer(options.bvid, options.cid, config)
-                    : SubtitleManager.getSubtitleForMedia(url),
+                SubtitleManager.getSubtitleForMedia(url),
                 loadDanmaku(options)
             ]);
-            console.info('[Player] 资源加载完成，字幕:', subtitle);
             
             // 添加弹幕插件（仅当需要时）
             const plugins = [];
@@ -300,7 +329,14 @@
     // ===================== 生命周期 =====================
     
     onMount(() => { if (playerContainer) createPlayer(); });
-    onDestroy(destroyPlayer);
+    onDestroy(() => {
+        stopSubtitleTracking();
+        destroyPlayer();
+    });
 </script>
 
-<div class="artplayer-app" bind:this={playerContainer} />
+<div class="artplayer-app" bind:this={playerContainer}>
+    {#if currentSubtitle && subtitleVisible}
+        <div class="floating-subtitle">{currentSubtitle}</div>
+    {/if}
+</div>
