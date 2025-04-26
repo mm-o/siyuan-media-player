@@ -110,11 +110,14 @@ export class MediaManager {
 
                 cleanup();
                 resolve({
+                    id: '', // 将在createMediaItem中生成
                     title: extractTitleFromUrl(url),
                     duration,
                     thumbnail,
                     artist: '',
-                    artistIcon: ''
+                    artistIcon: '',
+                    url: mediaUrl,
+                    type: getMediaType(url)
                 });
             };
 
@@ -146,27 +149,38 @@ export class MediaManager {
     // 媒体项管理
     static async createMediaItem(url: string, savedInfo?: { aid?: string; bvid?: string; cid?: string }): Promise<MediaItem | null> {
         try {
+            // 转换为文件URL格式，确保正确处理特殊字符
             const mediaUrl = convertToFileUrl(url);
+            
+            // 尝试从缓存获取媒体信息
             let mediaInfo = this.getCachedInfo(mediaUrl);
             
             if (!mediaInfo) {
+                // 判断是否为B站视频
                 const isBilibili = mediaUrl.includes('bilibili.com');
+                
+                // 根据媒体类型获取信息
                 mediaInfo = isBilibili 
                     ? await BilibiliParser.getVideoInfo(mediaUrl)
                     : await this.getMediaInfoFromElement(mediaUrl);
                 
+                // 合并保存的信息
                 if (mediaInfo && savedInfo) {
                     mediaInfo = { ...mediaInfo, ...savedInfo };
                 }
                 
+                // 缓存媒体信息
                 this.cacheInfo(mediaUrl, mediaInfo);
             }
             
+            // 如果无法获取媒体信息，返回null
             if (!mediaInfo) return null;
 
+            // 生成唯一ID
             const id = `media-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
             const type = getMediaType(mediaUrl);
             
+            // 创建媒体项
             return {
                 id,
                 title: mediaInfo.title,

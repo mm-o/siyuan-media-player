@@ -28,7 +28,7 @@
     // 获取播放器基础配置
     function getPlayerOptions(url = ''): any {
         const safeConfig = { ...DEFAULT_CONFIG, ...config };
-        const options = {
+        return {
             container: playerContainer,
             url,
             volume: safeConfig.volume / 100,
@@ -42,7 +42,6 @@
             aspectRatio: true,
             fullscreen: true,
             fullscreenWeb: true,
-            subtitleOffset: true,
             miniProgressBar: true,
             mutex: true,
             backdrop: true,
@@ -50,7 +49,6 @@
             autoPlayback: true,
             theme: 'var(--b3-theme-primary)',
             lang: window.siyuan?.config?.lang?.toLowerCase() === 'en_us' ? 'en' : 'zh-cn',
-            subtitle: { url: '', type: '', encoding: 'utf-8', escape: true },
             controls: [{
                 position: 'right',
                 name: 'subtitle',
@@ -58,24 +56,18 @@
                 html: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>',
                 tooltip: i18n.player?.settings?.subtitleControlTip || '字幕开关',
                 click: function() {
-                    this.subtitle.show = !this.subtitle.show;
-                    subtitleVisible = this.subtitle.show;
-                    showMessage(this.subtitle.show ? 
+                    subtitleVisible = !subtitleVisible;
+                    showMessage(subtitleVisible ? 
                         (i18n.player?.subtitle?.enabled || '已启用字幕') : 
                         (i18n.player?.subtitle?.disabled || '已禁用字幕'));
                 }
             }]
         };
-        return options;
     }
     
     // 配置DASH媒体播放器
     function setupDashPlayer(playerOptions: any, type: string): void {
         if (type !== 'mpd') return;
-        
-        const originalWarn = console.warn;
-        console.warn = (...args) => 
-            !args[0]?.includes('[CapabilitiesFilter]') && originalWarn.apply(console, args);
         
         playerOptions.type = 'mpd';
         playerOptions.customType = {
@@ -88,7 +80,6 @@
                 
                 art.on('destroy', () => {
                     if (art.dash) art.dash.destroy();
-                    console.warn = originalWarn;
                 });
             }
         };
@@ -100,10 +91,8 @@
         art.volume = safeConfig.volume / 100;
         art.playbackRate = safeConfig.speed / 100;
         
-        if (art.subtitle?.url) {
-            art.subtitle.show = safeConfig.showSubtitles !== undefined ? safeConfig.showSubtitles : true;
-            subtitleVisible = art.subtitle.show;
-        }
+        // 应用字幕设置
+        subtitleVisible = safeConfig.showSubtitles !== undefined ? safeConfig.showSubtitles : true;
     }
     
     // 创建播放器
@@ -190,58 +179,40 @@
             loopCount = 0;
             currentSubtitle = '';
             
+            // 创建新播放器（始终创建新实例以避免切换问题）
+            destroyPlayer();
+            
+            // 加载弹幕插件
+            const danmakuPlugin = await loadDanmaku(options);
+            const plugins = danmakuPlugin ? [danmakuPlugin] : [];
+            
+            // 创建播放器配置
+            const playerOptions = getPlayerOptions(url);
+            if (plugins.length > 0) playerOptions.plugins = plugins;
+            
+            // 确定媒体类型
             const type = options.type === 'bilibili-dash' || url.endsWith('.mpd') ? 'mpd' : '';
-            
-            // 在创建播放器前加载资源
-            const [subtitle, danmakuPlugin] = await Promise.all([
-                SubtitleManager.getSubtitleForMedia(url),
-                loadDanmaku(options)
-            ]);
-            
-            // 添加弹幕插件（仅当需要时）
-            const plugins = [];
-            if (danmakuPlugin || config?.enableDanmaku) {
-                plugins.push(danmakuPlugin || DanmakuManager.createEmptyDanmakuPlugin());
-            }
-            
-            // 创建或更新播放器
-            if (!art || type === 'mpd') {
-                const playerOptions = getPlayerOptions(url);
-                
-                // 设置字幕和弹幕
-                if (subtitle) {
-                    playerOptions.subtitle = subtitle;
-                    console.info('[字幕] 已加载:', subtitle.url);
-                }
-                
-                playerOptions.plugins = plugins;
-                art = createPlayer(url, type, playerOptions);
-            } else {
-                // 对于有弹幕的情况，重新创建播放器以避免弹幕冲突
-                destroyPlayer();
-                const playerOptions = getPlayerOptions(url);
-                
-                // 设置字幕和弹幕
-                if (subtitle) {
-                    playerOptions.subtitle = subtitle;
-                    console.info('[字幕] 已加载:', subtitle.url);
-                }
-                
-                playerOptions.plugins = plugins;
-                art = createPlayer(url, type, playerOptions);
-            }
+            art = createPlayer(url, type, playerOptions);
             
             // 等待视频就绪
-            await waitForVideoReady();
+            await new Promise(resolve => {
+                const handler = () => {
+                    resolve(null);
+                    art.off('video:loadeddata', handler);
+                };
+                art.on('video:loadeddata', handler);
+            });
             
             // 应用选项
             if (options.headers) art.headers = options.headers;
             
             // 设置时间和循环
             if (options.startTime !== undefined) {
-                options.isLoop && options.endTime !== undefined
-                    ? setPlayTime(options.startTime, options.endTime)
-                    : setPlayTime(options.startTime);
+                if (options.isLoop && options.endTime !== undefined) {
+                    setPlayTime(options.startTime, options.endTime);
+                } else {
+                    setPlayTime(options.startTime);
+                }
             }
 
             art.play();
@@ -259,7 +230,6 @@
     
     // 加载弹幕插件
     async function loadDanmaku(options: PlayOptions): Promise<any> {
-        // 默认不加载弹幕，节省资源
         if (!config?.enableDanmaku) return null;
         
         const isBilibili = ['bilibili', 'bilibili-dash'].includes(options.type || '');
@@ -268,25 +238,12 @@
         try {
             const danmakuUrl = await DanmakuManager.loadBiliDanmaku(options.cid, config);
             if (danmakuUrl) {
-                const plugin = DanmakuManager.createDanmakuPlugin(danmakuUrl);
-                console.info('[弹幕] 成功加载B站弹幕');
-                return plugin;
+                return DanmakuManager.createDanmakuPlugin(danmakuUrl);
             }
         } catch (e) {
             console.error('[弹幕] 加载失败:', e);
         }
         return null;
-    }
-    
-    // 等待视频就绪
-    async function waitForVideoReady(): Promise<void> {
-        return new Promise<void>(resolve => {
-            const handler = () => {
-                resolve();
-                art.off('video:loadeddata', handler);
-            };
-            art.on('video:loadeddata', handler);
-        });
     }
     
     // 设置播放时间和循环片段
@@ -319,6 +276,12 @@
     export function updateConfig(newConfig: any): void {
         if (!art) return;
         applyPlayerConfig(art, newConfig);
+    }
+    
+    // 设置字幕可见性
+    export function setSubtitleVisible(visible: boolean): void {
+        subtitleVisible = visible;
+        if (config) config.showSubtitles = visible;
     }
     
     // 快捷API

@@ -21,7 +21,7 @@
         "disabled": "已禁用",
         "clickForDetails": "点击查看详情",
         "priceTag": "¥ 18.00",
-        "priceWithStar": "或 ¥ 16.00 + GitHub Star 关注",
+        "priceWithStar": "或 ¥ 16.00 + <a href=\"https://github.com/mm-o/siyuan-media-player\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Star</a> 关注",
         "description": "若你喜欢Media Player，可以尝试为其付费哦～",
         "honorSystem": "采取诚信授权模式，灵感来自椒盐音乐",
         "usageNote": "理论上是可以直接使用的，付费后再使用是诚信的表现",
@@ -299,6 +299,9 @@
             "summary": "视频总结",
             "exportAll": "全部导出"
         },
+        "itemCount": "条",
+        "noItems": "无",
+        "resumeScroll": "恢复滚动",
         "subtitles": {
             "noItems": "当前视频没有可用的字幕",
             "loading": "正在加载字幕...",
@@ -310,11 +313,11 @@
             "onlyForBilibili": "AI总结功能仅支持哔哩哔哩视频",
             "summary": "总结",
             "chapter": "章节",
-            "export": "导出此条"
+            "export": "导出此条",
+            "noExportItems": "没有可导出的内容"
         },
         "exportFailed": "导出失败",
-        "exportSuccess": "导出成功",
-        "noItems": "没有可导出的内容"
+        "exportSuccess": "导出成功"
     },
     "docs": {
         "title": "文档",

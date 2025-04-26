@@ -21,7 +21,7 @@
         "disabled": "Disabled",
         "clickForDetails": "Click for details",
         "priceTag": "¥ 18.00",
-        "priceWithStar": "or ¥ 16.00 + GitHub Star",
+        "priceWithStar": "or ¥ 16.00 + <a href=\"https://github.com/mm-o/siyuan-media-player\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Star</a>",
         "description": "If you like Media Player, consider supporting it!",
         "honorSystem": "Using an honor system model, inspired by Salt Player",
         "usageNote": "It's usable straight away, but paying first shows good faith",
@@ -296,6 +296,9 @@
             "summary": "Summary",
             "exportAll": "Export All"
         },
+        "itemCount": " items",
+        "noItems": "No",
+        "resumeScroll": "Resume Auto-scroll",
         "subtitles": {
             "noItems": "No subtitles available for this video",
             "loading": "Loading subtitles...",
@@ -307,11 +310,11 @@
             "onlyForBilibili": "AI summary is only available for Bilibili videos",
             "summary": "Summary",
             "chapter": "Chapter",
-            "export": "Export"
+            "export": "Export",
+            "noExportItems": "No content to export"
         },
         "exportFailed": "Export failed",
-        "exportSuccess": "Export successful",
-        "noItems": "No content to export"
+        "exportSuccess": "Export successful"
     },
     "docs": {
         "title": "Documentation",

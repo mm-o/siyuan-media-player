@@ -135,7 +135,9 @@
             for await (const [name, fileHandle] of entries) {
                 if (fileHandle.kind === 'file') {
                     if (MEDIA_FILE_REGEX.test(name)) {
-                        if (addMedia(`file://${basePath}/${name}`)) {
+                        // 只对文件名进行编码
+                        const filePath = `file://${basePath}/${encodeURIComponent(name)}`;
+                        if (addMedia(filePath)) {
                             addedCount++;
                         }
                     }
@@ -166,7 +168,10 @@
             try {
                 // @ts-ignore
                 const dirHandle = await window.showDirectoryPicker();
-                const addedCount = await processDirectoryHandle(dirHandle, folderPath);
+                
+                // 处理选中的目录，确保路径编码正确
+                const basePath = folderPath.trim(); // 去除可能的空格
+                const addedCount = await processDirectoryHandle(dirHandle, basePath);
                 
                 showMessage(i18n.playList.message.folderAdded
                     .replace('${name}', dirHandle.name)

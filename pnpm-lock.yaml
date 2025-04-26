@@ -14,9 +14,6 @@ importers:
       artplayer:
         specifier: ^5.2.1
         version: 5.2.1
-      artplayer-plugin-chapter:
-        specifier: ^1.0.0
-        version: 1.0.0
       artplayer-plugin-danmuku:
         specifier: ^5.1.6
         version: 5.1.6
@@ -544,9 +541,6 @@ packages:
   aria-query@5.3.2:
     resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
     engines: {node: '>= 0.4'}
-
-  artplayer-plugin-chapter@1.0.0:
-    resolution: {integrity: sha512-moT7syJPeXQIv4xgm5QVucZB/5n0yMqfR6iscAyxyUIBJ08cVRmazBGRA82BSBZPqmgvSmH6bl0u8pMyEI+VcQ==}
 
   artplayer-plugin-danmuku@5.1.6:
     resolution: {integrity: sha512-3JufaEvxI0bTR74vxLU7K9F9OLmR3yrDFqeflV0T0QWedabassX5hsl0AyNNcjVkfdm3A5s1YC0icdtiFZA1Ig==}
@@ -1496,8 +1490,6 @@ snapshots:
   argparse@2.0.1: {}
 
   aria-query@5.3.2: {}
-
-  artplayer-plugin-chapter@1.0.0: {}
 
   artplayer-plugin-danmuku@5.1.6: {}
 

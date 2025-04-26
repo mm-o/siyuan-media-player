@@ -11,7 +11,6 @@ export interface SubtitleOptions {
     url: string;         // 字幕URL
     type?: string;       // 字幕类型 (vtt, srt, ass)
     encoding?: string;   // 字幕编码
-    escape?: boolean;    // 是否转义HTML标签
 }
 
 /**
@@ -21,48 +20,6 @@ export interface SubtitleCue {
     startTime: number;    // 开始时间（秒）
     endTime: number;      // 结束时间（秒）
     text: string;         // 字幕文本
-}
-
-/**
- * B站字幕数据结构
- */
-interface BiliSubtitleData {
-    from: number;        // 开始时间（秒）
-    to: number;          // 结束时间（秒）
-    content: string;     // 内容
-}
-
-/**
- * B站字幕响应
- */
-interface BiliSubtitleResponse {
-    code: number;
-    message: string;
-    data?: {
-        subtitle?: {
-            allow_submit: boolean;
-            lan?: string;
-            lan_doc?: string;
-            list?: Array<{
-                id: number;
-                lan: string;
-                lan_doc: string;
-                is_lock: boolean;
-                subtitle_url: string;
-            }>;
-            subtitles?: Array<{
-                id: number | string;
-                id_str?: string;
-                lan: string;
-                lan_doc: string;
-                is_lock: boolean;
-                subtitle_url: string;
-                type?: number;
-                ai_type?: number;
-                ai_status?: number;
-            }>;
-        }
-    };
 }
 
 /**
@@ -87,22 +44,25 @@ export class SubtitleManager {
      * 获取媒体文件对应的字幕
      */
     static async getSubtitleForMedia(mediaUrl: string): Promise<SubtitleOptions | null> {
-        if (!mediaUrl || mediaUrl.includes('bilibili.com/video/') || !mediaUrl.startsWith('file://')) return null;
+        if (!mediaUrl || !mediaUrl.startsWith('file://')) return null;
         
         try {
             const { pathname } = new URL(mediaUrl);
-            const parts = pathname.split('/');
+            const decodedPath = decodeURIComponent(pathname);
+            const parts = decodedPath.split('/');
             const filename = parts.pop() || '';
             const fileBase = filename.substring(0, filename.lastIndexOf('.'));
             const dirPath = parts.join('/');
             
             if (!fileBase) return null;
             
+            // 尝试不同的字幕格式
             for (const format of this.formats) {
                 try {
-                    const subtitleUrl = `file://${dirPath}/${fileBase}.${format}`;
+                    const subtitlePath = `${dirPath}/${encodeURIComponent(fileBase)}.${format}`;
+                    const subtitleUrl = `file://${subtitlePath}`;
                     const response = await fetch(subtitleUrl, { method: 'HEAD' });
-                    if (response.ok) return { url: subtitleUrl, type: format, encoding: 'utf-8', escape: true };
+                    if (response.ok) return { url: subtitleUrl, type: format, encoding: 'utf-8' };
                 } catch {}
             }
         } catch (e) {
@@ -114,10 +74,6 @@ export class SubtitleManager {
 
     /**
      * 获取B站视频字幕
-     * @param bvid B站视频BV号
-     * @param cid B站视频分P的cid
-     * @param config 配置信息，包含登录状态
-     * @returns 字幕列表
      */
     static async loadBilibiliSubtitle(bvid: string, cid: string, config?: any): Promise<SubtitleCue[]> {
         const key = `bili_${bvid}_${cid}`;
@@ -210,7 +166,7 @@ export class SubtitleManager {
     /**
      * 解析SRT字幕文本
      */
-    static parseSRT(content: string): SubtitleCue[] {
+    private static parseSRT(content: string): SubtitleCue[] {
         if (!content?.trim()) return [];
         
         try {

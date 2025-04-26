@@ -388,7 +388,7 @@
                 <div class="price-tag">
                     <div class="price-main">{i18n.pro?.priceTag || "¥ 18.00"}</div>
                     <div class="price-options">
-                        <div>{i18n.pro?.priceWithStar || "或 ¥ 16.00 + GitHub Star 关注"}</div>
+                        <div>{@html i18n.pro?.priceWithStar || "或 ¥ 16.00 + GitHub Star 关注"}</div>
                     </div>
                 </div>
                 

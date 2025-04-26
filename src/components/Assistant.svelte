@@ -2,6 +2,7 @@
     import { SubtitleManager } from '../core/subtitle';
     import { BilibiliParser } from '../core/bilibili';
     import { onDestroy } from 'svelte';
+    import { showMessage } from 'siyuan';
 
     // 组件属性
     export let configManager, className = '', hidden = false, i18n: any = {}, currentMedia: any = null, player: any = null;
@@ -14,12 +15,12 @@
     let timer = null;
     let autoScrollEnabled = true;
     let listElement;
-    let userScrolled = false;
+    let isAutoScrolling = false;
     
     // 响应式数据
     $: items = activeTab === 'subtitles' ? subtitles : summaryItems;
     $: hasItems = items.length > 0;
-    $: exportTitle = currentMedia?.title ? `## ${currentMedia.title} ${activeTab === 'subtitles' ? '字幕' : 'AI总结'}\n\n` : '';
+    $: exportTitle = currentMedia?.title ? `## ${currentMedia.title} ${activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (i18n?.assistant?.tabs?.summary || 'AI总结')}\n\n` : '';
     $: exportBtnText = i18n?.assistant?.exportAll || "全部导出";
     $: resumeBtnText = i18n?.assistant?.resumeScroll || "恢复滚动";
     $: emptyText = activeTab === 'subtitles' 
@@ -28,7 +29,7 @@
             ? (i18n?.assistant?.summary?.onlyForBilibili || "AI总结功能仅支持哔哩哔哩视频。")
             : (i18n?.assistant?.summary?.noItems || "当前视频没有可用的AI总结"));
     
-    // 监听媒体变化并加载内容
+    // 监听媒体变化并加载字幕和摘要
     $: if (currentMedia?.url && player) {
         loadContent();
         startTracking();
@@ -42,15 +43,16 @@
             
             const time = player.getCurrentTime();
             const prevIndex = currentSubtitleIndex;
+            
+            // 根据不同的模式查找当前项目
             currentSubtitleIndex = activeTab === 'subtitles'
-                // 字幕模式：时间在开始和结束之间
-                ? items.findIndex((item, i, arr) => time >= item.startTime && (time < item.endTime || i === arr.length - 1))
-                // 总结模式：找到不超过当前时间的最近点
+                ? items.findIndex((item, i, arr) => 
+                    time >= item.startTime && (time < item.endTime || i === arr.length - 1))
                 : items.reduce((best, item, i) => (
                     item.startTime <= time && (best === -1 || item.startTime > items[best].startTime) ? i : best
                 ), -1);
                 
-            // 如果索引变化且启用了自动滚动，则滚动到视图
+            // 自动滚动到当前项目
             if (currentSubtitleIndex !== prevIndex && currentSubtitleIndex !== -1 && autoScrollEnabled) {
                 scrollToCurrentItem();
             }
@@ -62,19 +64,19 @@
         
         const currentItem = listElement.querySelector(`.subtitle-item:nth-child(${currentSubtitleIndex + 1})`);
         if (currentItem) {
+            isAutoScrolling = true;
             currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => isAutoScrolling = false, 500);
         }
     }
     
     function handleScroll() {
-        if (!userScrolled && autoScrollEnabled) {
-            userScrolled = true;
+        if (autoScrollEnabled && !isAutoScrolling) {
             autoScrollEnabled = false;
         }
     }
     
     function resumeAutoScroll() {
-        userScrolled = false;
         autoScrollEnabled = true;
         scrollToCurrentItem();
     }
@@ -84,14 +86,13 @@
         timer = null;
     }
     
-    // 加载内容
+    // 加载字幕和AI摘要
     async function loadContent() {
         // 重置状态
         subtitles = [];
         summaryItems = [];
         currentSubtitleIndex = -1;
         autoScrollEnabled = true;
-        userScrolled = false;
     
         // 加载字幕
         isLoadingSubtitles = true;
@@ -103,7 +104,7 @@
                     currentMedia.cid, 
                     configManager.getConfig()
                 );
-            } else {
+            } else if (currentMedia.url?.startsWith('file://')) {
                 // 本地视频字幕
                 const options = await SubtitleManager.getSubtitleForMedia(currentMedia.url);
                 if (options) {
@@ -116,7 +117,7 @@
             isLoadingSubtitles = false;
         }
         
-        // 只为B站视频加载AI总结
+        // 加载B站AI总结（仅限B站视频）
         if (currentMedia.bvid && currentMedia.cid) {
             isLoadingSummary = true;
             try {
@@ -150,7 +151,7 @@
     
     // 工具函数
     const getTimeDisplay = item => activeTab === 'summary' && item.type
-        ? (i18n?.assistant?.summary?.[item.type] || (item.type === 'summary' ? '总结' : '章节'))
+        ? (i18n?.assistant?.summary?.[item.type] || (item.type === 'summary' ? (i18n?.assistant?.summary?.summary || '总结') : (i18n?.assistant?.summary?.chapter || '章节')))
         : SubtitleManager.formatTime(item.startTime);
         
     const jumpToTime = time => player?.seekTo(time);
@@ -161,13 +162,18 @@
             const content = await createTimestampLinkCallback(false, item.startTime, undefined, text)
                 .catch(() => `- [${getTimeDisplay(item)}] ${text}`);
             await insertContentCallback(content || `- [${getTimeDisplay(item)}] ${text}`);
+            showMessage(i18n?.assistant?.exportSuccess || "导出成功");
         } catch (e) {
             console.error('[Assistant] 导出失败:', e);
+            showMessage(i18n?.assistant?.exportFailed || "导出失败");
         }
     }
     
     async function exportAll() {
-        if (!items.length) return;
+        if (!items.length) {
+            showMessage(i18n?.assistant?.noExportItems || "没有可导出的内容");
+            return;
+        }
         
         try {
             const links = await Promise.all(items.map(async item => {
@@ -178,8 +184,10 @@
             }));
             
             await insertContentCallback(exportTitle + links.join('\n'));
+            showMessage(i18n?.assistant?.exportSuccess || "导出成功");
         } catch (e) {
             console.error('[Assistant] 导出全部失败:', e);
+            showMessage(i18n?.assistant?.exportFailed || "导出失败");
         }
     }
     
@@ -187,7 +195,6 @@
     $: if (activeTab) {
         currentSubtitleIndex = -1;
         autoScrollEnabled = true;
-        userScrolled = false;
         if (player && items.length) setTimeout(startTracking, 100);
     }
     
@@ -199,7 +206,7 @@
     <div class="playlist-header">
         <h3>{i18n?.assistant?.title || "助手"}</h3>
         <div class="header-controls">
-            <span class="playlist-count">{hasItems ? `${items.length}条` : `无`}{activeTab === 'subtitles' ? '字幕' : '总结'}</span>
+            <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (i18n?.assistant?.tabs?.summary || '总结')}</span>
         </div>
     </div>
     
@@ -228,7 +235,7 @@
                         <span class="subtitle-time">{getTimeDisplay(item)}</span>
                         <span class="subtitle-text">{item.text}</span>
                         <button class="action-btn" on:click|stopPropagation={() => exportItem(item)} title={i18n?.assistant?.[activeTab]?.export || "导出"}>
-                            <svg class="icon" style="width: 14px; height: 14px"><use xlink:href="#iconCopy"></use></svg>
+                            <svg class="icon"><use xlink:href="#iconCopy"></use></svg>
                         </button>
                     </div>
                 {/each}
@@ -240,26 +247,16 @@
     
     {#if hasItems}
         <div class="playlist-footer">
-            <div class="input-wrapper">
-                <button class="add-btn" on:click={exportAll} title={exportBtnText}>
-                    <svg class="icon" style="width: 14px; height: 14px; margin-right: 4px;"><use xlink:href="#iconDownload"></use></svg>
-                    {exportBtnText}
-                </button>
-            </div>
+            <button class="add-btn" on:click={exportAll}>
+                <svg class="icon"><use xlink:href="#iconDownload"></use></svg>
+                <span>{exportBtnText}</span>
+            </button>
             {#if !autoScrollEnabled}
-                <button class="add-btn" on:click={resumeAutoScroll} title={resumeBtnText}>
-                    <svg class="icon" style="width: 14px; height: 14px; margin-right: 4px;"><use xlink:href="#iconPlay"></use></svg>
-                    {resumeBtnText}
+                <button class="add-btn" on:click={resumeAutoScroll}>
+                    <svg class="icon"><use xlink:href="#iconPlay"></use></svg>
+                    <span>{resumeBtnText}</span>
                 </button>
             {/if}
         </div>
     {/if}
 </div>
-
-<style>
-    .subtitle-list {
-        max-height: calc(100% - 48px);
-        overflow-y: auto;
-        padding-bottom: 48px;
-    }
-</style> 

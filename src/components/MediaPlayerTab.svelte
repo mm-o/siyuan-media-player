@@ -85,7 +85,18 @@
             if (!baseUrl) throw new Error("没有有效的URL");
 
             // 2. 构建URL
-            const urlObj = new URL(baseUrl);
+            let urlObj;
+            try {
+                urlObj = new URL(baseUrl);
+            } catch {
+                // URL解析失败时进行简单编码
+                const encodedUrl = baseUrl.startsWith('file://') 
+                    ? baseUrl.replace(/\/([^\/]+)$/, (_, p1) => `/${encodeURIComponent(p1)}`)
+                    : encodeURI(baseUrl);
+                urlObj = new URL(encodedUrl);
+            }
+            
+            // 设置参数
             urlObj.searchParams.delete('t');
             urlObj.searchParams.delete('p');
             
@@ -227,35 +238,40 @@
     };
 
     const takeScreenshot = async (): Promise<void> => {
-        if (!player || !currentItem) {
-            showMessage(i18n.controlBar.screenshot.hint);
-            return;
-        }
+        if (!player) return showMessage(i18n.controlBar.screenshot.hint);
 
         try {
             const dataUrl = await player.getScreenshotDataURL();
-            if (!dataUrl) {
-                showMessage(i18n.mediaPlayerTab.screenshot.failHint);
-                return;
+            if (!dataUrl) return showMessage(i18n.mediaPlayerTab.screenshot.failHint);
+            
+            const blob = await (await fetch(dataUrl)).blob();
+            const filename = `${currentItem?.title || 'screenshot'}_${Date.now()}.png`;
+            const config = await configManager.getConfig();
+            
+            // 尝试直接复制图片（如果配置为复制且浏览器支持）
+            if (!(config.settings.insertAtCursor ?? true) && navigator.clipboard?.write) {
+                await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]);
+                return showMessage(i18n.mediaPlayerTab.block.copiedToClipboard);
             }
             
-            const res = await fetch(dataUrl);
-            const imageBlob = await res.blob();
-            const timestamp = Date.now();
-            const filename = `${currentItem.title || i18n.mediaPlayerTab.screenshot.defaultName}_${timestamp}.png`;
-            
+            // 否则上传到思源
             const formData = new FormData();
-            formData.append('file[]', imageBlob, filename);
-            
-            const response = await fetch('/api/asset/upload', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error();
-            
-            const result = await response.json();
+            formData.append('file[]', blob, filename);
+            const result = await (await fetch('/api/asset/upload', {method: 'POST', body: formData})).json();
             if (result.code !== 0) throw new Error();
             
-            await insertContent(`![${filename}](${result.data.succMap[filename]})`);
-            showMessage(i18n.mediaPlayerTab.screenshot.successHint);
-        } catch {
+            const imgMd = `![${filename}](${result.data.succMap[filename]})`;
+            
+            // 插入或复制
+            if (config.settings.insertAtCursor ?? true) {
+                await insertContent(imgMd);
+                showMessage(i18n.mediaPlayerTab.screenshot.successHint);
+            } else {
+                await navigator.clipboard.writeText(imgMd);
+                showMessage(i18n.mediaPlayerTab.block.copiedToClipboard);
+            }
+        } catch (error) {
+            console.error('截图失败:', error);
             showMessage(i18n.mediaPlayerTab.screenshot.errorHint);
         }
     };

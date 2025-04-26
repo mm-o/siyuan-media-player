@@ -65,15 +65,19 @@ export function getMediaType(url: string): 'video' | 'audio' | 'bilibili' {
 }
 
 /**
- * 将本地路径转换为 file:// URL
- * @param path 本地文件路径或URL
- * @returns 标准化后的URL
+ * 转换路径为文件URL格式
  */
 export function convertToFileUrl(path: string): string {
     path = path.replace(/^["']|["']$/g, '');
     if (/^(https?|file):\/\//.test(path)) return path;
-    if (/^[a-zA-Z]:\\/.test(path)) return 'file:///' + path.replace(/\\/g, '/');
-    return 'file://' + path;
+    
+    // Windows路径处理
+    if (/^[a-zA-Z]:\\/.test(path)) {
+        return 'file:///' + path.replace(/\\/g, '/').split('/').map((p, i) => i === 0 ? p : encodeURIComponent(p)).join('/');
+    }
+    
+    // 其他路径
+    return 'file://' + path.split('/').map(p => encodeURIComponent(p)).join('/');
 }
 
 /**

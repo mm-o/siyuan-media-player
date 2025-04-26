@@ -21,6 +21,14 @@
 
 ## 🚀 Recent Updates
 
+**Version 0.3.1:**
+- **💬 Bilibili Subtitle Control**: Support showing/hiding Bilibili video subtitles via the subtitle button
+- **📜 Auto-scrolling Subtitles**: Media assistant subtitle list now automatically scrolls with playback progress
+- **🎨 UI Optimization**: Improved media assistant interface for better user experience
+- **🛠️ Bug Fixes**: Resolved issues with special characters in file paths
+- **📸 Screenshot Enhancement**: Optimized screenshot feature with direct clipboard support
+- **🔄 Subtitle Processing**: Unified subtitle handling logic for improved player performance
+
 **Version 0.3.0:**
 - **🎯 Bilibili Danmaku Support**: Added support for Bilibili video bullet comments
 - **✨ Pro Features**: Introduced optional Pro features

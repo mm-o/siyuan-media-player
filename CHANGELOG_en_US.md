@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.1 (2025.4.26)
+1. Added support for showing/hiding Bilibili video subtitles via subtitle button in player interface
+2. Added auto-scrolling for subtitle list in media assistant that follows playback progress
+3. Optimized media assistant UI
+4. Fixed errors caused by special characters in file paths
+5. Enhanced screenshot feature with direct clipboard copy support
+6. Unified subtitle handling logic for improved player performance
+
 ## v0.3.0 (2025.4.24)
 1. Added Bilibili video danmaku (bullet comments) support
 2. Introduced Pro features (optional)

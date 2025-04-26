@@ -10,16 +10,24 @@
 
 <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
   <div style="text-align: center; margin: 10px;">
-    <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg" alt="Alipay QR Code" width="300" />
+    <img src="https://github.com/mm-o/siyuan-media-player/blob/main/public/assets/images/alipay.jpg" alt="Alipay QR Code" width="300" />
     <p>Alipay</p>
   </div>
   <div style="text-align: center; margin: 10px;">
-    <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg" alt="WeChat QR Code" width="300" />
+    <img src="https://github.com/mm-o/siyuan-media-player/blob/main/public/assets/images/wechat.jpg" alt="WeChat QR Code" width="300" />
     <p>WeChat</p>
 </div>
 </div>
 
 ## 🚀 Recent Updates
+
+**Version 0.3.1:**
+- **💬 Bilibili Subtitle Control**: Support showing/hiding Bilibili video subtitles via the subtitle button
+- **📜 Auto-scrolling Subtitles**: Media assistant subtitle list now automatically scrolls with playback progress
+- **🎨 UI Optimization**: Improved media assistant interface for better user experience
+- **🛠️ Bug Fixes**: Resolved issues with special characters in file paths
+- **📸 Screenshot Enhancement**: Optimized screenshot feature with direct clipboard support
+- **🔄 Subtitle Processing**: Unified subtitle handling logic for improved player performance
 
 **Version 0.3.0:**
 - **🎯 Bilibili Danmaku Support**: Added support for Bilibili video bullet comments
