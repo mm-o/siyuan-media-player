@@ -123,7 +123,7 @@
     </div>
     
     <!-- 中间标题区域 -->
-    <div class="title-area">
+    <div class="title-area" style="max-width: calc(100% - 200px); margin-right: 16px;">
         <span class="media-title">
             {title || i18n.controlBar.notPlaying}
         </span>

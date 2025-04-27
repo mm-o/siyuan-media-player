@@ -15,7 +15,6 @@
     let timer = null;
     let autoScrollEnabled = true;
     let listElement;
-    let isAutoScrolling = false;
     
     // 响应式数据
     $: items = activeTab === 'subtitles' ? subtitles : summaryItems;
@@ -35,56 +34,52 @@
         startTracking();
     }
     
-    // 字幕追踪
+    // 极简字幕追踪
     function startTracking() {
-        stopTracking();
+        if (timer) clearInterval(timer);
         timer = setInterval(() => {
-            if (!player || !items.length) return;
+            if (!player || !items.length || !listElement) return;
             
+            // 查找当前项目索引
             const time = player.getCurrentTime();
-            const prevIndex = currentSubtitleIndex;
-            
-            // 根据不同的模式查找当前项目
+            const prev = currentSubtitleIndex;
             currentSubtitleIndex = activeTab === 'subtitles'
-                ? items.findIndex((item, i, arr) => 
-                    time >= item.startTime && (time < item.endTime || i === arr.length - 1))
-                : items.reduce((best, item, i) => (
-                    item.startTime <= time && (best === -1 || item.startTime > items[best].startTime) ? i : best
-                ), -1);
-                
-            // 自动滚动到当前项目
-            if (currentSubtitleIndex !== prevIndex && currentSubtitleIndex !== -1 && autoScrollEnabled) {
-                scrollToCurrentItem();
+                ? items.findIndex((i, idx, arr) => time >= i.startTime && (time < i.endTime || idx === arr.length - 1))
+                : items.reduce((b, i, idx) => (i.startTime <= time && (b === -1 || i.startTime > items[b].startTime) ? idx : b), -1);
+            
+            // 项目变化且有效时处理
+            if (currentSubtitleIndex !== -1 && currentSubtitleIndex !== prev) {
+                updateScroll();
             }
         }, 500);
     }
-    
-    function scrollToCurrentItem() {
-        if (!listElement || currentSubtitleIndex === -1) return;
+
+    // 核心滚动逻辑
+    function updateScroll(force = false) {
+        if (currentSubtitleIndex === -1 || !listElement) return;
         
-        const currentItem = listElement.querySelector(`.subtitle-item:nth-child(${currentSubtitleIndex + 1})`);
-        if (currentItem) {
-            isAutoScrolling = true;
-            currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => isAutoScrolling = false, 500);
+        const el = listElement.querySelector(`.subtitle-item:nth-child(${currentSubtitleIndex + 1})`);
+        if (!el) return;
+        
+        // 检查是否在中间区域
+        if (!force) {
+            const r1 = el.getBoundingClientRect();
+            const r2 = listElement.getBoundingClientRect();
+            const mid1 = r2.top + r2.height/3;
+            const mid2 = r2.top + r2.height*2/3;
+            autoScrollEnabled = r1.top <= mid2 && r1.bottom >= mid1;
+        }
+        
+        // 执行滚动
+        if (force || autoScrollEnabled) {
+            el.scrollIntoView({behavior:'smooth', block:'center'});
         }
     }
     
-    function handleScroll() {
-        if (autoScrollEnabled && !isAutoScrolling) {
-            autoScrollEnabled = false;
-        }
-    }
-    
-    function resumeAutoScroll() {
-        autoScrollEnabled = true;
-        scrollToCurrentItem();
-    }
-    
-    function stopTracking() {
-        if (timer) clearInterval(timer);
-        timer = null;
-    }
+    // 公共函数
+    function resumeAutoScroll() { autoScrollEnabled = true; updateScroll(true); }
+    function stopTracking() { if (timer) { clearInterval(timer); timer = null; } }
+    function handleScroll() {}
     
     // 加载字幕和AI摘要
     async function loadContent() {
@@ -246,7 +241,7 @@
     </div>
     
     {#if hasItems}
-        <div class="playlist-footer">
+        <div class="assistant-footer">
             <button class="add-btn" on:click={exportAll}>
                 <svg class="icon"><use xlink:href="#iconDownload"></use></svg>
                 <span>{exportBtnText}</span>

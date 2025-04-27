@@ -256,7 +256,7 @@ $transition: 0.3s ease;
   
   .content-area {
     position: relative;
-    @include flex(row, flex-start, stretch, size(spacing));
+    @include flex(row, flex-start, stretch, size(spacing)*0.5);
     width: 100%;
     height: 100%;
     
@@ -292,13 +292,21 @@ $transition: 0.3s ease;
     
     // 侧边栏
     .sidebar {
-      width: 0;
+      position: relative;
       height: 100%;
-      transition: width $transition;
       
       &.show {
-        width: size(sidebar);
         @include bordered(color(on-surface));
+      }
+      
+      .resize-handle {
+        position: absolute;
+        left: -4px;
+        top: 0;
+        bottom: 0;
+        width: 8px;
+        cursor: col-resize;
+        z-index: 5;
       }
     }
   }
@@ -402,24 +410,11 @@ $transition: 0.3s ease;
   // 标签栏和内容
   .playlist-tabs {
     height: size(tabs);
-    padding: 0 size(spacing);
+    padding: 3px size(spacing) 0;
     @include flex(row, flex-start, center, size(spacing));
     border-bottom: 1px solid color(border);
     overflow-x: auto;
     background: color(surface);
-    
-    &::-webkit-scrollbar {
-      height: 4px;
-      
-      &-track { background: transparent; }
-      
-      &-thumb {
-        background: var(--b3-scroll-color);
-        border-radius: 2px;
-        
-        &:hover { background: var(--b3-scroll-hover-color); }
-      }
-    }
   }
   
   .tab {
@@ -554,6 +549,7 @@ $transition: 0.3s ease;
       @include flex(row, flex-start, center, 6px);
       font-size: 12px;
       color: color(on-surface);
+      @include text-ellipsis;
       
       .artist-icon {
         width: 16px;
@@ -631,69 +627,52 @@ $transition: 0.3s ease;
  * 底部操作栏
  * ----------------------------------------- */
 .playlist-footer {
-  height: size(footer);
-  padding: size(spacing);
-  border-top: 1px solid color(surface-lighter);
-  @include flex(row, flex-start, center, size(spacing));
-  background: color(surface);
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  @include flex(row, center, center, 8px);
+  height: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  z-index: 10;
   
-  // 输入区域
   .input-wrapper {
-    flex: 1;
     position: relative;
-    @include flex(row, flex-start, center);
-  }
-  
-  .playlist-input {
-    @extend %input-base;
-    width: 100%;
-    height: 20px;
-    padding-right: 24px;
-    
-    &::placeholder {
-      color: color(on-surface);
-      opacity: 0.5;
-    }
   }
   
   .clear-icon {
-    @include position-absolute(50%, 8px, null, null);
+    position: absolute;
+    right: 8px;
+    top: 50%;
     transform: translateY(-50%);
-    color: color(on-surface);
-    opacity: 0.5;
-    cursor: pointer;
-    font-size: 16px;
-    @include flex(row, center, center);
-    width: 16px;
-    height: 16px;
-    
-    &:hover {
-      opacity: 0.8;
-    }
   }
   
-  // 添加按钮
   .add-btn {
-    @extend %button-base;
+    @include flex(row, center, center);
     height: 28px;
     padding: 0 16px;
-    @include bordered(color(primary));
-    color: color(primary);
+    border: none;
+    border-radius: 24px;
+    background: color(primary);
+    color: color(on-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+    white-space: nowrap;
     font-size: 14px;
     
-    &:hover {
-      background: color(primary);
-      color: color(on-primary);
-      filter: brightness(0.95);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    
     .icon {
-      fill: currentColor;
       width: 14px;
       height: 14px;
       margin-right: 4px;
+      fill: currentColor;
+    }
+    
+    &:hover {
+      filter: brightness(0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
   }
 }
@@ -1098,9 +1077,9 @@ $transition: 0.3s ease;
   // 字幕列表
   .subtitle-list {
     width: 100%;
-    max-height: calc(100% - 48px);
+    height: 100%;
     overflow-y: auto;
-    padding-bottom: 48px;
+    padding-right: 8px;
     
     .subtitle-actions {
       @include flex(row, flex-end);
@@ -1203,24 +1182,25 @@ $transition: 0.3s ease;
   }
   
   // 底部操作区
-  .playlist-footer {
-    position: absolute;
-    left: 50%;
+  .assistant-footer {
+    position: sticky;
     bottom: 16px;
-    transform: translateX(-50%);
-    @include flex(row, center, center, 8px);
-    height: auto;
-    padding: 0;
-    border: none;
-    background: transparent;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    text-align: center;
     z-index: 10;
+    padding: 8px 0;
+    background: transparent;
     
     .add-btn {
       @include flex(row, center, center);
-      height: 36px;
-      padding: 0 16px;
+      height: 28px;
+      display: inline-flex;
+      padding: 0 12px;
+      margin: 0 4px;
       border: none;
-      border-radius: 24px;
+      border-radius: size(radius);
       background: color(primary);
       color: color(on-primary);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);

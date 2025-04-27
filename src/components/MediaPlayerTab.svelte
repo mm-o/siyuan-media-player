@@ -31,11 +31,25 @@
     let loopStartTime: number | null = null;
     let playlist: PlayList;
     let proEnabled: boolean = false;
+    let sidebarWidth = +(localStorage.getItem('simp-width') || 300);
 
     // 监听currentItem变化，同步到全局对象
     $: if (typeof window !== 'undefined' && (window as any).siyuanMediaPlayer) {
         (window as any).siyuanMediaPlayer.currentItem = currentItem;
     }
+
+    // 极简拖动逻辑
+    const initResize = (e: MouseEvent) => {
+        const startX = e.clientX, startWidth = sidebarWidth;
+        const onMove = (e: MouseEvent) => {
+            sidebarWidth = Math.max(200, Math.min(600, startWidth + startX - e.clientX));
+            localStorage.setItem('simp-width', String(sidebarWidth));
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', () => {
+            document.removeEventListener('mousemove', onMove);
+        }, {once: true});
+    };
 
     // =============== 工具函数 ===============
     const getCurrentBlockId = (): string => {
@@ -542,26 +556,13 @@
     }
 </script>
 
-<div 
-    class="media-player-tab"
-    on:mousemove={handleMouseMove}
-    on:mouseleave={handleMouseLeave}
->
+<div class="media-player-tab" on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave}>
     <div class="content-area" class:with-sidebar={showPlaylist || showSettings || showAssistant}>
         <div class="player-area">
-            <Player 
-                bind:this={player}
-                {app}
-                config={playerConfig}
-                {i18n}
-            />
-            
+            <Player bind:this={player} {app} config={playerConfig} {i18n} />
             <div class="control-bar" class:hidden={!showControls}>
                 <ControlBar 
-                    title={currentItem?.title}
-                    {loopStartTime}
-                    {i18n}
-                    {proEnabled}
+                    title={currentItem?.title} {loopStartTime} {i18n} {proEnabled}
                     config={configManager.getConfig()}
                     on:screenshot={handleControlEvent}
                     on:timestamp={handleControlEvent}
@@ -573,34 +574,22 @@
             </div>
         </div>
         
-        <div class="sidebar" class:show={showPlaylist || showSettings || showAssistant}>
+        <div class="sidebar" class:show={showPlaylist || showSettings || showAssistant} 
+             style="width:{sidebarWidth*(+(showPlaylist || showSettings || showAssistant))}px">
+            <div class="resize-handle" on:mousedown={initResize}></div>
             <PlayList 
-                bind:this={playlist}
-                {configManager}
-                {currentItem}
-                className="playlist-container"
-                hidden={!showPlaylist}
-                {i18n}
-                on:select={handleSelect}
-                on:play={playMedia}
+                bind:this={playlist} {configManager} {currentItem} {i18n}
+                className="playlist-container" hidden={!showPlaylist}
+                on:select={handleSelect} on:play={playMedia}
             />
             {#if showSettings}
-                <Setting 
-                    group="media-player"
-                    {configManager}
-                    {i18n}
-                    on:changed={handleSettingsChanged}
-                />
+                <Setting group="media-player" {configManager} {i18n} on:changed={handleSettingsChanged} />
             {/if}
             {#if showAssistant}
                 <Assistant 
-                    {configManager}
-                    currentMedia={currentItem}
-                    className="assistant-container"
-                    hidden={!showAssistant}
-                    {i18n}
-                    {player}
-                    insertContentCallback={insertContent}
+                    {configManager} {player} {i18n} currentMedia={currentItem}
+                    className="assistant-container" hidden={!showAssistant}
+                    insertContentCallback={insertContent} 
                     createTimestampLinkCallback={createTimestampLink}
                 />
             {/if}
