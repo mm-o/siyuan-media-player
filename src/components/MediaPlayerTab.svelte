@@ -95,7 +95,14 @@
             // 1. 准备URL参数
             const currentTime = startTime ?? player.getCurrentTime();
             const loopEndTime = endTime ?? (isLoop ? currentTime + 3 : undefined);
-            const baseUrl = currentItem.originalUrl || currentItem.url;
+            
+            // 检查是否是AList媒体
+            const isAList = currentItem.source === 'alist';
+            
+            // 对B站视频使用标准格式URL
+            const baseUrl = currentItem.type === 'bilibili' && currentItem.bvid
+                ? `https://www.bilibili.com/video/${currentItem.bvid}`
+                : currentItem.url;
             if (!baseUrl) throw new Error("没有有效的URL");
 
             // 2. 构建URL
@@ -110,6 +117,8 @@
                 urlObj = new URL(encodedUrl);
             }
             
+            // AList媒体不添加时间参数，只保留原始URL
+            if (!isAList) {
             // 设置参数
             urlObj.searchParams.delete('t');
             urlObj.searchParams.delete('p');
@@ -124,8 +133,10 @@
             // 设置分p参数，仅当不是默认分P（P1）时才添加
             if (currentItem.type === 'bilibili' && currentItem.id && currentItem.id.includes('-p')) {
                 const partMatch = currentItem.id.match(/-p(\d+)$/);
-                if (partMatch && partMatch[1] && partMatch[1] !== '1') {
+                // 判断是否存在分P信息，如果存在总是添加p参数
+                if (partMatch && partMatch[1]) {
                     urlObj.searchParams.set('p', partMatch[1]);
+                    }
                 }
             }
 
@@ -137,6 +148,21 @@
             // 4. 获取模板
             const config = await configManager.getConfig();
             const template = config?.settings?.linkFormat || "- [时间 字幕](链接)";
+
+            // 5. 对于AList媒体，添加source和time参数到URL对象中
+            // 这些参数将用于处理链接点击时的时间戳跳转
+            if (isAList) {
+                const originalUrl = urlObj.toString();
+                const alistData = JSON.stringify({
+                    source: 'alist',
+                    path: currentItem.sourcePath,
+                    time: isLoop && loopEndTime 
+                        ? { start: currentTime, end: loopEndTime }
+                        : { start: currentTime }
+                });
+                const dataParam = encodeURIComponent(alistData);
+                urlObj = new URL(`${originalUrl}#simp=${dataParam}`);
+            }
             
             // 5. 使用同时支持中文文本和变量标记的替换
             return template
@@ -164,7 +190,7 @@
                     : formatTime(currentTime, true);
                 
                 const text = subtitleText ? `${timeText} ${subtitleText}` : timeText;
-                const url = currentItem?.originalUrl || currentItem?.url || '';
+                const url = currentItem?.url || ''; // 使用url替代originalUrl
                 
                 return `- [${text}](${url})`;
             } catch {
@@ -389,7 +415,6 @@
                 id: options.id || `item-${Date.now()}`,
                 title: options.title || i18n.mediaPlayerTab.play.untitledMedia,
                 url: options.url,
-                originalUrl: options.originalUrl || options.url,
                 type: ['bilibili-dash', 'bilibili'].includes(options.type) ? 'bilibili' : 'video',
                 startTime: options.startTime,
                 endTime: options.endTime,
@@ -416,10 +441,8 @@
                 return url;
             };
             
-            // 获取要播放的URL
-            const urlToPlay = (currentItem.type === 'bilibili' && currentItem.originalUrl) 
-                ? currentItem.originalUrl 
-                : options.url;
+            // 获取要播放的URL - 直接使用options.url
+            const urlToPlay = options.url;
             
             // 根据播放器类型选择打开方式
             if (config.settings.playerType === PlayerType.POT_PLAYER) {

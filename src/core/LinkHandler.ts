@@ -6,7 +6,7 @@ import { PlayerType } from './types';
 // 常量定义
 const BROWSER_WINDOWS: { [key: string]: Window } = {};
 let lastPotPlayerCommand = '';
-const BILIBILI_VIDEO_REGEX = /bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/i;
+const BILIBILI_VIDEO_REGEX = /bilibili\.com\/video\/(BV[\w]+)/i;
 const IS_ELECTRON = window.navigator.userAgent.includes('Electron');
 
 // 工具函数
@@ -73,6 +73,13 @@ export class LinkHandler {
      */
     private async handleMediaLink(url: string, forceBrowser = false): Promise<void> {
         try {
+            // 检查是否是AList时间戳链接
+            const isAListLink = url.includes('#simp=');
+            if (isAListLink) {
+                await this.handleAListTimestampLink(url);
+                return;
+            }
+            
             const config = await this.configManager.getConfig();
             const playerType = forceBrowser ? PlayerType.BROWSER : config.settings.playerType;
             
@@ -89,6 +96,58 @@ export class LinkHandler {
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
             showMessage("播放失败，请重试");
+        }
+    }
+
+    /**
+     * 处理AList时间戳链接
+     */
+    private async handleAListTimestampLink(url: string): Promise<void> {
+        try {
+            // 提取AList相关数据
+            const hashPart = url.split('#simp=')[1];
+            if (!hashPart) throw new Error('无效的AList时间戳链接');
+            
+            const alistData = JSON.parse(decodeURIComponent(hashPart));
+            if (alistData.source !== 'alist' || !alistData.path) {
+                throw new Error('无效的AList路径');
+            }
+            
+            // 确保播放器标签已打开
+            if (!document.querySelector('.media-player-tab')) {
+                this.openTabCallback();
+                await this.waitForElement('.media-player-tab', 2000);
+            }
+            
+            // 找到AList标签或创建一个
+            const folderPath = alistData.path.split('/').slice(0, -1).join('/') || '/';
+            const filename = alistData.path.split('/').pop();
+            
+            // 调用播放列表的方法加载AList文件夹
+            if (this.playlist) {
+                // 先加载AList文件夹
+                await this.playlist.loadAListFolder(folderPath);
+                
+                // 查找并播放指定文件
+                await this.playlist.findAndPlayAListItem(alistData.path);
+                
+                // 应用时间戳
+                setTimeout(() => {
+                    const siyuanPlayer = (window as any).siyuanMediaPlayer;
+                    if (siyuanPlayer && alistData.time) {
+                        if (alistData.time.end) {
+                            siyuanPlayer.setLoopSegment?.(alistData.time.start, alistData.time.end);
+                        } else {
+                            siyuanPlayer.seekTo?.(alistData.time.start);
+                        }
+                    }
+                }, 1000); // 延迟一秒确保播放器已准备好
+            } else {
+                showMessage("未找到播放列表组件");
+            }
+        } catch (error) {
+            console.error("处理AList时间戳链接失败:", error);
+            showMessage(`处理AList时间戳链接失败: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
@@ -257,33 +316,37 @@ export class LinkHandler {
         if (currentItem.type === 'bilibili' && currentItem.bvid) {
             if (!mediaUrl.includes('bilibili.com/video')) return false;
             
-            const biliMatch = mediaUrl.match(BILIBILI_VIDEO_REGEX);
-            if (!biliMatch) return false;
+            // 简化提取BV号
+            const bvMatch = mediaUrl.match(/bilibili\.com\/video\/(BV[\w]+)/i);
+            if (!bvMatch) return false;
             
-            const urlBvid = biliMatch[1].toUpperCase();
+            const urlBvid = bvMatch[1].toUpperCase();
             const currentBvid = currentItem.bvid.toUpperCase();
             
-            // 获取当前分P和URL分P
-            let urlPartNum, currentPartNum;
+            // BV号必须相同
+            if (urlBvid !== currentBvid) return false;
             
+            // 获取URL中的分P信息
+            let urlPartNum;
             try {
                 const urlObj = new URL(mediaUrl);
                 const pParam = urlObj.searchParams.get('p');
                 if (pParam) urlPartNum = parseInt(pParam, 10);
             } catch {}
             
+            // 获取当前项目的分P信息
+            let currentPartNum;
             if (currentItem.id?.includes('-p')) {
                 const partMatch = currentItem.id.match(/-p(\d+)$/);
                 if (partMatch) currentPartNum = parseInt(partMatch[1], 10);
             }
             
-            // BV号相同且分P相同或都未指定
-            return urlBvid === currentBvid && 
-                   (!urlPartNum && !currentPartNum || urlPartNum === currentPartNum);
+            // URL中未指定分P，或者分P相同时才认为是同一视频
+            return !urlPartNum || (urlPartNum === currentPartNum);
         }
         
         // 普通视频通过URL比较
-        return currentItem.url === mediaUrl || currentItem.originalUrl === mediaUrl;
+        return currentItem.url === mediaUrl;
     }
 
     /**

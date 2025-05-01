@@ -47,39 +47,30 @@
                 ? items.findIndex((i, idx, arr) => time >= i.startTime && (time < i.endTime || idx === arr.length - 1))
                 : items.reduce((b, i, idx) => (i.startTime <= time && (b === -1 || i.startTime > items[b].startTime) ? idx : b), -1);
             
-            // 项目变化且有效时处理
+            // 项目变化时更新滚动
             if (currentSubtitleIndex !== -1 && currentSubtitleIndex !== prev) {
                 updateScroll();
             }
         }, 500);
     }
 
-    // 核心滚动逻辑
+    // 当前滚动逻辑简化
     function updateScroll(force = false) {
         if (currentSubtitleIndex === -1 || !listElement) return;
         
         const el = listElement.querySelector(`.subtitle-item:nth-child(${currentSubtitleIndex + 1})`);
-        if (!el) return;
+        if (!el || (!force && !autoScrollEnabled)) return;
         
-        // 检查是否在中间区域
-        if (!force) {
-            const r1 = el.getBoundingClientRect();
-            const r2 = listElement.getBoundingClientRect();
-            const mid1 = r2.top + r2.height/3;
-            const mid2 = r2.top + r2.height*2/3;
-            autoScrollEnabled = r1.top <= mid2 && r1.bottom >= mid1;
-        }
-        
-        // 执行滚动
-        if (force || autoScrollEnabled) {
-            el.scrollIntoView({behavior:'smooth', block:'center'});
-        }
+        // 简化：直接执行滚动
+        el.scrollIntoView({behavior:'smooth', block:'center'});
     }
     
     // 公共函数
-    function resumeAutoScroll() { autoScrollEnabled = true; updateScroll(true); }
+    function resumeAutoScroll() { 
+        autoScrollEnabled = true; 
+        updateScroll(true);
+    }
     function stopTracking() { if (timer) { clearInterval(timer); timer = null; } }
-    function handleScroll() {}
     
     // 加载字幕和AI摘要
     async function loadContent() {
@@ -222,7 +213,10 @@
                     : (i18n?.assistant?.subtitles?.loading || "正在加载字幕...")}
             </div>
         {:else if hasItems}
-            <div class="subtitle-list" bind:this={listElement} on:scroll={handleScroll}>
+            <div class="subtitle-list" bind:this={listElement} 
+                on:scroll|capture={() => autoScrollEnabled = false}
+                on:wheel={() => autoScrollEnabled = false}
+                on:touchmove={() => autoScrollEnabled = false}>
                 {#each items as item, index}
                     <div class="subtitle-item" 
                          on:click={() => jumpToTime(item.startTime)}
@@ -241,7 +235,7 @@
     </div>
     
     {#if hasItems}
-        <div class="assistant-footer">
+        <div class="playlist-footer assistant-footer">
             <button class="add-btn" on:click={exportAll}>
                 <svg class="icon"><use xlink:href="#iconDownload"></use></svg>
                 <span>{exportBtnText}</span>

@@ -3,13 +3,12 @@
     import { Menu } from "siyuan";
     import type { MediaItem } from '../../core/types';
     import { BilibiliParser } from '../../core/bilibili';
+    import { AListManager } from '../../core/alist';
 
     // 组件属性
     export let item: MediaItem;
     export let currentItem: MediaItem | null = null;
     export let i18n: any;
-    export let tabs: any[] = [];
-    export let activeTabId: string = '';
     export let viewMode: 'detailed' | 'compact' | 'grid' | 'grid-single' = 'detailed';
     
     // 组件状态
@@ -22,87 +21,76 @@
     $: hasMultipleParts = videoParts.length > 1;
     $: isGridView = viewMode === 'grid' || viewMode === 'grid-single';
     
-    // 事件分发器
-    const dispatch = createEventDispatcher<{
-        play: { item: MediaItem };
-        playPart: { item: MediaItem; part: any };
-        togglePin: { item: MediaItem };
-        toggleFavorite: { item: MediaItem };
-        remove: { item: MediaItem };
-    }>();
-    
-    // 获取视频分P
-    async function loadVideoParts() {
-        if (videoParts.length > 0 || isLoadingParts || item.type !== 'bilibili' || !item.bvid) return;
-        
-        try {
-            isLoadingParts = true;
-            videoParts = await BilibiliParser.getVideoParts({ bvid: item.bvid }) || [];
-        } catch (error) {
-            console.error("获取视频分P列表失败", error);
-        } finally {
-            isLoadingParts = false;
+    // 辅助函数：处理AList URL转换（仅用于显示）
+    function getAListDisplayUrl(item: MediaItem): string {
+        if (item.source === 'alist' && item.sourcePath) {
+            const alistConfig = AListManager.getConfig();
+            if (alistConfig?.server) {
+                return `${alistConfig.server}${item.sourcePath}`;
+            }
         }
+        return item.url || '';
+    }
+    
+    // 显示用的URL
+    $: displayUrl = getAListDisplayUrl(item);
+    
+    // 事件分发器
+    const dispatch = createEventDispatcher();
+    
+    // 辅助函数：播放媒体
+    function playMedia(item: MediaItem) {
+        dispatch('play', { item });
     }
     
     // 处理点击事件
     async function handleClick() {
+        if (item.is_dir) return playMedia(item);
+        
         if (item.type === 'bilibili' && item.bvid) {
-            await loadVideoParts();
-            if (hasMultipleParts) {
-                isExpanded = !isExpanded;
-                return;
+            if (!videoParts.length && !isLoadingParts) {
+                isLoadingParts = true;
+                try {
+                    videoParts = await BilibiliParser.getVideoParts({ bvid: item.bvid }) || [];
+                } finally {
+                    isLoadingParts = false;
+                }
             }
+            if (hasMultipleParts) isExpanded = !isExpanded;
         }
-        if (item.originalUrl) {
-            dispatch('play', { item });
-        }
-    }
-    
-    // 播放分P
-    function playPart(part: any) {
-        dispatch('playPart', { 
-            item: {
-                ...item,
-                id: `${item.id}-p${part.page}`,
-                title: `${item.title.split(' - P')[0]} - P${part.page}${part.part ? ': ' + part.part : ''}`,
-                cid: String(part.cid)
-            },
-            part 
-        });
     }
     
     // 显示右键菜单
-    function showContextMenu(event: MouseEvent) {
+    function createContextMenu(e) {
         const menu = new Menu("mediaItemMenu");
-        const actions = {
-            play: () => { dispatch('play', { item }); menu.close(); },
-            togglePin: () => { dispatch('togglePin', { item }); menu.close(); },
-            toggleFavorite: () => { dispatch('toggleFavorite', { item }); menu.close(); },
-            remove: () => { dispatch('remove', { item }); menu.close(); }
-        };
         
-        [
-            { icon: "iconPlay", label: i18n.playList.menu.play, action: actions.play },
-            { icon: "iconPin", label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin, action: actions.togglePin },
-            { icon: "iconHeart", label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite, action: actions.toggleFavorite },
-            { icon: "iconTrashcan", label: i18n.playList.menu.delete, action: actions.remove }
-        ].forEach(({ icon, label, action }) => menu.addItem({ icon, label, click: action }));
+        // 基础菜单项：播放
+        const menuItems = [{ icon: "iconPlay", label: i18n.playList.menu.play, action: () => playMedia(item) }];
         
-        menu.open({ x: event.clientX, y: event.clientY });
-    }
-    
-    // 点击其他地方时折叠分P列表
-    function handleDocumentClick(event: MouseEvent) {
-        if (!(event.target as HTMLElement).closest('.playlist-item')) {
-            isExpanded = false;
+        // 对于非AList项，添加更多功能
+        if (item.source !== 'alist') {
+            menuItems.push(
+                { icon: "iconPin", label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin, action: () => dispatch('togglePin', { item }) },
+                { icon: "iconHeart", label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite, action: () => dispatch('toggleFavorite', { item }) },
+                { icon: "iconTrashcan", label: i18n.playList.menu.delete, action: () => dispatch('remove', { item }) }
+            );
         }
+        
+        // 添加菜单项
+        menuItems.forEach(({ icon, label, action }) => menu.addItem({ 
+            icon, label, click: () => { action(); menu.close(); } 
+        }));
+        
+        menu.open({ x: e.clientX, y: e.clientY });
     }
     
     // 监听文档点击事件
     onMount(() => {
-        document.addEventListener('click', handleDocumentClick);
-        return () => document.removeEventListener('click', handleDocumentClick);
+        const docClickHandler = e => {
+            if (!(e.target as HTMLElement).closest('.playlist-item')) isExpanded = false;
+        };
+        document.addEventListener('click', docClickHandler);
+        return () => document.removeEventListener('click', docClickHandler);
     });
 </script>
 
@@ -111,9 +99,10 @@
     class:playing={isPlaying}
     class:compact={viewMode === 'compact'}
     class:grid={isGridView}
+    class:folder={item.is_dir}
     on:click={handleClick}
-    on:dblclick={() => dispatch('play', { item })}
-    on:contextmenu|preventDefault={showContextMenu}
+    on:dblclick={() => playMedia(item)}
+    on:contextmenu|preventDefault={createContextMenu}
 >
     {#if isGridView}
         <div class="item-thumbnail">
@@ -151,12 +140,12 @@
                         <span>{item.artist}</span>
                     </div>
                 {/if}
-                {#if item.url}
-                    <div class="item-url" title={item.url}>
-                        <a href={item.url} 
+                {#if displayUrl}
+                    <div class="item-url" title={displayUrl}>
+                        <a href={displayUrl} 
                            target="_blank" 
                            rel="noopener noreferrer"
-                           on:click|stopPropagation>{item.url}</a>
+                           on:click|stopPropagation>{displayUrl}</a>
                     </div>
                 {/if}
             </div>
@@ -168,8 +157,16 @@
             {#each videoParts as part}
                 <button 
                     class="part-item {currentItem?.id === `${item.id}-p${part.page}` ? 'playing' : ''}" 
-                    on:click|stopPropagation={() => playPart(part)}
-                    title="{part.part || `P${part.page}`}"
+                    on:click|stopPropagation={() => dispatch('playPart', { 
+                        item: {
+                            ...item,
+                            id: `${item.id}-p${part.page}`,
+                            title: `${item.title.split(' - P')[0]} - P${part.page}${part.part ? ': ' + part.part : ''}`,
+                            cid: String(part.cid)
+                        }, 
+                        part 
+                    })}
+                    title={part.part || `P${part.page}`}
                 >
                     {part.page}
                 </button>

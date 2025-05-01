@@ -165,9 +165,7 @@
             "rename": "Rename",
             "clear": "Clear",
             "addLocalFolder": "Add Local Folder",
-            "addAliCloud": "Add Alibaba Cloud",
-            "addTianYiCloud": "Add TianYi Cloud",
-            "addQuarkCloud": "Add Quark Cloud",
+            "addAList": "Add AList Drive",
             "addBilibiliFavorites": "Add Bilibili Favorites"
         },
         "message": {

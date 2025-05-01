@@ -43,7 +43,6 @@ interface MediaBase {
     artistId?: string;    // 作者/UP主ID
     duration?: string;    // 媒体时长，格式化后的时间字符串
     thumbnail?: string;   // 媒体缩略图
-    originalUrl?: string; // 原始链接
 }
 
 /**
@@ -69,9 +68,29 @@ interface PlayControlProps {
 /**
  * 媒体项（合并多个相关接口）
  */
-export interface MediaItem extends MediaBase, BilibiliProps, PlayControlProps {
-    isPinned?: boolean;   // 是否置顶
-    isFavorite?: boolean; // 是否收藏
+export interface MediaItem {
+    id: string;            // 媒体ID
+    title: string;         // 标题
+    type?: string;         // 类型：'video', 'audio', 'bilibili', 'folder'等
+    url: string;           // 媒体URL
+    aid?: string;          // 辅助ID (比如B站aid)
+    bvid?: string;         // B站BV号
+    cid?: string;          // B站cid
+    thumbnail?: string;    // 缩略图
+    artist?: string;       // 艺术家/UP主名
+    artistIcon?: string;   // 艺术家/UP主头像
+    artistId?: string;     // 艺术家/UP主ID
+    duration?: string;     // 时长(格式化后的字符串)
+    startTime?: number;    // 开始时间(秒)
+    endTime?: number;      // 结束时间(秒)
+    isLoop?: boolean;      // 是否循环播放
+    loopCount?: number;    // 循环次数
+    isPinned?: boolean;    // 是否置顶
+    isFavorite?: boolean;  // 是否收藏
+    source?: string;       // 来源, 如 'alist'
+    sourcePath?: string;   // 来源路径
+    size?: number;         // 文件大小(字节)
+    is_dir?: boolean;      // 是否为文件夹
 }
 
 /**
@@ -105,6 +124,14 @@ export interface Config {
         playerPath: string;
         /** 链接格式模板 */
         linkFormat: string;
+        /** AList配置 */
+        alistConfig?: {
+            server: string;    // 服务器地址 
+            username: string;  // 用户名
+            password: string;  // 密码
+            token?: string;    // 认证令牌
+            connected?: boolean; // 连接状态
+        };
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
@@ -122,13 +149,14 @@ export interface PlaylistConfig {
     name: string;        // 列表名称
     isFixed?: boolean;   // 是否为固定列表
     items: MediaItem[];  // 媒体项列表
+    alistPath?: string;  // AList当前路径
+    alistPathParts?: {name: string; path: string}[];  // AList路径各部分
 }
 
 /**
  * 播放选项，包含字幕配置
  */
 export interface PlayOptions extends PlayControlProps, BilibiliProps {
-    originalUrl?: string;
     type?: 'bilibili' | 'bilibili-dash';
     title?: string;
     subtitle?: {

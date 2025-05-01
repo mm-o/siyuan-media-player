@@ -34,7 +34,6 @@
 </script>
 
 <div class="playlist-footer">
-    <div class="input-wrapper">
         <input 
             type="text" 
             class="tab-input playlist-input" 
@@ -45,7 +44,6 @@
         {#if inputValue}
             <span class="clear-icon" on:click={() => inputValue = ''}>×</span>
         {/if}
-    </div>
     <button 
         class="add-btn" 
         on:click={handleSubmit}

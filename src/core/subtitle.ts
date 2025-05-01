@@ -44,7 +44,7 @@ export class SubtitleManager {
      * 获取媒体文件对应的字幕
      */
     static async getSubtitleForMedia(mediaUrl: string): Promise<SubtitleOptions | null> {
-        if (!mediaUrl || !mediaUrl.startsWith('file://')) return null;
+        if (!mediaUrl?.startsWith('file://')) return null;
         
         try {
             const { pathname } = new URL(mediaUrl);
@@ -56,7 +56,6 @@ export class SubtitleManager {
             
             if (!fileBase) return null;
             
-            // 尝试不同的字幕格式
             for (const format of this.formats) {
                 try {
                     const subtitlePath = `${dirPath}/${encodeURIComponent(fileBase)}.${format}`;
@@ -77,13 +76,9 @@ export class SubtitleManager {
      */
     static async loadBilibiliSubtitle(bvid: string, cid: string, config?: any): Promise<SubtitleCue[]> {
         const key = `bili_${bvid}_${cid}`;
-        if (this.cache.has(key)) {
-            this.current = this.cache.get(key) || [];
-            return this.current;
-        }
+        if (this.cache.has(key)) return this.cache.get(key) || [];
         
         try {
-            // 获取字幕信息
             const headers = config ? getBiliHeaders(config, bvid) : {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Referer': `https://www.bilibili.com/video/${bvid}/`
@@ -106,7 +101,6 @@ export class SubtitleManager {
             const data = JSON.parse(result.data.body);
             if (data.code !== 0) return this.save(key, []);
             
-            // 获取字幕列表并选择字幕
             const list = data.data?.subtitle?.list || data.data?.subtitle?.subtitles || [];
             if (!list.length) return this.save(key, []);
             
@@ -115,7 +109,6 @@ export class SubtitleManager {
                 ? `https:${subtitleInfo.subtitle_url}` 
                 : subtitleInfo.subtitle_url;
             
-            // 获取字幕内容
             try {
                 const subtitleRes = await fetch(subtitleUrl);
                 if (!subtitleRes.ok) return this.save(key, []);
@@ -141,22 +134,22 @@ export class SubtitleManager {
      */
     static async loadSubtitle(url: string, type: string = 'srt'): Promise<SubtitleCue[]> {
         if (!url) return [];
-        if (this.cache.has(url)) {
-            this.current = this.cache.get(url) || [];
-            return this.current;
-        }
+        if (this.cache.has(url)) return this.cache.get(url) || [];
         
         try {
             const response = await fetch(url);
             if (!response.ok) return [];
             
             const content = await response.text();
-            if (type.toLowerCase() === 'srt') {
-                return this.save(url, this.parseSRT(content));
-            }
+            if (!content?.trim()) return [];
             
-            console.warn(`[字幕] 不支持的格式: ${type}`);
-            return [];
+            const parser = {
+                'srt': this.parseSRT,
+                'vtt': this.parseVTT,
+                'ass': this.parseASS
+            }[type.toLowerCase()];
+            
+            return this.save(url, parser ? parser(content) : []);
         } catch (e) {
             console.error('[字幕] 加载失败:', e);
             return [];
@@ -164,24 +157,66 @@ export class SubtitleManager {
     }
 
     /**
-     * 解析SRT字幕文本
+     * 解析字幕文本
      */
     private static parseSRT(content: string): SubtitleCue[] {
-        if (!content?.trim()) return [];
-        
+        const regex = /(\d+)\r?\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\r?\n([\s\S]*?)(?=\r?\n\r?\n\d+\r?\n|\r?\n\r?\n$|$)/g;
+        return SubtitleManager.parseWithRegex(content, regex, ',');
+    }
+
+    private static parseVTT(content: string): SubtitleCue[] {
+        const body = content.replace(/^WEBVTT.*?(\r?\n\r?\n|\r?\n)/i, '');
+        const regex = /(\d{2}:\d{2}:\d{2}\.\d{3}|\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3}|\d{2}:\d{2}\.\d{3}).*?\r?\n([\s\S]*?)(?=\r?\n\r?\n|\r?\n\s*\d{2}:\d{2}|\s*$)/g;
+        return SubtitleManager.parseWithRegex(body, regex, '.');
+    }
+
+    private static parseASS(content: string): SubtitleCue[] {
         try {
-            const regex = /(\d+)\r?\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\r?\n([\s\S]*?)(?=\r?\n\r?\n\d+\r?\n|\r?\n\r?\n$|$)/g;
+            return content.split(/\r?\n/)
+                .filter(line => line.startsWith('Dialogue:'))
+                .map(line => {
+                    const parts = line.split(',');
+                    if (parts.length < 10) return null;
+                    
+                    const text = parts.slice(9).join(',')
+                        .replace(/\{[^}]*\}/g, '')
+                        .replace(/\\N/g, ' ')
+                        .trim();
+                    
+                    if (!text) return null;
+                    
+                    return {
+                        startTime: SubtitleManager.parseTime(parts[1].trim(), ':'),
+                        endTime: SubtitleManager.parseTime(parts[2].trim(), ':'),
+                        text
+                    };
+                })
+                .filter(Boolean) as SubtitleCue[];
+        } catch {
+            return [];
+        }
+    }
+
+    /**
+     * 使用正则表达式解析字幕
+     */
+    private static parseWithRegex(content: string, regex: RegExp, separator: string): SubtitleCue[] {
+        try {
             const subtitles: SubtitleCue[] = [];
             let match;
             
             while ((match = regex.exec(content)) !== null) {
-                const [_, __, startTime, endTime, text] = match;
-                if (!text?.trim()) continue;
+                // SRT格式有4个捕获组，VTT格式有3个捕获组
+                const startTime = match[match.length === 5 ? 2 : 1];
+                const endTime = match[match.length === 5 ? 3 : 2];
+                const text = match[match.length === 5 ? 4 : 3]?.trim();
+                
+                if (!text) continue;
                 
                 subtitles.push({
-                    startTime: this.timeToSeconds(startTime),
-                    endTime: this.timeToSeconds(endTime),
-                    text: text.replace(/\r?\n/g, ' ').trim()
+                    startTime: SubtitleManager.parseTime(startTime, separator),
+                    endTime: SubtitleManager.parseTime(endTime, separator),
+                    text: text.replace(/\r?\n/g, ' ')
                 });
             }
             
@@ -192,16 +227,25 @@ export class SubtitleManager {
     }
 
     /**
-     * 将时间字符串转换为秒
+     * 解析时间字符串为秒
      */
-    private static timeToSeconds(time: string): number {
-        const [h, m, s] = time.split(':').map(part => 
-            part.includes(',') 
-                ? Number(part.split(',')[0]) + Number(part.split(',')[1]) / 1000
-                : Number(part)
-        );
+    private static parseTime(time: string, separator: string): number {
+        try {
+            if (separator === ':') { // ASS格式
+                const [h, m, s] = time.split(':');
+                return (Number(h) * 3600) + (Number(m) * 60) + Number(s);
+            }
+            
+            // SRT/VTT格式
+            const hasHours = time.split(':').length === 3;
+            const [h, m, s] = hasHours ? time.split(':') : ['0', ...time.split(':')];
+            const parts = (hasHours ? s : m).split(separator);
+            const seconds = Number(parts[0]) + (parts[1] ? Number(parts[1]) / 1000 : 0);
         
-        return h * 3600 + m * 60 + s;
+            return (Number(h) * 3600) + (Number(hasHours ? m : h) * 60) + seconds;
+        } catch {
+            return 0;
+        }
     }
 
     /**

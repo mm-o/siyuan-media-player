@@ -3,12 +3,15 @@
     import { Menu, showMessage } from "siyuan";
     import type { PlaylistConfig as BasePlaylistConfig } from '../../core/types';
     import { BilibiliParser } from '../../core/bilibili';
+    import { AListManager } from '../../core/alist';
     import { checkProEnabled, showProFeatureNotEnabledMessage } from '../../core/utils';
     import { onMount, onDestroy } from 'svelte';
 
     // 类型定义
     interface PlaylistConfig extends BasePlaylistConfig {
         isEditing?: boolean;
+        alistPath?: string;
+        alistPathParts?: { name: string; path: string }[];
     }
 
     // ===== 组件属性 =====
@@ -262,6 +265,107 @@
         }
     }
 
+    /**
+     * 处理AList路径导航
+     */
+    function handlePathNavigation(path: string) {
+        const config = AListManager.getConfig();
+        if (!config || !config.connected) {
+            showMessage("AList连接已断开");
+            return;
+        }
+        
+        addAListFolder(path);
+    }
+    
+    /**
+     * 添加指定路径的AList文件夹
+     */
+    async function addAListFolder(folderPath: string) {
+        try {
+            // 获取目录内容
+            const files = await AListManager.listFiles(folderPath);
+            
+            // 获取当前标签或创建新标签
+            let currentTab = tabs.find(tab => tab.id === activeTabId);
+            if (!currentTab || !currentTab.alistPath) {
+                // 仅当不存在当前标签或当前标签不是AList标签时创建新标签
+                const folderName = folderPath === '/' ? 'AList根目录' : folderPath.split('/').pop() || 'AList文件夹';
+                const tabId = `alist-folder-${Date.now()}`;
+                createNewTab(tabId, folderName);
+                currentTab = tabs.find(tab => tab.id === tabId);
+                if (!currentTab) return;
+            }
+            
+            // 添加路径导航信息
+            currentTab.alistPath = folderPath;
+            currentTab.alistPathParts = folderPath.split('/').filter(Boolean).map((part, index, arr) => {
+                const partPath = '/' + arr.slice(0, index + 1).join('/');
+                return { name: part, path: partPath };
+            });
+            
+            // 清空当前标签内容
+            currentTab.items = [];
+            
+            // 添加文件夹和媒体文件到标签
+            for (const file of files) {
+                if (AListManager.isMediaFile(file)) {
+                    // 添加媒体文件
+                    const mediaItem = await AListManager.createMediaItem(file, folderPath);
+                    if (mediaItem) currentTab.items.push(mediaItem);
+                } else if (file.is_dir) {
+                    // 添加文件夹
+                    const newFolderPath = `${folderPath === '/' ? '' : folderPath}/${file.name}`;
+                    const folderItem = {
+                        id: `alist-folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                        title: file.name,
+                        type: 'folder',
+                        url: newFolderPath,
+                        source: 'alist',
+                        sourcePath: newFolderPath,
+                        is_dir: true,
+                        thumbnail: '#iconFolder'
+                    };
+                    currentTab.items.push(folderItem);
+                }
+            }
+            
+            // 更新标签
+            tabs = [...tabs];
+            updateTabs();
+            
+            showMessage(`已添加AList文件夹`);
+        } catch (error) {
+            console.error('加载AList文件夹失败:', error);
+        }
+    }
+
+    /**
+     * 添加AList根目录
+     */
+    async function addAListRootFolder() {
+        try {
+            // 检查AList连接
+            const config = AListManager.getConfig();
+            if (!config || !config.connected) {
+                // 如果未连接，尝试自动连接
+                const appConfig = await configManager.getConfig();
+                if (await AListManager.initFromConfig(appConfig)) {
+                    await addAListFolder("/");
+                    return;
+                }
+                
+                showMessage("请先在设置中配置AList");
+                return;
+            }
+            
+            // 直接调用文件夹加载函数，复用代码
+            await addAListFolder("/");
+        } catch (error) {
+            console.error('添加AList根目录失败:', error);
+        }
+    }
+
     // ===== 对象集合 =====
     
     /**
@@ -352,12 +456,8 @@
         addTab: [
             { icon: "iconFolder", label: i18n.playList.menu.addLocalFolder, 
               action: withProCheck(() => startAddingTab('localFolder')) },
-            { icon: "iconCloud", label: i18n.playList.menu.addAliCloud, 
-              action: () => showMessage(i18n.playList.message.notImplemented) },
-            { icon: "iconCloud", label: i18n.playList.menu.addTianYiCloud, 
-              action: () => showMessage(i18n.playList.message.notImplemented) },
-            { icon: "iconCloud", label: i18n.playList.menu.addQuarkCloud, 
-              action: () => showMessage(i18n.playList.message.notImplemented) },
+            { icon: "iconCloud", label: i18n.playList.menu.addAList, 
+              action: withProCheck(addAListRootFolder) },
             { icon: "iconHeart", label: i18n.playList.menu.addBilibiliFavorites, 
               action: withProCheck(showBiliFavorites) }
         ]
@@ -370,8 +470,16 @@
         // 由于状态已通过config.bilibiliLogin获取，这里为空函数，但保留监听
     }
 
-    onMount(() => {
+    onMount(async () => {
         window.addEventListener('biliLoginStatusChange', handleBiliLoginStatusChange as EventListener);
+        
+        // 自动加载AList配置
+        try {
+            const config = await configManager.getConfig();
+            await AListManager.initFromConfig(config);
+        } catch (error) {
+            console.log('初始化AList失败:', error);
+        }
     });
     
     onDestroy(() => {
@@ -429,6 +537,43 @@
     </div>
 </div>
 
+<!-- AList路径导航区域 -->
+{#if tabs.find(tab => tab.id === activeTabId)?.alistPath}
+<div class="alist-path-nav">
+    <button class="path-item" on:click={() => handlePathNavigation('/')}>根目录</button>
+    {#each tabs.find(tab => tab.id === activeTabId)?.alistPathParts || [] as part}
+        <span class="path-sep">/</span>
+        <button class="path-item" on:click={() => handlePathNavigation(part.path)}>{part.name}</button>
+    {/each}
+</div>
+{/if}
+
 <style>
     /* 原有样式保持不变 */
+    
+    /* 路径导航样式 */
+    .alist-path-nav {
+        display: flex;
+        align-items: center;
+        padding: 4px 8px;
+        margin-bottom: 6px;
+        font-size: 12px;
+        overflow-x: auto;
+    }
+    
+    .path-item {
+        background: none;
+        border: none;
+        padding: 2px 4px;
+        color: var(--b3-theme-primary);
+        cursor: pointer;
+    }
+    
+    .path-item:hover {
+        text-decoration: underline;
+    }
+    
+    .path-sep {
+        color: var(--b3-theme-on-surface);
+    }
 </style>

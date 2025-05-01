@@ -165,9 +165,7 @@
             "rename": "重命名",
             "clear": "清空",
             "addLocalFolder": "添加本地文件夹",
-            "addAliCloud": "添加阿里云盘",
-            "addTianYiCloud": "添加天翼云盘",
-            "addQuarkCloud": "添加夸克云盘",
+            "addAList": "添加AList网盘",
             "addBilibiliFavorites": "添加B站收藏夹"
         },
         "message": {
