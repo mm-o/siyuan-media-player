@@ -73,13 +73,6 @@ export class LinkHandler {
      */
     private async handleMediaLink(url: string, forceBrowser = false): Promise<void> {
         try {
-            // 检查是否是AList时间戳链接
-            const isAListLink = url.includes('#simp=');
-            if (isAListLink) {
-                await this.handleAListTimestampLink(url);
-                return;
-            }
-            
             const config = await this.configManager.getConfig();
             const playerType = forceBrowser ? PlayerType.BROWSER : config.settings.playerType;
             
@@ -96,58 +89,6 @@ export class LinkHandler {
         } catch (error) {
             console.error("[LinkHandler] 处理链接失败:", error);
             showMessage("播放失败，请重试");
-        }
-    }
-
-    /**
-     * 处理AList时间戳链接
-     */
-    private async handleAListTimestampLink(url: string): Promise<void> {
-        try {
-            // 提取AList相关数据
-            const hashPart = url.split('#simp=')[1];
-            if (!hashPart) throw new Error('无效的AList时间戳链接');
-            
-            const alistData = JSON.parse(decodeURIComponent(hashPart));
-            if (alistData.source !== 'alist' || !alistData.path) {
-                throw new Error('无效的AList路径');
-            }
-            
-            // 确保播放器标签已打开
-            if (!document.querySelector('.media-player-tab')) {
-                this.openTabCallback();
-                await this.waitForElement('.media-player-tab', 2000);
-            }
-            
-            // 找到AList标签或创建一个
-            const folderPath = alistData.path.split('/').slice(0, -1).join('/') || '/';
-            const filename = alistData.path.split('/').pop();
-            
-            // 调用播放列表的方法加载AList文件夹
-            if (this.playlist) {
-                // 先加载AList文件夹
-                await this.playlist.loadAListFolder(folderPath);
-                
-                // 查找并播放指定文件
-                await this.playlist.findAndPlayAListItem(alistData.path);
-                
-                // 应用时间戳
-                setTimeout(() => {
-                    const siyuanPlayer = (window as any).siyuanMediaPlayer;
-                    if (siyuanPlayer && alistData.time) {
-                        if (alistData.time.end) {
-                            siyuanPlayer.setLoopSegment?.(alistData.time.start, alistData.time.end);
-                        } else {
-                            siyuanPlayer.seekTo?.(alistData.time.start);
-                        }
-                    }
-                }, 1000); // 延迟一秒确保播放器已准备好
-            } else {
-                showMessage("未找到播放列表组件");
-            }
-        } catch (error) {
-            console.error("处理AList时间戳链接失败:", error);
-            showMessage(`处理AList时间戳链接失败: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 

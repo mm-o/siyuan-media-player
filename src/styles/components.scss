@@ -109,6 +109,25 @@ $transition: 0.3s ease;
   @include bordered(color(surface-lighter)); background: color(background); box-sizing: border-box;
 }
 
+// AList相关样式
+.alist {
+  &-path-nav {
+    display: flex; font-size: 12px; overflow-x: auto; padding: 0 8px;
+    .path-item {
+      border: none; background: none; color: color(primary); cursor: pointer;
+      max-width: 100px; @include text-ellipsis; padding: 2px 4px;
+      &:hover { text-decoration: underline; }
+    }
+    .path-sep { color: color(on-surface); }
+    & + .playlist-content { margin-top: 0; }
+  }
+  &-form {
+    display: grid; grid-template-columns: 80px 1fr; gap: 8px; 
+    align-items: center; margin-bottom: 8px;
+    label { color: color(on-surface); font-size: 14px; }
+  }
+}
+
 %common-panel {
   @extend %panel-base;
   
@@ -642,215 +661,6 @@ $transition: 0.3s ease;
       
       &.success {
         background-color: color(primary); color: color(on-primary);
-      }
-    }
-  }
-}
-
-// AList 样式
-.alist-form {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 12px;
-  
-  label {
-    color: color(on-surface);
-    font-size: 14px;
-  }
-  
-  input {
-    margin-bottom: 8px;
-  }
-}
-
-.alist-status {
-  @include flex(row, flex-start, center, 8px);
-  margin-top: 12px;
-  padding: 8px 0;
-  
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    
-    &.connected {
-      background-color: #4CAF50;
-    }
-    
-    &.disconnected {
-      background-color: #F44336;
-    }
-  }
-  
-  button {
-    margin-left: auto;
-  }
-}
-
-// 文件夹项样式
-.folder-item {
-  @extend %item-base;
-  @include flex(column, flex-start, stretch, 12px); 
-  padding: 12px;
-  
-  // 通用状态
-  &:hover .folder-actions { opacity: 1; }
-  
-  // 视图模式适配
-  &.compact {
-    padding: 8px 12px;
-    .folder-title { margin: 0; font-size: 14px; @include text-ellipsis; }
-    .folder-actions { padding-top: 0; }
-  }
-  
-  &.grid {
-    padding: 0;
-    .folder-content { flex-direction: column; }
-    .folder-icon { width: 100%; height: auto; aspect-ratio: 16/9; }
-    .folder-info { padding: 8px; }
-    .folder-title { margin: 0 0 4px 0; }
-    .folder-actions { padding: 0; margin-top: 4px; }
-  }
-  
-  &.grid-single {
-    @extend .grid;
-    .folder-icon { aspect-ratio: 4/1; }
-  }
-  
-  // 内容布局
-  .folder-content {
-    @include flex(row, flex-start, stretch, 12px);
-  }
-  
-  .folder-icon {
-    @include flex(row, center, center);
-    width: 120px;
-    height: 68px;
-    background: color(surface-lighter);
-    border-radius: calc(size(radius) - 1px);
-    flex-shrink: 0;
-    
-    svg {
-      width: 36px;
-      height: 36px;
-      fill: color(on-surface-variant);
-    }
-  }
-  
-  // 信息区域
-  .folder-info {
-    flex: 1;
-    min-width: 0;
-    @include flex(column, flex-start, stretch, 4px);
-    
-    .folder-title {
-      @extend %item-title;
-      @include flex(row, flex-start, center, 6px);
-      
-      .folder-type-icon {
-        width: 16px;
-        height: 16px;
-        fill: color(on-surface-variant);
-      }
-    }
-    
-    .folder-meta {
-      @include flex(row, flex-start, center, 4px);
-      font-size: 12px;
-      color: color(on-surface-variant);
-      
-      .folder-count {
-        @include flex(row, flex-start, center, 4px);
-      }
-    }
-    
-    .folder-path {
-      @include text-ellipsis;
-      font-size: 12px;
-      color: color(on-surface-variant);
-      opacity: 0.6;
-    }
-  }
-  
-  // 操作区域
-  .folder-actions {
-    @include flex(row, flex-end, center, 8px);
-    padding-top: 8px;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-    
-    button {
-      @extend %button-base;
-      padding: 4px;
-      
-      svg {
-        width: 16px;
-        height: 16px;
-        fill: color(on-surface);
-        transition: fill 0.2s;
-      }
-      
-      &:hover svg {
-        fill: color(primary);
-      }
-    }
-  }
-  
-  // 文件列表区域
-  .folder-files {
-    @include bordered(color(border));
-    background: color(background);
-    padding: 8px;
-    margin-top: 4px;
-    max-height: 160px;
-    overflow-y: auto;
-    
-    &.expanded {
-      display: block;
-    }
-    
-    &.collapsed {
-      display: none;
-    }
-    
-    .file-item {
-      @include flex(row, space-between, center, 8px);
-      padding: 4px 8px;
-      border-radius: size(radius);
-      transition: background-color 0.2s;
-      
-      &:hover {
-        background-color: color(surface-lighter);
-      }
-      
-      .file-name {
-        @include text-ellipsis;
-        font-size: 13px;
-        color: color(on-background);
-      }
-      
-      .file-size {
-        font-size: 12px;
-        color: color(on-surface-variant);
-        flex-shrink: 0;
-      }
-      
-      .file-play {
-        @include flex(row, center, center);
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: color(primary);
-        flex-shrink: 0;
-        cursor: pointer;
-        
-        svg {
-          width: 16px;
-          height: 16px;
-          fill: #fff;
-        }
       }
     }
   }

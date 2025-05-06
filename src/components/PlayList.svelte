@@ -6,7 +6,7 @@
     // 从'../core/types'中导入MediaItem和PlaylistConfig类型
     import type { MediaItem, PlaylistConfig } from '../core/types';
     // 从'../core/media'中导入MediaManager
-    import { MediaManager } from '../core/media';
+    import { MediaManager, DEFAULT_THUMBNAILS } from '../core/media';
     // 从'../core/bilibili'中导入BilibiliParser
     import { BilibiliParser } from '../core/bilibili';
     // 从'../core/config'中导入ConfigManager类型
@@ -40,70 +40,51 @@
     $: itemCount = activeTab?.items?.length || 0;
     
     // 事件分发器
-    const dispatch = createEventDispatcher<{
-        select: { item: MediaItem };
-        play: any;
-        tabsUpdate: { tabs: PlaylistConfig[] };
-        tabChange: { tabId: string };
-    }>();
+    const dispatch = createEventDispatcher();
 
     /**
      * 处理媒体播放
      */
     async function handleMediaPlay(item: MediaItem) {
         try {
-            // 处理AList文件夹
+            // AList文件夹处理
             if (item.source === 'alist' && item.is_dir) {
-                try {
-                    // 获取文件夹内容
                     const path = item.sourcePath || '/';
-                    const files = await AListManager.listFiles(path);
+                    const tab = tabs.find(t => t.id === activeTabId);
+                    if (!tab) return;
                     
-                    // 获取当前标签
-                    const currentTab = tabs.find(tab => tab.id === activeTabId);
-                    if (!currentTab) return;
+                // 更新路径和文件列表
+                    tab.alistPath = path;
+                tab.alistPathParts = path.split('/').filter(Boolean).map((part, i, arr) => (
+                    { name: part, path: '/' + arr.slice(0, i + 1).join('/') }
+                    ));
+                
+                // 加载文件列表
+                const files = await AListManager.listFiles(path);
+                    tab.items = [];
                     
-                    // 更新当前标签的路径导航信息
-                    currentTab.alistPath = path;
-                    currentTab.alistPathParts = path.split('/').filter(Boolean).map((part, index, arr) => {
-                        const partPath = '/' + arr.slice(0, index + 1).join('/');
-                        return { name: part, path: partPath };
-                    });
-                    
-                    // 清空并重新填充当前标签的内容
-                    currentTab.items = [];
-                    
-                    // 添加媒体文件和文件夹到当前标签
-                    for (const file of files) {
+                // 处理文件
+                    await Promise.all(files.map(async file => {
                         if (AListManager.isMediaFile(file)) {
                             const mediaItem = await AListManager.createMediaItem(file, path);
-                            if (mediaItem) currentTab.items.push(mediaItem);
+                            if (mediaItem) tab.items.push(mediaItem);
                         } else if (file.is_dir) {
-                            // 添加文件夹
-                            const folderPath = `${path === '/' ? '' : path}/${file.name}`;
-                            const folderItem = {
-                                id: `alist-folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                            tab.items.push({
+                            id: `alist-${Date.now().toString(36)}`,
                                 title: file.name,
                                 type: 'folder',
-                                url: folderPath,
+                            url: '#', 
                                 source: 'alist',
-                                sourcePath: folderPath,
+                            sourcePath: `${path === '/' ? '' : path}/${file.name}`,
                                 is_dir: true,
-                                thumbnail: '#iconFolder'
-                            } as MediaItem;
-                            currentTab.items.push(folderItem);
+                            thumbnail: DEFAULT_THUMBNAILS.folder
+                            } as MediaItem);
                         }
-                    }
+                    }));
                     
-                    // 更新标签状态
                     tabs = [...tabs];
                     dispatch('tabsUpdate', { tabs });
-                    
                     return;
-                } catch (error) {
-                    console.error('[AList] 打开文件夹失败:', error);
-                    return;
-                }
             }
             
             // 获取配置和准备播放选项
@@ -123,6 +104,12 @@
             
             // 处理不同类型的媒体
             if (item.type === 'bilibili' && item.bvid && item.cid) {
+                // 检查B站登录状态
+                if (!config.bilibiliLogin?.userInfo?.mid) {
+                    showMessage(i18n.playList.error.needBiliLogin || '需要登录B站才能播放视频');
+                    return;
+                }
+                
                 // B站视频处理
                 const streamInfo = await BilibiliParser.getProcessedVideoStream(
                     item.bvid, item.cid, 0, config
@@ -149,13 +136,10 @@
     onMount(async () => {
         MediaManager.cleanupCache();
         
-        // 初始化AList配置
+        // 初始化
         try {
-            const config = await configManager.getConfig();
-            await AListManager.initFromConfig(config);
-        } catch (error) {
-            console.log('初始化AList配置失败:', error);
-        }
+            await AListManager.initFromConfig(await configManager.getConfig());
+        } catch {}
         
         await loadPlaylists();
     });
@@ -217,8 +201,17 @@
             const biliInfo = parseBiliUrl(mediaUrl);
             const currentBvid = biliInfo?.bvid;
             const currentP = biliInfo?.p;
+            
+            // 如果是B站视频，检查登录状态
             if (currentBvid) {
                 mediaUrl = `https://www.bilibili.com/video/${currentBvid}`;
+                
+                // 检查B站登录状态
+                const config = await configManager.getConfig();
+                if (!config.bilibiliLogin?.userInfo?.mid) {
+                    showMessage(i18n.playList.error.needBiliLogin || '需要登录B站才能添加视频');
+                    return;
+                }
             }
             
             // 检查是否已存在
@@ -428,135 +421,6 @@
         const currentIndex = modes.indexOf(viewMode);
         viewMode = modes[(currentIndex + 1) % modes.length];
     }
-
-    /**
-     * 加载AList文件夹 - 供LinkHandler调用
-     * @param folderPath AList文件夹路径
-     */
-    export async function loadAListFolder(folderPath: string): Promise<boolean> {
-        try {
-            // 检查AList连接状态
-            const alistConfig = AListManager.getConfig();
-            if (!alistConfig || !alistConfig.connected) {
-                const config = await configManager.getConfig();
-                await AListManager.initFromConfig(config);
-            }
-            
-            // 查找现有的AList标签
-            let alistTab = tabs.find(tab => tab.alistPath && tab.id.startsWith('alist-folder-'));
-            
-            // 如果没有AList标签，创建一个新的
-            if (!alistTab) {
-                const folderName = folderPath === '/' ? 'AList根目录' : folderPath.split('/').pop() || 'AList文件夹';
-                const tabId = `alist-folder-${Date.now()}`;
-                
-                alistTab = {
-                    id: tabId,
-                    name: folderName,
-                    items: [],
-                    alistPath: folderPath
-                };
-                
-                tabs = [...tabs, alistTab];
-            }
-            
-            // 切换到AList标签
-            activeTabId = alistTab.id;
-            
-            // 更新AList标签内容
-            const files = await AListManager.listFiles(folderPath);
-            
-            // 更新当前标签的路径导航信息
-            alistTab.alistPath = folderPath;
-            alistTab.alistPathParts = folderPath.split('/').filter(Boolean).map((part, index, arr) => {
-                const partPath = '/' + arr.slice(0, index + 1).join('/');
-                return { name: part, path: partPath };
-            });
-            
-            // 清空并重新填充标签内容
-            alistTab.items = [];
-            
-            // 添加媒体文件和文件夹
-            for (const file of files) {
-                if (AListManager.isMediaFile(file)) {
-                    const mediaItem = await AListManager.createMediaItem(file, folderPath);
-                    if (mediaItem) alistTab.items.push(mediaItem);
-                } else if (file.is_dir) {
-                    // 添加文件夹
-                    const newFolderPath = `${folderPath === '/' ? '' : folderPath}/${file.name}`;
-                    const folderItem = {
-                        id: `alist-folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                        title: file.name,
-                        type: 'folder',
-                        url: newFolderPath,
-                        source: 'alist',
-                        sourcePath: newFolderPath,
-                        is_dir: true,
-                        thumbnail: '#iconFolder'
-                    } as MediaItem;
-                    alistTab.items.push(folderItem);
-                }
-            }
-            
-            // 更新标签
-            tabs = [...tabs];
-            
-            // 派发标签更新和切换事件
-            dispatch('tabsUpdate', { tabs });
-            dispatch('tabChange', { tabId: alistTab.id });
-            
-            return true;
-        } catch (error) {
-            console.error('加载AList文件夹失败:', error);
-            return false;
-        }
-    }
-    
-    /**
-     * 查找并播放AList媒体项 - 供LinkHandler调用
-     * @param filePath AList文件路径
-     */
-    export async function findAndPlayAListItem(filePath: string): Promise<boolean> {
-        try {
-            const currentTab = tabs.find(tab => tab.id === activeTabId);
-            if (!currentTab || !currentTab.items || !currentTab.items.length) {
-                return false;
-            }
-            
-            // 查找指定路径的媒体项
-            const mediaItem = currentTab.items.find(item => 
-                item.source === 'alist' && 
-                item.sourcePath === filePath
-            );
-            
-            // 如果找到了，播放它
-            if (mediaItem) {
-                await handleMediaPlay(mediaItem);
-                return true;
-            }
-            
-            // 如果没找到，可能是文件夹结构已变化，尝试重新获取文件
-            const path = filePath.split('/').slice(0, -1).join('/') || '/';
-            const fileName = filePath.split('/').pop() || '';
-            
-            // 重新获取文件夹内容
-            const files = await AListManager.listFiles(path);
-            const targetFile = files.find(file => !file.is_dir && file.name === fileName);
-            
-            if (targetFile && AListManager.isMediaFile(targetFile)) {
-                const newMediaItem = await AListManager.createMediaItem(targetFile, path);
-                if (newMediaItem) {
-                    await handleMediaPlay(newMediaItem);
-                    return true;
-                }
-            }
-            
-            return false;
-        } catch (error) {
-            console.error('查找并播放AList媒体失败:', error);
-            return false;
-        }
-    }
 </script>
 
 <div class="playlist {className}" class:hidden>
@@ -589,15 +453,13 @@
     />
     
     <!-- 内容区 -->
-    <div class="playlist-content" class:grid-view={viewMode === 'grid' || viewMode === 'grid-single'}>
+    <div class="playlist-content" class:grid-view={viewMode === 'grid' || viewMode === 'grid-single'} style="margin-top: 0;">
         {#if activeTab?.items?.length > 0}
             <div class="playlist-items" class:grid-single={viewMode === 'grid-single'}>
                 {#each activeTab.items as item (item.id)}
                     <PlayListItem 
                         {item}
                         {currentItem}
-                        {tabs}
-                        {activeTabId}
                         {i18n}
                         {viewMode}
                         on:play={handleMediaItemAction}

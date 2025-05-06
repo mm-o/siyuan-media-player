@@ -12,7 +12,7 @@
     import type { ConfigManager } from "../core/config";
     import type { ISettingItem } from "../core/types";
     import { BilibiliParser } from "../core/bilibili";
-    import { AListManager, type AListConfig } from "../core/alist";
+    import type { AListConfig } from "../core/alist";
 
     export let group: string;
     export let configManager: ConfigManager;
@@ -25,15 +25,7 @@
     let linkFormat = "- [😄标题 时间 艺术家 字幕](链接)";
     let showProPanel = false, proEnabled = false, showPaymentQRCodes = false;
     let playerPath = "PotPlayerMini64.exe";
-    
-    // AList配置
-    let alistConfig: AListConfig = {
-        server: "http://localhost:5244",
-        username: "admin",
-        password: "",
-        connected: false
-    };
-    let alistConnected = false;
+    let alistConfig: AListConfig = { server: "http://localhost:5244", username: "admin", password: "", connected: false };
     
     // 标签页定义
     const tabs = [
@@ -109,12 +101,6 @@
             // 加载AList配置
             if (config.settings.alistConfig) {
                 alistConfig = config.settings.alistConfig;
-                alistConnected = !!alistConfig.connected;
-                
-                // 如果之前连接过，尝试重新连接
-                if (alistConnected) {
-                    testAListConnection();
-                }
             }
         };
         loadConfig();
@@ -217,11 +203,7 @@
         
         settings.playerPath = playerPath;
         settings.linkFormat = linkFormat;
-        
-        // 保存AList设置
-        if (alistConnected) {
-            settings.alistConfig = alistConfig;
-        }
+        settings.alistConfig = alistConfig;
         
         await configManager.updateSettings(settings);
         dispatch('changed', { settings });
@@ -234,13 +216,7 @@
         linkFormat = "- [😄标题 时间 艺术家 字幕](链接)";
         
         // 重置AList配置
-        alistConfig = {
-            server: "http://localhost:5244",
-            username: "admin",
-            password: "",
-            connected: false
-        };
-        alistConnected = false;
+        alistConfig = { server: "http://localhost:5244", username: "admin", password: "", connected: false };
         
         const settings = settingItems.reduce((acc, item) => ({
             ...acc,
@@ -252,25 +228,6 @@
         
         dispatch('changed', { settings });
         showMessage(i18n.setting.resetSuccess);
-    }
-
-    // AList功能
-    async function testAListConnection() {
-        try {
-            const result = await AListManager.checkConnection(alistConfig);
-            alistConnected = result.connected;
-            
-            if (result.connected) {
-                // 立即更新设置
-                const settings = await configManager.getConfig();
-                settings.settings.alistConfig = alistConfig;
-                await configManager.save();
-                
-                showMessage("AList连接成功");
-            }
-        } catch (error) {
-            alistConnected = false;
-        }
     }
 
     // Pro版功能
@@ -443,27 +400,16 @@
             </div>
             {/if}
 
-            <!-- AList 配置部分 -->
+            <!-- AList 配置 -->
             <div class="setting-item">
                 <div class="setting-info">
-                    <div class="setting-title">AList 配置</div>
-                    <div class="setting-description">设置AList服务器地址、用户名和密码，支持网盘文件播放</div>
+                    <div class="setting-title">AList</div>
+                    <div class="setting-description">支持网盘文件播放</div>
                     <div class="setting-content">
                         <div class="alist-form">
-                            <label>服务器地址</label>
-                            <input type="text" class="b3-text-field fn__block" placeholder="http://localhost:5244" bind:value={alistConfig.server} />
-                            
-                            <label>用户名</label>
-                            <input type="text" class="b3-text-field fn__block" placeholder="admin" bind:value={alistConfig.username} />
-                            
-                            <label>密码</label>
-                            <input type="password" class="b3-text-field fn__block" placeholder="请输入密码" bind:value={alistConfig.password} />
-                        </div>
-                        
-                        <div class="alist-status">
-                            <span class="status-dot {alistConnected ? 'connected' : 'disconnected'}"></span>
-                            <span>{alistConnected ? '已连接' : '未连接'}</span>
-                            <button class="b3-button b3-button--outline" on:click={testAListConnection}>测试连接</button>
+                            <label>服务器</label><input type="text" class="b3-text-field fn__block" placeholder="http://localhost:5244" bind:value={alistConfig.server} />
+                            <label>用户名</label><input type="text" class="b3-text-field fn__block" placeholder="admin" bind:value={alistConfig.username} />
+                            <label>密码</label><input type="password" class="b3-text-field fn__block" placeholder="密码" bind:value={alistConfig.password} />
                         </div>
                     </div>
                 </div>

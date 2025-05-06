@@ -146,6 +146,12 @@
         "action": {
             "add": "添加"
         },
+        "dialog": {
+            "selectFolder": "选择文件夹",
+            "select": "选择",
+            "mediaFiles": "媒体文件",
+            "selectMedia": "选择媒体文件"
+        },
         "placeholder": {
             "mediaLink": "输入媒体链接...",
             "newTab": "新标签",
@@ -164,13 +170,16 @@
             "delete": "删除",
             "rename": "重命名",
             "clear": "清空",
+            "addNewTab": "添加新标签",
             "addLocalFolder": "添加本地文件夹",
+            "addMediaFiles": "添加媒体文件",
             "addAList": "添加AList网盘",
             "addBilibiliFavorites": "添加B站收藏夹"
         },
         "message": {
             "listCleared": "已清空\"${name}\"列表",
             "folderAdded": "已添加文件夹 ${name} 中的 ${count} 个媒体文件",
+            "filesAdded": "已添加 ${count} 个媒体文件",
             "existingItemPlay": "媒体已在播放列表中，直接播放",
             "added": "已添加到播放列表",
             "processingFavorites": "正在处理B站收藏夹中的视频...",
@@ -183,6 +192,7 @@
             "cannotParse": "无法解析媒体文件",
             "addMediaFailed": "添加媒体失败",
             "selectFolderFailed": "选择文件夹失败",
+            "selectMediaFilesFailed": "选择媒体文件失败",
             "processLocalFolderFailed": "处理本地文件夹失败",
             "processDirectoryFailed": "处理目录失败",
             "processMediaItemFailed": "处理媒体项失败:",

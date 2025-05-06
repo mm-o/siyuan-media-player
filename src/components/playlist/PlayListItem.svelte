@@ -20,33 +20,16 @@
     $: isPlaying = currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`);
     $: hasMultipleParts = videoParts.length > 1;
     $: isGridView = viewMode === 'grid' || viewMode === 'grid-single';
-    
-    // 辅助函数：处理AList URL转换（仅用于显示）
-    function getAListDisplayUrl(item: MediaItem): string {
-        if (item.source === 'alist' && item.sourcePath) {
-            const alistConfig = AListManager.getConfig();
-            if (alistConfig?.server) {
-                return `${alistConfig.server}${item.sourcePath}`;
-            }
-        }
-        return item.url || '';
-    }
-    
-    // 显示用的URL
-    $: displayUrl = getAListDisplayUrl(item);
+    $: alistUrl = item.source === 'alist' && item.sourcePath ? 
+        AListManager.getConfig()?.server + item.sourcePath : 
+        item.url;
     
     // 事件分发器
     const dispatch = createEventDispatcher();
     
-    // 辅助函数：播放媒体
-    function playMedia(item: MediaItem) {
-        dispatch('play', { item });
-    }
-    
     // 处理点击事件
     async function handleClick() {
-        if (item.is_dir) return playMedia(item);
-        
+        if (item.is_dir) return dispatch('play', { item });
         if (item.type === 'bilibili' && item.bvid) {
             if (!videoParts.length && !isLoadingParts) {
                 isLoadingParts = true;
@@ -61,23 +44,21 @@
     }
     
     // 显示右键菜单
-    function createContextMenu(e) {
+    function createContextMenu(e: MouseEvent) {
         const menu = new Menu("mediaItemMenu");
+        const actions = {
+            play: () => { dispatch('play', { item }); menu.close(); },
+            togglePin: () => { dispatch('togglePin', { item }); menu.close(); },
+            toggleFavorite: () => { dispatch('toggleFavorite', { item }); menu.close(); },
+            remove: () => { dispatch('remove', { item }); menu.close(); }
+        };
         
-        // 基础菜单项：播放
-        const menuItems = [{ icon: "iconPlay", label: i18n.playList.menu.play, action: () => playMedia(item) }];
-        
-        // 对于非AList项，添加更多功能
-        if (item.source !== 'alist') {
-            menuItems.push(
-                { icon: "iconPin", label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin, action: () => dispatch('togglePin', { item }) },
-                { icon: "iconHeart", label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite, action: () => dispatch('toggleFavorite', { item }) },
-                { icon: "iconTrashcan", label: i18n.playList.menu.delete, action: () => dispatch('remove', { item }) }
-            );
-        }
-        
-        // 添加菜单项
-        menuItems.forEach(({ icon, label, action }) => menu.addItem({ 
+        [
+            { icon: "iconPlay", label: i18n.playList.menu.play, action: actions.play },
+            { icon: "iconPin", label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin, action: actions.togglePin },
+            { icon: "iconHeart", label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite, action: actions.toggleFavorite },
+            { icon: "iconTrashcan", label: i18n.playList.menu.delete, action: actions.remove }
+        ].forEach(({ icon, label, action }) => menu.addItem({ 
             icon, label, click: () => { action(); menu.close(); } 
         }));
         
@@ -101,7 +82,7 @@
     class:grid={isGridView}
     class:folder={item.is_dir}
     on:click={handleClick}
-    on:dblclick={() => playMedia(item)}
+    on:dblclick={() => dispatch('play', { item })}
     on:contextmenu|preventDefault={createContextMenu}
 >
     {#if isGridView}
@@ -140,12 +121,12 @@
                         <span>{item.artist}</span>
                     </div>
                 {/if}
-                {#if displayUrl}
-                    <div class="item-url" title={displayUrl}>
-                        <a href={displayUrl} 
+                {#if alistUrl}
+                    <div class="item-url" title={alistUrl}>
+                        <a href={alistUrl} 
                            target="_blank" 
                            rel="noopener noreferrer"
-                           on:click|stopPropagation>{displayUrl}</a>
+                           on:click|stopPropagation>{alistUrl}</a>
                     </div>
                 {/if}
             </div>
