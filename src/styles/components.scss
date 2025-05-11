@@ -112,13 +112,14 @@ $transition: 0.3s ease;
 // AList相关样式
 .alist {
   &-path-nav {
-    display: flex; font-size: 12px; overflow-x: auto; padding: 0 8px;
+    @include flex(row, null, center); font-size: 12px; overflow-x: auto; padding: 0 8px;
     .path-item {
       border: none; background: none; color: color(primary); cursor: pointer;
       max-width: 100px; @include text-ellipsis; padding: 2px 4px;
       &:hover { text-decoration: underline; }
+      &.active { font-weight: bold; }
     }
-    .path-sep { color: color(on-surface); }
+    .path-sep { color: color(on-surface); margin: 0 2px; }
     & + .playlist-content { margin-top: 0; }
   }
   &-form {
@@ -437,7 +438,10 @@ $transition: 0.3s ease;
   margin-bottom: 8px; padding: 16px; @extend %item-base;
   @include flex(row, space-between, center, 16px);
   
-  &.with-path { padding-bottom: 52px; }
+  &.with-path { 
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
   
   // Pro特殊样式
   &.pro-setting-item {

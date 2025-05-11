@@ -13,6 +13,7 @@
     import type { ISettingItem } from "../core/types";
     import { BilibiliParser } from "../core/bilibili";
     import type { AListConfig } from "../core/alist";
+    import { notebook } from "../core/utils";
 
     export let group: string;
     export let configManager: ConfigManager;
@@ -22,10 +23,10 @@
     let activeTab = 'account';
     let qrcodeData = '', qrcodeKey = '', checkQRCodeTimer: number;
     let loginSuccess = false, userInfo = null, scanStatus = i18n.setting.bilibili.waitingScan;
-    let linkFormat = "- [😄标题 时间 艺术家 字幕](链接)";
     let showProPanel = false, proEnabled = false, showPaymentQRCodes = false;
     let playerPath = "PotPlayerMini64.exe";
     let alistConfig: AListConfig = { server: "http://localhost:5244", username: "admin", password: "", connected: false };
+    let selectedNotebookId = notebook.getPreferredId(); // 选定的笔记本ID
     
     // 标签页定义
     const tabs = [
@@ -36,6 +37,17 @@
     
     // 基础设置项
     const defaultSettings: ISettingItem[] = [
+        {
+            key: "openMode", value: "default", type: "select",
+            title: i18n.setting.items.openMode?.title || "打开方式",
+            description: i18n.setting.items.openMode?.description,
+            options: [
+                { label: i18n.setting.items.openMode?.options?.default || "新标签", value: "default" },
+                { label: i18n.setting.items.openMode?.options?.right || "右侧新标签", value: "right" },
+                { label: i18n.setting.items.openMode?.options?.bottom || "底部新标签", value: "bottom" },
+                { label: i18n.setting.items.openMode?.options?.window || "新窗口", value: "window" }
+            ]
+        },
         {
             key: "volume", value: 70, type: "slider",
             title: i18n.setting.items.volume.title,
@@ -55,19 +67,33 @@
             slider: { min: 1, max: 10, step: 1 }
         },
         {
-            key: "insertAtCursor", value: true, type: "checkbox",
-            title: i18n.setting.items.insertAtCursor.title,
-            description: i18n.setting.items.insertAtCursor.description
+            key: "pauseAfterLoop", value: false, type: "checkbox",
+            title: i18n.setting.items.pauseAfterLoop?.title || "循环后暂停",
+            description: i18n.setting.items.pauseAfterLoop?.description
         },
         {
-            key: "showSubtitles", value: true, type: "checkbox",
+            key: "insertMode", value: "cursor", type: "select",
+            title: i18n.setting.items.insertMode?.title || "插入方式",
+            description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
+            options: [
+                { label: i18n.setting.items.insertMode?.insertBlock || "插入光标处", value: "insertBlock" },
+                { label: i18n.setting.items.insertMode?.appendBlock || "追加到块末尾", value: "appendBlock" },
+                { label: i18n.setting.items.insertMode?.prependBlock || "添加到块开头", value: "prependBlock" },
+                { label: i18n.setting.items.insertMode?.updateBlock || "更新当前块", value: "updateBlock" },
+                { label: i18n.setting.items.insertMode?.prependDoc || "插入到文档顶部", value: "prependDoc" },
+                { label: i18n.setting.items.insertMode?.appendDoc || "插入到文档底部", value: "appendDoc" },
+                { label: i18n.setting.items.insertMode?.clipboard || "复制到剪贴板", value: "clipboard" }
+            ]
+        },
+        {
+            key: "showSubtitles", value: false, type: "checkbox",
             title: i18n.setting.items.showSubtitles?.title || "显示字幕",
-            description: i18n.setting.items.showSubtitles?.description || "播放时显示字幕（如果有）"
+            description: i18n.setting.items.showSubtitles?.description
         },
         {
             key: "enableDanmaku", value: false, type: "checkbox",
             title: i18n.setting.items.enableDanmaku?.title || "启用弹幕",
-            description: i18n.setting.items.enableDanmaku?.description || "播放时启用弹幕（如果有）"
+            description: i18n.setting.items.enableDanmaku?.description
         },
         {
             key: "playerType", value: "built-in", type: "select",
@@ -78,6 +104,28 @@
                 { label: i18n.setting.items.playerType.potPlayer, value: "potplayer" },
                 { label: i18n.setting.items.playerType.browser, value: "browser" }
             ]
+        },
+        {
+            key: "linkFormat", value: "- [😄标题 艺术家 字幕 时间](链接)\n\n  ![截图](截图)", type: "textarea",
+            title: i18n.setting.items?.linkFormat?.title || "链接格式",
+            description: i18n.setting.items?.linkFormat?.description || "支持变量：标题、时间、艺术家、链接、字幕、截图",
+            rows: 3,
+            placeholder: "- [😄标题 艺术家 字幕 时间](链接)\n\n  ![截图](截图)"
+        },
+        {
+            key: "targetNotebook", value: selectedNotebookId, type: "select",
+            title: i18n.setting.items?.targetNotebook?.title || "目标笔记本",
+            description: i18n.setting.items?.targetNotebook?.description || "选择创建媒体笔记的目标笔记本",
+            options: []
+        },
+        {
+            key: "mediaNotesTemplate", 
+            value: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容：", 
+            type: "textarea",
+            title: i18n.setting.items?.mediaNotesTemplate?.title || "媒体笔记模板",
+            description: i18n.setting.items?.mediaNotesTemplate?.description || "支持变量：标题、时间、艺术家、链接、时长、封面、类型、ID、日期、时间戳",
+            rows: 6,
+            placeholder: "# 标题的媒体笔记笔记\n- 日 期：日期\n- 时 长：时长\n- 艺 术 家：艺术家\n- 类 型：类型\n- 链 接：[链接](链接)\n- ![封面](封面)\n- 笔记内容："
         }
     ];
     
@@ -88,25 +136,42 @@
     onMount(() => {
         const loadConfig = async () => {
             const config = await configManager.load();
+            
+            // 更新基本设置项
             settingItems = settingItems.map(item => ({
                 ...item,
                 value: config.settings[item.key] ?? item.value
             }));
+            
+            // 快速更新其他配置
             playerPath = config.settings.playerPath || "PotPlayerMini64.exe";
-            linkFormat = config.settings.linkFormat || "- [😄标题 时间 艺术家 字幕](链接)";
-            loginSuccess = !!config.bilibiliLogin;
+            alistConfig = config.settings.alistConfig || alistConfig;
+            selectedNotebookId = config.settings.targetNotebook || '';
+            
+            // 加载B站登录状态
+            loginSuccess = !!config.bilibiliLogin?.userInfo?.mid;
             userInfo = config.bilibiliLogin?.userInfo;
             proEnabled = config.proEnabled || false;
             
-            // 加载AList配置
-            if (config.settings.alistConfig) {
-                alistConfig = config.settings.alistConfig;
-            }
+            // 加载笔记本列表
+            await loadNotebooks();
         };
-        loadConfig();
         
-        return () => { if (checkQRCodeTimer) clearInterval(checkQRCodeTimer); };
+        loadConfig();
+        return () => clearInterval(checkQRCodeTimer);
     });
+
+    // 加载笔记本列表
+    async function loadNotebooks() {
+        try {
+            const result = await notebook.initSettingItem(settingItems, selectedNotebookId);
+            settingItems = result.items;
+            selectedNotebookId = result.selectedId;
+        } catch (error) {
+            console.error("加载笔记本列表失败:", error);
+            showMessage("加载笔记本列表失败");
+        }
+    }
 
     // 二维码处理
     async function getBilibiliQRCode() {
@@ -184,6 +249,8 @@
             value = target.checked;
         } else if (item.type === 'select') {
             value = target.value;
+        } else if (item.type === 'textarea') {
+            value = target.value;
         } else {
             value = Number(target.value);
         }
@@ -202,8 +269,13 @@
         }), {}) as any;
         
         settings.playerPath = playerPath;
-        settings.linkFormat = linkFormat;
         settings.alistConfig = alistConfig;
+        
+        // 保存选定的笔记本ID
+        const targetNotebookItem = settingItems.find(item => item.key === "targetNotebook");
+        if (targetNotebookItem) {
+            notebook.savePreferredId(String(targetNotebookItem.value));
+        }
         
         await configManager.updateSettings(settings);
         dispatch('changed', { settings });
@@ -213,20 +285,9 @@
     function resetSettings() {
         settingItems = defaultSettings.map(item => ({...item}));
         playerPath = "PotPlayerMini64.exe";
-        linkFormat = "- [😄标题 时间 艺术家 字幕](链接)";
-        
-        // 重置AList配置
         alistConfig = { server: "http://localhost:5244", username: "admin", password: "", connected: false };
         
-        const settings = settingItems.reduce((acc, item) => ({
-            ...acc,
-            [item.key]: item.value
-        }), {}) as any;
-        
-        settings.playerPath = playerPath;
-        settings.linkFormat = linkFormat;
-        
-        dispatch('changed', { settings });
+        dispatch('changed', { settings: settingItems.reduce((acc, item) => ({...acc, [item.key]: item.value}), {playerPath, alistConfig}) });
         showMessage(i18n.setting.resetSuccess);
     }
 
@@ -238,6 +299,15 @@
         await configManager.save();
         dispatch('changed', { proEnabled, settings: configManager.getConfig().settings });
         showMessage(proEnabled ? (i18n.pro?.activationSuccess || "Media Player Pro 已启用") : (i18n.pro?.activationDisabled || "Media Player Pro 已禁用"));
+    }
+
+    // 重置单个设置项的值
+    function resetItem(key: string) {
+        const index = settingItems.findIndex(i => i.key === key);
+        if (index !== -1) {
+            settingItems[index].value = defaultSettings.find(i => i.key === key).value;
+            settingItems = settingItems;
+        }
     }
 </script>
 
@@ -417,19 +487,22 @@
         {/if}
 
         <!-- 播放器标签页 -->
-        {#if activeTab === 'player'}
-            {#each settingItems.filter(item => ['volume', 'speed', 'playerType', 'showSubtitles', 'enableDanmaku'].includes(item.key)) as item (item.key)}
+        {#if activeTab === 'player' || activeTab === 'general'}
+            {#each settingItems.filter(item => 
+                activeTab === 'player' 
+                    ? ['volume', 'speed', 'playerType', 'showSubtitles', 'enableDanmaku'].includes(item.key)
+                    : ['openMode', 'insertMode', 'loopCount', 'pauseAfterLoop', 'targetNotebook', 'linkFormat', 'mediaNotesTemplate'].includes(item.key)
+            ) as item (item.key)}
                 <div class="setting-item" class:with-path={item.key === 'playerType' && item.value === 'potplayer'}>
                     <div class="setting-info">
                         <div class="setting-title">{item.title}</div>
-                        {#if item.description}
-                            <div class="setting-description">{item.description}</div>
-                        {/if}
+                        {#if item.description}<div class="setting-description">{@html item.description}</div>{/if}
+                        
+                        <!-- 设置项内容区域 -->
                         {#if item.type === 'slider'}
                             <div class="setting-content">
                                 <div class="slider-wrapper">
-                                    <input
-                                        type="range"
+                                    <input type="range"
                                         min={item.slider?.min ?? 0}
                                         max={item.slider?.max ?? 100}
                                         step={item.slider?.step ?? 1}
@@ -441,8 +514,23 @@
                                     </span>
                                 </div>
                             </div>
+                        {:else if item.type === 'textarea'}
+                            <div class="setting-content" style="position: relative;">
+                                <textarea 
+                                    class="b3-text-field fn__block" 
+                                    rows={item.rows || 4}
+                                    value={String(item.value)} 
+                                    placeholder={item.placeholder || ""}
+                                    on:input={(e) => handleChange(e, item)}
+                                ></textarea>
+                                <span class="clear-icon" on:click={() => resetItem(item.key)} style="position: absolute; right: 8px; top: 8px; cursor: pointer; color: var(--b3-theme-on-surface); opacity: 0.5;">
+                                    <svg class="icon" style="width: 16px; height: 16px; fill: currentColor;"><use xlink:href="#iconRefresh"></use></svg>
+                                </span>
+                            </div>
                         {/if}
                     </div>
+                    
+                    <!-- 设置项控制区域 -->
                     <div class="setting-control">
                         {#if item.type === 'checkbox'}
                             <label class="checkbox-wrapper">
@@ -458,59 +546,12 @@
                         {/if}
                     </div>
                     
+                    <!-- PotPlayer路径设置 -->
                     {#if item.key === 'playerType' && item.value === 'potplayer'}
-                        <input type="text" class="player-path-input" bind:value={playerPath} placeholder={i18n.setting.items.playerPath.title} />
+                        <input type="text" class="b3-text-field fn__block" bind:value={playerPath} placeholder={i18n.setting.items.playerPath.title} />
                     {/if}
                 </div>
             {/each}
-        {/if}
-
-        <!-- 通用标签页 -->
-        {#if activeTab === 'general'}
-            {#each settingItems.filter(item => ['insertAtCursor', 'loopCount'].includes(item.key)) as item (item.key)}
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-title">{item.title}</div>
-                        {#if item.description}
-                            <div class="setting-description">{item.description}</div>
-                        {/if}
-                        {#if item.type === 'slider'}
-                            <div class="setting-content">
-                                <div class="slider-wrapper">
-                                    <input
-                                        type="range"
-                                        min={item.slider?.min ?? 0}
-                                        max={item.slider?.max ?? 100}
-                                        step={item.slider?.step ?? 1}
-                                        value={item.value}
-                                        on:input={(e) => handleChange(e, item)}
-                                    />
-                                    <span class="slider-value">{item.value}</span>
-                                </div>
-                            </div>
-                        {/if}
-                    </div>
-                    <div class="setting-control">
-                        {#if item.type === 'checkbox'}
-                            <label class="checkbox-wrapper">
-                                <input type="checkbox" checked={Boolean(item.value)} on:change={(e) => handleChange(e, item)} />
-                                <span class="checkbox-custom"></span>
-                            </label>
-                        {/if}
-                    </div>
-                </div>
-            {/each}
-
-            <!-- 链接格式设置 -->
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-title">{i18n.setting.items?.linkFormat?.title || "链接格式"}</div>
-                    <div class="setting-description">{i18n.setting.items?.linkFormat?.description}</div>
-                    <div class="setting-content">
-                        <input type="text" class="b3-text-field fn__block" bind:value={linkFormat} placeholder="- [😄标题 时间 艺术家 字幕](链接)" />
-                    </div>
-                </div>
-            </div>
         {/if}
     </div>
     

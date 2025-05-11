@@ -8,13 +8,107 @@
 
 import { fetchPost, fetchSyncPost, IWebSocketData } from "siyuan";
 
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// 类型定义
+export type NotebookId = string;
+export type DocumentId = string;
+export type BlockId = string;
+export type PreviousID = string;
+export type ParentID = string;
+
+export interface Notebook {
+    id: NotebookId;
+    name: string;
+    icon: string;
+    sort: number;
+    closed: boolean;
+}
+
+export interface NotebookConf {
+    name: string;
+    closed: boolean;
+    refCreateSavePath: string;
+    createDocNameTemplate: string;
+    dailyNoteSavePath: string;
+    dailyNoteTemplatePath: string;
+}
+
+export interface IReslsNotebooks {
+    notebooks: Notebook[];
+}
+
+export interface IResGetNotebookConf {
+    box: string;
+    conf: NotebookConf;
+}
+
+export interface IResBootProgress {
+    progress: number;
+    details: string;
+}
+
+export interface Block {
+    id: BlockId;
+    type: string;
+    content: string;
+}
+
+export interface IResExportMdContent {
+    hPath: string;
+    content: string;
+}
+
+export interface IResExportResources {
+    path: string;
+}
+
+export interface IResUpload {
+    errFiles: string[];
+    succMap: { [key: string]: string };
+}
+
+export interface IResForwardProxy {
+    body: any;
+    headers: any;
+    status: number;
+    statusText: string;
+}
+
+export interface IResdoOperations {
+    doOperations: any[];
+}
+
+export interface IResReadDir {
+    files: string[];
+    subdirs: string[];
+}
+
+export interface IResGetBlockKramdown {
+    id: BlockId;
+    kramdown: string;
+}
+
+export interface IResGetChildBlock {
+    id: BlockId;
+    type: string;
+    subtype?: string;
+}
+
+export interface IResGetTemplates {
+    content: string;
+    path: string;
+}
+
+// 实现函数
 export async function request(url: string, data: any) {
     let response: IWebSocketData = await fetchSyncPost(url, data);
     let res = response.code === 0 ? response.data : null;
     return res;
 }
-
 
 // **************************************** Noteboook ****************************************
 
@@ -458,21 +552,4 @@ export async function forwardProxy(
     }
     let url1 = '/api/network/forwardProxy';
     return request(url1, data);
-}
-
-
-// **************************************** System ****************************************
-
-export async function bootProgress(): Promise<IResBootProgress> {
-    return request('/api/system/bootProgress', {});
-}
-
-
-export async function version(): Promise<string> {
-    return request('/api/system/version', {});
-}
-
-
-export async function currentTime(): Promise<number> {
-    return request('/api/system/currentTime', {});
 }

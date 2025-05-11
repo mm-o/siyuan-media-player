@@ -21,7 +21,7 @@ export class ConfigManager {
         const playListI18n = i18n.playList;
         
         // 默认链接格式，使用带表情符号的示例
-        const defaultLinkFormat = '- [😄标题 时间 艺术家 字幕](链接)';
+        const defaultLinkFormat = '- ![截图](截图)[😄标题 艺术家 时间 字幕](链接)';
         
         return {
             playlists: [
@@ -43,10 +43,11 @@ export class ConfigManager {
                 speed: 100,
                 hotkey: true,
                 loop: false,
-                insertAtCursor: true,
+                insertMode: 'insertBlock',
                 showSubtitles: true,
                 enableDanmaku: false,
                 playerType: 'built-in',
+                openMode: 'default',
                 playerPath: 'PotPlayerMini64.exe',
                 linkFormat: defaultLinkFormat,
             },

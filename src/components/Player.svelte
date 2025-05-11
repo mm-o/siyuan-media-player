@@ -9,7 +9,6 @@
     
     // ===================== 属性和状态 =====================
     
-    export let app: any;          // 应用实例
     export let config: any;       // 播放器配置
     export let i18n: any;         // 国际化对象
     
@@ -18,7 +17,7 @@
     let currentChapter: { start: number; end: number; } | null = null;  // 当前循环片段
     let loopCount = 0;            // 当前循环次数
     let currentSubtitle = '';     // 当前字幕文本
-    let subtitleVisible = true;   // 字幕显示状态
+    let subtitleVisible = false;   // 字幕显示状态
     let subtitleTimer: number;    // 字幕更新定时器
     
     const DEFAULT_CONFIG = { volume: 70, speed: 100, loopCount: 3 };
@@ -115,6 +114,11 @@
                     currentChapter = null;
                     loopCount = 0;
                     art.notice.show = i18n.player.loop.endMessage;
+                    
+                    // 循环结束后暂停播放
+                    if (config?.pauseAfterLoop) {
+                        art.pause();
+                    }
                     return;
                 }
                 
@@ -221,7 +225,7 @@
             showMessage(i18n.player.error.playRetry);
             
             if (art?.container) {
-                art.container.dispatchEvent(new CustomEvent('streamError', {
+                art.container.dispatchEvent(new CustomEvent('mediaError', {
                     detail: { url, options }
                 }));
             }
@@ -254,6 +258,7 @@
             loopCount = 0;
             currentChapter = end !== undefined ? { start, end } : null;
             art.currentTime = start;
+            art.play();
         } catch (error) {
             console.error('[Player] ' + i18n.player.error.setTimeFailed, error);
             showMessage(i18n.player.error.setTimeFailed);

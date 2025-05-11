@@ -53,6 +53,11 @@
         "desc": "Save current frame as image",
             "hint": "Please play media first"
     },
+    "mediaNotes": {
+        "name": "Media Notes",
+        "desc": "Take notes while playing media",
+        "hint": "Please play media first"
+    },
     "timestamp": {
         "name": "Add Timestamp",
         "desc": "Copy timestamp link of current playback time",
@@ -80,15 +85,29 @@
     },
     "mediaPlayerTab": {
         "block": {
-            "cursorNotFound": "Cursor position not found",
+            "cursorNotFound": "Cursor not found",
             "targetBlockNotFound": "Target block not found",
-            "updateError": "Failed to update block",
-            "linkInserted": "Link inserted",
-            "copiedToClipboard": "Link copied to clipboard",
-            "insertFailed": "Insert failed, copied to clipboard"
+            "docIdNotFound": "Cannot get document ID",
+            "noTarget": "Cannot get target position",
+            "updateError": "Block update failed",
+            "insertSuccess": "Insert successful",
+            "appendSuccess": "Append successful",
+            "prependSuccess": "Prepend successful",
+            "updateSuccess": "Update successful",
+            "prependDocSuccess": "Insert to document start successful",
+            "appendDocSuccess": "Insert to document end successful",
+            "copiedToClipboard": "Copied to clipboard",
+            "insertFailed": "Insert failed, copied to clipboard",
+            "operationFailed": "Operation failed"
+        },
+        "mediaNotes": {
+            "createSuccess": "Media notes created successfully",
+            "insertSuccess": "Media notes inserted successfully",
+            "createFailed": "Failed to create media notes",
+            "copiedToClipboard": "Media notes copied to clipboard"
         },
         "timestamp": {
-            "noMediaLink": "Unable to get media link",
+            "noMediaLink": "Cannot get media link",
             "generateFailed": "Failed to generate link"
         },
         "screenshot": {
@@ -173,17 +192,24 @@
             "addNewTab": "Add New Tab",
             "addLocalFolder": "Add Local Folder",
             "addMediaFiles": "Add Media Files",
-            "addAList": "Add AList Drive",
-            "addBilibiliFavorites": "Add Bilibili Favorites"
+            "addAList": "Add AList Cloud",
+            "addBilibiliFavorites": "Add Bilibili Favorites",
+            "open": "Open",
+            "addToTab": "Add to Tab",
+            "refresh": "Refresh",
+            "moveTo": "Move to"
         },
         "message": {
             "listCleared": "Cleared \"${name}\" list",
             "folderAdded": "Added ${count} media files from folder ${name}",
+            "filesAdded": "Added ${count} media files",
             "existingItemPlay": "Media already in playlist, playing directly",
             "added": "Added to playlist",
             "processingFavorites": "Processing videos from Bilibili favorites...",
-            "favoritesAdded": "Added ${count} videos from favorite folder ${name}",
-            "filesAdded": "Added ${count} media files"
+            "favoritesAdded": "Added ${count} videos from favorites ${name}",
+            "folderRefreshed": "Folder refreshed, added ${count} media files",
+            "folderRefreshedEmpty": "Folder refreshed, no new media files found",
+            "itemMoved": "Moved to ${name}"
         },
         "error": {
             "emptyUrl": "Please enter a media link",
@@ -201,7 +227,8 @@
             "invalidFavUrl": "Invalid Bilibili favorites URL",
             "processFavoritesFailed": "Failed to process Bilibili favorites",
             "emptyFavorites": "No videos in this favorites folder",
-            "selectMediaFilesFailed": "Failed to select media files"
+            "selectMediaFilesFailed": "Failed to select media files",
+            "refreshFolderFailed": "Failed to refresh folder"
         },
         "log": {
             "parseLink": "Parsing link:",
@@ -233,9 +260,34 @@
                 "title": "Loop Count",
                 "description": "Number of times to loop a segment"
             },
+            "pauseAfterLoop": {
+                "title": "Pause After Loop",
+                "description": "Pause media playback after loop ends"
+            },
+            "openMode": {
+                "title": "Open Mode",
+                "description": "Choose how to open player",
+                "options": {
+                    "default": "New Tab",
+                    "right": "Right Tab",
+                    "bottom": "Bottom Tab",
+                    "window": "New Window"
+                }
+            },
             "insertAtCursor": {
                 "title": "Insert at Cursor",
                 "description": "Insert links at cursor position, otherwise copy to clipboard"
+            },
+            "insertMode": {
+                "title": "Insertion Method",
+                "description": "Choose how to insert links and notes",
+                "insertBlock": "Insert at Cursor",
+                "appendBlock": "Append to Block",
+                "prependBlock": "Prepend to Block",
+                "updateBlock": "Update Current Block",
+                "prependDoc": "Insert at Document Start",
+                "appendDoc": "Insert at Document End",
+                "clipboard": "Copy to Clipboard"
             },
             "showSubtitles": {
                 "title": "Show Subtitles",
@@ -258,7 +310,15 @@
             },
             "linkFormat": {
                 "title": "Link Format",
-                "description": "Set link display format. You can use time, subtitle, title, artist, url variables and add emojis, example: - [😄title time artist subtitle](url)"
+                "description": "Set link display format. You can use time, subtitle, title, artist, url, screenshot variables and add emojis, supporting both link and screenshot insertion"
+            },
+            "mediaNotesTemplate": {
+                "title": "Media Notes Template",
+                "description": "Set the template format for media notes. You can use variables like time, title, artist, url, duration, thumbnail, type, ID, date, timestamp, etc."
+            },
+            "targetNotebook": {
+                "title": "Target Notebook",
+                "description": "Select the notebook where media notes will be created"
             }
         },
         "bilibili": {

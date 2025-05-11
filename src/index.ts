@@ -18,6 +18,8 @@ export default class MediaPlayerPlugin extends Plugin {
     private activeContainer: HTMLElement | null = null;
     private readonly TAB_TYPE = "custom_tab";
     private isMobile: boolean;
+    // 提供插件对外API接口
+    public api: { [key: string]: Function } = {};
     
     async onload() {
         console.log("思源媒体播放器加载");
@@ -54,6 +56,37 @@ export default class MediaPlayerPlugin extends Plugin {
         
         // 开始监听链接点击
         this.linkHandler.startListening();
+
+        // 初始化对外API
+        this.initAPI();
+    }
+
+    // 初始化API接口
+    private initAPI() {
+        this.api.playMedia = (url: string, options: any = {}) => {
+            if (!url) return false;
+            this.openMediaPlayerTab();
+            
+            window.dispatchEvent(new CustomEvent(
+                options.addToPlaylist ? 'addMediaToPlaylist' : 'directMediaPlay', 
+                { 
+                    detail: options.addToPlaylist ? 
+                        { url, autoPlay: options.autoPlay !== false, ...options } : 
+                        {
+                            id: `api-${Date.now()}`,
+                            title: options.title || url.split('/').pop() || '外部媒体',
+                            url,
+                            type: url.match(/\.(mp3|wav|ogg|flac)$/i) ? 'audio' : 'video',
+                            startTime: options.startTime,
+                            endTime: options.endTime,
+                            isLoop: options.isLoop
+                        }
+                }
+            ));
+            return true;
+        };
+        
+        this.api.getVersion = () => this.name;
     }
 
     onLayoutReady() {
@@ -120,12 +153,22 @@ export default class MediaPlayerPlugin extends Plugin {
                 this.handleHotkeyAction('loopSegment');
             }
         });
+        
+        // 添加媒体笔记快捷键
+        this.addCommand({
+            langKey: "mediaNotes",
+            langText: this.i18n.controlBar.mediaNotes.name,
+            hotkey: "",
+            callback: () => {
+                this.handleHotkeyAction('mediaNotes');
+            }
+        });
     }
 
     /**
      * 处理快捷键动作
      */
-    private async handleHotkeyAction(action: 'screenshot' | 'timestamp' | 'loopSegment') {
+    private async handleHotkeyAction(action: 'screenshot' | 'timestamp' | 'loopSegment' | 'mediaNotes') {
         if (!this.activeContainer) {
             showMessage(this.i18n.openPlayer);
             return;
@@ -142,7 +185,8 @@ export default class MediaPlayerPlugin extends Plugin {
         const buttonTitle = {
             screenshot: this.i18n.controlBar.screenshot.name,
             timestamp: this.i18n.controlBar.timestamp.name,
-            loopSegment: this.i18n.controlBar.loopSegment.name
+            loopSegment: this.i18n.controlBar.loopSegment.name,
+            mediaNotes: this.i18n.controlBar.mediaNotes.name
         }[action];
 
         // 找到对应的按钮并触发点击事件
@@ -158,6 +202,11 @@ export default class MediaPlayerPlugin extends Plugin {
     //打开媒体播放器标签页
     private openMediaPlayerTab() {
         const self = this;
+        
+        // 获取打开方式设置
+        const openMode = this.configManager.getConfig()?.settings?.openMode || 'default';
+        
+        // 创建TabOptions
         this.addTab({
             type: this.TAB_TYPE,
             init() {
@@ -207,13 +256,26 @@ export default class MediaPlayerPlugin extends Plugin {
             }
         });
 
-        openTab({
+        // 根据打开方式选择不同的打开选项
+        const openOptions: any = {
             app: this.app,
             custom: {
                 icon: "iconMediaPlayer",
                 title: this.i18n.name,
                 id: this.name + this.TAB_TYPE
             }
-        });
+        };
+        
+        // 根据打开方式添加特定选项
+        if (openMode === 'right') {
+            openOptions.position = 'right';
+        } else if (openMode === 'bottom') {
+            openOptions.position = 'bottom';
+        } else if (openMode === 'window') {
+            openOptions.asWindow = true;
+        }
+        
+        // 打开标签页
+        openTab(openOptions);
     }
 }

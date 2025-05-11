@@ -1,7 +1,7 @@
 import md5 from 'md5';
 import type { MediaInfo } from "./types";
 import { VideoStream, VideoStreamResponse, selectBestStream, generateMPD } from './dash';
-import { formatDuration } from './utils';
+import { fmt } from './utils';
 import { 
     BILI_API,
     biliRequest,
@@ -118,8 +118,8 @@ export class BilibiliParser {
                 const pageIndex = Math.min(Math.max(1, p || 1), pages.length) - 1;
                 cid = pages[pageIndex].cid;
                 
-                // 多P视频标题添加分P信息
-                if (pages.length > 1) {
+                // 多P视频标题添加分P信息 - 只有当不是第一个分P（索引>0）时才添加
+                if (pages.length > 1 && pageIndex > 0) {
                     const part = pages[pageIndex].part;
                     info.data.title = `${info.data.title} - P${pageIndex + 1}${part ? ': ' + part : ''}`;
                 }
@@ -132,7 +132,7 @@ export class BilibiliParser {
                 artist: info.data.owner?.name,
                 artistIcon: info.data.owner?.face,
                 artistId: upMid,
-                duration: formatDuration(info.data.duration),
+                duration: fmt(info.data.duration),
                 thumbnail: info.data.pic,
                 aid: String(info.data.aid),
                 bvid: info.data.bvid,

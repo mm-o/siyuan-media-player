@@ -2,7 +2,7 @@
  * 基础类型定义
  */
 export type MediaType = 'video' | 'audio' | 'bilibili';
-export type SettingType = 'slider' | 'checkbox' | 'select';
+export type SettingType = 'slider' | 'checkbox' | 'select' | 'textarea';
 
 /**
  * B站相关类型
@@ -112,14 +112,16 @@ export interface Config {
         hotkey: boolean;
         /** 是否循环播放 */
         loop: boolean;
-        /** 是否插入到光标处 */
-        insertAtCursor: boolean;
+        /** 插入方式：光标处/追加/前置/剪贴板 */
+        insertMode: string;
         /** 是否显示字幕 */
         showSubtitles: boolean;
         /** 是否启用弹幕 */
         enableDanmaku: boolean;
         /** 播放器类型 */
         playerType: string;
+        /** 播放器打开方式 */
+        openMode?: string;
         /** 外部播放器路径 */
         playerPath: string;
         /** 链接格式模板 */
@@ -132,6 +134,10 @@ export interface Config {
             token?: string;    // 认证令牌
             connected?: boolean; // 连接状态
         };
+        /** 目标笔记本ID */
+        targetNotebook?: string;
+        /** 媒体笔记模板 */
+        mediaNotesTemplate?: string;
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
@@ -198,6 +204,8 @@ export interface ISettingItem {
         label: string;
         value: string;
     }>;
+    rows?: number;          // textarea行数
+    placeholder?: string;   // 输入框占位文本
 }
 
 /**

@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.3.2 (2025.5.11)
+
+### Feature Enhancements
+- **UI Improvements**: Unified design style for assistant, playlist, and settings panels, enhancing overall user experience
+- **AList Support**: Added AList cloud storage support, expanding media source options
+- **File Selection**: Improved local file import with direct file selection, streamlining media addition
+- **Panel Adjustments**: Added support for resizing panels through drag and drop, for flexible interface layout
+- **Loop Settings**: New option to automatically pause playback after loop completion
+- **Media Notes**: Added media notes creation feature with customizable note templates
+- **Tab Menu Simplification**: Optimized tab menu, removing complex tab+right-click operation logic
+
+### Insertion Function Improvements
+- Extended document insertion methods with multiple options:
+  - Insert at cursor (insertBlock)
+  - Append to block end (appendBlock)
+  - Add to block beginning (prependBlock)
+  - Update current block (updateBlock)
+  - Insert at document top (prependDoc)
+  - Insert at document bottom (appendDoc)
+  - Copy to clipboard (clipboard)
+- Extended link format to support inserting timestamps with screenshots in one action
+- Unified custom format system with reset to default options
+
+### Code Optimization
+- Extremely streamlined `src/core/utils.ts` file, removed redundant code, simplified function implementations, and merged similar functionality
+- Standardized API naming to be consistent with SiYuan Note official API (such as `insertBlock`, `appendBlock`, etc.)
+- Enhanced error handling, making the code more robust
+- Removed most success notification messages (showMessage), only keeping failure notifications, further streamlining the code
+- Improved clipboard operation success rate with success notifications
+- Optimized documentation structure, improved README organization with collapsible sections and clearer table of contents
+
 ## v0.3.1 (2025.4.26)
 1. Added support for showing/hiding Bilibili video subtitles via subtitle button in player interface
 2. Added auto-scrolling for subtitle list in media assistant that follows playback progress

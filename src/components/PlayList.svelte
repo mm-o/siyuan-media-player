@@ -6,13 +6,13 @@
     // 从'../core/types'中导入MediaItem和PlaylistConfig类型
     import type { MediaItem, PlaylistConfig } from '../core/types';
     // 从'../core/media'中导入MediaManager
-    import { MediaManager, DEFAULT_THUMBNAILS } from '../core/media';
+    import { MediaManager } from '../core/media';
     // 从'../core/bilibili'中导入BilibiliParser
     import { BilibiliParser } from '../core/bilibili';
     // 从'../core/config'中导入ConfigManager类型
     import type { ConfigManager } from '../core/config';
-    // 从'../core/utils'中导入parseMediaLink函数
-    import { parseMediaLink } from '../core/utils';
+    // 导入url工具
+    import { url } from '../core/utils';
     // 从'../core/biliUtils'中导入parseBiliUrl函数
     import { parseBiliUrl } from '../core/biliUtils';
     // 从'../core/alist'中导入AListManager
@@ -45,72 +45,26 @@
     /**
      * 处理媒体播放
      */
-    async function handleMediaPlay(item: MediaItem) {
+    export async function handleMediaPlay(item: MediaItem) {
         try {
-            // AList文件夹处理
             if (item.source === 'alist' && item.is_dir) {
-                    const path = item.sourcePath || '/';
-                    const tab = tabs.find(t => t.id === activeTabId);
-                    if (!tab) return;
-                    
-                // 更新路径和文件列表
-                    tab.alistPath = path;
-                tab.alistPathParts = path.split('/').filter(Boolean).map((part, i, arr) => (
-                    { name: part, path: '/' + arr.slice(0, i + 1).join('/') }
-                    ));
-                
-                // 加载文件列表
-                const files = await AListManager.listFiles(path);
-                    tab.items = [];
-                    
-                // 处理文件
-                    await Promise.all(files.map(async file => {
-                        if (AListManager.isMediaFile(file)) {
-                            const mediaItem = await AListManager.createMediaItem(file, path);
-                            if (mediaItem) tab.items.push(mediaItem);
-                        } else if (file.is_dir) {
-                            tab.items.push({
-                            id: `alist-${Date.now().toString(36)}`,
-                                title: file.name,
-                                type: 'folder',
-                            url: '#', 
-                                source: 'alist',
-                            sourcePath: `${path === '/' ? '' : path}/${file.name}`,
-                                is_dir: true,
-                            thumbnail: DEFAULT_THUMBNAILS.folder
-                            } as MediaItem);
-                        }
-                    }));
-                    
-                    tabs = [...tabs];
-                    dispatch('tabsUpdate', { tabs });
-                    return;
+                await loadAListDirectory(item.sourcePath);
+                return;
             }
             
-            // 获取配置和准备播放选项
             const config = await configManager.getConfig();
             const playOptions = {
-                id: item.id,
-                url: item.url,
-                title: item.title,
+                ...item,
                 type: item.type || 'video',
-                startTime: item.startTime,
-                endTime: item.endTime,
-                isLoop: item.isLoop,
-                loopCount: item.loopCount,
-                bvid: item.bvid,
-                cid: item.cid
             };
             
-            // 处理不同类型的媒体
+            // 处理B站视频
             if (item.type === 'bilibili' && item.bvid && item.cid) {
-                // 检查B站登录状态
                 if (!config.bilibiliLogin?.userInfo?.mid) {
                     showMessage(i18n.playList.error.needBiliLogin || '需要登录B站才能播放视频');
                     return;
                 }
                 
-                // B站视频处理
                 const streamInfo = await BilibiliParser.getProcessedVideoStream(
                     item.bvid, item.cid, 0, config
                 );
@@ -122,26 +76,60 @@
                 });
             }
             
-            // 触发播放事件并更新当前项
             dispatch('play', playOptions);
             currentItem = item;
-            
         } catch (error) {
-            console.error(`[播放失败] ${error.message || error}`);
+            console.error("播放失败:", error);
             showMessage(i18n.playList.error.playRetry);
+        }
+    }
+    
+    /**
+     * 加载AList目录
+     */
+    async function loadAListDirectory(path: string) {
+        if (!path) return;
+        
+        try {
+            let alistTab = tabs.find(t => t.id.startsWith('alist-')) || (() => {
+                const id = `alist-main-${Date.now()}`;
+                tabs = [...tabs, {id, name: 'AList', items: [], isFixed: true}];
+                return tabs[tabs.length - 1];
+            })();
+            
+            alistTab = Object.assign(alistTab, {
+                alistPath: path,
+                alistPathParts: path.split('/').filter(Boolean)
+                    .map((part, i, arr) => ({ 
+                        name: part, 
+                        path: '/' + arr.slice(0, i + 1).join('/') 
+                    }))
+            });
+            
+            activeTabId = alistTab.id;
+            dispatch('tabChange', { tabId: alistTab.id });
+            
+            alistTab.items = await AListManager.createMediaItemsFromDirectory(path);
+            tabs = [...tabs];
+            dispatch('tabsUpdate', { tabs });
+        } catch (error) {
+            console.error("获取AList媒体列表失败:", error);
+            showMessage(i18n.playList.error.loadFailed);
         }
     }
 
     // 生命周期
     onMount(async () => {
         MediaManager.cleanupCache();
-        
-        // 初始化
-        try {
-            await AListManager.initFromConfig(await configManager.getConfig());
-        } catch {}
+        try { await AListManager.initFromConfig(await configManager.getConfig()); } catch {}
         
         await loadPlaylists();
+
+        // 添加外部API事件监听
+        window.addEventListener('addMediaToPlaylist', (e: any) => {
+            const { url, autoPlay = true, ...options } = e.detail || {};
+            url && handleMediaAdd(url, autoPlay, options);
+        });
     });
 
     // 监听变化
@@ -170,6 +158,7 @@
             id: tab.id,
             name: tab.name,
             isFixed: tab.isFixed,
+            alistPath: tab.alistPath,
             items: (tab.items || []).map(item => ({
                 id: item.id,
                 title: item.title,
@@ -192,21 +181,50 @@
     /**
      * 处理媒体添加
      */
-    async function handleMediaAdd(url: string, autoPlay: boolean = true) {
+    async function handleMediaAdd(mediaUrl: string, autoPlay = true, options: any = {}) {
         try {
-            // 统一解析媒体链接及参数，使用let而不是const以便后续修改
-            let { mediaUrl, startTime, endTime } = parseMediaLink(url);
+            // 处理AList媒体添加
+            if (options.source === 'alist' && options.sourcePath) {
+                if (options.is_dir) {
+                    await loadAListDirectory(options.sourcePath);
+                    return;
+                }
+                
+                const mediaItem = await AListManager.createMediaItemFromPath(options.sourcePath, {
+                    startTime: options.startTime,
+                    endTime: options.endTime
+                });
+                
+                if (autoPlay) {
+                    dispatch('play', mediaItem);
+                    currentItem = mediaItem;
+                }
+                return;
+            }
             
-            // 使用现有函数解析B站视频信息
-            const biliInfo = parseBiliUrl(mediaUrl);
+            if (activeTab?.id.startsWith('alist-')) {
+                showMessage("非AList媒体将添加到默认标签");
+                activeTabId = 'default';
+                dispatch('tabChange', { tabId: 'default' });
+                
+                if (autoPlay) {
+                    setTimeout(() => handleMediaAdd(mediaUrl, true, options), 100);
+                }
+                return;
+            }
+            
+            // 处理普通链接和B站链接
+            let { mediaUrl: parsedUrl, startTime, endTime } = url.parseTime(mediaUrl);
+            startTime = options.startTime ?? startTime;
+            endTime = options.endTime ?? endTime;
+            
+            const biliInfo = parseBiliUrl(parsedUrl);
             const currentBvid = biliInfo?.bvid;
             const currentP = biliInfo?.p;
             
-            // 如果是B站视频，检查登录状态
             if (currentBvid) {
                 mediaUrl = `https://www.bilibili.com/video/${currentBvid}`;
                 
-                // 检查B站登录状态
                 const config = await configManager.getConfig();
                 if (!config.bilibiliLogin?.userInfo?.mid) {
                     showMessage(i18n.playList.error.needBiliLogin || '需要登录B站才能添加视频');
@@ -214,52 +232,25 @@
                 }
             }
             
-            // 检查是否已存在
-            let existingItem;
-            if (currentBvid) {
-                // 对于B站视频，仅基于BV号比较
-                existingItem = activeTab?.items?.find(item => item.bvid === currentBvid);
-            } else {
-                // 对于其他类型媒体，使用完整URL比较
-                existingItem = activeTab?.items?.find(item => item.url === mediaUrl);
-            }
+            let existingItem = findExistingItem(mediaUrl, currentBvid);
             
             if (existingItem) {
-                // 基本参数更新
-                const updatedItem = { 
-                    ...existingItem, 
-                    startTime, 
-                    endTime
-                } as MediaItem;
+                const updatedItem = { ...existingItem, startTime, endTime } as MediaItem;
                 
-                // 处理B站分P信息
                 if (currentP && currentBvid && existingItem.type === 'bilibili') {
-                    try {
-                        const parts = await BilibiliParser.getVideoParts({ bvid: currentBvid });
-                        const currentPart = parts.find(part => part.page === currentP);
-                        
-                        if (currentPart) {
-                            // 更新分P信息
-                            const baseId = existingItem.id.split('-p')[0];
-                            updatedItem.id = `${baseId}-p${currentP}`;
-                            updatedItem.title = `${existingItem.title.split(' - P')[0]} - P${currentP}${currentPart.part ? ': ' + currentPart.part : ''}`;
-                            updatedItem.cid = String(currentPart.cid);
-                        }
-                    } catch {}
+                    await updateBiliPart(updatedItem, currentBvid, currentP);
                 }
                 
                 if (autoPlay) await handleMediaPlay(updatedItem);
                 return;
             }
             
-            // 创建新媒体项并设置参数
             const mediaItem = await MediaManager.createMediaItem(mediaUrl);
             if (!mediaItem) {
                 showMessage(i18n.playList.error.cannotParse);
                 return;
             }
             
-            // 设置参数并添加到播放列表
             Object.assign(mediaItem, { startTime, endTime });
             
             if (activeTab) {
@@ -270,9 +261,39 @@
                 showMessage(i18n.playList.message.added);
             }
         } catch (error) {
-            console.error(`[添加媒体失败] ${error.message || error}`);
             showMessage(i18n.playList.error.addMediaFailed);
         }
+    }
+    
+    /**
+     * 查找已存在的媒体项
+     */
+    function findExistingItem(mediaUrl, bvid) {
+        if (!activeTab?.items?.length) return;
+        if (bvid) return activeTab.items.find(i => i.bvid === bvid);
+        const clean = url.parseTime(mediaUrl).mediaUrl.split('?')[0];
+        return activeTab.items.find(i => (i.url?.split('?')[0] || '') === clean);
+    }
+    
+    /**
+     * 更新B站视频分P信息
+     */
+    async function updateBiliPart(item: MediaItem, bvid: string, p: number) {
+        try {
+            const parts = await BilibiliParser.getVideoParts({ bvid });
+            const currentPart = parts.find(part => part.page === p);
+            
+            if (currentPart) {
+                const baseId = item.id.split('-p')[0];
+                item.id = `${baseId}-p${p}`;
+                if (p > 1) {
+                    item.title = `${item.title.split(' - P')[0]} - P${p}${currentPart.part ? ': ' + currentPart.part : ''}`;
+                } else {
+                    item.title = item.title.split(' - P')[0];
+                }
+                item.cid = String(currentPart.cid);
+            }
+        } catch {}
     }
 
     /**
@@ -282,7 +303,6 @@
         const { item } = event.detail;
         const action = event.type;
         
-        // 使用映射表替代switch语句
         const actions = {
             play: () => handleMediaPlay(item),
             
@@ -304,14 +324,14 @@
             },
             
             toggleFavorite: () => {
-                const favoritesTab = tabs.find(t => t.id === 'favorites');
+                const favTab = tabs.find(t => t.id === 'favorites');
                 const activeTab = tabs.find(t => t.id === activeTabId);
-                if (!favoritesTab || !activeTab) return;
+                if (!favTab || !activeTab) return;
                 
                 if (!item.isFavorite) {
-                    favoritesTab.items = [...(favoritesTab.items || []), { ...item, isFavorite: true }];
+                    favTab.items = [...(favTab.items || []), { ...item, isFavorite: true }];
                 } else {
-                    favoritesTab.items = favoritesTab.items.filter(i => i.id !== item.id);
+                    favTab.items = favTab.items.filter(i => i.id !== item.id);
                 }
                 
                 activeTab.items = activeTab.items.map(i => 
@@ -325,10 +345,8 @@
                 const currentTab = tabs.find(t => t.id === activeTabId);
                 if (!currentTab) return;
                 
-                // 从当前标签页移除项目
                 currentTab.items = currentTab.items.filter(i => i.id !== item.id);
                 
-                // 如果是收藏项，也从收藏夹移除
                 if (item.isFavorite) {
                     const favTab = tabs.find(t => t.id === 'favorites');
                     if (favTab) {
@@ -337,42 +355,45 @@
                 }
                 
                 tabs = [...tabs];
+            },
+            
+            moveTo: () => {
+                const { tabId } = event.detail;
+                const currentTab = tabs.find(t => t.id === activeTabId);
+                const targetTab = tabs.find(t => t.id === tabId);
+                
+                if (!currentTab || !targetTab || currentTab === targetTab) return;
+                
+                // 移动项目
+                targetTab.items = [...targetTab.items, { ...item }];
+                currentTab.items = currentTab.items.filter(i => i.id !== item.id);
+                tabs = [...tabs];
+                
+                showMessage(i18n.playList.message.itemMoved?.replace('${name}', targetTab.name) || `已移动到 ${targetTab.name}`);
             }
         };
         
-        // 执行对应操作
         if (actions[action]) actions[action]();
     }
 
     // 事件处理函数
     const handleTabChange = (event) => activeTabId = event.detail.tabId;
     const handleTabsUpdate = (event) => tabs = event.detail.tabs;
-    const handleAddMedia = (event) => handleMediaAdd(event.detail.url, event.detail.options?.autoPlay);
+    const handleAddMedia = (event) => {
+        const { url, options = {} } = event.detail;
+        handleMediaAdd(url, options.autoPlay !== false, options);
+    };
+    const handleReload = () => loadPlaylists();
     
     /**
      * 处理外部媒体项
      */
     export async function handleMediaItem(mediaItem: MediaItem) {
-        // 检查媒体项是否有效
         if (!mediaItem || !activeTab) return;
         
-        // 提取BV号
-        const currentBvid = mediaItem.bvid;
-        
-        // 查找已存在项
-        let existingItem;
-        if (currentBvid) {
-            // B站视频根据BV号查找
-            existingItem = activeTab.items.find(item => item.bvid === currentBvid);
-        } else {
-            // 其他媒体根据URL查找
-            existingItem = activeTab.items.find(item => 
-                item.url === mediaItem.url
-            );
-        }
+        let existingItem = findExistingItem(mediaItem.url, mediaItem.bvid);
         
         if (existingItem) {
-            // 更新已存在项的参数
             const updatedItem = {
                 ...existingItem,
                 startTime: mediaItem.startTime,
@@ -381,8 +402,7 @@
                 loopCount: mediaItem.loopCount
             };
             
-            // 处理B站分P信息
-            if (currentBvid && mediaItem.cid && existingItem.cid !== mediaItem.cid) {
+            if (mediaItem.bvid && mediaItem.cid && existingItem.cid !== mediaItem.cid) {
                 Object.assign(updatedItem, {
                     id: mediaItem.id,
                     title: mediaItem.title,
@@ -393,7 +413,6 @@
             await handleMediaPlay(updatedItem);
             showMessage(i18n.playList.message.existingItemPlay);
         } else {
-            // 添加新项并播放
             activeTab.items = [...activeTab.items, mediaItem];
             tabs = [...tabs];
             await handleMediaPlay(mediaItem);
@@ -401,25 +420,19 @@
         }
     }
 
-    /**
-     * 导出方法：添加项到播放列表
-     */
+    // 导出方法
     export function addItem(item: MediaItem) {
         items = [...items, item];
     }
 
-    /**
-     * 导出方法：添加媒体
-     */
     export function addMedia(url: string, options?: { autoPlay?: boolean }) {
         handleMediaAdd(url, options?.autoPlay !== false);
     }
 
     // 切换视图模式
     function toggleViewMode() {
-        const modes: ('detailed' | 'compact' | 'grid' | 'grid-single')[] = ['detailed', 'compact', 'grid', 'grid-single'];
-        const currentIndex = modes.indexOf(viewMode);
-        viewMode = modes[(currentIndex + 1) % modes.length];
+        const modes = ['detailed', 'compact', 'grid', 'grid-single'] as const;
+        viewMode = modes[(modes.indexOf(viewMode) + 1) % modes.length];
     }
 </script>
 
@@ -450,6 +463,7 @@
         on:tabChange={handleTabChange}
         on:tabsUpdate={handleTabsUpdate}
         on:addMedia={handleAddMedia}
+        on:reload={handleReload}
     />
     
     <!-- 内容区 -->
@@ -462,11 +476,13 @@
                         {currentItem}
                         {i18n}
                         {viewMode}
+                        {tabs}
                         on:play={handleMediaItemAction}
                         on:playPart={handleMediaItemAction}
                         on:togglePin={handleMediaItemAction}
                         on:toggleFavorite={handleMediaItemAction}
                         on:remove={handleMediaItemAction}
+                        on:moveTo={handleMediaItemAction}
                     />
                 {/each}
             </div>

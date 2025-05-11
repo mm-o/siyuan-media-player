@@ -10,6 +10,7 @@
     export let currentItem: MediaItem | null = null;
     export let i18n: any;
     export let viewMode: 'detailed' | 'compact' | 'grid' | 'grid-single' = 'detailed';
+    export let tabs: any[] = [];
     
     // 组件状态
     let isExpanded = false;
@@ -21,7 +22,7 @@
     $: hasMultipleParts = videoParts.length > 1;
     $: isGridView = viewMode === 'grid' || viewMode === 'grid-single';
     $: alistUrl = item.source === 'alist' && item.sourcePath ? 
-        AListManager.getConfig()?.server + item.sourcePath : 
+        `${AListManager.getConfig()?.server}${item.sourcePath}` : 
         item.url;
     
     // 事件分发器
@@ -46,21 +47,69 @@
     // 显示右键菜单
     function createContextMenu(e: MouseEvent) {
         const menu = new Menu("mediaItemMenu");
+        
+        // AList文件夹特殊处理
+        if (item.is_dir && item.source === 'alist') {
+            menu.addItem({ 
+                icon: "iconFolder", 
+                label: i18n.playList.menu.open || "打开", 
+                click: () => { 
+                    dispatch('play', { item }); 
+                    menu.close(); 
+                } 
+            });
+            
+            menu.addItem({ 
+                icon: "iconAdd", 
+                label: i18n.playList.menu.addToTab || "添加到标签页", 
+                click: () => { 
+                    window.dispatchEvent(new CustomEvent('addAListTab', { 
+                        detail: { path: item.sourcePath } 
+                    })); 
+                    menu.close(); 
+                } 
+            });
+            
+            return menu.open({ x: e.clientX, y: e.clientY });
+        }
+        
+        // 普通媒体菜单项
         const actions = {
             play: () => { dispatch('play', { item }); menu.close(); },
             togglePin: () => { dispatch('togglePin', { item }); menu.close(); },
             toggleFavorite: () => { dispatch('toggleFavorite', { item }); menu.close(); },
+            moveTo: (tabId) => { dispatch('moveTo', { item, tabId }); menu.close(); },
             remove: () => { dispatch('remove', { item }); menu.close(); }
         };
         
+        // 标准菜单项
         [
             { icon: "iconPlay", label: i18n.playList.menu.play, action: actions.play },
             { icon: "iconPin", label: item.isPinned ? i18n.playList.menu.unpin : i18n.playList.menu.pin, action: actions.togglePin },
-            { icon: "iconHeart", label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite, action: actions.toggleFavorite },
-            { icon: "iconTrashcan", label: i18n.playList.menu.delete, action: actions.remove }
-        ].forEach(({ icon, label, action }) => menu.addItem({ 
-            icon, label, click: () => { action(); menu.close(); } 
-        }));
+            { icon: "iconHeart", label: item.isFavorite ? i18n.playList.menu.unfavorite : i18n.playList.menu.favorite, action: actions.toggleFavorite }
+        ].forEach(({ icon, label, action }) => menu.addItem({ icon, label, click: action }));
+        
+        // 移动到菜单
+        if (tabs?.length) {
+            const moveToSubmenu = [];
+            tabs.forEach(tab => {
+                if (tab.id !== 'default' && !tab.id.startsWith('alist-')) {
+                    moveToSubmenu.push({
+                        label: tab.name || tab.id,
+                        click: () => actions.moveTo(tab.id)
+                    });
+                }
+            });
+            
+            moveToSubmenu.length && menu.addItem({
+                icon: "iconMove",
+                label: i18n.playList.menu.moveTo || "移动到",
+                submenu: moveToSubmenu
+            });
+        }
+        
+        // 删除菜单项
+        menu.addItem({ icon: "iconTrashcan", label: i18n.playList.menu.delete, click: actions.remove });
         
         menu.open({ x: e.clientX, y: e.clientY });
     }

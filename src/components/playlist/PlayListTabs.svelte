@@ -1,67 +1,60 @@
 <script lang="ts">
-    import { createEventDispatcher, onMount, onDestroy } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { Menu, showMessage } from "siyuan";
     import type { PlaylistConfig as BasePlaylistConfig } from '../../core/types';
     import { BilibiliParser } from '../../core/bilibili';
     import { AListManager } from '../../core/alist';
-    import { checkProEnabled, showProFeatureNotEnabledMessage } from '../../core/utils';
-    import { DEFAULT_THUMBNAILS } from "../../core/media";
+    import { pro } from '../../core/utils';
 
     interface PlaylistConfig extends BasePlaylistConfig {
         isEditing?: boolean;
         alistPath?: string;
         alistPathParts?: { name: string; path: string }[];
+        folderPath?: string;
     }
+    
     export let tabs: PlaylistConfig[] = [];
     export let activeTabId = 'default';
     export let i18n: any;
     export let configManager: any;
     
+    // 常量与工具函数
     const MEDIA_REGEX = /\.(mp4|webm|avi|mkv|mov|flv|mp3|wav|ogg|flac)$/i;
-    const PREFIX = {tab: 'tab', folder: 'folder', bili: 'bili-fav', alist: 'alist'};
-    let isAddingTab = false, newTabInput: HTMLInputElement;
+    const PREFIX = {tab: 'tab', folder: 'folder', bili: 'bili-fav'};
+    const FIXED_ALIST_ID = 'alist-main';
     
-    const dispatch = createEventDispatcher<{
-        tabChange: { tabId: string };
-        tabsUpdate: { tabs: PlaylistConfig[] };
-        addMedia: { url: string; options?: { autoPlay?: boolean } };
-    }>();
-
+    let isAddingTab = false;
+    let newTabInput: HTMLInputElement;
+    
+    const dispatch = createEventDispatcher();
+    const updateTabs = () => dispatch('tabsUpdate', {tabs});
+    $: activeTab = tabs.find(t => t.id === activeTabId);
+    
     // 工具函数
     const isElectron = () => window.navigator.userAgent.includes('Electron');
     const getDialog = () => isElectron() ? window.require('@electron/remote').dialog : null;
-    const createId = (prefix) => `${prefix}-${Date.now()}`;
-    const updateTabs = () => dispatch('tabsUpdate', {tabs});
-    const emitTabChange = (id) => dispatch('tabChange', {tabId: id});
-    const addMedia = (url, autoPlay = false) => {
-        dispatch('addMedia', {url, options: {autoPlay}});
-        return true;
-    };
-    const needPro = (fn) => (e?) => checkProEnabled(configManager.getConfig()) 
-        ? fn(e) 
-        : showProFeatureNotEnabledMessage(i18n);
+    const addMedia = (url, autoPlay = false) => dispatch('addMedia', {url, options: {autoPlay}}) || true;
+    const needPro = fn => (e?) => pro.check(configManager.getConfig()) ? fn(e) : pro.alert(i18n);
     
-    // 标签管理
+    // 核心功能
     function setActiveTab(id) {
+        if (id === activeTabId) return;
         activeTabId = id;
-        emitTabChange(id);
+        dispatch('tabChange', {tabId: id});
         
-        if (id.startsWith('alist-')) {
-            const tab = tabs.find(t => t.id === id);
-            if (tab) setTimeout(() => {
-                try {
-                    AListManager.getConfig()?.connected 
-                        ? loadAListFolder(tab.alistPath || '/') 
-                        : initAList();
-                } catch {
-                    showMessage('AList加载失败');
-                }
+        // AList标签处理
+        if (id.startsWith(FIXED_ALIST_ID)) {
+            setTimeout(() => {
+                const tab = tabs.find(t => t.id === id);
+                (tab && AListManager.getConfig()?.connected) 
+                    ? loadAListFolder(tab.alistPath || '/') 
+                    : initAList();
             }, 10);
         }
     }
 
     function addTab(prefix, name) {
-        const id = createId(prefix);
+        const id = `${prefix}-${Date.now()}`;
         tabs = [...tabs, {id, name, items: []}];
         updateTabs();
         setActiveTab(id);
@@ -74,49 +67,37 @@
         const input = event.target as HTMLInputElement;
         const newName = input.value.trim();
         
-        if (tab) {
-            tabs = tabs.map(t => t.id === tab.id 
-                ? {...t, name: newName || t.name, isEditing: false} 
-                : t
-            );
-        } else if (newName) {
-            addTab(PREFIX.tab, newName);
-        }
+        tab ? tabs = tabs.map(t => t.id === tab.id ? {...t, name: newName || t.name, isEditing: false} : t)
+            : newName && addTab(PREFIX.tab, newName);
         
         isAddingTab = false;
         input.value = '';
         updateTabs();
     }
 
-    // 菜单
+    // 菜单和文件处理函数
     function showTabMenu(e, tab) {
         const menu = new Menu("tabMenu");
-        const menuItems = [];
         
         if (!tab.isFixed) {
-            menuItems.push({
+            menu.addItem({
                 icon: "iconEdit",
                 label: i18n.playList.menu.rename,
                 click: () => {
                     tabs = tabs.map(t => ({...t, isEditing: t.id === tab.id}));
                     updateTabs();
-                    setTimeout(() => {
-                        const input = document.querySelector(`#tab-edit-${tab.id}`) as HTMLInputElement;
-                        input?.focus();
-                    }, 0);
-                }
-            }, {
-                icon: "iconTrashcan",
-                label: i18n.playList.menu.delete,
-                click: () => {
-                    tabs = tabs.filter(t => t.id !== tab.id);
-                    if (activeTabId === tab.id) setActiveTab('default');
-                    updateTabs();
+                    setTimeout(() => (document.querySelector(`#tab-edit-${tab.id}`) as HTMLInputElement)?.focus(), 0);
                 }
             });
         }
         
-        menuItems.push({
+        menu.addItem({
+            icon: "iconRefresh",
+            label: i18n.playList.menu.refresh || "刷新",
+            click: () => refreshTab(tab)
+        });
+        
+        menu.addItem({
             icon: "iconClear",
             label: i18n.playList.menu.clear,
             click: () => {
@@ -125,8 +106,19 @@
                 showMessage(i18n.playList.message.listCleared.replace('${name}', tab.name));
             }
         });
+
+        if (!tab.isFixed) {
+            menu.addItem({
+                icon: "iconTrashcan",
+                label: i18n.playList.menu.delete,
+                click: () => {
+                    tabs = tabs.filter(t => t.id !== tab.id);
+                    activeTabId === tab.id && setActiveTab('default');
+                    updateTabs();
+                }
+            });
+        }
         
-        menuItems.forEach(item => menu.addItem(item));
         menu.open({x: e.clientX, y: e.clientY});
     }
 
@@ -134,40 +126,22 @@
         const menu = new Menu("addMenu");
         const pos = {x: e.clientX, y: e.clientY};
         
-        [{
-            icon: "iconAdd",
-            label: i18n.playList.menu.addNewTab,
-            click: () => {
-                isAddingTab = true;
-                setTimeout(() => newTabInput?.focus(), 0);
-            }
-        }, {
-            icon: "iconFolder",
-            label: i18n.playList.menu.addLocalFolder,
-            click: needPro(addLocalFolder)
-        }, {
-            icon: "iconFile",
-            label: i18n.playList.menu.addMediaFiles,
-            click: needPro(addLocalFiles)
-        }, {
-            icon: "iconCloud",
-            label: i18n.playList.menu.addAList,
-            click: needPro(initAList)
-        }, {
-            icon: "iconHeart",
-            label: i18n.playList.menu.addBilibiliFavorites,
-            click: needPro(() => showBiliFavs(pos))
-        }].forEach(item => menu.addItem(item));
+        [
+            {icon: "iconAdd", label: i18n.playList.menu.addNewTab, 
+             click: () => { isAddingTab = true; setTimeout(() => newTabInput?.focus(), 0); }},
+            {icon: "iconFolder", label: i18n.playList.menu.addLocalFolder, click: needPro(addLocalFolder)},
+            {icon: "iconFile", label: i18n.playList.menu.addMediaFiles, click: needPro(addLocalFiles)},
+            {icon: "iconCloud", label: i18n.playList.menu.addAList, click: needPro(initAList)},
+            {icon: "iconHeart", label: i18n.playList.menu.addBilibiliFavorites, 
+             click: needPro(() => showBiliFavs(pos))}
+        ].forEach(item => menu.addItem(item));
         
         menu.open(pos);
     }
 
-    // 本地文件
+    // 本地文件处理
     async function addLocalFolder() {
-        if (!isElectron()) {
-            showMessage("此功能仅在思源客户端中可用");
-            return;
-        }
+        if (!isElectron()) return showMessage("此功能仅在思源客户端中可用");
 
         try {
             const result = await getDialog().showOpenDialog({
@@ -182,23 +156,24 @@
             const folderPath = result.filePaths[0];
             const folderName = folderPath.split(/[\\/]/).pop();
             
-            addTab(PREFIX.folder, folderName);
-            let count = 0;
-
-            (function scan(dir) {
-                fs.readdirSync(dir).forEach(file => {
-                    const fullPath = path.join(dir, file);
-                    if (fs.statSync(fullPath).isDirectory()) {
-                        scan(fullPath);
-                    } else if (MEDIA_REGEX.test(file)) {
-                        const url = `file://${fullPath.replace(/\\/g, '/')}`;
-                        if (addMedia(url)) count++;
-                    }
-                });
-            })(folderPath);
+            const tabId = addTab(PREFIX.folder, folderName);
+            const tab = tabs.find(t => t.id === tabId);
             
-            if (count > 0) {
-                showMessage(i18n.playList.message.folderAdded
+            if (tab) {
+                tab.folderPath = folderPath;
+                updateTabs();
+                
+                let count = 0;
+                (function scan(dir) {
+                    fs.readdirSync(dir).forEach(file => {
+                        const fullPath = path.join(dir, file);
+                        fs.statSync(fullPath).isDirectory()
+                            ? scan(fullPath)
+                            : MEDIA_REGEX.test(file) && addMedia(`file://${fullPath.replace(/\\/g, '/')}`) && count++;
+                    });
+                })(folderPath);
+                
+                count > 0 && showMessage(i18n.playList.message.folderAdded
                     .replace('${name}', folderName)
                     .replace('${count}', count.toString()));
             }
@@ -207,11 +182,75 @@
         }
     }
 
-    async function addLocalFiles() {
-        if (!isElectron()) {
-            showMessage("此功能仅在思源客户端中可用");
-            return;
+    function refreshTab(tab) {
+        if (!tab) return;
+        
+        try {
+            // 清空当前列表
+            tab.items = [];
+            updateTabs();
+            
+            if (tab.id.startsWith(PREFIX.folder) && tab.folderPath) {
+                // 刷新本地文件夹
+                if (!isElectron()) return showMessage("此功能仅在思源客户端中可用");
+                
+                const fs = window.require('fs'), path = window.require('path');
+                let count = 0;
+                (function scan(dir) {
+                    fs.readdirSync(dir).forEach(file => {
+                        const fullPath = path.join(dir, file);
+                        fs.statSync(fullPath).isDirectory()
+                            ? scan(fullPath)
+                            : MEDIA_REGEX.test(file) && addMedia(`file://${fullPath.replace(/\\/g, '/')}`) && count++;
+                    });
+                })(tab.folderPath);
+                
+                showMessage(count 
+                    ? (i18n.playList.message.folderRefreshed || "已刷新文件夹，添加了 ${count} 个媒体文件").replace('${count}', count.toString())
+                    : (i18n.playList.message.folderRefreshedEmpty || "已刷新文件夹，未发现新媒体文件"));
+            } else if (tab.id.startsWith(PREFIX.bili)) {
+                // 刷新B站收藏夹
+                const id = tab.id.split('-')[1];
+                if (id) {
+                    showMessage(i18n.playList.message.processingFavorites || "正在处理收藏夹...");
+                    BilibiliParser.getFavoritesList(id, configManager.getConfig())
+                        .then(({items}) => {
+                            if (!items?.length) return showMessage(i18n.playList.error.emptyFavorites || "收藏夹为空");
+                            
+                            let count = 0;
+                            items.forEach(item => {
+                                try {
+                                    addMedia(`https://www.bilibili.com/video/${item.bvid}`) && count++;
+                                } catch {}
+                            });
+                            
+                            showMessage((i18n.playList.message.favoritesRefreshed || "已刷新收藏夹，添加了 ${count} 个视频")
+                                .replace('${count}', count.toString()));
+                        })
+                        .catch(() => showMessage(i18n.playList.error.processFavoritesFailed || "刷新收藏夹失败"));
+                }
+            } else if (tab.id.startsWith('alist-')) {
+                // 刷新AList文件夹
+                const path = tab.alistPath || '/';
+                AListManager.createMediaItemsFromDirectory(path)
+                    .then(items => {
+                        tab.items = items;
+                        updateTabs();
+                        showMessage(i18n.playList.message.alistRefreshed || "已刷新AList目录");
+                    })
+                    .catch(() => showMessage(i18n.playList.error.refreshAListFailed || "刷新AList目录失败"));
+            } else {
+                // 默认刷新配置文件
+                dispatch('reload');
+                showMessage(i18n.playList.message.configRefreshed || "已刷新配置");
+            }
+        } catch {
+            showMessage(i18n.playList.error.refreshFailed || "刷新失败");
         }
+    }
+
+    async function addLocalFiles() {
+        if (!isElectron()) return showMessage("此功能仅在思源客户端中可用");
 
         try {
             const result = await getDialog().showOpenDialog({
@@ -228,34 +267,21 @@
             if (result.canceled || !result.filePaths.length) return;
 
             let count = 0;
-            result.filePaths.forEach(path => {
-                const url = `file://${path.replace(/\\/g, '/')}`;
-                if (addMedia(url)) count++;
-            });
-
-            if (count > 0) {
-                showMessage(i18n.playList.message.filesAdded.replace('${count}', count.toString()));
-            }
+            result.filePaths.forEach(path => addMedia(`file://${path.replace(/\\/g, '/')}`) && count++);
+            count > 0 && showMessage(i18n.playList.message.filesAdded.replace('${count}', count.toString()));
         } catch {
             showMessage(i18n.playList.error.selectMediaFilesFailed);
         }
     }
 
-    // B站收藏夹
+    // BiliBili功能
     async function showBiliFavs(pos) {
         try {
             const config = await configManager.getConfig();
-            
-            if (!config.bilibiliLogin?.userInfo?.mid) {
-                showMessage(i18n.playList.error.needBiliLogin);
-                return;
-            }
+            if (!config.bilibiliLogin?.userInfo?.mid) return showMessage(i18n.playList.error.needBiliLogin);
             
             const folders = await BilibiliParser.getUserFavoriteFolders(config);
-            if (!folders?.length) {
-                showMessage(i18n.playList.error.emptyFavFolders);
-                return;
-            }
+            if (!folders?.length) return showMessage(i18n.playList.error.emptyFavFolders);
             
             const menu = new Menu("biliFavs");
             folders.forEach(folder => {
@@ -274,23 +300,16 @@
 
     async function addBiliFav(id, title) {
         showMessage(i18n.playList.message.processingFavorites);
-        
         try {
-            const {title: favTitle, items} = await BilibiliParser.getFavoritesList(
-                id, await configManager.getConfig()
-            );
-            
-            if (!items?.length) {
-                showMessage(i18n.playList.error.emptyFavorites);
-                return;
-            }
+            const {title: favTitle, items} = await BilibiliParser.getFavoritesList(id, await configManager.getConfig());
+            if (!items?.length) return showMessage(i18n.playList.error.emptyFavorites);
             
             addTab(PREFIX.bili, title || favTitle);
             let count = 0;
             
             for (const item of items) {
                 try {
-                    if (addMedia(`https://www.bilibili.com/video/${item.bvid}`)) count++;
+                    addMedia(`https://www.bilibili.com/video/${item.bvid}`) && count++;
                 } catch {}
             }
             
@@ -302,53 +321,37 @@
         }
     }
 
-    // AList
-    async function loadAListFolder(path = '/') {
+    // AList功能
+    async function loadAListFolder(path = '/'): Promise<void> {
         try {
-            let tab = tabs.find(t => t.id === activeTabId);
+            const tab = tabs.find(t => t.id === activeTabId);
+            if (!tab || !tab.id.startsWith(FIXED_ALIST_ID)) return;
             
-            if (!tab || !tab.id.startsWith('alist-')) {
-                const name = path === '/' ? 'AList' : path.split('/').pop() || 'AList';
-                tab = tabs.find(t => t.id === addTab(PREFIX.alist, name));
-                if (!tab) return;
-            }
+            if (!AListManager.getConfig()?.token) return showMessage("未连接到AList服务器");
             
-            const files = await AListManager.listFiles(path);
             tab.alistPath = path;
-            tab.alistPathParts = path.split('/').filter(Boolean).map((part, i, arr) => ({
-                name: part, path: '/' + arr.slice(0, i + 1).join('/')
-            }));
-            tab.items = [];
+            tab.alistPathParts = path.split('/').filter(Boolean)
+                .map((part, i, arr) => ({ name: part, path: '/' + arr.slice(0, i + 1).join('/') }));
             
-            for (const file of files) {
-                if (file.is_dir) {
-                    tab.items.push({
-                        id: createId('alist'),
-                        title: file.name,
-                        type: 'folder',
-                        url: '#',
-                        source: 'alist',
-                        sourcePath: `${path === '/' ? '' : path}/${file.name}`,
-                        is_dir: true,
-                        thumbnail: DEFAULT_THUMBNAILS.folder
-                    });
-                } else if (AListManager.isMediaFile(file)) {
-                    const item = await AListManager.createMediaItem(file, path);
-                    if (item) tab.items.push(item);
-                }
-            }
-            
-            tabs = [...tabs];
+            tab.items = await AListManager.createMediaItemsFromDirectory(path);
             updateTabs();
         } catch {
-            showMessage('加载文件夹失败');
+            showMessage('获取文件列表失败');
         }
     }
 
     async function initAList() {
         try {
             if (await AListManager.initFromConfig(await configManager.getConfig())) {
-                loadAListFolder('/');
+                const alistTab = tabs.find(t => t.id.startsWith(FIXED_ALIST_ID));
+                if (alistTab) {
+                    setActiveTab(alistTab.id);
+                } else {
+                    const id = `${FIXED_ALIST_ID}-${Date.now()}`;
+                    tabs = [...tabs, {id, name: 'AList', items: [], alistPath: '/'}];
+                    updateTabs();
+                    setActiveTab(id);
+                }
             } else {
                 showMessage("请配置AList");
             }
@@ -357,25 +360,68 @@
         }
     }
 
-    // 生命周期
-    onMount(async () => {
-        window.addEventListener('biliLoginStatusChange', (() => {}) as EventListener);
-        try { await AListManager.initFromConfig(await configManager.getConfig()); } catch {}
-    });
-    
-    onDestroy(() => {
-        window.removeEventListener('biliLoginStatusChange', (() => {}) as EventListener);
+    // 初始化
+    onMount(() => {
+        const eventHandlers = {
+            alistPathPlay: (async (event: CustomEvent) => {
+                try {
+                    const { path, startTime, endTime } = event.detail;
+                    const mediaItem = await AListManager.createMediaItemFromPath(path, { startTime, endTime });
+                    window.dispatchEvent(new CustomEvent('directMediaPlay', { detail: mediaItem }));
+                } catch {
+                    showMessage('播放失败');
+                }
+            }) as EventListener,
+            
+            addAListTab: (async (event: CustomEvent) => {
+                try {
+                    if (!event.detail?.path) return;
+                    if (!await AListManager.initFromConfig(await configManager.getConfig())) {
+                        return showMessage('未连接到AList服务器');
+                    }
+                    
+                    const path = event.detail.path;
+                    const folderName = path.split('/').pop() || 'AList';
+                    
+                    const id = `${FIXED_ALIST_ID}-${Date.now()}`;
+                    tabs = [...tabs, {id, name: folderName, items: [], alistPath: path}];
+                    updateTabs();
+                    setActiveTab(id);
+                } catch {
+                    showMessage('添加AList标签失败');
+                }
+            }) as EventListener
+        };
+        
+        // 注册事件监听
+        Object.entries(eventHandlers).forEach(([event, handler]) => 
+            window.addEventListener(event, handler));
+        
+        // 初始化AList
+        (async () => {
+            try { 
+                if (await AListManager.initFromConfig(await configManager.getConfig())) {
+                    const alistTab = tabs.find(t => t.id === activeTabId && t.id.startsWith(FIXED_ALIST_ID));
+                    alistTab && loadAListFolder(alistTab.alistPath || '/');
+                }
+            } catch {}
+        })();
+        
+        // 返回清理函数
+        return () => {
+            Object.entries(eventHandlers).forEach(([event, handler]) => 
+                window.removeEventListener(event, handler));
+        };
     });
 </script>
 
+<!-- 标签栏 -->
 <div class="playlist-tabs">
     {#each tabs as tab (tab.id)}
         {#if tab.isEditing}
             <div class="tab-edit-wrapper">
-                <input id="tab-edit-{tab.id}" type="text" class="tab-input" 
-                       value={tab.name}
-                       on:blur={(e) => saveTab(e, tab)} 
-                       on:keydown={(e) => saveTab(e, tab)}/>
+                <input id="tab-edit-{tab.id}" type="text" class="tab-input" value={tab.name}
+                       on:blur={(e) => saveTab(e, tab)} on:keydown={(e) => saveTab(e, tab)}/>
             </div>
         {:else}
             <button class="tab" class:active={activeTabId === tab.id}
@@ -386,23 +432,23 @@
         {/if}
     {/each}
     
+    <!-- 添加按钮/输入框 -->
     <div class="tab-add-wrapper">
         {#if isAddingTab}
             <input bind:this={newTabInput} type="text" class="tab-input" style="width:100px"
                    placeholder={i18n.playList.placeholder.newTab}
-                   on:blur={(e) => saveTab(e)} 
-                   on:keydown={(e) => saveTab(e)}/>
+                   on:blur={saveTab} on:keydown={saveTab}/>
         {:else}
             <button class="tab tab-add" on:click|preventDefault|stopPropagation={showAddMenu}>+</button>
         {/if}
     </div>
 </div>
 
-{#if tabs.find(tab => tab.id === activeTabId)?.alistPath}
-    {@const activeTab = tabs.find(tab => tab.id === activeTabId)}
+<!-- AList路径导航栏 -->
+{#if activeTab?.id?.startsWith(FIXED_ALIST_ID) && activeTab?.alistPath}
     <div class="alist-path-nav">
         <button class="path-item" on:click={() => loadAListFolder('/')}>根目录</button>
-        {#each activeTab.alistPathParts || [] as part}
+        {#each (activeTab.alistPathParts || []) as part}
             <span class="path-sep">/</span>
             <button class="path-item" on:click={() => loadAListFolder(part.path)}>{part.name}</button>
         {/each}
