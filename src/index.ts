@@ -1,281 +1,616 @@
 import {
     Plugin,
     showMessage,
-    openTab,
-    IModel,
-    getFrontend
+    openTab
 } from "siyuan";
 import "@/styles/components.scss";
 
-import MediaPlayerTab from "./components/MediaPlayerTab.svelte";
+// @ts-ignore
+import Player from "./components/Player.svelte";
+// @ts-ignore
+import PlayList from "./components/PlayList.svelte";
+// @ts-ignore
+import Setting from "./components/Setting.svelte";
+// @ts-ignore
+import Assistant from "./components/Assistant.svelte";
 import { ConfigManager } from "./core/config";
 import { LinkHandler } from "./core/LinkHandler";
+import { doc, link } from './core/utils';
+import type { MediaItem, ComponentInstance } from './core/types';
+import { createMediaPlayerAPI } from './api';
+import { player as playerUtils, mediaNotes } from './core/utils';
+import { playMedia } from './core/media';
 
+/**
+ * 思源笔记媒体播放器插件
+ */
 export default class MediaPlayerPlugin extends Plugin {
+    // 核心管理器
     private configManager: ConfigManager;
     private linkHandler: LinkHandler;
-    private mediaPlayerTab: any;
-    private activeContainer: HTMLElement | null = null;
     private readonly TAB_TYPE = "custom_tab";
-    private isMobile: boolean;
-    // 提供插件对外API接口
-    public api: { [key: string]: Function } = {};
     
+    // 统一管理组件和状态
+    private components = new Map<string, ComponentInstance>();
+    private events = new Map<string, EventListener>();
+    private currentItem: MediaItem = null;
+    private loopStartTime: number = null;
+    private tabInstance: any = null;
+    
+    // 对外API
+    public api: any;
+    public playerAPI: any;
+    
+    /**
+     * 插件加载
+     */
     async onload() {
-        console.log("思源媒体播放器加载");
-        
-        const frontEnd = getFrontend();
-        this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
-
-        const iconMediaPlayer = `<symbol id="iconMediaPlayer" viewBox="0 0 1024 1024">
-            <path d="M513.792 514.5088m-457.0112 0a457.0112 457.0112 0 1 0 914.0224 0 457.0112 457.0112 0 1 0-914.0224 0Z" fill="#8C7BFD"></path>
-            <path d="M440.6272 732.16c-17.6128 0-35.2768-4.6592-51.3024-13.9264-32.1536-18.5344-51.3024-51.7632-51.3024-88.8832V399.6672c0-37.12 19.2-70.3488 51.3024-88.8832 32.1536-18.5856 70.5024-18.5344 102.656 0l198.912 114.8416c32.1536 18.5344 51.3024 51.7632 51.3024 88.8832s-19.2 70.3488-51.3024 88.8832l-198.912 114.8416c-16.0768 9.2672-33.7408 13.9264-51.3536 13.9264z m0.0512-332.6976c-0.1024 0-0.3072 0.1024-0.4096 0.2048l0.1024 229.6832c0 0.1536 0.256 0.3072 0.4096 0.3072l198.8608-114.944c0.1536-0.0512 0.1536-0.3584 0.1024-0.512l-0.1024 0.1024-198.8608-114.8416h-0.1024z" fill="#FFE37B"></path>
-        </symbol>`;
-        
-        this.addIcons(iconMediaPlayer);
-
+        // 初始化配置和API
         this.configManager = new ConfigManager(this);
         await this.configManager.load();
-
-        const topBarElement = this.addTopBar({
-            icon: "iconMediaPlayer",
-            title: this.i18n.name,
-            position: "right",
-            callback: () => {
-                this.openMediaPlayerTab();
-            }
-        });
-
-        this.registerHotkeys();
-
-        // 初始化链接处理器
-        this.linkHandler = new LinkHandler(
-            this.configManager,
-            () => this.openMediaPlayerTab()
-        );
         
-        // 开始监听链接点击
-        this.linkHandler.startListening();
-
-        // 初始化对外API
+        // 初始化API并注册事件
         this.initAPI();
-    }
-
-    // 初始化API接口
-    private initAPI() {
-        this.api.playMedia = (url: string, options: any = {}) => {
-            if (!url) return false;
-            this.openMediaPlayerTab();
-            
-            window.dispatchEvent(new CustomEvent(
-                options.addToPlaylist ? 'addMediaToPlaylist' : 'directMediaPlay', 
-                { 
-                    detail: options.addToPlaylist ? 
-                        { url, autoPlay: options.autoPlay !== false, ...options } : 
-                        {
-                            id: `api-${Date.now()}`,
-                            title: options.title || url.split('/').pop() || '外部媒体',
-                            url,
-                            type: url.match(/\.(mp3|wav|ogg|flac)$/i) ? 'audio' : 'video',
-                            startTime: options.startTime,
-                            endTime: options.endTime,
-                            isLoop: options.isLoop
-                        }
-                }
-            ));
-            return true;
-        };
+        this.registerEvents([
+            ['siyuanMediaPlayerUpdate', this.handlePlayerUpdate],
+            ['addMediaToPlaylist', this.handleAddMedia],
+            ['directMediaPlay', this.handleDirectMediaPlay],
+            ['playMediaItem', this.handlePlayMediaItem],
+            ['mediaPlayerAction', this.handleMediaAction],
+            ['updatePlayerConfig', this.handleUpdateConfig],
+            ['mediaPlayerTabChange', this.handleTabChange],
+            ['mediaEnded', this.handleMediaEnded]
+        ]);
         
-        this.api.getVersion = () => this.name;
-    }
+        // 初始化链接处理
+        this.linkHandler = new LinkHandler(this.configManager, () => this.openMediaPlayerTab());
+        this.linkHandler.startListening();
+        this.api = createMediaPlayerAPI(this.name, () => this.openMediaPlayerTab());
+        
+        // UI初始化
+        this.addSidebar();
+        this.registerHotkeys();
+        setTimeout(() => this.addTopBarButtons(), 1000);
+        
+        // 加载用户脚本
+        this.loadUserScripts();
 
-    onLayoutReady() {
-        console.log("思源媒体播放器布局加载完成");
-    }
-
-    onunload() {
-        console.log("思源媒体播放器卸载");
-        try {
-            // 确保播放器被销毁
-            if (this.mediaPlayerTab?.player) {
-                // 先暂停播放
-                if (typeof this.mediaPlayerTab.player.pause === 'function') {
-                    this.mediaPlayerTab.player.pause();
+        const playerContainer = this.getComponent('player')?.$$.container;
+        if (playerContainer) {
+            playerContainer.addEventListener('mediaError', async (event: Event) => {
+                const detail = (event as CustomEvent).detail;
+                if (detail?.error) {
+                    console.error("[Player] 媒体错误:", detail.error);
+                    showMessage(this.i18n.player?.error?.playFailed || "播放失败");
                 }
+            });
+            
+            // 添加媒体结束事件监听
+            playerContainer.addEventListener('mediaEnded', async (event: Event) => {
+                const detail = (event as CustomEvent).detail;
+                const { loopPlaylist } = detail || {};
                 
-                // 完全销毁播放器
-                this.mediaPlayerTab.player.destroy(true);
-            }
-            
-            // 停止链接监听
-            if (this.linkHandler) {
-                this.linkHandler.stopListening();
-            }
-            
-            // 清理引用
-            this.mediaPlayerTab = null;
-            this.activeContainer = null;
-        } catch (error) {
-            console.error("插件卸载时清理播放器失败:", error);
+                if (loopPlaylist) {
+                    const playlist = this.getComponent('playlist');
+                    if (playlist?.playNext) {
+                        await playlist.playNext();
+                    }
+                }
+            });
         }
     }
-
+    
     /**
-     * 注册快捷键
+     * 初始化API
      */
-    private registerHotkeys() {
-        // 注册截图快捷键
-        this.addCommand({
-            langKey: "screenshot",
-            langText: this.i18n.screenshot.text,
-            hotkey: "",
-            callback: () => {
-                this.handleHotkeyAction('screenshot');
-            }
-        });
-
-        // 注册时间戳快捷键
-        this.addCommand({
-            langKey: "timestamp",
-            langText: this.i18n.timestamp.text,
-            hotkey: "",
-            callback: () => {
-                this.handleHotkeyAction('timestamp');
-            }
-        });
-
-        // 添加循环片段快捷键
-        this.addCommand({
-            langKey: "loopSegment",
-            langText: this.i18n.loopSegment.text,
-            hotkey: "",
-            callback: () => {
-                this.handleHotkeyAction('loopSegment');
-            }
+    private initAPI() {
+        this.playerAPI = {
+            seekTo: (time: number) => this.getComponent('player')?.seekTo?.(time),
+            getCurrentTime: () => this.getComponent('player')?.getCurrentTime?.() || 0,
+            getScreenshotDataURL: () => this.getComponent('player')?.getScreenshotDataURL?.() || Promise.resolve(null),
+            setPlayTime: (start: number, end?: number) => this.getComponent('player')?.setPlayTime?.(start, end),
+            setLoopSegment: (start: number, end: number) => this.getComponent('player')?.setPlayTime?.(start, end),
+            setLoop: (isLoop: boolean, loopTimes?: number) => this.getComponent('player')?.setLoop?.(isLoop, loopTimes),
+            updateConfig: (newConfig: any) => this.getComponent('player')?.updateConfig?.(newConfig),
+            playMediaItem: (mediaItem: MediaItem) => this.playMediaItem(mediaItem),
+            getCurrentMedia: () => this.currentItem,
+            pause: () => this.getComponent('player')?.pause?.(),
+            resume: () => this.getComponent('player')?.resume?.(),
+            play: (url: string, options: any) => this.getComponent('player')?.play?.(url, options)
+        };
+    }
+    
+    /**
+     * 注册事件
+     */
+    private registerEvents(events: [string, (e: CustomEvent) => void][]) {
+        // 标准事件
+        events.forEach(([event, handler]) => {
+            const listener = handler.bind(this) as EventListener;
+            this.events.set(event, listener);
+            window.addEventListener(event, listener);
         });
         
-        // 添加媒体笔记快捷键
-        this.addCommand({
-            langKey: "mediaNotes",
-            langText: this.i18n.controlBar.mediaNotes.name,
-            hotkey: "",
-            callback: () => {
-                this.handleHotkeyAction('mediaNotes');
+        // 脚本重载事件，简化处理
+        const reloadFn = () => this.loadUserScripts();
+        window.addEventListener('reloadUserScripts', reloadFn);
+        this.events.set('reloadUserScripts', reloadFn as unknown as EventListener);
+    }
+    
+    /**
+     * 组件管理
+     */
+    private getComponent(id: string): ComponentInstance | undefined {
+        return this.components.get(id);
+    }
+    
+    private addComponent(id: string, instance: ComponentInstance) {
+        this.destroyComponent(id);
+        this.components.set(id, instance);
+        return instance;
+    }
+    
+    private destroyComponent(id: string) {
+        const component = this.components.get(id);
+        if (component?.$destroy) {
+            try { component.$destroy(); } 
+            catch (e) { console.error(`组件 ${id} 销毁失败:`, e); }
+            this.components.delete(id);
+        }
+    }
+    
+    /**
+     * 添加侧边栏
+     */
+    private addSidebar() {
+        this.addDock({
+            type: "SiyuanMediaSidebar",
+            config: {
+                position: "RightBottom",
+                size: { width: 300, height: 480 },
+                icon: "iconVideo",
+                title: this.i18n.sidebar?.title || "媒体助手"
+            },
+            data: { plugin: this },
+            init: function() {
+                (this.data.plugin as MediaPlayerPlugin).initDockUI(this.element);
             }
         });
     }
-
+    
     /**
-     * 处理快捷键动作
+     * 添加顶部栏按钮
      */
-    private async handleHotkeyAction(action: 'screenshot' | 'timestamp' | 'loopSegment' | 'mediaNotes') {
-        if (!this.activeContainer) {
-            showMessage(this.i18n.openPlayer);
-            return;
+    private addTopBarButtons() {
+        const barSync = document.getElementById("barSync");
+        if (!barSync) return;
+        
+        const config = this.configManager.getConfig();
+        const topBarConfig = config.settings.topBarButtons || {};
+        
+        // 添加样式
+        if (!document.getElementById('media-player-btn-style')) {
+            document.head.appendChild(Object.assign(document.createElement('style'), {
+                id: 'media-player-btn-style',
+                textContent: `.media-btn{margin:0 4px}.media-btn:hover{color:var(--b3-theme-primary)}`
+            }));
         }
-
-        // 获取控制栏组件
-        const controlBar = this.activeContainer.querySelector('.control-bar');
-        if (!controlBar) {
-            showMessage(this.i18n.playerNotReady);
-            return;
-        }
-
-        // 获取按钮标题
-        const buttonTitle = {
-            screenshot: this.i18n.controlBar.screenshot.name,
-            timestamp: this.i18n.controlBar.timestamp.name,
-            loopSegment: this.i18n.controlBar.loopSegment.name,
-            mediaNotes: this.i18n.controlBar.mediaNotes.name
-        }[action];
-
-        // 找到对应的按钮并触发点击事件
-        const button = controlBar.querySelector(`button[title="${buttonTitle}"]`);
-        if (button instanceof HTMLElement) {
-            button.click();
-        } else {
-            console.warn(`找不到标题为 "${buttonTitle}" 的按钮`);
-            showMessage(this.i18n.buttonNotFound);
-        }
+        
+        // 添加按钮
+        [
+            { id: 'Screenshot', key: 'screenshot' as const, icon: 'iconCamera' },
+            { id: 'Timestamp', key: 'timestamp' as const, icon: 'iconClock' },
+            { id: 'LoopSegment', key: 'loopSegment' as const, icon: 'iconRefresh' },
+            { id: 'MediaNotes', key: 'mediaNotes' as const, icon: 'iconFile' }
+        ].forEach(({id, key, icon}) => {
+            if (topBarConfig[key] === false || document.getElementById(`media${id}`)) return;
+            
+            const btn = document.createElement('button');
+            btn.id = `media${id}`;
+            btn.className = 'toolbar__item media-btn';
+            btn.setAttribute('aria-label', this.i18n.controlBar?.[key]?.name || key);
+            btn.innerHTML = `<svg><use xlink:href="#${icon}"></use></svg>`;
+            btn.addEventListener('click', () => this.triggerMediaAction(key));
+            barSync.after(btn);
+        });
     }
-
-    //打开媒体播放器标签页
-    private openMediaPlayerTab() {
+    
+    /**
+     * 打开媒体播放器标签
+     */
+    public openMediaPlayerTab() {
         const self = this;
-        
-        // 获取打开方式设置
         const openMode = this.configManager.getConfig()?.settings?.openMode || 'default';
         
-        // 创建TabOptions
         this.addTab({
             type: this.TAB_TYPE,
             init() {
+                // 创建播放器区域
                 const container = document.createElement("div");
                 container.className = "media-player-container";
                 
-                // 保存容器引用
-                self.activeContainer = container;
+                const playerArea = document.createElement("div");
+                playerArea.className = "player-area";
+                playerArea.style.cssText = "width:100%;height:100%;position:relative;z-index:1;";
                 
-                // 创建并挂载 MediaPlayerTab 组件
-                self.mediaPlayerTab = new MediaPlayerTab({
-                    target: container,
+                const mediaPlayerTab = document.createElement("div");
+                mediaPlayerTab.className = "media-player-tab";
+                
+                const contentArea = document.createElement("div");
+                contentArea.className = "content-area";
+                
+                contentArea.appendChild(playerArea);
+                mediaPlayerTab.appendChild(contentArea);
+                container.appendChild(mediaPlayerTab);
+                
+                // 初始化播放器
+                self.tabInstance = this;
+                self.addComponent('player', new Player({
+                    target: playerArea,
                     props: {
-                        app: { ...self.app, i18n: self.i18n },
-                        configManager: self.configManager,
-                        linkHandler: self.linkHandler
+                        config: self.configManager.getConfig().settings,
+                        i18n: self.i18n,
+                        currentItem: self.currentItem,
+                        api: self.playerAPI
                     }
-                });
+                }));
+                
+                // 注册全局API
+                (window as any).siyuanMediaPlayer = self.playerAPI;
+                self.notifyUpdate();
                 
                 this.element.appendChild(container);
             },
             destroy() {
-                console.log("Destroying media player tab");
-                try {
-                    // 确保播放器实例被完全销毁
-                    if (self.mediaPlayerTab?.player) {
-                        // 先暂停播放
-                        if (typeof self.mediaPlayerTab.player.pause === 'function') {
-                            self.mediaPlayerTab.player.pause();
-                        }
-                        
-                        // 完全销毁播放器
-                        self.mediaPlayerTab.player.destroy(true);
-                    }
-                    
-                    // 销毁组件
-                    if (self.mediaPlayerTab?.$destroy) {
-                        self.mediaPlayerTab.$destroy();
-                    }
-                } catch (error) {
-                    console.error("销毁播放器失败:", error);
-                }
-                
-                // 清理引用
-                self.mediaPlayerTab = null;
-                self.activeContainer = null;
+                self.destroyComponent('player');
+                self.tabInstance = null;
+                (window as any).siyuanMediaPlayer = null;
             }
         });
 
-        // 根据打开方式选择不同的打开选项
-        const openOptions: any = {
+        // 打开选项
+        const options: any = {
             app: this.app,
             custom: {
-                icon: "iconMediaPlayer",
+                icon: "iconVideo",
                 title: this.i18n.name,
                 id: this.name + this.TAB_TYPE
             }
         };
         
-        // 根据打开方式添加特定选项
-        if (openMode === 'right') {
-            openOptions.position = 'right';
-        } else if (openMode === 'bottom') {
-            openOptions.position = 'bottom';
-        } else if (openMode === 'window') {
-            openOptions.asWindow = true;
+        if (openMode === 'right') options.position = 'right';
+        else if (openMode === 'bottom') options.position = 'bottom';
+        else if (openMode === 'window') options.asWindow = true;
+        
+        openTab(options);
+    }
+    
+    /**
+     * 初始化侧边栏UI
+     */
+    private initDockUI(container: HTMLElement) {
+        container.classList.add('media-player-sidebar');
+        
+        const contentEl = document.createElement('div');
+        contentEl.className = 'media-player-sidebar-content';
+        container.appendChild(contentEl);
+        
+        // 默认显示播放列表
+        this.showTabContent('playlist', contentEl);
+    }
+    
+    /**
+     * 显示标签内容
+     */
+    private showTabContent(tabId: string, container: HTMLElement) {
+        const components = { playlist: PlayList, assistant: Assistant, settings: Setting };
+        
+        // 已有组件则激活并返回
+        container.querySelectorAll('[data-tab-id]').forEach(
+            el => el.classList.toggle('fn__none', el.getAttribute('data-tab-id') !== tabId)
+        );
+        
+        if (this.components.has(tabId)) {
+            window.dispatchEvent(new CustomEvent('mediaPlayerTabActivate', { detail: { tabId } }));
+            return;
         }
         
-        // 打开标签页
-        openTab(openOptions);
+        // 创建新组件
+        const el = document.createElement('div');
+        el.setAttribute('data-tab-id', tabId);
+        container.appendChild(el);
+        
+        // 组件配置
+        const props = { 
+            configManager: this.configManager, 
+            i18n: this.i18n,
+            allTabs: ['playlist', 'assistant', 'settings'],
+            activeTabId: tabId,
+            api: this.playerAPI,
+            ...(tabId === 'playlist' && { currentItem: this.currentItem }),
+            ...(tabId === 'settings' && { group: 'media-player' }),
+            ...(tabId === 'assistant' && { 
+                player: this.playerAPI, 
+                currentMedia: this.currentItem,
+                insertContentCallback: content => doc.insert(content, this.configManager.getConfig(), this.i18n),
+                createTimestampLinkCallback: this.createTimestampLink.bind(this)
+            })
+        };
+        
+        // 创建组件
+        const component = components[tabId];
+        if (!component) return;
+        
+        const instance = new component({ target: el, props });
+        this.addComponent(tabId, instance);
+        
+        // 设置特定组件事件
+        if (tabId === 'playlist') {
+            instance.$on?.('play', (event: CustomEvent<any>) => {
+                this.openMediaPlayerTab();
+                this.currentItem = event.detail;
+                setTimeout(() => window.dispatchEvent(new CustomEvent('playMediaItem', { detail: event.detail })), 300);
+            });
+            this.linkHandler?.setPlaylist(instance);
+        } else if (tabId === 'settings') {
+            instance.$on?.('changed', (event: CustomEvent<any>) => {
+                this.refreshTopBarButtons();
+                window.dispatchEvent(new CustomEvent('updatePlayerConfig', { detail: event.detail.settings }));
+            });
+        }
+        
+        window.dispatchEvent(new CustomEvent('mediaPlayerTabActivate', { detail: { tabId } }));
+    }
+    
+    /**
+     * 播放媒体和事件处理
+     */
+    private async playMediaItem(mediaItem: MediaItem): Promise<void> {
+        if (!mediaItem) return;
+        
+        try {
+            this.currentItem = mediaItem;
+            
+            await playMedia(
+                mediaItem, 
+                this.playerAPI, 
+                this.configManager, 
+                (item) => {
+                    this.currentItem = item;
+                    this.notifyUpdate();
+                }, 
+                this.i18n
+            );
+            
+            // 等待播放器就绪后再设置时间戳和循环片段
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            if (mediaItem.startTime !== undefined) {
+                const startTime = Number(mediaItem.startTime);
+                if (mediaItem.endTime !== undefined) {
+                    this.playerAPI.setPlayTime(startTime, Number(mediaItem.endTime));
+                } else {
+                    this.playerAPI.seekTo(startTime);
+                }
+            }
+        } catch (error) {
+            console.error("播放媒体失败:", error);
+            showMessage(this.i18n.player?.error?.playFailed || "播放失败");
+        }
+    }
+    
+    private notifyUpdate(): void {
+        window.dispatchEvent(new CustomEvent('siyuanMediaPlayerUpdate', {
+            detail: { player: this.playerAPI, currentItem: this.currentItem }
+        }));
+    }
+    
+    private async triggerMediaAction(actionType: 'screenshot' | 'mediaNotes' | 'timestamp' | 'loopSegment') {
+        if (!this.getComponent('player') || !this.currentItem) {
+            showMessage(this.i18n.openPlayer);
+            this.openMediaPlayerTab();
+            return;
+        }
+        
+        window.dispatchEvent(new CustomEvent('mediaPlayerAction', {
+            detail: { action: actionType, loopStartTime: this.loopStartTime }
+        }));
+    }
+    
+    public async createTimestampLink(isLoop = false, startTime?: number, endTime?: number, subtitleText?: string) {
+        if (!this.playerAPI || !this.currentItem) return null;
+        
+        const config = await this.configManager.getConfig();
+        const time = startTime ?? this.playerAPI.getCurrentTime();
+        const loopEnd = isLoop ? (endTime ?? time + 3) : endTime;
+        
+        return link(this.currentItem, config, time, loopEnd, subtitleText);
+    }
+    
+    // 统一管理事件处理函数
+    private handleTabChange = (e: CustomEvent) => {
+        const tabId = e.detail?.tabId;
+        if (tabId) {
+            const container = document.querySelector('.media-player-sidebar-content');
+            if (container) this.showTabContent(tabId, container as HTMLElement);
+        }
+    }
+    
+    private handlePlayerUpdate = (e: CustomEvent<any>) => {
+        const { currentItem } = e.detail;
+        this.currentItem = currentItem;
+        
+        if (this.tabInstance?.parent?.updateTitle && this.currentItem?.title) {
+            try { this.tabInstance.parent.updateTitle(this.currentItem.title); } catch {}
+        }
+        
+        // 更新助手组件
+        const assistant = this.getComponent('assistant');
+        if (assistant?.$set) {
+            assistant.$set({ currentMedia: this.currentItem });
+        }
+    }
+    
+    private handleAddMedia = (e: CustomEvent<any>) => {
+        const playlist = this.getComponent('playlist');
+        if (!playlist?.addMedia) return;
+        
+        const { url, autoPlay = true, ...options } = e.detail || {};
+        playlist.addMedia(url, { autoPlay, ...options });
+        
+        if (autoPlay) this.openMediaPlayerTab();
+    }
+    
+    private handleDirectMediaPlay = (e: CustomEvent<any>) => {
+        this.openMediaPlayerTab();
+        
+        setTimeout(() => {
+            const item = e.detail;
+            if (!item) return;
+            
+            this.currentItem = item;
+            window.dispatchEvent(new CustomEvent('playMediaItem', { detail: item }));
+            
+            const playlist = this.getComponent('playlist');
+            if (playlist?.$set) playlist.$set({ currentItem: item });
+        }, 300);
+    }
+    
+    private handlePlayMediaItem = (e: CustomEvent<any>) => {
+        this.playMediaItem(e.detail);
+    }
+    
+    private handleMediaAction = async (e: CustomEvent<any>) => {
+        const { action, loopStartTime } = e.detail;
+        if (!this.getComponent('player') || !this.currentItem) return;
+        
+        try {
+            const settings = this.configManager.getConfig();
+            
+            switch (action) {
+                case 'loopSegment': {
+                    const newLoopStartTime = loopStartTime === null
+                        ? this.playerAPI.getCurrentTime()
+                        : await playerUtils.loop(this.playerAPI, this.currentItem, settings, this.i18n, loopStartTime);
+                    
+                    this.loopStartTime = newLoopStartTime;
+                    window.dispatchEvent(new CustomEvent('loopSegmentResponse', {
+                        detail: { loopStartTime: newLoopStartTime }
+                    }));
+                    break;
+                }
+                case 'mediaNotes':
+                    await mediaNotes.create(this.currentItem, settings, this.playerAPI, this.i18n);
+                    break;
+                case 'screenshot':
+                    await playerUtils.screenshot(this.playerAPI, this.currentItem, settings, this.i18n);
+                    break;
+                case 'timestamp':
+                    await playerUtils.timestamp(this.playerAPI, this.currentItem, settings, this.i18n);
+                    break;
+            }
+        } catch (error) {
+            console.error(`${action} 操作失败:`, error);
+            showMessage(this.i18n.controlBar?.[action]?.error || `${action} 操作失败`);
+        }
+    }
+    
+    private handleUpdateConfig = (e: CustomEvent<any>) => {
+        if (this.playerAPI?.updateConfig) {
+            this.playerAPI.updateConfig(e.detail);
+        }
+        
+        // 重新加载用户脚本
+        this.loadUserScripts();
+    }
+    
+    private handleMediaEnded = ({ detail }) => {
+        if (detail?.loopPlaylist) {
+            const playlist = this.getComponent('playlist');
+            if (playlist?.playNext) {
+                playlist.playNext();
+            }
+        }
+    }
+    
+    /**
+     * 其他工具函数
+     */
+    private registerHotkeys() {
+        [
+            ['screenshot', this.i18n.screenshot?.text],
+            ['timestamp', this.i18n.timestamp?.text],
+            ['loopSegment', this.i18n.loopSegment?.text],
+            ['mediaNotes', this.i18n.controlBar?.mediaNotes?.name]
+        ].forEach(([key, text]) => this.addCommand({
+            langKey: key,
+            langText: text as string,
+            hotkey: "",
+            callback: () => this.triggerMediaAction(key as any)
+        }));
+    }
+
+    private refreshTopBarButtons() {
+        ['mediaScreenshot', 'mediaTimestamp', 'mediaLoopSegment', 'mediaMediaNotes']
+            .forEach(id => document.getElementById(id)?.remove());
+        this.addTopBarButtons();
+    }
+    
+    /**
+     * 卸载插件
+     */
+    onunload() {
+        // 清理事件和组件
+        this.events.forEach((handler, event) => window.removeEventListener(event, handler));
+        this.components.forEach((_, id) => this.destroyComponent(id));
+        
+        // 清理状态
+        this.currentItem = null;
+        this.loopStartTime = null;
+        this.tabInstance = null;
+        this.playerAPI = null;
+        (window as any).siyuanMediaPlayer = null;
+        
+        // 停止链接处理
+        this.linkHandler?.stopListening();
+        
+        // 移除UI元素
+        ['mediaScreenshot', 'mediaTimestamp', 'mediaLoopSegment', 'mediaMediaNotes', 'media-player-btn-style']
+            .forEach(id => document.getElementById(id)?.remove());
+            
+        // 清理用户脚本
+        document.querySelectorAll('[id^="media-player-script-"]').forEach(el => el.remove());
+    }
+
+    /**
+     * 加载用户自定义脚本
+     */
+    private async loadUserScripts() {
+        // 先清理现有脚本
+        document.querySelectorAll('[id^="media-player-script-"]').forEach(el => el.remove());
+        
+        try {
+            // 检查环境
+            if (!window.require || !window.siyuan?.config?.system?.workspaceDir) return;
+            
+            // 获取脚本文件
+            const fs = window.require('fs'), path = window.require('path');
+            const dir = path.join(window.siyuan.config.system.workspaceDir, 'data/storage/petal/siyuan-media-player');
+            
+            // 过滤已启用脚本并加载
+            (this.configManager.getConfig().settings.scripts || [])
+                .filter(s => s.enabled)
+                .forEach(s => {
+                    const file = path.join(dir, s.name);
+                    if (fs.existsSync(file)) {
+                        document.head.appendChild(
+                            Object.assign(document.createElement('script'), {
+                                id: `media-player-script-${s.name}`,
+                                textContent: fs.readFileSync(file, 'utf-8')
+                            })
+                        );
+                    }
+                });
+        } catch (e) {}
     }
 }

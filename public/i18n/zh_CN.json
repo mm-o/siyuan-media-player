@@ -32,6 +32,9 @@
         "activationTitle": "我已诚信付款，启用Media Player Pro",
         "activationSuccess": "Media Player Pro 已启用",
         "activationDisabled": "Media Player Pro 已禁用",
+        "statusEnabled": "已启用",
+        "statusDisabled": "未启用",
+        "paid": "我已付款",
         "features": {
             "assistant": {
                 "title": "媒体助手",
@@ -151,11 +154,22 @@
         }
     },
     "playList": {
-        "title": "播放列表",
+        "title": "列表",
         "itemCount": "项",
         "empty": "播放列表为空",
         "defaultList": "默认列表",
         "favorites": "收藏夹",
+        "directory": {
+            "title": "目录",
+            "all": "全部媒体",
+            "music": "音乐",
+            "video": "视频",
+            "favorite": "收藏",
+            "local": "本地媒体",
+            "bilibili": "B站视频",
+            "alist": "网盘媒体",
+            "root": "根目录"
+        },
         "viewMode": {
             "detailed": "详细视图",
             "compact": "简洁视图",
@@ -172,7 +186,7 @@
             "selectMedia": "选择媒体文件"
         },
         "placeholder": {
-            "mediaLink": "输入媒体链接...",
+            "mediaLink": "输入链接或直接点击添加...",
             "newTab": "新标签",
             "folderPath": "输入文件夹路径...",
             "bilibiliFavorites": "输入B站收藏夹链接..."
@@ -194,6 +208,7 @@
             "addMediaFiles": "添加媒体文件",
             "addAList": "添加AList云盘",
             "addBilibiliFavorites": "添加B站收藏夹",
+            "addSiyuanAssets": "添加思源空间",
             "open": "打开",
             "addToTab": "添加到标签页",
             "refresh": "刷新",
@@ -209,7 +224,9 @@
             "favoritesAdded": "已添加收藏夹 ${name} 中的 ${count} 个视频",
             "folderRefreshed": "已刷新文件夹，添加了 ${count} 个媒体文件",
             "folderRefreshedEmpty": "已刷新文件夹，未发现新媒体文件",
-            "itemMoved": "已移动到 ${name}"
+            "itemMoved": "已移动到 ${name}",
+            "siyuanAssetsAdded": "已添加思源空间中的 ${count} 个媒体文件",
+            "siyuanAssetsRefreshed": "已刷新思源空间，添加了 ${count} 个媒体文件"
         },
         "error": {
             "emptyUrl": "请输入媒体链接",
@@ -231,7 +248,8 @@
             "needBiliLogin": "需要登录B站才能获取收藏夹列表",
             "emptyFavFolders": "未找到收藏夹",
             "getFavFoldersFailed": "获取收藏夹列表失败",
-            "refreshFolderFailed": "刷新文件夹失败"
+            "refreshFolderFailed": "刷新文件夹失败",
+            "siyuanAssetsFailed": "获取思源空间媒体失败"
         },
         "log": {
             "parseLink": "开始解析链接:",
@@ -242,6 +260,12 @@
             "noTimeParam": "无时间参数:",
             "parseLoopSegment": "解析循环片段:",
             "parseTimestamp": "解析时间戳:"
+        },
+        "sortMode": {
+            "0": "默认排序",
+            "1": "按名称排序",
+            "2": "按时间排序",
+            "3": "按类型排序"
         }
     },
     "setting": {
@@ -250,6 +274,11 @@
         "reset": "重置",
         "saveSuccess": "设置已保存",
         "resetSuccess": "设置已重置",
+        "tabs": {
+            "account": "账号",
+            "player": "播放器",
+            "general": "通用"
+        },
         "items": {
             "volume": {
                 "title": "音量",
@@ -322,6 +351,45 @@
             "targetNotebook": {
                 "title": "目标笔记本",
                 "description": "选择创建媒体笔记的目标笔记本"
+            },
+            "alistConfig": {
+                "title": "AList配置",
+                "description": "配置AList服务器连接",
+                "server": "服务器地址",
+                "username": "用户名",
+                "password": "密码",
+                "testConnection": "测试连接",
+                "connectionSuccess": "连接成功",
+                "connectionFailed": "连接失败",
+                "serverPlaceholder": "例如: http://localhost:5244",
+                "protocol": "请包含http://或https://"
+            },
+            "loopSingle": {
+                "title": "单项循环",
+                "description": "循环播放当前媒体"
+            },
+            "loopPlaylist": {
+                "title": "列表循环",
+                "description": "自动播放下一个媒体"
+            },
+            "topToolbar": {
+                "title": "顶部工具栏",
+                "description": "显示顶部功能按钮栏",
+                "always": "始终显示",
+                "hover": "悬停显示",
+                "hide": "隐藏"
+            },
+            "topBarButtons": {
+                "title": "顶部工具栏按钮",
+                "description": "选择要在顶部工具栏显示的按钮"
+            },
+            "loadScript": {
+                "title": "加载脚本",
+                "description": "选择脚本文件加载到插件中",
+                "buttonText": "选择脚本文件",
+                "scriptFiles": "脚本文件",
+                "loadFailed": "加载脚本失败",
+                "loadSuccess": "脚本已加载到插件"
             }
         },
         "bilibili": {
@@ -340,7 +408,26 @@
             "unknownStatus": "未知状态",
             "scanTitle": "哔哩哔哩扫码登录",
             "scanDescription": "打开手机客户端扫描二维码",
-            "qrCode": "B站登录二维码"
+            "qrCode": "B站登录二维码",
+            "loggedIn": "已登录"
+        },
+        "account": {
+            "save": "保存",
+            "exit": "退出",
+            "config": "配置",
+            "paid": "我已付款",
+            "loggedIn": "已登录",
+            "notLoggedIn": "点击登录",
+            "alistConfigured": "AList 已配置",
+            "alistNotConfigured": "配置 AList 服务器连接信息"
+        },
+        "alist": {
+            "title": "AList 配置",
+            "server": "AList 服务器",
+            "username": "AList 用户名",
+            "password": "AList 密码",
+            "configured": "AList 已配置",
+            "notConfigured": "未配置"
         }
     },
     "screenshot": {
@@ -365,6 +452,7 @@
         "tabs": {
             "subtitles": "字幕列表",
             "summary": "视频总结",
+            "danmakus": "弹幕列表",
             "exportAll": "全部导出"
         },
         "itemCount": "条",
@@ -373,6 +461,11 @@
         "subtitles": {
             "noItems": "当前视频没有可用的字幕",
             "loading": "正在加载字幕...",
+            "export": "导出此条"
+        },
+        "danmakus": {
+            "noItems": "当前视频没有可用的弹幕",
+            "loading": "正在加载弹幕...",
             "export": "导出此条"
         },
         "summary": {

@@ -32,6 +32,9 @@
         "activationTitle": "I have paid honestly, enable Media Player Pro",
         "activationSuccess": "Media Player Pro Enabled",
         "activationDisabled": "Media Player Pro Disabled",
+        "statusEnabled": "Enabled",
+        "statusDisabled": "Disabled",
+        "paid": "I have paid",
         "features": {
             "assistant": {
                 "title": "Media Assistant",
@@ -151,11 +154,22 @@
         }
     },
     "playList": {
-        "title": "Playlist",
+        "title": "List",
         "itemCount": "items",
         "empty": "Playlist is empty",
         "defaultList": "Default List",
         "favorites": "Favorites",
+        "directory": {
+            "title": "Directory",
+            "all": "All Media",
+            "music": "Music",
+            "video": "Videos",
+            "favorite": "Favorites",
+            "local": "Local Media",
+            "bilibili": "Bilibili Videos",
+            "alist": "Cloud Media",
+            "root": "Root Directory"
+        },
         "viewMode": {
             "detailed": "Detailed View",
             "compact": "Compact View",
@@ -172,10 +186,10 @@
             "selectMedia": "Select Media Files"
         },
         "placeholder": {
-            "mediaLink": "Enter media link...",
-            "newTab": "New Tab",
+            "mediaLink": "Enter media link or click add button...",
+            "newTab": "New tab",
             "folderPath": "Enter folder path...",
-            "bilibiliFavorites": "Enter Bilibili favorites URL..."
+            "bilibiliFavorites": "Enter bilibili favorites link..."
         },
         "folder": {
             "defaultName": "Local Folder"
@@ -194,6 +208,7 @@
             "addMediaFiles": "Add Media Files",
             "addAList": "Add AList Cloud",
             "addBilibiliFavorites": "Add Bilibili Favorites",
+            "addSiyuanAssets": "Add SiYuan Assets",
             "open": "Open",
             "addToTab": "Add to Tab",
             "refresh": "Refresh",
@@ -209,7 +224,9 @@
             "favoritesAdded": "Added ${count} videos from favorites ${name}",
             "folderRefreshed": "Folder refreshed, added ${count} media files",
             "folderRefreshedEmpty": "Folder refreshed, no new media files found",
-            "itemMoved": "Moved to ${name}"
+            "itemMoved": "Moved to ${name}",
+            "siyuanAssetsAdded": "Added ${count} media files from SiYuan assets",
+            "siyuanAssetsRefreshed": "SiYuan assets refreshed, added ${count} media files"
         },
         "error": {
             "emptyUrl": "Please enter a media link",
@@ -228,7 +245,8 @@
             "processFavoritesFailed": "Failed to process Bilibili favorites",
             "emptyFavorites": "No videos in this favorites folder",
             "selectMediaFilesFailed": "Failed to select media files",
-            "refreshFolderFailed": "Failed to refresh folder"
+            "refreshFolderFailed": "Failed to refresh folder",
+            "siyuanAssetsFailed": "Failed to get SiYuan assets"
         },
         "log": {
             "parseLink": "Parsing link:",
@@ -239,6 +257,12 @@
             "noTimeParam": "No time parameter:",
             "parseLoopSegment": "Parsing loop segment:",
             "parseTimestamp": "Parsing timestamp:"
+        },
+        "sortMode": {
+            "0": "Default order",
+            "1": "Sort by name",
+            "2": "Sort by time",
+            "3": "Sort by type"
         }
     },
     "setting": {
@@ -247,6 +271,11 @@
         "reset": "Reset",
         "saveSuccess": "Settings saved",
         "resetSuccess": "Settings reset",
+        "tabs": {
+            "account": "Account",
+            "player": "Player",
+            "general": "General"
+        },
         "items": {
             "volume": {
                 "title": "Volume",
@@ -319,6 +348,45 @@
             "targetNotebook": {
                 "title": "Target Notebook",
                 "description": "Select the notebook where media notes will be created"
+            },
+            "alistConfig": {
+                "title": "AList Configuration",
+                "description": "Configure AList server connection",
+                "server": "Server Address",
+                "username": "Username",
+                "password": "Password",
+                "testConnection": "Test Connection",
+                "connectionSuccess": "Connection successful",
+                "connectionFailed": "Connection failed",
+                "serverPlaceholder": "Example: http://localhost:5244",
+                "protocol": "Please include http:// or https://"
+            },
+            "loopSingle": {
+                "title": "Single Loop",
+                "description": "Loop current media"
+            },
+            "loopPlaylist": {
+                "title": "Playlist Loop",
+                "description": "Automatically play next media"
+            },
+            "topToolbar": {
+                "title": "Top Toolbar",
+                "description": "Show top function buttons bar",
+                "always": "Always Show",
+                "hover": "Show on Hover",
+                "hide": "Hide"
+            },
+            "topBarButtons": {
+                "title": "Top Bar Buttons",
+                "description": "Choose buttons to display in the top toolbar"
+            },
+            "loadScript": {
+                "title": "Load Script",
+                "description": "Select script files to load into the plugin",
+                "buttonText": "Select Script File",
+                "scriptFiles": "Script Files",
+                "loadFailed": "Failed to load script",
+                "loadSuccess": "Script loaded to plugin"
             }
         },
         "bilibili": {
@@ -337,7 +405,26 @@
             "unknownStatus": "Unknown status",
             "scanTitle": "Bilibili QR Code Login",
             "scanDescription": "Scan with the Bilibili mobile app",
-            "qrCode": "Bilibili login QR code"
+            "qrCode": "Bilibili login QR code",
+            "loggedIn": "Logged in"
+        },
+        "account": {
+            "save": "Save",
+            "exit": "Exit",
+            "config": "Configure",
+            "paid": "I have paid",
+            "loggedIn": "Logged in",
+            "notLoggedIn": "Click to login",
+            "alistConfigured": "AList configured",
+            "alistNotConfigured": "Configure AList server connection"
+        },
+        "alist": {
+            "title": "AList Configuration",
+            "server": "AList Server",
+            "username": "AList Username",
+            "password": "AList Password",
+            "configured": "AList configured",
+            "notConfigured": "Not configured"
         }
     },
     "screenshot": {
@@ -362,6 +449,7 @@
         "tabs": {
             "subtitles": "Subtitles",
             "summary": "Summary",
+            "danmakus": "Danmaku",
             "exportAll": "Export All"
         },
         "itemCount": " items",
@@ -370,6 +458,11 @@
         "subtitles": {
             "noItems": "No subtitles available for this video",
             "loading": "Loading subtitles...",
+            "export": "Export"
+        },
+        "danmakus": {
+            "noItems": "No danmaku available for this video",
+            "loading": "Loading danmaku...",
             "export": "Export"
         },
         "summary": {

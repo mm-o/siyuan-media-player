@@ -3,6 +3,7 @@
  * 用于处理播放器的字幕功能
  */
 import { BILI_API, getBiliHeaders } from './biliUtils';
+import { findMediaSupportFile } from './utils';
 
 /**
  * 字幕配置对象
@@ -28,7 +29,7 @@ export interface SubtitleCue {
 export class SubtitleManager {
     private static cache = new Map<string, SubtitleCue[]>();
     private static current: SubtitleCue[] = [];
-    private static formats = ['srt', 'vtt', 'ass'];
+    private static formats = ['srt', 'vtt'];
 
     /**
      * 获取当前加载的字幕
@@ -44,31 +45,15 @@ export class SubtitleManager {
      * 获取媒体文件对应的字幕
      */
     static async getSubtitleForMedia(mediaUrl: string): Promise<SubtitleOptions | null> {
-        if (!mediaUrl?.startsWith('file://')) return null;
-        
         try {
-            const { pathname } = new URL(mediaUrl);
-            const decodedPath = decodeURIComponent(pathname);
-            const parts = decodedPath.split('/');
-            const filename = parts.pop() || '';
-            const fileBase = filename.substring(0, filename.lastIndexOf('.'));
-            const dirPath = parts.join('/');
+            const url = await findMediaSupportFile(mediaUrl, this.formats.map(f => `.${f}`));
+            if (!url) return null;
             
-            if (!fileBase) return null;
-            
-            for (const format of this.formats) {
-                try {
-                    const subtitlePath = `${dirPath}/${encodeURIComponent(fileBase)}.${format}`;
-                    const subtitleUrl = `file://${subtitlePath}`;
-                    const response = await fetch(subtitleUrl, { method: 'HEAD' });
-                    if (response.ok) return { url: subtitleUrl, type: format, encoding: 'utf-8' };
-                } catch {}
-            }
-        } catch (e) {
-            console.error('[字幕] 查找失败:', e);
+            const type = url.split('.').pop()?.toLowerCase() || 'srt';
+            return { url, type, encoding: 'utf-8' };
+        } catch {
+            return null;
         }
-        
-        return null;
     }
 
     /**
@@ -84,7 +69,7 @@ export class SubtitleManager {
                 'Referer': `https://www.bilibili.com/video/${bvid}/`
             };
             
-            const response = await fetch('/api/network/forwardProxy', {
+            const result = await fetch('/api/network/forwardProxy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -93,9 +78,8 @@ export class SubtitleManager {
                     timeout: 7000,
                     headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
                 })
-            });
+            }).then(r => r.json());
             
-            const result = await response.json();
             if (result.code !== 0) return this.save(key, []);
             
             const data = JSON.parse(result.data.body);
@@ -110,10 +94,7 @@ export class SubtitleManager {
                 : subtitleInfo.subtitle_url;
             
             try {
-                const subtitleRes = await fetch(subtitleUrl);
-                if (!subtitleRes.ok) return this.save(key, []);
-                
-                const content = await subtitleRes.json();
+                const content = await fetch(subtitleUrl).then(r => r.json());
                 if (!content?.body?.length) return this.save(key, []);
                 
                 return this.save(key, content.body.map(item => ({
@@ -137,21 +118,18 @@ export class SubtitleManager {
         if (this.cache.has(url)) return this.cache.get(url) || [];
         
         try {
-            const response = await fetch(url);
-            if (!response.ok) return [];
-            
-            const content = await response.text();
+            // 一步链式操作获取字幕文本
+            const content = await fetch(url).then(r => r.text()).catch(() => '');
             if (!content?.trim()) return [];
             
+            // 根据类型选择解析器
             const parser = {
                 'srt': this.parseSRT,
-                'vtt': this.parseVTT,
-                'ass': this.parseASS
+                'vtt': this.parseVTT
             }[type.toLowerCase()];
             
             return this.save(url, parser ? parser(content) : []);
         } catch (e) {
-            console.error('[字幕] 加载失败:', e);
             return [];
         }
     }
@@ -168,33 +146,6 @@ export class SubtitleManager {
         const body = content.replace(/^WEBVTT.*?(\r?\n\r?\n|\r?\n)/i, '');
         const regex = /(\d{2}:\d{2}:\d{2}\.\d{3}|\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3}|\d{2}:\d{2}\.\d{3}).*?\r?\n([\s\S]*?)(?=\r?\n\r?\n|\r?\n\s*\d{2}:\d{2}|\s*$)/g;
         return SubtitleManager.parseWithRegex(body, regex, '.');
-    }
-
-    private static parseASS(content: string): SubtitleCue[] {
-        try {
-            return content.split(/\r?\n/)
-                .filter(line => line.startsWith('Dialogue:'))
-                .map(line => {
-                    const parts = line.split(',');
-                    if (parts.length < 10) return null;
-                    
-                    const text = parts.slice(9).join(',')
-                        .replace(/\{[^}]*\}/g, '')
-                        .replace(/\\N/g, ' ')
-                        .trim();
-                    
-                    if (!text) return null;
-                    
-                    return {
-                        startTime: SubtitleManager.parseTime(parts[1].trim(), ':'),
-                        endTime: SubtitleManager.parseTime(parts[2].trim(), ':'),
-                        text
-                    };
-                })
-                .filter(Boolean) as SubtitleCue[];
-        } catch {
-            return [];
-        }
     }
 
     /**

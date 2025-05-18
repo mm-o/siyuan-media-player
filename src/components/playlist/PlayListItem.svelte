@@ -4,6 +4,7 @@
     import type { MediaItem } from '../../core/types';
     import { BilibiliParser } from '../../core/bilibili';
     import { AListManager } from '../../core/alist';
+    import { DEFAULT_THUMBNAILS } from '../../core/media';
 
     // 组件属性
     export let item: MediaItem;
@@ -22,15 +23,24 @@
     $: hasMultipleParts = videoParts.length > 1;
     $: isGridView = viewMode === 'grid' || viewMode === 'grid-single';
     $: alistUrl = item.source === 'alist' && item.sourcePath ? 
-        `${AListManager.getConfig()?.server}${item.sourcePath}` : 
-        item.url;
+        AListManager.getConfig()?.server + item.sourcePath : item.url;
+    $: defaultThumbnail = item.is_dir ? 
+        DEFAULT_THUMBNAILS.folder : 
+        (item.type === 'audio' ? DEFAULT_THUMBNAILS.audio : DEFAULT_THUMBNAILS.video || DEFAULT_THUMBNAILS.audio);
     
     // 事件分发器
     const dispatch = createEventDispatcher();
     
     // 处理点击事件
     async function handleClick() {
-        if (item.is_dir) return dispatch('play', { item });
+        // 处理目录标签中的虚拟媒体项
+        if (item.type === 'directory' && item.targetTabId) {
+            return dispatch('play', { item: { ...item, action: 'navigateToTab', targetTabId: item.targetTabId } });
+        }
+        // 处理普通文件夹
+        if (item.is_dir) {
+            return dispatch('play', { item });
+        }
         if (item.type === 'bilibili' && item.bvid) {
             if (!videoParts.length && !isLoadingParts) {
                 isLoadingParts = true;
@@ -53,21 +63,13 @@
             menu.addItem({ 
                 icon: "iconFolder", 
                 label: i18n.playList.menu.open || "打开", 
-                click: () => { 
-                    dispatch('play', { item }); 
-                    menu.close(); 
-                } 
+                click: () => dispatch('play', { item }) 
             });
             
             menu.addItem({ 
                 icon: "iconAdd", 
                 label: i18n.playList.menu.addToTab || "添加到标签页", 
-                click: () => { 
-                    window.dispatchEvent(new CustomEvent('addAListTab', { 
-                        detail: { path: item.sourcePath } 
-                    })); 
-                    menu.close(); 
-                } 
+                click: () => window.dispatchEvent(new CustomEvent('addAListTab', {detail: {path: item.sourcePath}}))
             });
             
             return menu.open({ x: e.clientX, y: e.clientY });
@@ -93,7 +95,8 @@
         if (tabs?.length) {
             const moveToSubmenu = [];
             tabs.forEach(tab => {
-                if (tab.id !== 'default' && !tab.id.startsWith('alist-')) {
+                // 所有标签都可作为移动目标，但排除当前标签和AList标签
+                if (!tab.id.startsWith('alist-')) {
                     moveToSubmenu.push({
                         label: tab.name || tab.id,
                         click: () => actions.moveTo(tab.id)
@@ -137,7 +140,7 @@
     {#if isGridView}
         <div class="item-thumbnail">
             <img 
-                src={item.thumbnail || '/plugins/siyuan-media-player/thumbnails/default.svg'} 
+                src={item.thumbnail || defaultThumbnail} 
                 alt={item.title} 
                 loading="lazy"
             />
@@ -152,7 +155,7 @@
         <div class="item-content">
             <div class="item-thumbnail">
                 <img 
-                    src={item.thumbnail || '/plugins/siyuan-media-player/thumbnails/default.svg'} 
+                    src={item.thumbnail || defaultThumbnail} 
                     alt={item.title} 
                     loading="lazy"
                 />
@@ -172,9 +175,7 @@
                 {/if}
                 {#if alistUrl}
                     <div class="item-url" title={alistUrl}>
-                        <a href={alistUrl} 
-                           target="_blank" 
-                           rel="noopener noreferrer"
+                        <a href={alistUrl} target="_blank" rel="noopener noreferrer"
                            on:click|stopPropagation>{alistUrl}</a>
                     </div>
                 {/if}

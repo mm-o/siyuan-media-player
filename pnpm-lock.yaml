@@ -17,6 +17,9 @@ importers:
       artplayer-plugin-danmuku:
         specifier: ^5.1.6
         version: 5.1.6
+      artplayer-plugin-dash-control:
+        specifier: ^1.0.0
+        version: 1.0.0
       md5:
         specifier: ^2.3.0
         version: 2.3.0
@@ -544,6 +547,9 @@ packages:
 
   artplayer-plugin-danmuku@5.1.6:
     resolution: {integrity: sha512-3JufaEvxI0bTR74vxLU7K9F9OLmR3yrDFqeflV0T0QWedabassX5hsl0AyNNcjVkfdm3A5s1YC0icdtiFZA1Ig==}
+
+  artplayer-plugin-dash-control@1.0.0:
+    resolution: {integrity: sha512-Ui6oZxFjd8bdikKeevn86aWATcfC+rpBDquqIwf4/ixhWWF4d+QtRGNB8Rst6aQbRNqv+tl3yZnG8hBLxCqP0A==}
 
   artplayer@5.2.1:
     resolution: {integrity: sha512-xhNE9zSLT2z4O2CJwcMSWADsS3Cvq0PwNanvMzRsqgfUhsMOpum8HlMtIUPOTyMGjIhKV8sl109HFUalQK6WJQ==}
@@ -1492,6 +1498,8 @@ snapshots:
   aria-query@5.3.2: {}
 
   artplayer-plugin-danmuku@5.1.6: {}
+
+  artplayer-plugin-dash-control@1.0.0: {}
 
   artplayer@5.2.1:
     dependencies:

@@ -80,62 +80,50 @@ export const biliRequest = async <T>(url: string, headers: Record<string, string
     }
 };
 
+// 二维码状态码映射
+const QR_STATUS = {
+    0: '登录成功',
+    86038: '二维码已过期',
+    86090: '已扫码，请确认',
+    86101: '等待扫码'
+} as const;
+
+type QRStatus = keyof typeof QR_STATUS;
+
 /**
  * 生成B站登录二维码
  */
-export const generateBiliQRCode = async (): Promise<{qrcodeData: string, qrcode_key: string}> => {
-    try {
-        const response = await biliRequest<any>(BILI_API.QR_LOGIN);
-        if (response.code !== 0) throw new Error(`生成登录二维码失败: ${response.message}`);
-        
-        const qrcodeData = await QRCode.toDataURL(response.data.url, {
-            width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' }
-        });
-        
-        return { qrcodeData, qrcode_key: response.data.qrcode_key };
-    } catch (error) {
-        throw new Error(`生成登录二维码失败: ${error instanceof Error ? error.message : String(error)}`);
-    }
+export const generateBiliQRCode = async () => {
+    const response = await biliRequest<any>(BILI_API.QR_LOGIN);
+    if (response.code !== 0) throw new Error(response.message);
+    
+    const qrcodeData = await QRCode.toDataURL(response.data.url, {
+        width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' }
+    });
+    
+    return { qrcodeData, qrcode_key: response.data.qrcode_key };
 };
 
 /**
  * 检查二维码扫描状态
- * @param qrcode_key 二维码的key
- * @returns 登录状态
  */
-export const checkBiliQRCodeStatus = async (qrcode_key: string): Promise<{
-    code: number;
-    message: string;
-    url?: string;
-    userInfo?: any;
-}> => {
-    try {
-        const response = await biliRequest<any>(`${BILI_API.QR_POLL}?qrcode_key=${qrcode_key}`);
-        
-        // 已扫描并获取到URL
-        if (response.code === 0 && response.data.url) {
-            const sessdata = getSessData(response.data.url);
-            const userInfo = sessdata ? await getBiliUserInfo(sessdata) : null;
-            
-            return {
-                ...response.data,
-                code: 0,
-                message: '登录成功',
-                userInfo: userInfo || undefined
-            };
-        }
-        
-        // 其他状态
+export const checkBiliQRCodeStatus = async (qrcode_key: string) => {
+    const response = await biliRequest<any>(`${BILI_API.QR_POLL}?qrcode_key=${qrcode_key}`);
+    
+    if (response.code === 0 && response.data.url) {
+        const sessdata = getSessData(response.data.url);
         return {
-            code: response.code || -1,
-            message: response.message || '未知错误'
-        };
-    } catch (error) {
-        return {
-            code: -1,
-            message: `检查二维码状态失败: ${error instanceof Error ? error.message : String(error)}`
+            ...response.data,
+            code: 0,
+            message: QR_STATUS[0],
+            userInfo: sessdata ? await getBiliUserInfo(sessdata) : undefined
         };
     }
+    
+    return {
+        code: response.code || -1,
+        message: QR_STATUS[response.code as QRStatus] || response.message || '未知错误'
+    };
 };
 
 /**
@@ -188,4 +176,120 @@ export const getBiliHeaders = (config: any, bvid?: string): Record<string, strin
     } catch {}
 
     return headers;
-}; 
+};
+
+/**
+ * 生成B站视频MPD
+ * @param dash B站dash数据
+ * @returns data URL格式的MPD
+ */
+export const createBiliMPD = (dash: any): string => {
+    if (!dash?.video?.length || !dash?.audio?.length) return '';
+    
+    try {
+        const video = dash.video.find((v: any) => v.id >= 64) || dash.video[0];
+        const audio = dash.audio[0];
+        
+        if (!video || !audio) return '';
+        
+        const duration = Math.floor(dash.duration || 3600);
+        return `data:application/dash+xml;charset=utf-8,${encodeURIComponent(`<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT${duration}S">
+ <Period>
+  <AdaptationSet mimeType="video/mp4" contentType="video">
+   <Representation id="v${video.id}" bandwidth="${video.bandwidth}" codecs="${video.codecs}" width="${video.width}" height="${video.height}">
+    <BaseURL>${video.baseUrl}</BaseURL>
+    <SegmentBase indexRange="${video.segment_base?.index_range || '0-0'}"><Initialization range="${video.segment_base?.initialization || '0-0'}"/></SegmentBase>
+   </Representation>
+  </AdaptationSet>
+  <AdaptationSet mimeType="audio/mp4" contentType="audio">
+   <Representation id="a${audio.id}" bandwidth="${audio.bandwidth}" codecs="${audio.codecs}">
+    <BaseURL>${audio.baseUrl}</BaseURL>
+    <SegmentBase indexRange="${audio.segment_base?.index_range || '0-0'}"><Initialization range="${audio.segment_base?.initialization || '0-0'}"/></SegmentBase>
+   </Representation>
+  </AdaptationSet>
+ </Period>
+</MPD>`)}`;
+    } catch {
+        return '';
+    }
+};
+
+/**
+ * 二维码状态管理
+ */
+export class QRCodeManager {
+    private timer: number | null = null;
+    private configManager: any;
+    private onStatusChange: (status: any) => void;
+    private onLoginSuccess: (userInfo: any) => void;
+    private qrcodeData: string = '';
+    private qrcodeKey: string = '';
+
+    constructor(configManager: any, onStatusChange: (status: any) => void, onLoginSuccess: (userInfo: any) => void) {
+        this.configManager = configManager;
+        this.onStatusChange = onStatusChange;
+        this.onLoginSuccess = onLoginSuccess;
+    }
+
+
+    async startLogin() {
+        const { qrcodeData, qrcode_key } = await generateBiliQRCode();
+        this.qrcodeData = qrcodeData;
+        this.qrcodeKey = qrcode_key;
+        this.onStatusChange({ data: qrcodeData, key: qrcode_key, message: QR_STATUS[86101] });
+        this.startPolling(qrcode_key);
+        return { qrcodeData, qrcode_key };
+    }
+
+
+    private startPolling(qrcode_key: string) {
+        if (this.timer) clearInterval(this.timer);
+        this.timer = window.setInterval(async () => {
+            try {
+                const status = await checkBiliQRCodeStatus(qrcode_key);
+                
+                // 更新状态，保留二维码数据
+                this.onStatusChange({ 
+                    data: this.qrcodeData, 
+                    key: this.qrcodeKey, 
+                    message: status.message 
+                });
+
+                if (status.code === 0) {
+                    this.stopPolling();
+                    await this.handleLoginSuccess(status);
+                } else if (status.code === 86038) {
+                    this.stopPolling();
+                    this.qrcodeData = '';
+                    this.qrcodeKey = '';
+                    this.onStatusChange({ data: '', key: '', message: status.message });
+                }
+            } catch {
+                this.stopPolling();
+            }
+        }, 3000);
+    }
+
+    private async handleLoginSuccess(status: any) {
+        const config = await this.configManager.getConfig();
+        config.bilibiliLogin = {
+            url: status.url,
+            refresh_token: status.refresh_token,
+            timestamp: status.timestamp,
+            userInfo: status.userInfo
+        };
+        await this.configManager.save();
+        this.onLoginSuccess(status.userInfo);
+    }
+
+    public stopPolling() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+    }
+}
+
+// 导出所有内容
+export * from './biliUtils'; 

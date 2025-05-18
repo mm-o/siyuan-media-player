@@ -1,7 +1,7 @@
 /* -----------------------------------------
- * 核心配置
+ * 主题与基础配置
  * ----------------------------------------- */
-// 主题配置
+// 主题变量
 $config: (
   sizes: (
     header: 48px, tabs: 40px, footer: 48px, spacing: 8px, radius: 4px, sidebar: 300px
@@ -12,19 +12,15 @@ $config: (
     background: var(--b3-theme-background), border: var(--b3-border-color),
     on-background: var(--b3-theme-on-background), on-surface: var(--b3-theme-on-surface),
     on-surface-variant: var(--b3-theme-on-surface-variant), on-primary: var(--b3-theme-on-primary)
-  ),
-  pro: (
-    gradient-text: linear-gradient(90deg, #d4af37 0%, #f9d423 100%),
-    gradient: linear-gradient(135deg, #f7f1cf 0%, #ffeaa4 100%)
   )
 );
 
-// 工具函数与核心Mixins
+// 辅助函数
 $transition: 0.3s ease;
 @function size($key) { @return map-get(map-get($config, sizes), $key); }
 @function color($key) { @return map-get(map-get($config, colors), $key); }
-@function pro($key) { @return map-get(map-get($config, pro), $key); }
 
+// 通用mixins
 @mixin text-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @mixin flex($direction: row, $justify: flex-start, $align: stretch, $gap: 0) {
   display: flex; flex-direction: $direction; justify-content: $justify; align-items: $align;
@@ -48,9 +44,9 @@ $transition: 0.3s ease;
 }
 
 /* -----------------------------------------
- * 基础组件
+ * 基础UI组件
  * ----------------------------------------- */
-// 通用状态
+// 状态样式
 %hidden-state { opacity: 0; pointer-events: none; }
 %hover-active {
   &:hover { border-color: color(primary); }
@@ -67,32 +63,31 @@ $transition: 0.3s ease;
   padding: 4px 8px; border-radius: size(radius); background: color(background); 
   color: color(on-background); outline: none; font-size: 14px; line-height: 18px;
   border: 1px solid color(border); min-width: 140px; height: 20px;
-  &:focus { border-color: color(primary); }
-  &:hover { border-color: color(primary); }
+  &:focus, &:hover { border-color: color(primary); }
 }
 
 %section-container {
   flex: 1; overflow-y: auto; padding: size(spacing); background: color(background);
 }
 
-// 项目与内容元素
 %item-base {
-  @include bordered; background: color(surface); transition: all 0.2s;
-  @include interactive; @extend %hover-active; position: relative;
+  @include bordered; background: color(surface); position: relative;
+  @include interactive; @extend %hover-active; 
 }
 
 %item-title {
   @include standard-text(14px, 500); @include text-ellipsis; transition: color 0.2s;
 }
 
+// 缩略图
 @mixin thumbnail($width: 120px, $height: 68px) {
-  position: relative; width: $width; height: $height; border-radius: calc(size(radius) - 1px);
-  overflow: hidden; flex-shrink: 0; @include flex(row, center, center);
-  background: color(surface-lighter);
+  position: relative; width: $width; height: $height; 
+  border-radius: calc(size(radius) - 1px); overflow: hidden; flex-shrink: 0; 
+  @include flex(row, center, center); background: color(surface-lighter);
   
   img {
     width: 100%; height: 100%; object-fit: cover;
-    &[src^="data:image/svg"] { width: 60%; height: 60%; object-fit: contain; }
+    &[src^="data:image/svg"] { width: 100%; height:100%; object-fit: contain;}
   }
   
   .duration {
@@ -102,46 +97,96 @@ $transition: 0.3s ease;
 }
 
 /* -----------------------------------------
- * 通用面板
+ * 播放器布局
  * ----------------------------------------- */
+// 基础面板
 %panel-base {
   @include position-absolute(0, 0, 0, 0); @include flex(column);
-  @include bordered(color(surface-lighter)); background: color(background); box-sizing: border-box;
+  @include bordered(color(surface-lighter)); background: color(background); 
+  box-sizing: border-box;
 }
 
-// AList相关样式
-.alist {
-  &-path-nav {
-    @include flex(row, null, center); font-size: 12px; overflow-x: auto; padding: 0 8px;
-    .path-item {
-      border: none; background: none; color: color(primary); cursor: pointer;
-      max-width: 100px; @include text-ellipsis; padding: 2px 4px;
-      &:hover { text-decoration: underline; }
-      &.active { font-weight: bold; }
+// 媒体播放器
+.media-player-tab {
+  @include position-absolute(0, 0, 0, 0); padding: size(spacing);
+  box-sizing: border-box; background: color(background);
+  
+  .content-area {
+    position: relative; width: 100%; height: 100%;
+    @include flex(row, flex-start, stretch, size(spacing)*0.5);
+    
+    .player-area {
+      position: relative; border-radius: size(radius);
+      background: color(surface); overflow: hidden; flex: 1;
     }
-    .path-sep { color: color(on-surface); margin: 0 2px; }
-    & + .playlist-content { margin-top: 0; }
-  }
-  &-form {
-    display: grid; grid-template-columns: 80px 1fr; gap: 8px; 
-    align-items: center; margin-bottom: 8px;
-    label { color: color(on-surface); font-size: 14px; }
   }
 }
 
-%common-panel {
+// 播放器核心
+.artplayer-app {
+  position: relative; z-index: 2 !important; width: 100%; height: 100%; display: block;
+  
+  .art-video-player {
+    width: 100% !important; height: 100% !important; background-color: #000;
+    .art-controls { bottom: 0; }
+    .art-subtitle { bottom: 65px !important; font-family: var(--b3-font-family); }
+  }
+  
+  .floating-subtitle {
+    position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%);
+    max-width: 80%; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 5px 10px;
+    border-radius: 4px; font-size: 16px; text-align: center; z-index: 30; pointer-events: none;
+  }
+}
+
+// 提示修复
+.protyle [class*=hint--]:not(.fn__none) {
+  font-family: var(--b3-font-family); display: flex; position: fixed;
+}
+
+/* -----------------------------------------
+ * 侧边栏布局
+ * ----------------------------------------- */
+// 侧边栏容器
+.media-player-sidebar {
+  display: flex; flex-direction: column; height: 100%; overflow: hidden;
+  
+  &-content {
+    flex: 1; overflow: hidden; position: relative;
+    > div { position: absolute; inset: 0; overflow: hidden; }
+  }
+}
+
+// 通用面板样式
+.playlist, .settings, .assistant {
   @extend %panel-base;
   
-  // 面板结构: 头部、标签栏、内容区、底部
-  .panel-header, .playlist-header, .settings-header {
-    height: size(header); padding: 0 16px; border-bottom: 1px solid color(surface-lighter);
+  // 头部区域
+  .playlist-header, .panel-header, .settings-header {
+    height: size(header); padding: 0 16px; 
+    border-bottom: 1px solid color(surface-lighter);
     @include flex(row, space-between, center);
     
-    h3 { margin: 0; @include standard-text(16px, 600); }
+    // 面板导航
+    .panel-nav {
+      @include flex(row, flex-start, center, 8px);
+      
+      h3 {
+        margin: 0; font-size: 12px; cursor: pointer; transition: all 0.2s;
+        color: color(on-surface); opacity: 0.65;
+        
+        &.active { font-size: 16px; color: color(primary); opacity: 1; }
+        &:hover:not(.active) { color: color(primary); opacity: 0.85; }
+      }
+    }
+    
+    // 头部标题和控件
+    .header-controls, .playlist-count {
+      font-size: 12px; color: color(on-surface); opacity: 0.86;
+    }
     
     .header-controls {
-      @include flex(row, flex-start, center, 16px);
-      .panel-count, .playlist-count { font-size: 12px; color: color(on-surface); opacity: 0.86; }
+      @include flex(row, flex-start, center, 8px);
       
       // 视图模式按钮
       .view-mode-btn {
@@ -161,29 +206,15 @@ $transition: 0.3s ease;
           }
         }
       }
-      
-      // 头部操作区
-      .header-actions {
-        @include flex(row, flex-start, center, 8px);
-        .btn {
-          @include flex(row, center, center); padding: 4px 8px; @include bordered;
-          background: color(surface); color: color(on-surface); font-size: 12px;
-          @include interactive;
-          
-          &.primary {
-            background: color(primary); border-color: color(primary); color: #fff;
-            &:hover { opacity: 0.9; }
-          }
-        }
-      }
     }
   }
   
-  // 标签栏
-  .panel-tabs, .playlist-tabs {
-    height: size(tabs); padding: 3px size(spacing) 0; overflow-x: auto;
+  // 标签区域
+  .playlist-tabs, .panel-tabs {
+    height: size(tabs); padding: 3px size(spacing) 0; 
     @include flex(row, flex-start, center, size(spacing));
     border-bottom: 1px solid color(border); background: color(surface);
+    overflow-x: auto;
     
     .tab {
       @extend %button-base; padding: 4px 12px; @include bordered;
@@ -195,33 +226,35 @@ $transition: 0.3s ease;
   }
   
   // 内容区域
-  .panel-content, .playlist-content, .setting-panel {
-    @extend %section-container;
-    padding-bottom: 60px;
+  .playlist-content, .panel-content, .setting-panel, .subtitle-list {
+    @extend %section-container; padding-bottom: 60px;
     
     // 空状态
-    .panel-empty, .playlist-empty {
-      height: 100%; @include flex(row, center, center); color: color(on-surface); opacity: 0.5;
+    .playlist-empty, .panel-empty {
+      height: 100%; @include flex(row, center, center); 
+      color: color(on-surface); opacity: 0.5;
     }
     
-    // 列表与网格视图
-    .panel-items, .playlist-items {
+    // 列表视图
+    .playlist-items, .panel-items {
       @include flex(column, flex-start, stretch, 8px);
     }
     
-    &.grid-view {
-      .panel-items, .playlist-items {
-        display: grid; grid-template-columns: repeat(2, 1fr); gap: size(spacing); align-items: start;
-        &.grid-single { grid-template-columns: 1fr; }
-      }
+    // 网格视图
+    &.grid-view .playlist-items, &.grid-view .panel-items {
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px; align-items: start;      
+      &.grid-single { grid-template-columns: 100%; }
       
       .playlist-item {
-        padding: 0;
+        padding: 0; margin: 0; height: auto;
+        
         &.grid .item-thumbnail {
           @include thumbnail(100%, auto); aspect-ratio: 16/9;
           .item-title {
             @include position-absolute(null, 0, 0, 0); padding: 4px 8px; 
-            background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 12px; @include text-ellipsis;
+            background: rgba(0, 0, 0, 0.7); color: #fff; @include text-ellipsis;
           }
           .duration { right: 4px; bottom: 24px; }
         }
@@ -229,162 +262,61 @@ $transition: 0.3s ease;
     }
   }
   
-  // 底部按钮区域
-  .panel-footer, .playlist-footer, .assistant-footer {
+  // 底部区域
+  .playlist-footer, .panel-footer, .assistant-footer {
     position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
     @include flex(row, center, center, 8px); z-index: 10;
-    height: auto; padding: 0; border: none; background: transparent;
     
-    // 按钮与输入框
+    // 按钮样式
     .add-btn, .action-btn {
       @include flex(row, center, center); height: 28px; padding: 0 16px;
       border: none; border-radius: 24px; white-space: nowrap; font-size: 14px;
-      background: color(primary); color: color(on-primary);
-      transition: all 0.2s;
+      background: color(primary); color: color(on-primary); transition: all 0.2s;
       
-      .icon {
-        width: 14px; height: 14px; margin-right: 4px; fill: currentColor;
-      }
-      
-      &:hover {
-        filter: brightness(0.9); transform: translateY(-2px);
-      }
-      
+      .icon { width: 14px; height: 14px; margin-right: 4px; fill: currentColor; }
+      &:hover { filter: brightness(0.9); transform: translateY(-2px); }
       &.simple-btn:hover { transform: none; }
     }
     
+    // 输入框
     .input-wrapper {
       position: relative;
       .clear-icon { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); }
     }
   }
   
-  // 表单控件
+  // 表单元素
   .tab-input, .select-wrapper, .input-wrapper, .player-path-input { @extend %input-base; }
   
   .select-wrapper {
-    padding: 0 24px 0 8px; cursor: pointer; appearance: none;
-    background-repeat: no-repeat; background-position: right 4px center; background-size: 18px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    padding: 0 8px; cursor: pointer;
   }
   
-  // 过渡效果
-  &.panel-container, &.playlist-container, &.assistant-container {
-    transition: opacity $transition;
-    &.hidden { @extend %hidden-state; }
-  }
+  // 隐藏状态
+  &.hidden { @extend %hidden-state; }
 }
 
 /* -----------------------------------------
- * 播放器组件
+ * 列表项组件
  * ----------------------------------------- */
-.artplayer-app {
-  position: relative; z-index: 2 !important; width: 100%; height: 100%; display: block;
-  
-  .art-video-player {
-    width: 100% !important; height: 100% !important; background-color: #000;
-    .art-controls { bottom: 0; }
-    .art-subtitle { bottom: 65px !important; font-family: var(--b3-font-family); }
-  }
-  
-  .floating-subtitle {
-    position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%);
-    max-width: 80%; background: rgba(0, 0, 0, 0.6); color: #fff; padding: 5px 10px;
-    border-radius: 4px; font-size: 16px; text-align: center; z-index: 30; pointer-events: none;
-  }
-}
-
-.protyle [class*=hint--]:not(.fn__none) {
-  font-family: var(--b3-font-family); display: flex; position: fixed;
-}
-
-/* -----------------------------------------
- * 媒体标签与控制栏
- * ----------------------------------------- */
-// 媒体播放器标签页
-.media-player-tab {
-  @include position-absolute(0, 0, 0, 0); padding: size(spacing);
-  box-sizing: border-box; background: color(background);
-  
-  .content-area {
-    position: relative; width: 100%; height: 100%;
-    @include flex(row, flex-start, stretch, size(spacing)*0.5);
-    
-    // 播放器区域和侧边栏
-    .player-area, .sidebar {
-      position: relative; border-radius: size(radius);
-      background: color(surface); overflow: hidden;
-    }
-    
-    .player-area {
-      flex: 1;
-      
-      // 控制栏
-      .control-bar {
-        @include position-absolute(0, 0, null, 0); z-index: 3;
-        border-radius: size(radius) size(radius) 0 0; transition: opacity $transition;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0) 100%);
-        &.hidden { @extend %hidden-state; }
-      }
-    }
-    
-    // 侧边栏
-    .sidebar {
-      position: relative; height: 100%;
-      &.show { @include bordered(color(on-surface)); }
-      
-      .resize-handle {
-        position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; 
-        cursor: col-resize; z-index: 5;
-      }
-    }
-  }
-}
-
-// 控制栏
-.control-bar {
-  @include flex(row, flex-start, center); padding: 8px 16px;
-  
-  .left-controls, .right-controls { @include flex(row, flex-start, center, 8px); }
-  
-  .title-area {
-    flex: 1; text-align: center; margin: 0 16px;
-    .media-title {
-      color: #fff; font-size: 14px; @include text-ellipsis;
-      max-width: 500px; display: inline-block;
-    }
-  }
-  
-  .control-btn {
-    @extend %button-base; color: color(on-surface);
-    .icon { width: 16px; height: 16px; fill: #fff; }
-  }
-}
-
-/* -----------------------------------------
- * 面板组件
- * ----------------------------------------- */
-// 所有面板组件共享基础样式
-.playlist, .settings, .assistant { @extend %common-panel; }
-
-// 播放列表项
+// 媒体项
 .playlist-item {
-  @include flex(column, flex-start, stretch, 12px); padding: 12px;
+  @include flex(column, flex-start, stretch, 8px); padding: 12px;
   @extend %item-base;
   
-  // 视图和状态
+  // 视图样式
   &.compact {
-    padding: 8px 12px; min-height: 0;
+    padding: 8px 12px;
     .item-title { margin: 0; font-size: 14px; @include text-ellipsis; }
   }
   
   &.playing .item-info .item-title { color: color(primary); }
   
-  // 内容布局
+  // 布局
   .item-content { @include flex(row, flex-start, stretch, 12px); }
   .item-thumbnail { @include thumbnail; }
   
-  // 信息区域
+  // 信息区
   .item-info {
     flex: 1; min-width: 0; @include flex(column, flex-start, stretch, 4px);
     
@@ -396,279 +328,122 @@ $transition: 0.3s ease;
       .artist-icon { width: 16px; height: 16px; border-radius: 50%; }
     }
     
-    .item-meta-group { @include flex(column, flex-start, stretch, 2px); }
-    
-    .item-meta {
+    .item-meta { 
       @include flex(row, flex-start, center, 4px); font-size: 12px;
       color: color(on-surface-variant);
+      
       .icon {
-        width: 16px; height: 16px; fill: color(on-surface-variant);
+        width: 16px; height: 16px; fill: currentColor;
         &:hover { fill: color(primary); }
       }
     }
     
     .item-url {
-      @include text-ellipsis; font-size: 12px;
-      color: color(on-surface-variant); opacity: 0.6;
+      @include text-ellipsis; font-size: 12px; color: color(on-surface-variant); opacity: 0.6;
     }
   }
 }
 
 // 分P列表
 .item-parts {
-  display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px;
-  margin-top: 2px; padding: 2px; border-radius: size(radius);
-  width: 100%; box-sizing: border-box;
-  
-  &.grid-parts { grid-template-columns: repeat(5, 1fr); }
-  &.single-parts { grid-template-columns: repeat(10, 1fr); }
+  display: grid; gap: 4px; width: 100%; margin-top: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
   
   .part-item {
-    @include flex(row, center, center); aspect-ratio: 1/1; min-width: 0;
-    @include bordered; background: color(surface); font-size: 12px; @include interactive;
+    width: 28px; height: 28px; min-width: 0; font-size: 12px;
+    @include flex(row, center, center); @include bordered; background: color(surface);
+    transition: all 0.2s; cursor: pointer;
     
-    &.playing {
-      background: color(primary); border-color: color(primary); color: #fff;
-    }
+    &:hover { border-color: color(primary); color: color(primary); }
+    &.playing { background: color(primary); border-color: color(primary); color: #fff; }
   }
 }
 
+// 字幕项 - 复用播放列表样式
+.subtitle-item {
+  @include flex(row, flex-start, center); padding: 8px 12px;
+  @extend %item-base; margin-bottom: 4px;
+  
+  &.current { background: color(primary-lighter); border-color: color(primary); }
+  
+  .subtitle-time {
+    flex-shrink: 0; width: 52px; color: color(primary); font-weight: 500;
+  }
+  
+  .subtitle-text {
+    flex: 1; line-height: 1.4; word-break: break-word;
+  }
+  
+  .action-btn {
+    @extend %button-base; padding: 4px; opacity: 0.6;
+    .icon { width: 14px; height: 14px; }
+    &:hover { opacity: 1; }
+  }
+}
+
+/* -----------------------------------------
+ * 设置界面
+ * ----------------------------------------- */
 // 设置项
 .setting-item {
   margin-bottom: 8px; padding: 16px; @extend %item-base;
   @include flex(row, space-between, center, 16px);
   
-  &.with-path { 
-    flex-direction: column; 
-    align-items: flex-start; 
-  }
-  
-  // Pro特殊样式
-  &.pro-setting-item {
-    background: pro(gradient);
-    .pro-title {
-      background: pro(gradient-text); -webkit-background-clip: text;
-      background-clip: text; color: transparent; font-weight: 600;
-    }
-  }
-  
-  // 信息区域
   .setting-info {
     flex: 1; min-width: 0;
-    
     .setting-title { @include standard-text(14px, 500); }
     .setting-description { font-size: 12px; color: color(on-surface); margin-top: 4px; }
-    
-    // 内容组件
-    .setting-content {
-      margin-top: 12px;
-      
-      .setting-subtitle {
-        font-size: 13px; font-weight: 500; color: color(on-surface); margin-bottom: 8px;
-      }
-      
-      // 滑块
-      .slider-wrapper {
-        @include flex(row, flex-start, center, 12px);
-        
-        input[type="range"] {
-          flex: 1; height: 4px; background: color(surface-lighter);
-          border-radius: 2px; cursor: pointer;
-          
-          &::-webkit-slider-thumb {
-            width: 12px; height: 12px; border-radius: 50%; 
-            background: color(primary); cursor: pointer; transition: all 0.2s;
-            &:hover { transform: scale(1.2); }
-          }
-        }
-        
-        .slider-value { min-width: 40px; text-align: right; color: color(on-surface); }
-      }
-      
-      // 用户信息
-      .user-wrapper {
-        @include flex(row, flex-start, center, 12px);
-        
-        .user-avatar {
-          width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-          @include bordered(color(surface-lighter));
-        }
-        
-        .user-details {
-          flex: 1; min-width: 0;
-          
-          .user-name {
-            @include standard-text(14px, 500); margin-bottom: 2px; @include text-ellipsis;
-            
-            .user-level {
-              display: inline-block; margin-left: 8px; font-size: 12px;
-              color: color(primary); background: color(background);
-              padding: 0 4px; border-radius: 2px; font-weight: normal;
-            }
-          }
-          
-          .user-id { font-size: 12px; color: color(on-surface-variant); @include text-ellipsis; }
-        }
-      }
-    }
+    .setting-content { margin-top: 12px; }
   }
   
-  // 控制区域
-  .setting-control {
-    @include flex(row, flex-start, center, 8px);
-    
-    // 开关组件
-    .checkbox-wrapper {
-      position: relative; width: 40px; height: 20px;
-      
-      input[type="checkbox"] {
-        opacity: 0; width: 0; height: 0;
-        
-        &:checked + .checkbox-custom {
-          background: color(primary);
-          &:after { transform: translateX(20px); }
-        }
-      }
-      
-      .checkbox-custom {
-        @include position-absolute(0, null, null, 0); width: 40px; height: 20px;
-        background: color(surface-lighter); border-radius: 10px;
-        transition: all 0.2s; cursor: pointer;
-        
-        &:after {
-          content: ''; @include position-absolute(2px, null, null, 2px);
-          width: 16px; height: 16px; background: #fff; border-radius: 50%;
-          transition: all 0.2s;
-        }
-      }
+  .setting-control { @include flex(row, flex-start, center, 8px); }
+}
+
+// 开关样式
+.checkbox-wrapper {
+  position: relative; width: 40px; height: 20px;
+  input[type="checkbox"] { opacity: 0; width: 0; height: 0; 
+    &:checked + .checkbox-custom { background: color(primary);
+      &:after { transform: translateX(20px); }
+    }
+  }
+  .checkbox-custom {
+    position: absolute; top: 0; left: 0; width: 40px; height: 20px;
+    background: color(surface-lighter); border-radius: 10px; transition: all 0.2s; cursor: pointer;
+    &:after { content: ''; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: all 0.2s;
     }
   }
 }
 
-// Pro面板内容
-.pro-panel-content {
-  margin-top: size(spacing);
-  
-  .price-tag {
-    margin-bottom: size(spacing) * 2;
-    .price-main { font-size: 32px; font-weight: bold; }
-  }
-  
-  .divider { border-top: 1px dashed color(border); margin: size(spacing) 0; height: 0; }
-  
-  .github-link {
-    color: color(primary); text-decoration: none;
-    &:hover { text-decoration: underline; }
-  }
-  
-  .b3-button { margin: size(spacing) * 2 0; }
-  
-  // 功能模块
-  .payment-qrcodes {
-    @include flex(column, center, center); margin: size(spacing) * 2 0;
-    
-    .qrcode-item {
-      width: 96%; text-align: center; margin-bottom: size(spacing);
-      
-      img {
-        max-width: 100%; background-color: white;
-        border-radius: size(radius); @include bordered;
-      }
-    }
-  }
-  
-  .activation-toggle {
-    @extend .setting-item; margin: size(spacing) * 2 0; padding: 0; border: none;
-    &:hover { border-color: transparent; transform: none; }
-  }
-  
-  .feature-single {
-    margin-top: size(spacing) * 2;
-    
-    .feature-item {
-      @include flex(row, flex-start, center); padding: size(spacing);
-      background: color(surface-lighter); border-radius: size(radius);
-      margin-bottom: size(spacing);
-      
-      .feature-icon {
-        width: 24px; height: 24px; margin-right: size(spacing); fill: color(primary);
-      }
-    }
+// 滑块样式
+.slider-wrapper { width: 100%; display: flex; align-items: center; gap: 8px; }
+
+input[type="range"] {
+  flex: 1; height: 4px; background: color(surface-lighter); border-radius: 2px; cursor: pointer;
+  &::-webkit-slider-thumb {
+    width: 12px; height: 12px; border-radius: 50%; background: color(primary);
+    cursor: pointer; transition: transform 0.2s; &:hover { transform: scale(1.2); }
   }
 }
+.slider-value { min-width: 40px; text-align: right; color: color(on-surface); }
 
-// 字幕列表
-.subtitle-list {
-  @extend %section-container; padding: size(spacing) 0;
-  
-  .subtitle-item {
-    @include flex(row, flex-start, center); padding: 8px size(spacing);
-    margin-bottom: 6px; @extend %item-base; border-radius: size(radius);
-    
-    &.current {
-      background-color: color(primary-lighter); border-color: color(primary);
-    }
-    
-    .subtitle-time {
-      flex-shrink: 0; width: 52px; color: color(primary);
-      font-size: 14px; font-weight: 500; padding-right: 12px;
-    }
-    
-    .subtitle-text {
-      flex: 1; font-size: 14px; color: color(on-background);
-      line-height: 1.4; word-break: break-word; white-space: normal;
-    }
-    
-    .action-btn {
-      @extend %button-base; padding: 4px; margin-left: 4px; opacity: 0.6;
-      
-      .icon {
-        width: 14px; height: 14px; fill: color(on-surface);
-      }
-      
-      &:hover {
-        opacity: 1;
-        .icon { fill: color(primary); }
-      }
-    }
-  }
+// 账号样式
+.setting-item-account .user-wrapper, .setting-item-alist .user-wrapper {
+  @include flex(row, flex-start, center, 8px);
+  img, .user-avatar, svg { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 }
 
-// 助手底部按钮简化
-.assistant-footer .add-btn { @extend .simple-btn; }
-
-/* -----------------------------------------
- * 附加组件
- * ----------------------------------------- */
-// B站二维码
-.bilibili-qrcode {
-  margin: 16px 0; padding: 16px; background-color: color(background); @include bordered;
-  
-  .qrcode-header {
-    margin-bottom: 12px;
-    .qrcode-title { @include standard-text(14px, 500); margin-bottom: 4px; }
-    .qrcode-description { font-size: 12px; color: color(on-surface-variant); margin-top: 4px; }
-  }
-  
-  .qrcode-container {
-    @include flex(column, flex-start, center, 8px);
-    
-    img {
-      width: 180px; height: 180px; border-radius: 4px;
-      background-color: white; @include bordered;
-    }
-    
-    .scan-status {
-      width: 100%; padding: 6px; border-radius: 4px; text-align: center;
-      background-color: color(surface); color: color(on-surface);
-      font-size: 14px; transition: all 0.3s ease;
-      
-      &.success {
-        background-color: color(primary); color: color(on-primary);
-      }
-    }
-  }
+// 文本区域
+.setting-item-textarea .clear-icon {
+  position: absolute; right: 8px; top: 8px; cursor: pointer; opacity: 0.5;
+  .icon { width: 16px; height: 16px; } &:hover { opacity: 0.8; }
 }
 
-// 设置标签
+// 辅助元素
 .setting-label { @include standard-text(14px, 500); margin-bottom: 4px; }
+.alist-path-nav { 
+  overflow-x: auto; white-space: nowrap; font-size: 12px; 
+  .path-item { border: none; color: color(primary); cursor: pointer; } 
+  .path-sep { opacity: 0.6; } 
+}

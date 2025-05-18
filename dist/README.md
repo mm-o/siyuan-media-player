@@ -21,6 +21,16 @@
 
 ## 🚀 Recent Updates
 
+**Version 0.3.3 (2025.5.18):**
+- **🚀 UI Overhaul**: Removed top icons, now accessible through dock bar button
+- **🎛️ Button Layout**: Moved function buttons to the top with toggle visibility option
+- **🔂 Loop Features**: Added single item loop and playlist loop functionality
+- **⏸️ Pause Control**: Added pause after loop completion feature
+- **💬 Danmaku List**: Added danmaku list for easy export of bullet comments
+- **👤 Account Display**: Optimized account display
+- **🔄 Sorting Function**: Added playlist sorting functionality with support for default, name, time, and type sorting
+- **📜 Script Loading**: Support for loading custom JavaScript scripts with script status management through settings panel (preliminary)
+
 **Version 0.3.2 (2025.5.11):**
 - **🎨 UI Optimization**: Unified styling for assistant, playlist, and settings panels
 - **☁️ AList Support**: Added AList cloud storage support for more media sources
@@ -328,6 +338,17 @@ Available variables include:
 - Click and drag to adjust the panel size
 - This works for the playlist panel, settings panel, and media assistant panel
 - Panel sizes are remembered between sessions
+
+### 🔄 Playlist Sorting
+
+The playlist supports various sorting methods. Click the sort button at the top of the playlist to cycle through different sorting modes:
+
+- **Default Order**: Sort by the order items were added
+- **Sort by Name**: Sort alphabetically by media title
+- **Sort by Time**: Sort by addition time, with newest items first
+- **Sort by Type**: Group and sort by media type
+
+The sorting function preserves pinned items at the top and only sorts unpinned items.
 </details>
 
 ## 💻 Developer API

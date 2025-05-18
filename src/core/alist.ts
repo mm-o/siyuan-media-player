@@ -2,7 +2,7 @@
  * AList API交互模块
  */
 import type { MediaItem } from './types';
-import { fmt } from './utils';
+import { fmt, media } from './utils';
 import { DEFAULT_THUMBNAILS } from './media';
 
 // 接口定义
@@ -23,11 +23,9 @@ export interface AListFile {
     thumb: string;
     type: number;
     sign?: string;
+    raw_url?: string;
+    url?: string;
 }
-
-// 常量
-const MEDIA_EXTENSIONS = ['.mp4', '.webm', '.mkv', '.avi', '.mov', '.flv', '.m4v', '.wmv', '.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'];
-const AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'];
 
 /**
  * AList管理器
@@ -38,8 +36,9 @@ export class AListManager {
     private static FILE_CACHE = new Map<string, {files: AListFile[], timestamp: number}>();
     private static CACHE_EXPIRY = 5 * 60 * 1000; // 5分钟缓存过期
 
+    // 基础API方法
     /**
-     * 检查服务器连接
+     * 连接到AList服务器并登录
      */
     static async checkConnection(config: AListConfig): Promise<{connected: boolean, message: string}> {
         try {
@@ -62,69 +61,87 @@ export class AListManager {
     }
 
     /**
-     * 获取文件下载链接
+     * 确保有效的连接和令牌
      */
-    static async getFileLink(path: string): Promise<string> {
-        if (!this.config?.token) {
-            throw new Error("未连接到AList服务器");
-        }
+    private static async ensureConnection(): Promise<boolean> {
+        if (!this.config) return false;
         
-        if (!path || path === '' || path === '/') {
-            throw new Error("无效的文件路径");
+        if (!this.token?.trim()) {
+            const result = await this.checkConnection(this.config);
+            return result.connected;
         }
+        return true;
+    }
 
-        // 确保token有效
-        if (!this.token || this.token.trim() === '') {
-            const loginResult = await this.checkConnection(this.config);
-            if (!loginResult.connected) {
-                throw new Error(`登录失败: ${loginResult.message}`);
-            }
-        }
+    /**
+     * 执行AList API请求
+     */
+    private static async apiRequest<T>(
+        endpoint: string, 
+        body: any, 
+        errorMessage: string
+    ): Promise<T> {
+        if (!this.config?.token) throw new Error("未连接到AList服务器");
+        if (!await this.ensureConnection()) throw new Error("AList连接失败");
         
-        const res = await fetch(`${this.config.server}/api/fs/get`, {
+        const res = await fetch(`${this.config.server}${endpoint}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', 
                 'Authorization': this.token || ''
             },
-            body: JSON.stringify({path, password: ''})
+            body: JSON.stringify(body)
         });
     
-        if (!res.ok) {
-            throw new Error(`HTTP错误: ${res.status} ${res.statusText}`);
-        }
-            
-        const data = await res.json();
-            
-        if (data.code === 200) {
-            // 获取直接播放URL
-            if (data.data.raw_url) return data.data.raw_url;
-            if (data.data.sign) return `${this.config.server}/d${path}?sign=${data.data.sign}`;
-            if (data.data.url) return data.data.url;
-            throw new Error('无法从响应中获取URL');
-        }
+        if (!res.ok) throw new Error(`HTTP错误: ${res.status}`);
         
-        // 处理令牌过期
-        if (data.code === 401 || data.message?.includes('token') || data.message?.includes('认证')) {
-            const loginResult = await this.checkConnection(this.config);
-            if (loginResult.connected) {
-                return this.getFileLink(path); // 重试
+        const data = await res.json();
+        
+        if (data.code === 200) return data.data as T;
+        if (data.code === 401) {
+            // 令牌过期，重新连接
+            if (await this.ensureConnection()) {
+                return this.apiRequest(endpoint, body, errorMessage);
             }
         }
         
-        throw new Error(data.message || "获取文件链接失败");
+        throw new Error(data.message || errorMessage);
+    }
+
+    /**
+     * 获取文件详情
+     */
+    static async getFileDetail(path: string): Promise<any> {
+        if (!path || path === '/') throw new Error("无效的文件路径");
+        
+        // 处理路径编码
+        const processedPath = path.includes('%') ? decodeURIComponent(path) : path;
+        
+        return this.apiRequest<any>(
+            '/api/fs/get', 
+            {path: processedPath, password: ''}, 
+            "获取文件详情失败"
+        );
+    }
+
+    /**
+     * 获取文件下载链接
+     */
+    static async getFileLink(path: string): Promise<string> {
+        const fileInfo = await this.getFileDetail(path);
+        
+        // 按优先级获取直接播放URL
+        if (fileInfo.raw_url) return fileInfo.raw_url;
+        if (fileInfo.sign) return `${this.config?.server}/d${path}?sign=${fileInfo.sign}`;
+        if (fileInfo.url) return fileInfo.url;
+        
+        throw new Error('无法获取文件播放链接');
     }
 
     /**
      * 获取目录内容列表
-     * @param path 目录路径
-     * @returns 文件列表
      */
     static async getDirectoryContents(path: string = '/'): Promise<AListFile[]> {
-        if (!this.config?.token) {
-            throw new Error("未连接到AList服务器");
-        }
-
         // 检查缓存
         const now = Date.now();
         const cached = this.FILE_CACHE.get(path);
@@ -133,190 +150,193 @@ export class AListManager {
         }
 
         try {
-            const res = await fetch(`${this.config.server}/api/fs/list`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json', 'Authorization': this.token},
-                body: JSON.stringify({path, password: '', page: 1, per_page: 1000, refresh: false})
-            });
+            const data = await this.apiRequest<{content: AListFile[]}>(
+                '/api/fs/list', 
+                {path, password: '', page: 1, per_page: 1000, refresh: false},
+                "获取文件列表失败"
+            );
             
-            const data = await res.json();
-            if (data.code === 200) {
-                const files = data.data.content || [];
-                this.FILE_CACHE.set(path, {files, timestamp: now});
-                return files;
-            }
-            throw new Error(data.message || "获取文件列表失败");
+            const files = data.content || [];
+            this.FILE_CACHE.set(path, {files, timestamp: now});
+            return files;
         } catch (error) {
-            if (cached) return cached.files; // 如果有缓存，使用缓存
-            throw new Error(`获取文件列表失败: ${error instanceof Error ? error.message : String(error)}`);
-        }
-    }
-
-    /**
-     * 获取媒体流数据 - 与B站视频处理保持一致的格式
-     * @param path AList路径
-     * @returns VideoStream 结构，与B站视频格式一致
-     */
-    static async getVideoStream(path: string): Promise<import('./types').VideoStream> {
-        if (!this.config?.token) {
-            throw new Error("未连接到AList服务器");
-        }
-
-        try {
-            // 获取文件播放链接
-            const fileUrl = await this.getFileLink(path);
-            
-            // 返回与B站视频相同格式
-            return {
-                video: {
-                    url: fileUrl
-                }
-            };
-        } catch (error) {
-            console.error("获取AList媒体流失败:", error);
-            throw new Error(`无法获取媒体流: ${error instanceof Error ? error.message : String(error)}`);
+            // 尝试使用缓存
+            if (cached) return cached.files;
+            throw error;
         }
     }
 
     /**
      * 从URL解析AList路径
-     * @param url AList URL，例如 http://localhost:5244/路径/文件.mp4?t=1.3
-     * @returns 解析出的路径
      */
     static parsePathFromUrl(url: string): string | null {
         try {
             if (!url) return null;
             
-            // 更简化的识别方式：检查是否包含媒体扩展名
-            const mediaExt = /\.(mp4|webm|mkv|avi|mov|flv|m4v|wmv|mp3|wav|ogg|flac|aac|m4a)\b/i;
-            if (!mediaExt.test(url)) return null;
+            // 检查是否包含支持的扩展名
+            if (!media.isSupported(url)) return null;
             
             // 如果配置了AList服务器，优先通过服务器地址判断
             if (this.config?.server) {
                 const serverDomain = this.config.server.replace(/^https?:\/\//, '').replace(/\/$/, '');
                 if (url.includes(serverDomain)) {
-                    // 移除服务器地址部分
-                    const pathPart = url.replace(this.config.server, '');
-                    // 去除查询参数
-                    const cleanPath = pathPart.split(/[?#]/)[0];
-                    return cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-                }
-            }
-            
-            // 尝试从URL中检测是否为常见AList路径格式（例如包含端口5244）
-            if (url.match(/:\d+\/.*\.(mp4|webm|mkv|avi|mp3|wav)/i)) {
-                const urlObj = new URL(url);
-                return urlObj.pathname;
-            }
-            
-            return null;
-        } catch (e) {
-            console.error('[AListManager] 解析路径失败:', e);
-            return null;
-        }
-    }
-
-    /**
-     * 判断是否为媒体文件
-     */
-    static isMediaFile(fileName: string): boolean {
-        return !!fileName.match(/\.(mp4|webm|mkv|avi|mov|flv|m4v|wmv|mp3|wav|ogg|flac|aac|m4a)$/i);
-    }
-
-    /**
-     * 判断是否为音频文件
-     */
-    static isAudioFile(fileName: string): boolean {
-        return !!fileName.match(/\.(mp3|wav|ogg|flac|aac|m4a)$/i);
-    }
-
-    /**
-     * 创建目录内的媒体项列表 - 用于播放列表展示
-     * @param path 目录路径
-     * @returns 媒体项列表
-     */
-    static async createMediaItemsFromDirectory(path: string): Promise<import('./types').MediaItem[]> {
-        if (!this.config?.token) {
-            throw new Error("未连接到AList服务器");
-        }
-
-        try {
-            const files = await this.getDirectoryContents(path);
-            const items: import('./types').MediaItem[] = [];
-
-            for (const file of files) {
-                if (file.is_dir) {
-                    // 添加文件夹
-                    items.push({
-                        id: `alist-folder-${Date.now()}-${Math.random().toString(36).slice(2,5)}`,
-                        title: file.name,
-                        type: 'folder',
-                        url: '#',
-                        source: 'alist',
-                        sourcePath: `${path === '/' ? '' : path}/${file.name}`,
-                        is_dir: true,
-                        thumbnail: DEFAULT_THUMBNAILS.folder
-                    });
-                } else if (this.isMediaFile(file.name)) {
-                    // 添加媒体文件
-                    const filePath = `${path === '/' ? '' : path}/${file.name}`;
-                    const isAudio = this.isAudioFile(file.name);
+                    // 处理完整URL或相对路径
+                    const pathPart = url.startsWith('http') 
+                        ? url.replace(this.config.server, '').split(/[?#]/)[0]
+                        : url.split(/[?#]/)[0];
                     
-                    items.push({
-                        id: `alist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-                        title: file.name,
-                        url: `${this.config.server}${filePath}`,
-                        thumbnail: file.thumb || '/plugins/siyuan-media-player/thumbnails/default.svg',
-                        type: isAudio ? 'audio' : 'video',
-                        source: 'alist',
-                        sourcePath: filePath
-                    });
+                    return pathPart.startsWith('/') ? pathPart : `/${pathPart}`;
                 }
             }
-
-            return items;
-        } catch (error) {
-            console.error("获取AList媒体列表失败:", error);
-            throw new Error(`获取媒体列表失败: ${error instanceof Error ? error.message : String(error)}`);
+            
+            // 通用解析：判断是否为典型AList URL格式
+            if (url.match(/https?:\/\/.*?:\d+\/[^?#]+\.\w+/i)) {
+                try {
+                    const urlObj = new URL(url);
+                    if (urlObj.port && urlObj.pathname.length > 1) {
+                        return urlObj.pathname;
+                    }
+                } catch {}
+            }
+            
+            return null;
+        } catch {
+            return null;
         }
     }
 
     /**
      * 创建媒体项 - 从AList路径创建媒体项用于播放
-     * @param path AList路径
-     * @param timeParams 可选的时间参数
-     * @returns 媒体项，用于直接播放
      */
-    static async createMediaItemFromPath(path: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<import('./types').MediaItem> {
-        if (!this.config?.token) {
-            throw new Error("未连接到AList服务器");
-        }
+    static async createMediaItemFromPath(path: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<MediaItem> {
+        if (!this.config?.token) throw new Error("未连接到AList服务器");
 
+        const fileName = path.split('/').pop() || '未知文件';
+        const isAudio = media.isAudioFile(fileName);
+        const fileLink = await this.getFileLink(path);
+        
+        return {
+            id: `alist-direct-${Date.now()}`,
+            title: fileName,
+            url: fileLink,
+            type: isAudio ? 'audio' : 'video',
+            source: 'alist',
+            sourcePath: path,
+            startTime: timeParams.startTime,
+            endTime: timeParams.endTime,
+            isLoop: timeParams.endTime !== undefined,
+            thumbnail: DEFAULT_THUMBNAILS[isAudio ? 'audio' : 'video']
+        };
+    }
+
+    /**
+     * 处理AList媒体链接 - 从链接直接播放媒体
+     */
+    static async handleAListMediaLink(url: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<{success: boolean; mediaItem?: MediaItem; error?: string}> {
+        if (!this.config?.token) {
+            return {success: false, error: "未连接到AList服务器"};
+        }
+        
+        // 尝试获取路径
+        let alistPath = this.parsePathFromUrl(url);
+        if (!alistPath && this.config.server && url.startsWith(this.config.server)) {
+            alistPath = url.substring(this.config.server.length).split('?')[0];
+        }
+        
+        if (!alistPath) {
+            return {success: false, error: "无法从链接解析AList路径"};
+        }
+        
         try {
-            // 获取文件名
-            const fileName = path.split('/').pop() || '未知文件';
-            const isAudio = this.isAudioFile(fileName);
-            
-            // 创建媒体项 - 与B站视频处理保持一致，不再设置rawUrl
-            return {
-                id: `alist-direct-${Date.now()}`,
-                title: fileName,
-                url: `${this.config.server}${path}`,
-                type: isAudio ? 'audio' : 'video',
-                source: 'alist',
-                sourcePath: path,
-                startTime: timeParams.startTime,
-                endTime: timeParams.endTime,
-                isLoop: timeParams.endTime !== undefined,
-                thumbnail: '/plugins/siyuan-media-player/thumbnails/default.svg'
-            };
+            const mediaItem = await this.createMediaItemFromPath(alistPath, timeParams);
+            return {success: true, mediaItem};
         } catch (error) {
-            console.error("创建AList媒体项失败:", error);
-            throw new Error(`创建媒体项失败: ${error instanceof Error ? error.message : String(error)}`);
+            return {
+                success: false, 
+                error: error instanceof Error ? error.message : String(error)
+            };
         }
     }
 
-    // 工具方法
+    /**
+     * 创建目录内的媒体项列表 - 用于播放列表展示
+     */
+    static async createMediaItemsFromDirectory(path: string): Promise<MediaItem[]> {
+        const files = await this.getDirectoryContents(path);
+        
+        return files.map(file => {
+            if (file.is_dir) {
+                // 文件夹项
+                return {
+                    id: `alist-folder-${Date.now()}-${Math.random().toString(36).slice(2,5)}`,
+                    title: file.name,
+                    type: 'folder',
+                    url: '#',
+                    source: 'alist',
+                    sourcePath: `${path === '/' ? '' : path}/${file.name}`,
+                    is_dir: true,
+                    thumbnail: DEFAULT_THUMBNAILS.folder
+                } as MediaItem;
+            } else if (media.isMediaFile(file.name)) {
+                // 媒体文件项
+                const filePath = `${path === '/' ? '' : path}/${file.name}`;
+                return {
+                    id: `alist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                    title: file.name,
+                    url: `${this.config!.server}${filePath}`,
+                    thumbnail: file.thumb || DEFAULT_THUMBNAILS[media.isAudioFile(file.name) ? 'audio' : 'video'],
+                    type: media.isAudioFile(file.name) ? 'audio' : 'video',
+                    source: 'alist',
+                    sourcePath: filePath
+                } as MediaItem;
+            }
+            return null;
+        }).filter(Boolean) as MediaItem[];
+    }
+
+    /**
+     * 获取AList中同名文件的直接链接 (用于查找字幕/弹幕等辅助文件)
+     */
+    static async getSupportFileLink(mediaPath: string, extensions: string[]): Promise<string | null> {
+        if (!this.config?.server || !this.token) return null;
+        
+        try {
+            const lastSlash = mediaPath.lastIndexOf('/');
+            const lastDot = mediaPath.lastIndexOf('.');
+            if (lastDot === -1 || lastSlash === -1) return null;
+            
+            const dirPath = mediaPath.substring(0, lastSlash);
+            const fileBase = mediaPath.substring(lastSlash + 1, lastDot);
+            
+            // 从缓存或API获取目录文件
+            const files = await this.getDirectoryContents(dirPath).catch(() => []);
+            
+            // 查找匹配文件
+            for (const ext of extensions) {
+                const targetName = `${fileBase}${ext}`;
+                const file = files.find(f => f.name.toLowerCase() === targetName.toLowerCase());
+                if (!file) continue;
+                
+                // 获取直接链接
+                if (file.sign) return `${this.config.server}/d${dirPath}/${file.name}?sign=${file.sign}`;
+                if (file.raw_url) return file.raw_url;
+                if (file.url) return file.url;
+                
+                return this.getFileLink(`${dirPath}/${file.name}`).catch(() => null);
+            }
+        } catch {}
+        
+        return null;
+    }
+
+    /**
+     * 获取媒体流数据 - 与B站视频处理保持一致的格式
+     */
+    static async getVideoStream(path: string): Promise<import('./types').VideoStream> {
+        return { video: { url: await this.getFileLink(path) } };
+    }
+
+    // 公共工具方法
     static getConfig = () => this.config;
     static setConfig = (config: AListConfig) => { this.config = config; };
     static clearConnection = () => { 
@@ -329,10 +349,8 @@ export class AListManager {
      * 从配置中初始化AList
      */
     static async initFromConfig(config: any): Promise<boolean> {
-        if (!config?.settings?.alistConfig?.server) return false;
-        
-        const alistConfig = config.settings.alistConfig;
-        if (!alistConfig.server || !alistConfig.username || !alistConfig.password) return false;
+        const alistConfig = config?.settings?.alistConfig;
+        if (!alistConfig?.server || !alistConfig?.username || !alistConfig?.password) return false;
         
         try {
             return (await this.checkConnection(alistConfig)).connected;
@@ -340,4 +358,4 @@ export class AListManager {
             return false;
         }
     }
-} 
+}

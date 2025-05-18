@@ -1,32 +1,30 @@
-<!--
- Copyright (c) 2023 by frostime All Rights Reserved.
- Author       : frostime
- Date         : 2023-07-01 19:23:50
- FilePath     : /src/libs/components/setting-panel.svelte
- LastEditTime : 2024-08-09 21:41:07
- Description  : 
--->
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage } from "siyuan";
     import type { ConfigManager } from "../core/config";
-    import type { ISettingItem } from "../core/types";
-    import { BilibiliParser } from "../core/bilibili";
-    import type { AListConfig } from "../core/alist";
+    import type { ISettingItem, SettingType } from "../core/types";
+    import { QRCodeManager } from "../core/biliUtils";
     import { notebook } from "../core/utils";
 
     export let group: string;
     export let configManager: ConfigManager;
     export let i18n: any;
+    export let allTabs = [];
+    export let activeTabId = 'settings';
     
-    // 状态管理
+    // 状态和数据
     let activeTab = 'account';
-    let qrcodeData = '', qrcodeKey = '', checkQRCodeTimer: number;
-    let loginSuccess = false, userInfo = null, scanStatus = i18n.setting.bilibili.waitingScan;
-    let showProPanel = false, proEnabled = false, showPaymentQRCodes = false;
-    let playerPath = "PotPlayerMini64.exe";
-    let alistConfig: AListConfig = { server: "http://localhost:5244", username: "admin", password: "", connected: false };
-    let selectedNotebookId = notebook.getPreferredId(); // 选定的笔记本ID
+    let state = {
+        qrcode: { data: '', key: '' },
+        bilibili: { login: false, userInfo: null },
+        pro: { enabled: false, showPanel: false },
+        alist: { showConfig: false },
+        selectedNotebookId: notebook.getPreferredId(),
+        scripts: [] // 已加载的脚本列表
+    };
+    let settingItems: ISettingItem[] = [];
+    const dispatch = createEventDispatcher();
+    let qrCodeManager: QRCodeManager;
     
     // 标签页定义
     const tabs = [
@@ -35,47 +33,106 @@
         { id: 'general', name: i18n.setting.tabs?.general || '通用' }
     ];
     
-    // 基础设置项
-    const defaultSettings: ISettingItem[] = [
-        {
-            key: "openMode", value: "default", type: "select",
-            title: i18n.setting.items.openMode?.title || "打开方式",
-            description: i18n.setting.items.openMode?.description,
-            options: [
+    // 面板切换处理
+    function changePanelTab(tabId) {
+        if (tabId === activeTabId) return;
+        window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', { detail: { tabId } }));
+    }
+    
+    // 创建默认设置项
+    function createSettings(): ISettingItem[] {
+        return [
+            // Pro账号
+            { key: "proAccount", type: "account" as SettingType, value: "",
+              title: i18n.pro?.title || "Media Player Pro",
+              description: state.pro.enabled ? (i18n.pro?.statusEnabled || "已启用") : (i18n.pro?.description || "若你喜欢Media Player，可以尝试为其付费哦～"),
+              button: { config: i18n.setting.account?.config || "登录", save: i18n.pro?.paid || "我已付款", exit: i18n.setting.account?.exit || "退出" } },
+            { key: "proPanel", type: "images" as SettingType, value: [],
+              title: i18n.pro?.priceTag || "¥ 18.00",
+              description: i18n.pro?.priceWithStar || "或 ¥ 16.00 + <a href=\"https://github.com/mm-o/siyuan-media-player\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Star</a> 关注" },
+            
+            // B站账号
+            { key: "biliAccount", type: "account" as SettingType, value: "",
+              title: i18n.setting.bilibili.account,
+              description: state.bilibili.login ? (i18n.setting.bilibili?.loggedIn || "已登录") : (i18n.setting.account?.notLoggedIn || "点击登录"), 
+              button: { config: i18n.setting.bilibili?.login || "登录", save: "", exit: i18n.setting.bilibili?.logout || "退出" } },
+            { key: "bilibiliQrcode", type: "images" as SettingType, value: [], 
+              title: i18n.setting.bilibili?.scanTitle || "B站登录",
+              description: i18n.setting.bilibili?.waitingScan || "等待扫码" },
+            
+            // AList配置
+            { key: "alistAccount", type: "account" as SettingType, value: "",
+              title: i18n.setting.alist?.title || "AList 配置", 
+              description: i18n.setting.account?.alistNotConfigured || "配置 AList 服务器连接信息", 
+              button: { config: i18n.setting.account?.config || "配置", save: i18n.setting.account?.save || "保存", exit: i18n.setting.account?.exit || "退出" } },
+            { key: "alistServer", value: "http://localhost:5244", type: "textarea" as SettingType, 
+              title: i18n.setting.alist?.server || "AList 服务器", 
+              description: i18n.setting.alistConfig?.server || "AList服务器地址", rows: 1 },
+            { key: "alistUsername", value: "admin", type: "textarea" as SettingType, 
+              title: i18n.setting.alist?.username || "AList 用户名", 
+              description: i18n.setting.alistConfig?.username || "AList账号用户名", rows: 1 },
+            { key: "alistPassword", value: "", type: "textarea" as SettingType, 
+              title: i18n.setting.alist?.password || "AList 密码", 
+              description: i18n.setting.alistConfig?.password || "AList账号密码", rows: 1 },
+            
+            // 播放器设置
+            { key: "openMode", value: "default", type: "select" as SettingType,
+              title: i18n.setting.items.openMode?.title || "打开方式",
+              description: i18n.setting.items.openMode?.description,
+              options: [
                 { label: i18n.setting.items.openMode?.options?.default || "新标签", value: "default" },
                 { label: i18n.setting.items.openMode?.options?.right || "右侧新标签", value: "right" },
                 { label: i18n.setting.items.openMode?.options?.bottom || "底部新标签", value: "bottom" },
                 { label: i18n.setting.items.openMode?.options?.window || "新窗口", value: "window" }
-            ]
-        },
-        {
-            key: "volume", value: 70, type: "slider",
-            title: i18n.setting.items.volume.title,
-            description: i18n.setting.items.volume.description,
-            slider: { min: 0, max: 100, step: 1 }
-        },
-        {
-            key: "speed", value: 100, type: "slider",
-            title: i18n.setting.items.speed.title,
-            description: i18n.setting.items.speed.description,
-            slider: { min: 25, max: 200, step: 25 }
-        },
-        {
-            key: "loopCount", value: 3, type: "slider",
-            title: i18n.setting.items.loopCount.title,
-            description: i18n.setting.items.loopCount.description,
-            slider: { min: 1, max: 10, step: 1 }
-        },
-        {
-            key: "pauseAfterLoop", value: false, type: "checkbox",
-            title: i18n.setting.items.pauseAfterLoop?.title || "循环后暂停",
-            description: i18n.setting.items.pauseAfterLoop?.description
-        },
-        {
-            key: "insertMode", value: "cursor", type: "select",
-            title: i18n.setting.items.insertMode?.title || "插入方式",
-            description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
-            options: [
+              ] },
+            { key: "playerType", value: "built-in", type: "select" as SettingType,
+              title: i18n.setting.items.playerType.title,
+              description: i18n.setting.items.playerType.description,
+              options: [
+                { label: i18n.setting.items.playerType.builtIn, value: "built-in" },
+                { label: i18n.setting.items.playerType.potPlayer, value: "potplayer" },
+                { label: i18n.setting.items.playerType.browser, value: "browser" }
+              ] },
+            { key: "playerPath", value: "PotPlayerMini64.exe", type: "textarea" as SettingType,
+              title: i18n.setting.items?.playerPath?.title || "PotPlayer路径",
+              description: i18n.setting.items?.playerPath?.description || "设置PotPlayer可执行文件路径",
+              rows: 1 },
+            { key: "volume", value: 70, type: "slider" as SettingType,
+              title: i18n.setting.items.volume.title,
+              description: i18n.setting.items.volume.description,
+              slider: { min: 0, max: 100, step: 1 } },
+            { key: "speed", value: 100, type: "slider" as SettingType,
+              title: i18n.setting.items.speed.title,
+              description: i18n.setting.items.speed.description,
+              slider: { min: 25, max: 200, step: 25 } },
+            { key: "showSubtitles", value: false, type: "checkbox" as SettingType,
+              title: i18n.setting.items.showSubtitles?.title || "显示字幕",
+              description: i18n.setting.items.showSubtitles?.description },
+            { key: "enableDanmaku", value: false, type: "checkbox" as SettingType,
+              title: i18n.setting.items.enableDanmaku?.title || "启用弹幕",
+              description: i18n.setting.items.enableDanmaku?.description },
+            { key: "loopCount", value: 3, type: "slider" as SettingType,
+              title: i18n.setting.items.loopCount.title,
+              description: i18n.setting.items.loopCount.description,
+              slider: { min: 1, max: 10, step: 1 } },
+            { key: "pauseAfterLoop", value: false, type: "checkbox" as SettingType,
+              title: i18n.setting.items.pauseAfterLoop?.title || "循环后暂停",
+              description: i18n.setting.items.pauseAfterLoop?.description },
+            { key: "loopPlaylist", value: false, type: "checkbox" as SettingType,
+              title: i18n.setting.items?.loopPlaylist?.title || "循环列表",
+              description: i18n.setting.items?.loopPlaylist?.description || "播放完列表后从头开始" },
+            { key: "loopSingle", value: false, type: "checkbox" as SettingType,
+              title: i18n.setting.items?.loopSingle?.title || "单项循环",
+              description: i18n.setting.items?.loopSingle?.description || "重复播放当前媒体" },
+            
+            // 通用设置
+            { key: "topBarButtons", value: true, type: "checkbox" as SettingType,
+              title: i18n.setting.items?.topBarButtons?.title || "顶部工具栏按钮",
+              description: i18n.setting.items?.topBarButtons?.description || "选择要在顶部工具栏显示的按钮" },
+            { key: "insertMode", value: "cursor", type: "select" as SettingType,
+              title: i18n.setting.items.insertMode?.title || "插入方式",
+              description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
+              options: [
                 { label: i18n.setting.items.insertMode?.insertBlock || "插入光标处", value: "insertBlock" },
                 { label: i18n.setting.items.insertMode?.appendBlock || "追加到块末尾", value: "appendBlock" },
                 { label: i18n.setting.items.insertMode?.prependBlock || "添加到块开头", value: "prependBlock" },
@@ -83,479 +140,484 @@
                 { label: i18n.setting.items.insertMode?.prependDoc || "插入到文档顶部", value: "prependDoc" },
                 { label: i18n.setting.items.insertMode?.appendDoc || "插入到文档底部", value: "appendDoc" },
                 { label: i18n.setting.items.insertMode?.clipboard || "复制到剪贴板", value: "clipboard" }
-            ]
-        },
-        {
-            key: "showSubtitles", value: false, type: "checkbox",
-            title: i18n.setting.items.showSubtitles?.title || "显示字幕",
-            description: i18n.setting.items.showSubtitles?.description
-        },
-        {
-            key: "enableDanmaku", value: false, type: "checkbox",
-            title: i18n.setting.items.enableDanmaku?.title || "启用弹幕",
-            description: i18n.setting.items.enableDanmaku?.description
-        },
-        {
-            key: "playerType", value: "built-in", type: "select",
-            title: i18n.setting.items.playerType.title,
-            description: i18n.setting.items.playerType.description,
-            options: [
-                { label: i18n.setting.items.playerType.builtIn, value: "built-in" },
-                { label: i18n.setting.items.playerType.potPlayer, value: "potplayer" },
-                { label: i18n.setting.items.playerType.browser, value: "browser" }
-            ]
-        },
-        {
-            key: "linkFormat", value: "- [😄标题 艺术家 字幕 时间](链接)\n\n  ![截图](截图)", type: "textarea",
-            title: i18n.setting.items?.linkFormat?.title || "链接格式",
-            description: i18n.setting.items?.linkFormat?.description || "支持变量：标题、时间、艺术家、链接、字幕、截图",
-            rows: 3,
-            placeholder: "- [😄标题 艺术家 字幕 时间](链接)\n\n  ![截图](截图)"
-        },
-        {
-            key: "targetNotebook", value: selectedNotebookId, type: "select",
-            title: i18n.setting.items?.targetNotebook?.title || "目标笔记本",
-            description: i18n.setting.items?.targetNotebook?.description || "选择创建媒体笔记的目标笔记本",
-            options: []
-        },
-        {
-            key: "mediaNotesTemplate", 
-            value: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容：", 
-            type: "textarea",
-            title: i18n.setting.items?.mediaNotesTemplate?.title || "媒体笔记模板",
-            description: i18n.setting.items?.mediaNotesTemplate?.description || "支持变量：标题、时间、艺术家、链接、时长、封面、类型、ID、日期、时间戳",
-            rows: 6,
-            placeholder: "# 标题的媒体笔记笔记\n- 日 期：日期\n- 时 长：时长\n- 艺 术 家：艺术家\n- 类 型：类型\n- 链 接：[链接](链接)\n- ![封面](封面)\n- 笔记内容："
-        }
-    ];
-    
-    let settingItems = [...defaultSettings];
-    const dispatch = createEventDispatcher();
+              ] },
+            { key: "targetNotebook", value: state.selectedNotebookId, type: "select" as SettingType,
+              title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
+              description: i18n.setting.items?.targetNotebook?.description || "选择创建媒体笔记的目标笔记本",
+              options: [] },
+            { key: "linkFormat", value: "- [😄标题 艺术家 字幕 时间](链接)\n\n  ![截图](截图)", 
+              type: "textarea" as SettingType, 
+              title: i18n.setting.items?.linkFormat?.title || "链接格式",
+              description: i18n.setting.items?.linkFormat?.description || "支持变量：标题、时间、艺术家、链接、字幕、截图",
+              rows: 3 },
+            { key: "mediaNotesTemplate", 
+              value: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容：", 
+              type: "textarea" as SettingType, 
+              title: i18n.setting.items?.mediaNotesTemplate?.title || "媒体笔记模板",
+              description: i18n.setting.items?.mediaNotesTemplate?.description || "支持变量：标题、时间、艺术家、链接、时长、封面、类型、ID、日期、时间戳",
+              rows: 6 },
+            { key: "loadScript", value: "", type: "account" as SettingType,
+              title: i18n.setting.items?.loadScript?.title || "加载脚本",
+              description: i18n.setting.items?.loadScript?.description || "选择脚本文件加载到插件",
+              button: { config: i18n.setting.items?.loadScript?.buttonText || "选择脚本文件", save: "", exit: "" } }
+        ];
+    }
 
     // 初始化
     onMount(() => {
-        const loadConfig = async () => {
-            const config = await configManager.load();
-            
-            // 更新基本设置项
-            settingItems = settingItems.map(item => ({
+        qrCodeManager = new QRCodeManager(
+            configManager,
+            ({ data, key, message }) => {
+                state.qrcode = { data, key };
+                const item = settingItems.find(i => i.key === 'bilibiliQrcode');
+                if (item) {
+                    item.value = data ? [{ url: data, caption: message }] : [];
+                    item.description = message || "等待扫码";
+                }
+            },
+            userInfo => {
+                state.bilibili = { login: true, userInfo };
+                updateAccountDisplay('biliAccount');
+                showMessage("登录成功");
+            }
+        );
+
+        // 加载配置
+        configManager.load().then(async config => {
+            settingItems = createSettings().map(item => ({
                 ...item,
-                value: config.settings[item.key] ?? item.value
+                value: item.key === 'topBarButtons' 
+                    ? Object.values(config.settings.topBarButtons || {}).every(v => v !== false)
+                    : config.settings[item.key] ?? item.value
             }));
             
-            // 快速更新其他配置
-            playerPath = config.settings.playerPath || "PotPlayerMini64.exe";
-            alistConfig = config.settings.alistConfig || alistConfig;
-            selectedNotebookId = config.settings.targetNotebook || '';
+            state.selectedNotebookId = config.settings.targetNotebook || '';
+            state.bilibili = {
+                login: !!config.bilibiliLogin?.userInfo?.mid,
+                userInfo: config.bilibiliLogin?.userInfo
+            };
+            state.pro = { enabled: config.proEnabled || false, showPanel: false };
             
-            // 加载B站登录状态
-            loginSuccess = !!config.bilibiliLogin?.userInfo?.mid;
-            userInfo = config.bilibiliLogin?.userInfo;
-            proEnabled = config.proEnabled || false;
+            ['biliAccount', 'proAccount', 'alistAccount'].forEach(updateAccountDisplay);
             
-            // 加载笔记本列表
-            await loadNotebooks();
-        };
+            try {
+                const result = await notebook.initSettingItem(settingItems, state.selectedNotebookId);
+                settingItems = result.items;
+                state.selectedNotebookId = result.selectedId;
+            } catch (error) {
+                console.error("加载笔记本列表失败:", error);
+            }
+            
+            // 获取已加载脚本列表
+            getScriptList();
+        });
         
-        loadConfig();
-        return () => clearInterval(checkQRCodeTimer);
+        // 事件监听
+        window.addEventListener('mediaPlayerTabActivate', (e: any) => 
+            e.detail?.tabId && (activeTabId = e.detail.tabId));
+        
+        return () => {
+            qrCodeManager?.stopPolling();
+            window.removeEventListener('mediaPlayerTabActivate', () => {});
+        };
     });
 
-    // 加载笔记本列表
-    async function loadNotebooks() {
-        try {
-            const result = await notebook.initSettingItem(settingItems, selectedNotebookId);
-            settingItems = result.items;
-            selectedNotebookId = result.selectedId;
-        } catch (error) {
-            console.error("加载笔记本列表失败:", error);
-            showMessage("加载笔记本列表失败");
-        }
-    }
-
-    // 二维码处理
-    async function getBilibiliQRCode() {
-        try {
-            const qrInfo = await BilibiliParser.getLoginQRCode();
-            qrcodeData = qrInfo.qrcodeData;
-            qrcodeKey = qrInfo.qrcode_key;
-            startQRCodeCheck();
-        } catch (e) {
-            showMessage(e.message || i18n.setting.bilibili.getQRCodeFailed);
-        }
-    }
-
-    function startQRCodeCheck() {
-        if (checkQRCodeTimer) clearInterval(checkQRCodeTimer);
-        checkQRCodeTimer = window.setInterval(async () => {
-            try {
-                const status = await BilibiliParser.checkQRCodeStatus(qrcodeKey);
-                switch (status.code) {
-                    case 0:
-                        clearInterval(checkQRCodeTimer);
-                        scanStatus = i18n.setting.bilibili.loginSuccess;
-                        await handleLoginSuccess(status);
-                        break;
-                    case 86038:
-                        clearInterval(checkQRCodeTimer);
-                        scanStatus = i18n.setting.bilibili.qrCodeExpired;
-                        qrcodeData = '';
-                        break;
-                    case 86090:
-                        scanStatus = i18n.setting.bilibili.qrCodeScanned;
-                        break;
-                    case 86101:
-                        scanStatus = i18n.setting.bilibili.waitingScan;
-                        break;
-                    default:
-                        scanStatus = status.message || i18n.setting.bilibili.unknownStatus;
-                }
-            } catch (e) {
-                clearInterval(checkQRCodeTimer);
-                showMessage(i18n.setting.bilibili.checkQRCodeFailed);
+    // 统一账号显示更新
+    function updateAccountDisplay(key) {
+        const item = settingItems.find(i => i.key === key);
+        if (!item) return;
+        
+        if (key === 'proAccount') {
+            item.description = state.pro.enabled ? (i18n.pro?.statusEnabled || "已启用") : 
+                             (i18n.pro?.description || "若你喜欢Media Player，可以尝试为其付费哦～");
+            item.button = { 
+                ...item.button,
+                state: state.pro.enabled ? "enabled" : (state.pro.showPanel ? "paying" : "disabled"),
+                buttonText: state.pro.enabled ? (i18n.setting.account?.exit || "退出") : 
+                          (state.pro.showPanel ? (i18n.pro?.paid || "我已付款") : (i18n.setting.account?.config || "登录"))
+            };
+            
+            const panelItem = settingItems.find(i => i.key === 'proPanel');
+            if (panelItem) {
+                panelItem.value = state.pro.showPanel ? [
+                    { url: "/plugins/siyuan-media-player/assets/images/alipay.jpg", caption: "支付宝付款码" },
+                    { url: "/plugins/siyuan-media-player/assets/images/wechat.jpg", caption: "微信付款码" }
+                ] : [];
             }
-        }, 3000);
+        } else if (key === 'biliAccount') {
+            item.description = state.bilibili.login ? (i18n.setting.bilibili?.loggedIn || "已登录") : 
+                              (i18n.setting.account?.notLoggedIn || "点击登录");
+            item.button = {
+                ...item.button,
+                state: state.bilibili.login ? "enabled" : (state.qrcode.data ? "pending" : "disabled"),
+                buttonText: state.bilibili.login ? (i18n.setting.bilibili?.logout || "退出") : 
+                          (i18n.setting.bilibili?.login || "登录"),
+                username: state.bilibili.userInfo?.uname,
+                userId: state.bilibili.userInfo?.mid
+            };
+        } else if (key === 'alistAccount') {
+            const hasConfig = !!(
+                settingItems.find(i => i.key === 'alistServer')?.value &&
+                settingItems.find(i => i.key === 'alistUsername')?.value
+            );
+            item.description = hasConfig ? (i18n.setting.account?.alistConfigured || "AList 已配置") : 
+                              (i18n.setting.account?.alistNotConfigured || "配置 AList 服务器连接信息");
+            item.button = {
+                ...item.button,
+                state: hasConfig ? "enabled" : "disabled",
+                buttonText: state.alist.showConfig ? (i18n.setting.account?.save || "保存") : 
+                          (i18n.setting.account?.config || "配置")
+            };
+        }
     }
 
-    // 账号管理
-    async function handleLoginSuccess(status) {
-        loginSuccess = true;
-        userInfo = status.userInfo;
+    // 处理账号操作
+    async function handleAccountAction(key) {
+        if (key === 'proAccount') {
+            const buttonState = settingItems.find(i => i.key === key)?.button?.state;
+            if (buttonState === "enabled") {
+                state.pro = { enabled: false, showPanel: false };
+                await saveProConfig();
+            } else if (buttonState === "paying") {
+                state.pro = { enabled: true, showPanel: false };
+                await saveProConfig();
+            } else {
+                state.pro.showPanel = true;
+                const panelItem = settingItems.find(i => i.key === 'proPanel');
+                if (panelItem) {
+                    panelItem.value = [
+                        { url: "/plugins/siyuan-media-player/assets/images/alipay.jpg", caption: "支付宝付款码" },
+                        { url: "/plugins/siyuan-media-player/assets/images/wechat.jpg", caption: "微信付款码" }
+                    ];
+                }
+            }
+        } else if (key === 'biliAccount') {
+            const buttonState = settingItems.find(i => i.key === key)?.button?.state;
+            if (buttonState === "enabled") {
+                state.bilibili = { login: false, userInfo: null };
+                state.qrcode.data = '';
+                const config = await configManager.getConfig();
+                delete config.bilibiliLogin;
+                await configManager.save();
+                showMessage("已退出登录");
+            } else if (buttonState !== "pending") {
+                try { await qrCodeManager.startLogin(); } 
+                catch (e) { showMessage(e.message || "获取二维码失败"); }
+            }
+        } else if (key === 'alistAccount') {
+            state.alist.showConfig = !state.alist.showConfig;
+        } else if (key === 'loadScript') {
+            await loadScript();
+        }
+        
+        updateAccountDisplay(key);
+        settingItems = [...settingItems]; // 强制触发UI更新
+    }
+    
+    // 加载脚本文件
+    async function loadScript() {
+        if (!window.require) return;
+        try {
+            const { dialog } = window.require('@electron/remote'), 
+                  fs = window.require('fs'), 
+                  path = window.require('path');
+            
+            const result = await dialog.showOpenDialog({
+                properties: ['openFile'],
+                filters: [{ extensions: ['js'] }]
+            });
+            
+            if (result?.filePaths?.[0] && window.siyuan?.config?.system?.workspaceDir) {
+                // 复制到插件目录
+                const dir = path.join(window.siyuan.config.system.workspaceDir, 'data/storage/petal/siyuan-media-player');
+                !fs.existsSync(dir) && fs.mkdirSync(dir, { recursive: true });
+                fs.copyFileSync(result.filePaths[0], path.join(dir, path.basename(result.filePaths[0])));
+                getScriptList();
+                showMessage(i18n.setting.items?.loadScript?.loadSuccess || "脚本已加载");
+            }
+        } catch (e) {}
+    }
+    
+    // 获取脚本列表并创建设置项
+    async function getScriptList() {
+        if (!window.require) return;
+        try {
+            // 获取脚本文件
+            const fs = window.require('fs'), path = window.require('path');
+            const dir = path.join(window.siyuan.config.system.workspaceDir, 'data/storage/petal/siyuan-media-player');
+            if (!fs.existsSync(dir)) return;
+            
+            // 合并脚本状态
+            const savedScripts = configManager.getConfig().settings.scripts || [];
+            const files = fs.readdirSync(dir).filter(f => f.endsWith('.js'));
+            
+            // 更新脚本状态和设置项
+            state.scripts = files.map(f => ({ 
+                name: f, 
+                enabled: savedScripts.find(s => s.name === f)?.enabled ?? true 
+            }));
+            
+            settingItems = [
+                ...settingItems.filter(item => !item.key.startsWith('script-')),
+                ...state.scripts.map(s => ({ 
+                    key: `script-${s.name}`, value: s.enabled, 
+                    type: "checkbox" as SettingType, 
+                    title: s.name, description: "脚本文件" 
+                }))
+            ];
+        } catch (e) {}
+    }
+
+    // 处理脚本状态变更
+    function handleScriptChange(event, name) {
+        const enabled = event.target.checked;
+        const idx = state.scripts.findIndex(s => s.name === name);
+        if (idx >= 0) {
+            // 更新状态
+            state.scripts[idx].enabled = enabled;
+            
+            // 保存并触发重载
+            const settings = configManager.getConfig().settings;
+            settings.scripts = state.scripts;
+            configManager.updateSettings(settings).then(() => {
+                dispatch('changed', { settings });
+                window.dispatchEvent(new CustomEvent('reloadUserScripts'));
+            });
+        }
+    }
+    
+    // 保存Pro配置
+    async function saveProConfig() {
         const config = await configManager.getConfig();
-        config.bilibiliLogin = {
-            url: status.url,
-            refresh_token: status.refresh_token,
-            timestamp: status.timestamp,
-            userInfo: status.userInfo
-        };
+        config.proEnabled = state.pro.enabled;
         await configManager.save();
-        showMessage(i18n.setting.bilibili.loginSuccess);
+        dispatch('changed', { proEnabled: state.pro.enabled, settings: config.settings });
+        showMessage(state.pro.enabled ? (i18n.pro?.activationSuccess || "Pro 已启用") : (i18n.pro?.activationDisabled || "Pro 已禁用"));
     }
 
-    async function handleLogout() {
-        loginSuccess = false;
-        userInfo = null;
-        const config = await configManager.getConfig();
-        delete config.bilibiliLogin;
-        await configManager.save();
-        showMessage(i18n.setting.bilibili.logoutSuccess);
-    }
-
-    // 设置处理
+    // 设置项变更处理
     function handleChange(event, item) {
-        const target = event.target;
-        let value;
-        if (target.type === 'checkbox') {
-            value = target.checked;
-        } else if (item.type === 'select') {
-            value = target.value;
-        } else if (item.type === 'textarea') {
-            value = target.value;
-        } else {
-            value = Number(target.value);
-        }
+        const idx = settingItems.findIndex(i => i.key === item.key);
+        if (idx === -1) return;
         
-        const index = settingItems.findIndex(i => i.key === item.key);
-        if (index !== -1) {
-            settingItems[index].value = value;
-            settingItems = settingItems;
+        settingItems[idx].value = event.target.type === 'checkbox' 
+            ? event.target.checked 
+            : item.type === 'select' || item.type === 'textarea'
+                ? event.target.value 
+                : Number(event.target.value);
+        
+        // 处理脚本项状态更新
+        if (item.key.startsWith('script-')) {
+            handleScriptChange(event, item.key.replace('script-', ''));
+        }
+                
+        settingItems = [...settingItems];
+    }
+
+    // 重置单个设置项
+    function resetItem(key) {
+        const defaultItem = createSettings().find(i => i.key === key);
+        const idx = settingItems.findIndex(i => i.key === key);
+        if (defaultItem && idx !== -1) {
+            settingItems[idx].value = defaultItem.value;
+            settingItems = [...settingItems];
         }
     }
 
+    // 保存设置
     async function saveSettings() {
-        const settings = settingItems.reduce((acc, item) => ({
-            ...acc,
-            [item.key]: item.value
-        }), {}) as any;
+        // 隐藏配置面板并更新状态
+        state.alist.showConfig = false;
+        state.pro.showPanel = false;
+        ['alistAccount', 'proAccount'].forEach(updateAccountDisplay);
         
-        settings.playerPath = playerPath;
-        settings.alistConfig = alistConfig;
+        // 构建设置对象
+        const settings: any = {};
+        settingItems.forEach(item => {
+            if (item.key === 'topBarButtons') {
+                settings.topBarButtons = {
+                    screenshot: item.value, timestamp: item.value, 
+                    loopSegment: item.value, mediaNotes: item.value
+                };
+            } else if (item.key.includes('.')) {
+                const parts = item.key.split('.');
+                let current = settings;
+                for (let i = 0; i < parts.length - 1; i++) {
+                    if (!current[parts[i]]) current[parts[i]] = {};
+                    current = current[parts[i]];
+                }
+                current[parts[parts.length - 1]] = item.value;
+            } else if (item.key.startsWith('alist')) {
+                if (!settings.alistConfig) settings.alistConfig = {};
+                settings.alistConfig[item.key.replace('alist', '').toLowerCase()] = item.value;
+            } else {
+                settings[item.key] = item.value;
+            }
+        });
         
-        // 保存选定的笔记本ID
-        const targetNotebookItem = settingItems.find(item => item.key === "targetNotebook");
-        if (targetNotebookItem) {
-            notebook.savePreferredId(String(targetNotebookItem.value));
-        }
+        // 保存脚本配置
+        settings.scripts = state.scripts.map(s => ({ name: s.name, enabled: s.enabled }));
+        
+        // 保存设置
+        const notebookItem = settingItems.find(item => item.key === "targetNotebook");
+        if (notebookItem) notebook.savePreferredId(String(notebookItem.value));
         
         await configManager.updateSettings(settings);
         dispatch('changed', { settings });
         showMessage(i18n.setting.saveSuccess);
     }
 
+    // 重置设置
     function resetSettings() {
-        settingItems = defaultSettings.map(item => ({...item}));
-        playerPath = "PotPlayerMini64.exe";
-        alistConfig = { server: "http://localhost:5244", username: "admin", password: "", connected: false };
-        
-        dispatch('changed', { settings: settingItems.reduce((acc, item) => ({...acc, [item.key]: item.value}), {playerPath, alistConfig}) });
+        settingItems = createSettings();
+        state.alist.showConfig = false;
+        state.pro.showPanel = false;
+        ['alistAccount', 'proAccount'].forEach(updateAccountDisplay);
         showMessage(i18n.setting.resetSuccess);
     }
-
-    // Pro版功能
-    async function handleProToggle(e) {
-        proEnabled = e.target.checked;
-        const config = await configManager.getConfig();
-        config.proEnabled = proEnabled;
-        await configManager.save();
-        dispatch('changed', { proEnabled, settings: configManager.getConfig().settings });
-        showMessage(proEnabled ? (i18n.pro?.activationSuccess || "Media Player Pro 已启用") : (i18n.pro?.activationDisabled || "Media Player Pro 已禁用"));
-    }
-
-    // 重置单个设置项的值
-    function resetItem(key: string) {
-        const index = settingItems.findIndex(i => i.key === key);
-        if (index !== -1) {
-            settingItems[index].value = defaultSettings.find(i => i.key === key).value;
-            settingItems = settingItems;
+    
+    // 过滤显示设置项
+    $: visibleItems = settingItems.filter(item => {
+        if (activeTab === 'account') {
+            return item.key === 'proAccount' || 
+                (item.key === 'bilibiliQrcode' && state.qrcode.data && !state.bilibili.login) || 
+                (item.key === 'proPanel' && state.pro.showPanel) ||
+                item.key === 'biliAccount' ||
+                item.key === 'alistAccount' ||
+                (item.key.startsWith('alist') && state.alist.showConfig);
         }
-    }
+        if (activeTab === 'player') {
+            return ['volume', 'speed', 'playerType', 'showSubtitles', 'enableDanmaku', 'loopCount', 'pauseAfterLoop', 'loopPlaylist', 'loopSingle', 'openMode'].includes(item.key) ||
+                (item.key === 'playerPath' && settingItems.find(i => i.key === 'playerType')?.value === 'potplayer');
+        }
+        return ['topBarButtons','insertMode', 'targetNotebook', 'linkFormat', 'mediaNotesTemplate', 'loadScript'].includes(item.key) || item.key.startsWith('script-');
+    });
 </script>
 
 <div class="settings common-panel" data-name={group}>
-    <div class="settings-header">
-        <h3>{i18n.setting.title}</h3>
-        <div class="header-controls">
-            <span>{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
+    <div class="playlist-header">
+        <div class="panel-nav">
+            <h3 class:active={activeTabId === 'playlist'} on:click={() => changePanelTab('playlist')}>
+                {i18n.playList?.title || "列表"}
+            </h3>
+            <h3 class:active={activeTabId === 'assistant'} on:click={() => changePanelTab('assistant')}>
+                {i18n.assistant?.title || "助手"}
+            </h3>
+            <h3 class:active={activeTabId === 'settings'} on:click={() => changePanelTab('settings')}>
+                {i18n.setting?.title || "设置"}
+            </h3>
         </div>
+        <span class="playlist-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
     </div>
 
     <div class="playlist-tabs">
         {#each tabs as tab}
-            <button 
-                class="tab" 
-                class:active={activeTab === tab.id} 
-                on:click={() => activeTab = tab.id}
-            >
+            <button class="tab" class:active={activeTab === tab.id} on:click={() => activeTab = tab.id}>
                 {tab.name}
             </button>
         {/each}
     </div>
 
     <div class="setting-panel">
-        <!-- 账号标签页 -->
-        {#if activeTab === 'account'}
-            <!-- Pro设置 -->
-            <div class="setting-item pro-setting-item" on:click={() => showProPanel = !showProPanel}>
+        {#each visibleItems as item (item.key)}
+            <div class="setting-item setting-item-{item.type}" data-key={item.key}>
                 <div class="setting-info">
-                    <div class="setting-title pro-title">{i18n.pro?.title || "Media Player Pro"}</div>
-                    <div class="setting-description">
-                        {proEnabled ? (i18n.pro?.enabled || "已启用") : (i18n.pro?.disabled || "已禁用")} - {i18n.pro?.clickForDetails || "点击查看详情"}
-                    </div>
-                </div>
-            </div>
-            
-            {#if showProPanel}
-            <div class="setting-item pro-panel-content">
-                <div class="setting-info">
-                    {#if !proEnabled}
-                    <div class="price-tag">
-                        <div class="price-main">{i18n.pro?.priceTag || "¥ 18.00"}</div>
-                        <div class="price-options">
-                            <div>{@html i18n.pro?.priceWithStar || "或 ¥ 16.00 + GitHub Star 关注"}</div>
-                        </div>
-                    </div>
+                    <div class="setting-title">{item.title}</div>
+                    {#if item.description}<div class="setting-description">{@html item.description}</div>{/if}
                     
-                    <div class="setting-description">
-                        {i18n.pro?.description || "若你喜欢Media Player，可以尝试为其付费哦～"}<br>
-                        <button class="b3-button b3-button--primary fn__block" on:click={() => showPaymentQRCodes = !showPaymentQRCodes}>
-                            {showPaymentQRCodes ? (i18n.pro?.hideQRCode || "隐藏付款码") : (i18n.pro?.showQRCode || "点击付款")}
-                        </button>
-                    </div>
-                    
-                    {#if showPaymentQRCodes}
-                    <div class="payment-qrcodes">
-                        <div class="qrcode-item">
-                            <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg" alt="支付宝付款码" />
+                    {#if item.type === 'slider'}
+                        <div class="slider-wrapper">
+                            <input type="range"
+                                min={item.slider?.min ?? 0}
+                                max={item.slider?.max ?? 100}
+                                step={item.slider?.step ?? 1}
+                                value={item.value}
+                                on:input={(e) => handleChange(e, item)}
+                            />
+                            <span class="slider-value">
+                                {item.key === 'speed' ? Number(item.value) / 100 + 'x' : item.value}
+                            </span>
                         </div>
-                        <div class="qrcode-item">
-                            <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg" alt="微信付款码" />
+                    {:else if item.type === 'textarea'}
+                        <textarea 
+                            class="b3-text-field fn__block" 
+                            rows={item.rows || 4}
+                            value={String(item.value)} 
+                            placeholder={item.placeholder || ""}
+                            on:input={(e) => handleChange(e, item)}
+                        ></textarea>
+                        <span class="clear-icon" on:click={() => resetItem(item.key)}>
+                            <svg class="icon"><use xlink:href="#iconRefresh"></use></svg>
+                        </span>
+                    {:else if item.type === 'images'}
+                        <div class="image-gallery">
+                            {#each Array.isArray(item.value) ? item.value : [] as image}
+                                <div class="image-item">
+                                    <div class="image-preview">
+                                        <img src={image.url} alt={image.caption || item.title} />
+                                    </div>
+                                </div>
+                            {/each}
                         </div>
-                    </div>
-                    {/if}
-                    {/if}
-                    
-                    <div class="activation-toggle">
-                        <div class="setting-info">
-                            <div class="setting-title">{i18n.pro?.activationTitle || "我已诚信付款，启用Media Player Pro"}</div>
-                        </div>
-                        <div class="setting-control">
-                            <label class="checkbox-wrapper">
-                                <input type="checkbox" bind:checked={proEnabled} on:change={handleProToggle} />
-                                <span class="checkbox-custom"></span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-single">
-                        <div class="feature-item">
-                            <svg viewBox="0 0 1024 1024" class="feature-icon">
-                                <path d="M510.4 220.8c-156.8 0-284.8 128-284.8 284.8s128 284.8 284.8 284.8 284.8-128 284.8-284.8-128-284.8-284.8-284.8z M510.4 705.6c-113.6 0-204.8-91.2-204.8-204.8 0-113.6 91.2-204.8 204.8-204.8s204.8 91.2 204.8 204.8c0 113.6-91.2 204.8-204.8 204.8zM633.6 820.8H388.8c-22.4 0-40 17.6-40 40s17.6 40 40 40h244.8c22.4 0 40-17.6 40-40s-17.6-40-40-40zM569.6 929.6h-118.4c-22.4 0-40 17.6-40 40s17.6 40 40 40h118.4c22.4 0 40-17.6 40-40s-17.6-40-40-40zM510.4 179.2c24 0 43.2-19.2 43.2-43.2V52.8c0-24-19.2-43.2-43.2-43.2s-43.2 19.2-43.2 43.2v83.2c0 22.4 19.2 43.2 43.2 43.2zM276.8 275.2c17.6-17.6 17.6-44.8 0-60.8l-59.2-59.2c-8-8-19.2-12.8-30.4-12.8s-22.4 4.8-30.4 12.8c-9.6 8-12.8 19.2-12.8 30.4s4.8 22.4 12.8 30.4l59.2 59.2c8 8 19.2 12.8 30.4 12.8s20.8-4.8 30.4-12.8zM864 155.2c-8-8-19.2-12.8-30.4-12.8s-22.4 4.8-30.4 12.8l-59.2 59.2c-17.6 17.6-17.6 44.8 0 60.8 8 8 19.2 12.8 30.4 12.8s22.4-4.8 30.4-12.8l59.2-59.2c17.6-16 17.6-43.2 0-60.8zM136 462.4H52.8c-24 0-43.2 19.2-43.2 43.2s19.2 43.2 43.2 43.2h83.2c24 0 43.2-19.2 43.2-43.2s-19.2-43.2-43.2-43.2zM968 462.4h-83.2c-24 0-43.2 19.2-43.2 43.2s19.2 43.2 43.2 43.2h83.2c24 0 43.2-19.2 43.2-43.2s-19.2-43.2-43.2-43.2z"/>
-                            </svg>
-                            <div class="feature-info">
-                                <div class="feature-title pro-title">{i18n.pro?.features?.assistant?.title || "媒体助手"}</div>
-                                <div class="setting-description">{i18n.pro?.features?.assistant?.description || "字幕列表、视频总结"}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <svg viewBox="0 0 1024 1024" class="feature-icon">
-                                <path d="M414.47619 121.904762a73.142857 73.142857 0 0 1 73.142858 73.142857v219.428571a73.142857 73.142857 0 0 1-73.142858 73.142858H195.047619a73.142857 73.142857 0 0 1-73.142857-73.142858V195.047619a73.142857 73.142857 0 0 1 73.142857-73.142857h219.428571zM195.047619 195.047619v219.428571h219.428571V195.047619H195.047619z m219.428571 341.333333a73.142857 73.142857 0 0 1 73.142858 73.142858v219.428571a73.142857 73.142857 0 0 1-73.142858 73.142857H195.047619a73.142857 73.142857 0 0 1-73.142857-73.142857v-219.428571a73.142857 73.142857 0 0 1 73.142857-73.142858h219.428571z m-219.428571 73.142858v219.428571h219.428571v-219.428571H195.047619zM536.380952 182.857143v73.142857h353.52381v-73.142857H536.380952zM536.380952 609.52381v73.142857h353.52381v-73.142857H536.380952z m0-268.190477v73.142857h353.52381v-73.142857H536.380952z m0 426.666667v73.142857h353.52381v-73.142857H536.380952z"/>
-                            </svg>
-                            <div class="feature-info">
-                                <div class="feature-title pro-title">{i18n.pro?.features?.tagExtension?.title || "标签拓展"}</div>
-                                <div class="setting-description">{i18n.pro?.features?.tagExtension?.description || "本地文件夹、B站收藏夹、更多"}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <svg viewBox="0 0 1024 1024" class="feature-icon">
-                                <path d="M448.487619 97.52381l130.096762 0.170666c40.399238 0.073143 73.142857 32.792381 73.191619 73.216l0.048762 21.211429a345.283048 345.283048 0 0 1 71.143619 39.960381l17.408-10.044953a73.313524 73.313524 0 0 1 99.961905 26.819048l65.219047 112.566857a73.313524 73.313524 0 0 1-22.893714 97.816381l-3.974095 2.438095-17.481143 10.093715a341.479619 341.479619 0 0 1-1.292191 83.968l12.361143 7.168a73.313524 73.313524 0 0 1 28.867048 96.329142l-2.023619 3.803429-61.098667 105.813333a73.313524 73.313524 0 0 1-96.329143 28.867048l-3.803428-2.048-16.896-9.752381a341.918476 341.918476 0 0 1-68.291048 38.083048l0.024381 29.062095a73.313524 73.313524 0 0 1-68.754286 73.264762l-4.632381 0.146285-130.121142-0.170666a73.313524 73.313524 0 0 1-73.191619-73.216l-0.048762-35.035429a346.599619 346.599619 0 0 1-57.368381-34.035809l-31.158857 17.944381a73.313524 73.313524 0 0 1-99.986286-26.819048l-65.219048-112.566857a73.313524 73.313524 0 0 1 22.918095-97.816381l3.949715-2.438095 31.719619-18.285715c-2.438095-23.161905-2.56-46.665143-0.219429-70.119619l-35.206095-20.333714a73.313524 73.313524 0 0 1-28.891429-96.329143l2.048-3.803428 61.098667-105.813334a73.313524 73.313524 0 0 1 96.329143-28.867047l3.803429 2.048 30.72 17.724952a341.284571 341.284571 0 0 1 64.609523-39.716571l-0.048762-27.89181a73.313524 73.313524 0 0 1 68.754286-73.264762L448.487619 97.52381z m-0.097524 73.313523l0.073143 74.48381-42.130286 19.846095c-18.041905 8.46019-35.05981 18.919619-50.761142 31.158857l-38.936381 30.403048-71.655619-41.398857-1.852953-1.024-61.074286 105.813333 76.239239 44.007619-4.729905 47.104a268.434286 268.434286 0 0 0 0.170666 55.100952l5.022477 47.445334-73.069715 42.081524 65.194667 112.566857 72.557714-41.740191 38.473143 28.184381a272.579048 272.579048 0 0 0 45.226667 26.819048l42.057143 19.772952 0.146285 81.529905 130.072381 0.170667-0.073143-78.019048 45.202286-18.822095a268.629333 268.629333 0 0 0 53.638095-29.915429l38.448762-27.648 57.904762 33.426286 61.049905-105.813333-55.100952-31.890286 6.826666-48.88381a268.190476 268.190476 0 0 0 1.024-65.950476l-5.12-47.494095 58.928762-34.011429-65.219047-112.566857L718.262857 319.390476l-38.497524-28.086857a272.62781 272.62781 0 0 0-56.051809-31.50019l-45.104762-18.724572-0.121905-70.070857-130.096762-0.170667z m145.895619 210.407619a146.773333 146.773333 0 0 1 53.686857 200.362667 146.407619 146.407619 0 0 1-200.167619 53.638095 146.773333 146.773333 0 0 1-53.662476-200.362666 146.407619 146.407619 0 0 1 200.167619-53.638096z m-136.655238 90.258286a73.48419 73.48419 0 0 0 26.86781 100.278857 73.118476 73.118476 0 0 0 99.961904-26.770285c19.529143-33.865143 9.020952-76.824381-23.186285-98.03581l-3.657143-2.267429-3.803429-2.048a73.118476 73.118476 0 0 0-96.182857 28.842667z"/>
-                            </svg>
-                            <div class="feature-info">
-                                <div class="feature-title pro-title">{i18n.pro?.features?.comingSoon?.title || "待开发"}</div>
-                                <div class="setting-description">{i18n.pro?.features?.comingSoon?.description || "功能开发中"}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/if}
-
-            <!-- 哔哩哔哩账号 -->
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-title">{i18n.setting.bilibili.account}</div>
-                    <div class="setting-content">
-                    {#if loginSuccess && userInfo}
+                    {:else if item.type === 'account' && item.button?.state === "enabled"}
                         <div class="user-wrapper">
-                            <img class="user-avatar" src={userInfo.face} alt={i18n.setting.bilibili.avatar} />
+                            {#if item.key === 'biliAccount' && state.bilibili.userInfo}
+                                <img src={state.bilibili.userInfo.face} alt="头像" />
+                            {:else if item.key === 'proAccount'}
+                                <svg><use xlink:href="#iconVIP"></use></svg>
+                            {:else if item.key === 'alistAccount'}
+                                <svg><use xlink:href="#iconCloud"></use></svg>
+                            {/if}
                             <div class="user-details">
                                 <div class="user-name">
-                                    {userInfo.uname}
-                                    <span class="user-level">LV{userInfo.level_info.current_level}</span>
+                                    {#if item.key === 'biliAccount' && state.bilibili.userInfo}
+                                        {state.bilibili.userInfo.uname}
+                                        <span class="user-level">LV{state.bilibili.userInfo.level_info.current_level}</span>
+                                    {:else if item.key === 'proAccount'}
+                                        {i18n.pro?.title || "Media Player Pro"}
+                                    {:else if item.key === 'alistAccount'}
+                                        {i18n.setting.alist?.title || "AList 服务器"}
+                                    {/if}
                                 </div>
-                                <div class="user-id">UID: {userInfo.mid}</div>
+                                <div class="user-id">
+                                    {#if item.key === 'biliAccount' && state.bilibili.userInfo}
+                                        UID: {state.bilibili.userInfo.mid}
+                                    {:else if item.key === 'proAccount'}
+                                        {i18n.pro?.statusEnabled || "已启用"}
+                                    {:else if item.key === 'alistAccount'}
+                                        {settingItems.find(i => i.key === 'alistServer')?.value || (i18n.setting.alist?.notConfigured || "未配置")}
+                                    {/if}
+                                </div>
                             </div>
                         </div>
-                    {:else}
-                        <div class="setting-description">{i18n.setting.bilibili.loginDescription}</div>
                     {/if}
-                    </div>
                 </div>
+                
                 <div class="setting-control">
-                    {#if !loginSuccess}
-                    <button class="b3-button b3-button--outline" 
-                        on:click={getBilibiliQRCode} 
-                        disabled={!!qrcodeData}>
-                        {i18n.setting.bilibili.login}
-                    </button>
-                    {:else}
-                    <button class="b3-button b3-button--outline" on:click={handleLogout}>
-                        {i18n.setting.bilibili.logout}
-                    </button>
+                    {#if item.type === 'checkbox'}
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" checked={Boolean(item.value)} on:change={(e) => handleChange(e, item)} />
+                            <span class="checkbox-custom"></span>
+                        </label>
+                    {:else if item.type === 'select'}
+                        <select class="select-wrapper" value={item.value} on:change={(e) => handleChange(e, item)}>
+                            {#each item.options || [] as option}
+                                <option value={option.value}>{option.label}</option>
+                            {/each}
+                        </select>
+                    {:else if item.type === 'account'}
+                        <button class="b3-button b3-button--outline" 
+                            on:click={() => handleAccountAction(item.key)}
+                            disabled={item.key === 'biliAccount' && item.button?.state === "pending"}>
+                            {item.button?.buttonText || "操作"}
+                        </button>
                     {/if}
                 </div>
             </div>
-            
-            {#if qrcodeData && !loginSuccess}
-            <div class="bilibili-qrcode">
-                <div class="qrcode-header">
-                    <div class="qrcode-title">{i18n.setting.bilibili.scanTitle}</div>
-                    <div class="qrcode-description">{i18n.setting.bilibili.scanDescription}</div>
-                </div>
-                <div class="qrcode-container">
-                    <img src={qrcodeData} alt={i18n.setting.bilibili.qrCode} />
-                    <div class="scan-status" class:success={loginSuccess}>{scanStatus}</div>
-                </div>
-            </div>
-            {/if}
 
-            <!-- AList 配置 -->
-            <div class="setting-item">
-                <div class="setting-info">
-                    <div class="setting-title">AList</div>
-                    <div class="setting-description">支持网盘文件播放</div>
-                    <div class="setting-content">
-                        <div class="alist-form">
-                            <label>服务器</label><input type="text" class="b3-text-field fn__block" placeholder="http://localhost:5244" bind:value={alistConfig.server} />
-                            <label>用户名</label><input type="text" class="b3-text-field fn__block" placeholder="admin" bind:value={alistConfig.username} />
-                            <label>密码</label><input type="password" class="b3-text-field fn__block" placeholder="密码" bind:value={alistConfig.password} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {/if}
-
-        <!-- 播放器标签页 -->
-        {#if activeTab === 'player' || activeTab === 'general'}
-            {#each settingItems.filter(item => 
-                activeTab === 'player' 
-                    ? ['volume', 'speed', 'playerType', 'showSubtitles', 'enableDanmaku'].includes(item.key)
-                    : ['openMode', 'insertMode', 'loopCount', 'pauseAfterLoop', 'targetNotebook', 'linkFormat', 'mediaNotesTemplate'].includes(item.key)
-            ) as item (item.key)}
-                <div class="setting-item" class:with-path={item.key === 'playerType' && item.value === 'potplayer'}>
-                    <div class="setting-info">
-                        <div class="setting-title">{item.title}</div>
-                        {#if item.description}<div class="setting-description">{@html item.description}</div>{/if}
-                        
-                        <!-- 设置项内容区域 -->
-                        {#if item.type === 'slider'}
-                            <div class="setting-content">
-                                <div class="slider-wrapper">
-                                    <input type="range"
-                                        min={item.slider?.min ?? 0}
-                                        max={item.slider?.max ?? 100}
-                                        step={item.slider?.step ?? 1}
-                                        value={item.value}
-                                        on:input={(e) => handleChange(e, item)}
-                                    />
-                                    <span class="slider-value">
-                                        {item.key === 'speed' ? Number(item.value) / 100 + 'x' : item.value}
-                                    </span>
-                                </div>
-                            </div>
-                        {:else if item.type === 'textarea'}
-                            <div class="setting-content" style="position: relative;">
-                                <textarea 
-                                    class="b3-text-field fn__block" 
-                                    rows={item.rows || 4}
-                                    value={String(item.value)} 
-                                    placeholder={item.placeholder || ""}
-                                    on:input={(e) => handleChange(e, item)}
-                                ></textarea>
-                                <span class="clear-icon" on:click={() => resetItem(item.key)} style="position: absolute; right: 8px; top: 8px; cursor: pointer; color: var(--b3-theme-on-surface); opacity: 0.5;">
-                                    <svg class="icon" style="width: 16px; height: 16px; fill: currentColor;"><use xlink:href="#iconRefresh"></use></svg>
-                                </span>
-                            </div>
-                        {/if}
-                    </div>
-                    
-                    <!-- 设置项控制区域 -->
-                    <div class="setting-control">
-                        {#if item.type === 'checkbox'}
-                            <label class="checkbox-wrapper">
-                                <input type="checkbox" checked={Boolean(item.value)} on:change={(e) => handleChange(e, item)} />
-                                <span class="checkbox-custom"></span>
-                            </label>
-                        {:else if item.type === 'select'}
-                            <select class="select-wrapper" value={item.value} on:change={(e) => handleChange(e, item)}>
-                                {#each item.options || [] as option}
-                                    <option value={option.value}>{option.label}</option>
-                                {/each}
-                            </select>
-                        {/if}
-                    </div>
-                    
-                    <!-- PotPlayer路径设置 -->
-                    {#if item.key === 'playerType' && item.value === 'potplayer'}
-                        <input type="text" class="b3-text-field fn__block" bind:value={playerPath} placeholder={i18n.setting.items.playerPath.title} />
-                    {/if}
-                </div>
-            {/each}
-        {/if}
+        {/each}
     </div>
     
-    <!-- 底部操作区 -->
     <div class="playlist-footer">
         <button class="add-btn" on:click={resetSettings}>
             <svg class="icon"><use xlink:href="#iconRefresh"></use></svg>

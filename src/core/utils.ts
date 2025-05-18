@@ -15,9 +15,13 @@ type InsertMode = 'insertBlock' | 'appendBlock' | 'prependBlock' | 'updateBlock'
 
 // 媒体扩展和正则表达式
 const EXT = {
-    VIDEO: ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.mkv'],
-    AUDIO: ['.mp3', '.wav', '.aac', '.m4a', '.flac'],
-    get ALL() { return [...this.VIDEO, ...this.AUDIO]; }
+    VIDEO: ['.mp4', '.webm', '.ogg', '.mov', '.m4v', '.mkv', '.avi', '.flv', '.wmv'],
+    AUDIO: ['.mp3', '.wav', '.aac', '.m4a', '.flac', '.ogg'],
+    SUBTITLE: ['.srt', '.vtt'],
+    DANMAKU: ['.xml', '.ass'],
+    get ALL() { return [...this.VIDEO, ...this.AUDIO]; },
+    get MEDIA() { return [...this.VIDEO, ...this.AUDIO]; },
+    get SUPPORT() { return [...this.MEDIA, ...this.SUBTITLE, ...this.DANMAKU]; }
 };
 
 const REGEX = {
@@ -43,24 +47,71 @@ export const fmt = (sec: number, opts: TimeOptions = {}): string => {
     return h > 0 ? `${h}:${m.toString().padStart(2, '0')}:${ss}` : `${m}:${ss}`;
 };
 
+/**
+ * 查找媒体相关辅助文件(字幕/弹幕)
+ */
+export const findMediaSupportFile = async (mediaUrl: string, exts: string[]): Promise<string | null> => {
+    if (!mediaUrl) return null;
+    
+    try {
+        // 本地文件
+        if (mediaUrl.startsWith('file://')) {
+            const { pathname } = new URL(mediaUrl);
+            const path = decodeURIComponent(pathname);
+            const idx = path.lastIndexOf('.');
+            if (idx === -1) return null;
+            
+            const dir = path.substring(0, path.lastIndexOf('/'));
+            const base = path.substring(path.lastIndexOf('/') + 1, idx);
+            
+            for (const ext of exts) {
+                const url = `file://${dir}/${encodeURIComponent(base)}${ext}`;
+                try { if ((await fetch(url, {method: 'HEAD'})).ok) return url; } catch {}
+            }
+        }
+        // AList媒体
+        else if (mediaUrl.includes('/d/') || AListManager.parsePathFromUrl(mediaUrl)) {
+            const path = AListManager.parsePathFromUrl(mediaUrl);
+            if (path) return AListManager.getSupportFileLink(path, exts);
+        }
+    } catch {}
+    
+    return null;
+};
+
 // URL工具集
 export const url = {
     // 判断媒体类型并获取来源信息
     getMediaInfo: (u: string): { type: MediaType; source: MediaSource; path?: string } => {
         if (!u) return { type: 'video', source: 'standard' };
         
-        const isAudio = EXT.AUDIO.some(ext => u.toLowerCase().endsWith(ext));
+        const isAudio = EXT.AUDIO.some(ext => u.toLowerCase().endsWith(ext) || u.toLowerCase().split('?')[0].endsWith(ext));
         // B站视频      
         if (REGEX.BILIBILI.test(u)) 
             return { type: 'bilibili', source: 'bilibili', path: u.match(REGEX.BV)?.[0].substring(1) };
-          // AList媒体   
+          // AList媒体      
         if (REGEX.ALIST.test(u)) 
             return { type: isAudio ? 'audio' : 'video', source: 'alist', path: u.split('/#/')[1]?.split('?')[0] };
+        
+        // 检查是否是常见AList端口URL (如 http://localhost:5244/...)
+        try {
+            if (u.match(/https?:\/\/.*?:\d+\/[^?#]+\.\w+/i)) {
+                const urlObj = new URL(u);
+                if (urlObj.port) {
+                    return { 
+                        type: isAudio ? 'audio' : 'video', 
+                        source: 'alist', 
+                        path: urlObj.pathname 
+                    };
+                }
+            }
+        } catch {}
+        
         const alistPath = AListManager?.parsePathFromUrl?.(u);
         if (alistPath) 
             return { type: isAudio ? 'audio' : 'video', source: 'alist', path: alistPath };
-        // 本地文件     
-        if (u.startsWith('file:///'))
+           // 本地文件     
+        if (u.startsWith('file://'))
             return { type: isAudio ? 'audio' : 'video', source: 'local', path: u.substring(8) };
 
         // 标准媒体
@@ -117,6 +168,7 @@ export const url = {
         if (!curr) return false;
         
         const mediaInfo = url.getMediaInfo(media);
+        const parsedMediaUrl = url.parseTime(media).mediaUrl;
         
         switch (mediaInfo.source) {
             case 'bilibili': {
@@ -132,11 +184,49 @@ export const url = {
                     return true;
                 }
             }
+            
             case 'alist':
-                return curr.sourcePath && (media.split('/#/')[1]?.split('?')[0])?.length && 
-                       curr.sourcePath.includes(media.split('/#/')[1]?.split('?')[0]);
+                // 比较AList链接，忽略时间参数，只比较文件路径
+                const currPath = curr.sourcePath;
+                const mediaPath = mediaInfo.path;
+                
+                // 当currPath或mediaPath存在其中一个时进行比较
+                if (currPath && mediaPath) {
+                    // 解码路径避免编码差异
+                    try {
+                        const decodedCurrPath = currPath.includes('%') ? decodeURIComponent(currPath) : currPath;
+                        const decodedMediaPath = mediaPath.includes('%') ? decodeURIComponent(mediaPath) : mediaPath;
+                        return decodedCurrPath === decodedMediaPath;
+                    } catch {
+                        return currPath === mediaPath;
+                    }
+                }
+                
+                // 如果没有路径信息，尝试比较URL
+                if (curr.source === 'alist' && curr.url && parsedMediaUrl) {
+                    // 移除协议和参数后比较
+                    const currFileName = curr.url.split('/').pop()?.split('?')[0] || '';
+                    const mediaFileName = parsedMediaUrl.split('/').pop()?.split('?')[0] || '';
+                    if (currFileName && mediaFileName && currFileName === mediaFileName) {
+                        return true;
+                    }
+                }
+                return false;
+                
+            case 'local':
+                // 针对本地文件进行特殊处理，比较去除时间参数和锚点后的路径
+                if (curr.url?.startsWith('file://') || parsedMediaUrl.startsWith('file://')) {
+                    const currFilePath = decodeURIComponent(curr.url?.split('?')[0].split('#')[0] || '');
+                    const mediaFilePath = decodeURIComponent(parsedMediaUrl.split('?')[0].split('#')[0] || '');
+                    return currFilePath === mediaFilePath;
+                }
+                // 如果不是file://开头但是source是local，则继续使用普通比较
+                
             default:
-                return url.parseTime(media).mediaUrl.split('?')[0] === (curr.url?.split('?')[0] || '');
+                // 移除查询参数后比较URL
+                const currBaseUrl = (curr.url || '').split('?')[0].split('#')[0];
+                const mediaBaseUrl = parsedMediaUrl.split('?')[0].split('#')[0];
+                return currBaseUrl === mediaBaseUrl;
         }
     },
     
@@ -144,8 +234,10 @@ export const url = {
     isMedia: (u: string, config?: any): boolean => {
         if (!u) return false;
         const hasMediaExt = EXT.ALL.some(ext => u.toLowerCase().endsWith(ext));
+        const alistPath = AListManager.parsePathFromUrl(u);
         return hasMediaExt || REGEX.BILIBILI.test(u) || 
-               (u.startsWith('file:///') && hasMediaExt) ||
+               (u.startsWith('file://') && hasMediaExt) ||
+               alistPath !== null ||
                (config?.settings?.alistConfig?.server && u.includes(config.settings.alistConfig.server));
     },
     
@@ -170,7 +262,7 @@ export const url = {
 export const isSupportedMediaLink = (u: string): boolean => {
     if (!u) return false;
     const hasExt = EXT.ALL.some(ext => u.split('?')[0].toLowerCase().endsWith(ext));
-    return (u.startsWith('file:///') && hasExt) || REGEX.BILIBILI.test(u) || hasExt;
+    return (u.startsWith('file://') && hasExt) || REGEX.BILIBILI.test(u) || hasExt;
 };
 
 // Pro功能管理
@@ -516,4 +608,25 @@ export const mediaNotes = {
             } catch {}
         }
     }
+};
+
+// 媒体类型识别
+export const media = {
+    isVideoFile: (name: string): boolean => 
+        EXT.VIDEO.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+        
+    isAudioFile: (name: string): boolean => 
+        EXT.AUDIO.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+        
+    isMediaFile: (name: string): boolean => 
+        EXT.MEDIA.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+        
+    isSubtitleFile: (name: string): boolean => 
+        EXT.SUBTITLE.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+        
+    isDanmakuFile: (name: string): boolean => 
+        EXT.DANMAKU.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+        
+    isSupportedFile: (name: string): boolean => 
+        EXT.SUPPORT.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext))
 };

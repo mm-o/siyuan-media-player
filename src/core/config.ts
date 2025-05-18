@@ -43,6 +43,8 @@ export class ConfigManager {
                 speed: 100,
                 hotkey: true,
                 loop: false,
+                loopCount: 3,
+                pauseAfterLoop: false,
                 insertMode: 'insertBlock',
                 showSubtitles: true,
                 enableDanmaku: false,
@@ -50,6 +52,17 @@ export class ConfigManager {
                 openMode: 'default',
                 playerPath: 'PotPlayerMini64.exe',
                 linkFormat: defaultLinkFormat,
+                topBarButtons: {
+                    screenshot: true,
+                    timestamp: true,
+                    loopSegment: true,
+                    mediaNotes: true
+                },
+                alistConfig: {
+                    server: 'http://localhost:5244',
+                    username: 'admin',
+                    password: ''
+                }
             },
             proEnabled: false // 默认不启用Pro版本
         };

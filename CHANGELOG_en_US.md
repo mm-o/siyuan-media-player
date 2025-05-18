@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.3 (2025.5.18)
+
+### Feature Updates
+- **UI Overhaul**: Removed top icons, now accessible through dock bar button
+- **Button Layout Optimization**: Moved function buttons to the top with toggle visibility
+- **Playback Loop Enhancement**: Added single item loop and playlist loop functionality
+- **Loop Control**: Added pause after loop completion feature
+- **Danmaku Features**: Added danmaku list for easy export of bullet comments
+- **Account Display**: Optimized account display method
+
 ## v0.3.2 (2025.5.11)
 
 ### Feature Enhancements

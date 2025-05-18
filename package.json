@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "description": {
     "default": "A powerful media player plugin for SiYuan Note, supporting various media formats (including audio, video, and Bilibili), with features like timestamped playback, loop segments, and customizable playlists.",
@@ -73,6 +73,7 @@
     "@types/node": "^20.2.5",
     "artplayer": "^5.2.1",
     "artplayer-plugin-danmuku": "^5.1.6",
+    "artplayer-plugin-dash-control": "^1.0.0",
     "md5": "^2.3.0",
     "qrcode": "^1.5.4"
   }

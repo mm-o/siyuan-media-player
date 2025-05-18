@@ -2,7 +2,7 @@
  * 基础类型定义
  */
 export type MediaType = 'video' | 'audio' | 'bilibili';
-export type SettingType = 'slider' | 'checkbox' | 'select' | 'textarea';
+export type SettingType = 'slider' | 'checkbox' | 'select' | 'textarea' | 'images' | 'custom' | 'account';
 
 /**
  * B站相关类型
@@ -91,6 +91,8 @@ export interface MediaItem {
     sourcePath?: string;   // 来源路径
     size?: number;         // 文件大小(字节)
     is_dir?: boolean;      // 是否为文件夹
+    action?: string;       // 动作类型, 如 'navigateToTab'
+    targetTabId?: string;  // 目标标签ID, 用于导航
 }
 
 /**
@@ -112,6 +114,10 @@ export interface Config {
         hotkey: boolean;
         /** 是否循环播放 */
         loop: boolean;
+        /** 循环次数 */
+        loopCount?: number;
+        /** 循环后暂停 */
+        pauseAfterLoop?: boolean;
         /** 插入方式：光标处/追加/前置/剪贴板 */
         insertMode: string;
         /** 是否显示字幕 */
@@ -138,6 +144,19 @@ export interface Config {
         targetNotebook?: string;
         /** 媒体笔记模板 */
         mediaNotesTemplate?: string;
+        /** 顶部工具栏按钮显示设置 */
+        topBarButtons?: {
+            screenshot?: boolean;    // 显示截图按钮
+            timestamp?: boolean;     // 显示时间戳按钮
+            loopSegment?: boolean;   // 显示循环片段按钮
+            mediaNotes?: boolean;    // 显示媒体笔记按钮
+        };
+        /** 用户脚本 */
+        scripts?: Array<{
+            name: string;      // 脚本文件名
+            enabled: boolean;  // 是否启用
+            path?: string;     // 脚本完整路径
+        }>;
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
@@ -155,7 +174,9 @@ export interface PlaylistConfig {
     name: string;        // 列表名称
     isFixed?: boolean;   // 是否为固定列表
     items: MediaItem[];  // 媒体项列表
-    alistPath?: string;  // AList当前路径
+    path?: string;       // 媒体源路径（本地文件夹/alist/思源/B站收藏夹）
+    sourceType?: string; // 源类型：folder/alist/siyuan/bilibili
+    alistPath?: string;  // AList当前路径 (已废弃，使用path替代)
     alistPathParts?: {name: string; path: string}[];  // AList路径各部分
 }
 
@@ -172,6 +193,8 @@ export interface PlayOptions extends PlayControlProps, BilibiliProps {
         escape?: boolean;    // 是否转义HTML标签
         style?: Record<string, string>;
     };
+    dashData?: any;         // 传给dashjs插件的dash数据 (旧格式，即将移除)
+    biliDash?: any;         // B站返回的dash数据结构
 }
 
 /**
@@ -191,7 +214,7 @@ export interface VideoStream {
  */
 export interface ISettingItem {
     key: string;
-    value: number | boolean | string;
+    value: number | boolean | string | Array<{url: string; caption?: string}>;
     type: SettingType;
     title: string;
     description?: string;
@@ -206,6 +229,23 @@ export interface ISettingItem {
     }>;
     rows?: number;          // textarea行数
     placeholder?: string;   // 输入框占位文本
+    status?: any;           // 状态信息，用于自定义类型
+    button?: {
+        config: string;
+        save: string;
+        exit: string;
+        state?: string;
+        buttonText?: string;
+        username?: string;
+        userId?: string;
+    };
+    show?: {
+        config: string[];
+        exit: string[];
+    };
+    hide?: {
+        save: string[];
+    };
 }
 
 /**
@@ -261,4 +301,15 @@ export interface BiliVideoAiSummary {
         like_num: number;
         dislike_num: number;
     };
+}
+
+/**
+ * 组件实例接口定义，用于统一生命周期管理
+ */
+export interface ComponentInstance {
+    $destroy?: () => void;
+    $set?: (props: any) => void;
+    $on?: (event: string, callback: (event: CustomEvent<any>) => void) => void;
+    addMedia?: (url: string, options?: any) => void;
+    [key: string]: any;
 }

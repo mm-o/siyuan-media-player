@@ -68,61 +68,122 @@ export class LinkHandler {
             // 内置播放器处理
             await this.playInBuiltInPlayer(urlStr);
         } catch (error) {
-            console.error('[LinkHandler] 处理媒体链接错误:', error);
             showMessage("播放失败，请重试");
         }
     }
 
     /**
      * 在内置播放器中统一处理媒体
-     * 整合了AList和普通媒体的顺滑跳转和播放逻辑
      */
     private async playInBuiltInPlayer(mediaUrl: string): Promise<void> {
         // 确保播放器标签已打开
-        if (!document.querySelector('.media-player-tab')) {
+        const playerTabExists = !!document.querySelector('.media-player-tab');
+        if (!playerTabExists) {
             this.openTabCallback();
             await this.waitForElement('.media-player-tab', 2000);
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
         // 解析媒体URL和时间戳
         const { mediaUrl: parsedUrl, startTime, endTime } = url.parseTime(mediaUrl);
+        const mediaInfo = url.getMediaInfo(parsedUrl);
         
-        // 获取媒体源信息
-        const mediaSource = url.getMediaInfo(mediaUrl).source;
-        
-        // 如果是AList链接，确保已连接
-        if (mediaSource === 'alist') {
-            console.info('[LinkHandler] 检测到AList媒体链接:', mediaUrl, '时间:', startTime);
-            const config = await this.configManager.getConfig();
-            if (!await AListManager.initFromConfig(config)) {
-                showMessage("未连接到AList服务器，请先在设置中配置AList");
-                return;
-            }
-        }
-
         // 获取当前播放器和媒体
         const siyuanPlayer = (window as any).siyuanMediaPlayer;
         const currentMedia = siyuanPlayer?.getCurrentMedia?.();
             
-        // 顺滑跳转处理
-        if (currentMedia && url.isSameMedia(currentMedia, mediaUrl) && startTime !== undefined) {
-            console.info('[LinkHandler] 执行丝滑跳转，时间:', startTime);
-            siyuanPlayer.seekTo?.(startTime);
-            if (endTime !== undefined) {
-                siyuanPlayer.setLoopSegment?.(startTime, endTime);
+        // 丝滑跳转处理 - 适用于所有媒体类型，包括AList
+        if (currentMedia && startTime !== undefined) {
+            if (url.isSameMedia(currentMedia, mediaUrl)) {
+                console.log(`丝滑跳转中... 时间: ${startTime}${endTime ? `-${endTime}` : ''}, 媒体: ${currentMedia.type === 'alist' ? '(AList)' : ''} ${currentMedia.title}`);
+                if (typeof siyuanPlayer.seekTo === 'function') {
+                    siyuanPlayer.seekTo(startTime);
+                    
+                    if (endTime !== undefined && typeof siyuanPlayer.setLoopSegment === 'function') {
+                        siyuanPlayer.setLoopSegment(startTime, endTime);
+                    }
+                    return;
+                }
             }
-            return;
+        }
+        
+        // AList媒体特殊处理
+        if (mediaInfo.source === 'alist') {
+            const config = await this.configManager.getConfig();
+            
+            // 尝试初始化AList
+            if (!await AListManager.initFromConfig(config)) {
+                showMessage("未连接到AList服务器，请先在设置中配置AList");
+                return;
+            }
+            
+            // 使用AList统一处理媒体链接
+            const result = await AListManager.handleAListMediaLink(parsedUrl, { startTime, endTime });
+            if (result.success && result.mediaItem) {
+                window.dispatchEvent(new CustomEvent('directMediaPlay', { detail: result.mediaItem }));
+                return;
+            } else if (result.error) {
+                showMessage(`处理AList媒体失败: ${result.error}`);
+                return;
+            }
+        }
+        
+        // 尝试获取播放列表组件
+        if (!this.playlist) {
+            this.findPlaylistComponent();
         }
         
         // 播放新媒体
-        if (mediaSource === 'alist' && url.getMediaInfo(mediaUrl).path) {
-            // AList媒体直接播放
-            const mediaItem = await AListManager.createMediaItemFromPath(url.getMediaInfo(mediaUrl).path, { startTime, endTime });
-            window.dispatchEvent(new CustomEvent('directMediaPlay', { detail: mediaItem }));
-        } else {
-            // 其他媒体添加到播放列表并播放
-            this.playlist?.addMedia(mediaUrl, { autoPlay: true });
+        try {
+            if (this.playlist?.addMedia) {
+                this.playlist.addMedia(parsedUrl, { 
+                    autoPlay: true,
+                    startTime,
+                    endTime
+                });
+            } else {
+                const tempMediaItem = {
+                    id: `direct-${Date.now()}`,
+                    title: url.title(parsedUrl),
+                    url: parsedUrl,
+                    type: url.type(parsedUrl),
+                    startTime,
+                    endTime
+                };
+                window.dispatchEvent(new CustomEvent('directMediaPlay', { 
+                    detail: tempMediaItem
+                }));
+            }
+        } catch (error) {
+            console.error("播放媒体失败:", error);
+            showMessage("播放媒体失败，请重试");
         }
+    }
+    
+    /**
+     * 尝试从dockComponents中查找播放列表组件
+     */
+    private findPlaylistComponent(): void {
+        try {
+            const plugins = (window as any).siyuan?.plugins;
+            if (!plugins) return;
+            
+            const mediaPlugin = plugins.find((p: any) => p.name === 'siyuan-media-player');
+            if (!mediaPlugin) return;
+            
+            this.playlist = mediaPlugin.dockComponents?.playlist;
+        } catch {}
+    }
+
+    /**
+     * 停止监听链接点击事件
+     */
+    public stopListening(): void {
+        if (this.clickHandler) {
+            document.removeEventListener('click', this.clickHandler, true);
+            this.clickHandler = null;
+        }
+        this.isListening = false;
     }
 
     private async waitForElement(selector: string, timeout = 2000): Promise<Element | null> {
@@ -140,16 +201,5 @@ export class LinkHandler {
                 }
             }, 50);
         });
-    }
-
-    /**
-     * 停止监听链接点击事件
-     */
-    public stopListening(): void {
-        if (this.clickHandler) {
-            document.removeEventListener('click', this.clickHandler, true);
-            this.clickHandler = null;
-        }
-        this.isListening = false;
     }
 }

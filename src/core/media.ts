@@ -12,7 +12,8 @@ const LOAD_TIMEOUT = 15000; // 15秒
 // 默认缩略图
 export const DEFAULT_THUMBNAILS = {
     audio: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M628.905386 769.860427 628.905386 482.261019l169.381759-27.464779C771.308637 311.811584 645.822916 203.633728 494.993179 203.633728c-170.51599 0-308.738475 138.222485-308.738475 308.738875 0 170.516989 138.222485 308.738875 308.738475 308.738875 16.540186 0 32.756191-1.34209 48.589456-3.839397 12.391598-20.573051 34.625524-37.084856 62.858182-44.145869C613.897561 771.276467 621.429455 770.182208 628.905386 769.860427zM551.718919 228.830645l-33.079572 144.922942-33.078373 0-23.62798-144.922942C496.589896 211.497397 551.718919 228.830645 551.718919 228.830645zM494.993179 626.995689c-63.300482 0-114.622086-51.317007-114.622086-114.622886 0-63.30348 51.321604-114.622486 114.622086-114.622486 63.306478 0 114.622486 51.319006 114.622486 114.622486C609.615665 575.678482 558.299457 626.995689 494.993179 626.995689zM494.993179 424.978057c-48.20112 0-87.394147 39.192827-87.394147 87.394546 0 48.20112 39.192827 87.395546 87.394147 87.395546 48.201719 0 87.395946-39.194226 87.395946-87.395546C582.389124 464.170884 543.194698 424.978057 494.993179 424.978057zM494.993179 574.79708c-34.421063 0-62.423477-28.002015-62.423477-62.424476 0-34.421662 28.011408-62.424076 62.423477-62.424076 34.432055 0 62.416082 28.002414 62.416082 62.424076C557.409061 546.795265 529.425034 574.79708 494.993179 574.79708zM534.528574 870.531771c1.499983 8.297374 4.789753 16.008146 9.524542 22.939447-16.073102 2.058604-32.429013 3.239803-49.050144 3.239803-211.934708 0-384.347812-172.417701-384.347812-384.338419 0-211.922716 172.413104-384.338419 384.338019-384.338419 188.118456 0 345.001689 135.905456 377.892189 314.664258l-37.310503 6.059292c-29.969681-160.790984-171.236502-282.919381-340.581686-282.919381-191.084445 0-346.53365 155.451604-346.53365 346.53425 0 191.080048 155.449205 346.53425 346.53365 346.53425 12.796724 0 25.414169-0.748493 37.859731-2.104573C532.968631 861.361189 533.461497 865.948079 534.528574 870.531771zM912.096583 463.425989l0 333.227272c0 27.59629-20.573051 49.609165-52.658098 57.716668-35.234911 8.736077-69.250848-6.021917-75.997274-33.022611-6.760416-27.057655 16.31294-56.065787 51.53386-64.879811 15.920206-3.931335 31.587384-3.128879 44.698494 1.494986L879.673565 557.20001l-180.148459 32.927675-0.834434 249.757065-0.036975 0c-0.156894 23.646767-21.482435 46.868223-52.156438 54.45388-34.814196 8.759061-71.280472-7.807706-75.193819-32.597899-6.691463-26.747865 16.124068-55.470191 51.00222-64.201272 15.699356-3.904353 31.039755-3.119885 43.933013 1.402049L666.238674 503.300354 912.096583 463.425989z" fill="currentColor" style="color:var(--b3-theme-primary)"/></svg>`,
-    folder: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M792.533 537.813l-339.413 0c-27.733 0-50.133-22.4-50.133-50.133s22.4-50.133 50.133-50.133l339.413 0c27.733 0 50.133 22.4 50.133 50.133s-22.613 50.133-50.133 50.133l0 0zM792.533 736.213l-339.413 0c-27.733 0-50.133-22.4-50.133-50.133s22.4-50.133 50.133-50.133l339.413 0c27.733 0 50.133 22.4 50.133 50.133s-22.613 50.133-50.133 50.133l0 0zM1022.933 900.053l0-634.027c0-77.013-70.187-69.76-70.187-69.76s-418.987 0.427-396.587 0c-23.893 0.427-36.053-12.587-36.053-12.587s-16.64-28.8-46.72-74.027c-31.36-47.573-67.84-39.893-67.84-39.893l-308.48 0c-85.547 0-86.4 82.347-86.4 82.347l0 743.893c0 91.733 69.333 80.427 69.333 80.427l879.147 0c74.24 0 63.787-76.373 63.787-76.373l0 0zM960 862.507c0 28.373-22.827 51.2-51.2 51.2l-784 0c-28.373 0-51.2-22.827-51.2-51.2l0-530.773c0-28.373 22.827-51.2 51.2-51.2l784 0c28.373 0 51.2 22.827 51.2 51.2l0 530.773zM213.333 487.68c0 29.573 23.973 53.547 53.547 53.547s53.547-23.973 53.547-53.547c0-29.573-23.973-53.547-53.547-53.547-29.573 0-53.547 23.973-53.547 53.547zM213.333 686.08c0 29.573 23.973 53.547 53.547 53.547s53.547-23.973 53.547-53.547c0-29.573-23.973-53.547-53.547-53.547-29.573 0-53.547 23.973-53.547 53.547z" fill="currentColor" style="color:var(--b3-theme-primary)"/></svg>`
+    video: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M512 74.666667C270.933333 74.666667 74.666667 270.933333 74.666667 512S270.933333 949.333333 512 949.333333 949.333333 753.066667 949.333333 512 753.066667 74.666667 512 74.666667z m0 810.666666c-204.8 0-373.333333-168.533333-373.333333-373.333333S307.2 138.666667 512 138.666667 885.333333 307.2 885.333333 512 716.8 885.333333 512 885.333333z" fill="currentColor" style="color:var(--b3-theme-primary)"></path><path d="M512 320c-14.933333 0-32 4.266667-44.8 12.8L298.666667 458.666667c-29.866667 19.2-38.4 59.733333-19.2 89.6 4.266667 8.533333 12.8 14.933333 19.2 19.2l168.533333 125.866666c12.8 8.533333 29.866667 12.8 44.8 12.8 42.666667 0 76.8-34.133333 76.8-76.8V396.8c0-42.666667-34.133333-76.8-76.8-76.8z m12.8 308.266667c0 8.533333-4.266667 12.8-12.8 12.8-2.133333 0-4.266667 0-6.4-2.133334l-168.533333-125.866666c-4.266667-4.266667-6.4-10.666667-2.133334-17.066667 0-2.133333 2.133333-4.266667 2.133334-4.266667l168.533333-125.866666c2.133333-2.133333 4.266667-2.133333 6.4-2.133334 8.533333 0 12.8 4.266667 12.8 12.8v251.733334z" fill="currentColor" style="color:var(--b3-theme-primary)"></path></svg>`,
+    folder: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M810.666667 213.333333H631.893333L631.04 212.373333C617.706667 196.48 598.933333 186.666667 578.346667 186.666667H444.16C423.573333 186.666667 404.8 196.48 391.466667 212.373333L390.613333 213.333333H213.333333C177.92 213.333333 149.333333 241.92 149.333333 277.333333V746.666667C149.333333 782.08 177.92 810.666667 213.333333 810.666667H810.666667C846.08 810.666667 874.666667 782.08 874.666667 746.666667V277.333333C874.666667 241.92 846.08 213.333333 810.666667 213.333333zM213.333333 277.333333H432L432.746667 276.48C439.04 269.973333 446.613333 266.666667 454.4 266.666667H568.32C576.106667 266.666667 583.68 269.973333 589.973333 276.48L590.826667 277.333333H810.666667V426.666667H213.333333V277.333333z m597.333334 469.333334H213.333333V501.333333H810.666667V746.666667z" fill="currentColor" style="color:var(--b3-theme-primary)"></path></svg>`
 };
 
 /**
@@ -222,12 +223,34 @@ const showMsg = (msg: string) => {
 export function registerGlobalPlayer(currentItem: any, player: any): void {
     if (typeof window === 'undefined') return;
     
+    try {
+        console.info('[media] 注册全局播放器对象, 当前媒体:', currentItem);
+        
     (window as any).siyuanMediaPlayer = {
+            player,
         currentItem,
-        seekTo: (time: number) => player?.seekTo(time),
-        setLoopSegment: (start: number, end: number) => player?.setPlayTime(start, end),
-        getCurrentMedia: () => currentItem
-    };
+            seekTo: (time: number) => {
+                console.info('[media] 执行跳转:', time);
+                if (typeof player.seekTo === 'function') {
+                    player.seekTo(time);
+                    return true;
+                }
+                return false;
+            },
+            setLoopSegment: (start: number, end: number) => {
+                console.info('[media] 设置循环片段:', start, end);
+                if (typeof player.setPlayTime === 'function') {
+                    player.setPlayTime(start, end);
+                    return true;
+                }
+                return false;
+            },
+            getCurrentMedia: () => currentItem,
+            getCurrentTime: () => player.getCurrentTime?.() || 0
+        };
+    } catch (error) {
+        console.error('[media] 注册全局播放器失败:', error);
+    }
 }
 
 // 从选项构建媒体项
@@ -279,7 +302,7 @@ export async function openWithExternalPlayer(
         if (!cleanPath) return "请在设置中配置播放器路径";
         
         const timeParam = startTime !== undefined ? ` /seek=${fmt(startTime, {anchor: true})}` : '';
-        const processedUrl = parsedUrl.startsWith('file:///') 
+        const processedUrl = parsedUrl.startsWith('file://') 
             ? parsedUrl.substring(8).replace(/\//g, '\\') 
             : parsedUrl;
         
@@ -315,19 +338,25 @@ export async function handleMediaError(
     try {
         // 处理B站错误
         if (currentItem?.type === 'bilibili' && currentItem.bvid && currentItem.cid) {
-        const config = await configManager.getConfig();
-        const streamInfo = await BilibiliParser.getProcessedVideoStream(
-                currentItem.bvid, currentItem.cid, 0, config
-        );
+            const config = await configManager.getConfig();
+            // 尝试使用高质量设置重新获取流
+            const streamInfo = await BilibiliParser.getProcessedVideoStream(
+                currentItem.bvid, 
+                currentItem.cid, 
+                120, // 强制使用更高质量尝试修复播放
+                config
+            );
         
-        if (player) {
-            const url = streamInfo.mpdUrl || streamInfo.video.url;
-            await player.play(url, {
-                    type: streamInfo.mpdUrl ? 'bilibili-dash' : 'bilibili',
-                headers: streamInfo.headers,
-                title: currentItem.title,
-                cid: currentItem.cid
-            });
+            if (player && streamInfo?.dash?.video?.length) {
+                // 使用第一个视频流
+                const videoUrl = streamInfo.dash.video[0].baseUrl;
+                await player.play(videoUrl, {
+                    headers: streamInfo.headers,
+                    title: currentItem.title,
+                    cid: currentItem.cid,
+                    type: 'bilibili-dash',
+                    biliDash: streamInfo.dash
+                });
                 return;
             }
         }
@@ -335,7 +364,8 @@ export async function handleMediaError(
         // 通用错误处理
         showMsg(i18n?.mediaPlayerTab?.play?.failMessage || 
             `播放失败: ${error instanceof Error ? error.message : String(error)}`);
-    } catch {
+    } catch (e) {
+        console.error('处理媒体错误失败:', e);
         showMsg(i18n?.mediaPlayerTab?.stream?.playbackError || "媒体播放出错");
     }
 }
@@ -361,14 +391,11 @@ export async function playMedia(
         setCurrentItem(currentItem);
         
         const config = await configManager.getConfig();
-        let urlToPlay = options.url;
-        let playConfig: any = {};
         
-        // 根据播放器类型处理
+        // 检查是否使用外部播放器
         if (config.settings.playerType !== PlayerType.BUILT_IN) {
-            // 外部播放器处理
             const error = await openWithExternalPlayer(
-                urlToPlay, 
+                options.url, 
                 config.settings.playerType as PlayerType, 
                 config.settings.playerPath
             );
@@ -376,38 +403,32 @@ export async function playMedia(
             return;
         }
 
-        // 处理不同来源的媒体
+        // 获取实际播放URL
+        let playUrl = options.url;
         if (options.source === 'alist' && options.sourcePath) {
-            // 获取AList视频流并更新播放URL
-            const streamInfo = await AListManager.getVideoStream(options.sourcePath);
-            urlToPlay = streamInfo.video.url;
-            playConfig = { 
-                type: 'video', 
-                title: options.title 
-            };
-        } else if (['bilibili-dash', 'bilibili'].includes(options.type)) {
-            // B站视频配置
-            playConfig = {
-            type: options.type,
-            headers: options.headers,
-            title: options.title,
-            cid: currentItem.cid
-            };
+            try {
+                playUrl = await AListManager.getFileLink(options.sourcePath);
+            } catch (error) {
+                console.error('获取AList播放链接失败:', error);
+                throw new Error('获取播放链接失败');
+            }
         }
+
+        // 使用内置播放器的播放配置
+        const playConfig: any = {
+            type: options.type || 'video',
+            title: options.title || '未知视频',
+            startTime: options.startTime,
+            endTime: options.endTime,
+            isLoop: options.isLoop,
+            loopCount: options.loopCount,
+            headers: options.headers,
+            cid: options.cid,
+            biliDash: options.biliDash
+        };
         
-        // 内置播放器处理
-        await player.play(urlToPlay, playConfig);
-        
-        // 延迟设置播放参数，确保能正常应用
-        setTimeout(() => {
-            if (options.startTime !== undefined) {
-                player.setPlayTime(options.startTime, options.endTime);
-            }
-            
-            if (options.isLoop) {
-                player.setLoop(true, options.loopCount);
-            }
-        }, 100);
+        // 使用内置播放器播放
+        await player.play(playUrl, playConfig);
     } catch (error) {
         await handleMediaError(error, options, player, configManager, i18n);
     }

@@ -1,38 +1,84 @@
 <script lang="ts">
     import { SubtitleManager } from '../core/subtitle';
+    import { DanmakuManager } from '../core/danmaku';
     import { BilibiliParser } from '../core/bilibili';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { showMessage } from 'siyuan';
 
     // 组件属性
     export let configManager, className = '', hidden = false, i18n: any = {}, currentMedia: any = null, player: any = null;
     export let insertContentCallback, createTimestampLinkCallback;
+    export let allTabs = [];
+    export let activeTabId = 'assistant';
 
     // 组件状态
     let activeTab = 'subtitles';
-    let subtitles = [], summaryItems = [], currentSubtitleIndex = -1;
-    let isLoadingSubtitles = false, isLoadingSummary = false;
+    let subtitles = [], summaryItems = [], danmakus = [], currentSubtitleIndex = -1;
+    let isLoadingSubtitles = false, isLoadingSummary = false, isLoadingDanmakus = false;
     let timer = null;
     let autoScrollEnabled = true;
     let listElement;
     
     // 响应式数据
-    $: items = activeTab === 'subtitles' ? subtitles : summaryItems;
+    $: items = activeTab === 'subtitles' ? subtitles : (activeTab === 'danmakus' ? danmakus : summaryItems);
     $: hasItems = items.length > 0;
-    $: exportTitle = currentMedia?.title ? `## ${currentMedia.title} ${activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (i18n?.assistant?.tabs?.summary || 'AI总结')}\n\n` : '';
+    $: exportTitle = currentMedia?.title ? `## ${currentMedia.title} ${activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || 'AI总结'))}\n\n` : '';
     $: exportBtnText = i18n?.assistant?.exportAll || "全部导出";
     $: resumeBtnText = i18n?.assistant?.resumeScroll || "恢复滚动";
     $: emptyText = activeTab === 'subtitles' 
         ? (i18n?.assistant?.subtitles?.noItems || "当前视频没有可用的字幕")
-        : (!currentMedia?.bvid 
-            ? (i18n?.assistant?.summary?.onlyForBilibili || "AI总结功能仅支持哔哩哔哩视频。")
-            : (i18n?.assistant?.summary?.noItems || "当前视频没有可用的AI总结"));
+        : (activeTab === 'danmakus'
+            ? (i18n?.assistant?.danmakus?.noItems || "当前视频没有可用的弹幕")
+            : (!currentMedia?.bvid 
+                ? (i18n?.assistant?.summary?.onlyForBilibili || "AI总结功能仅支持哔哩哔哩视频。")
+                : (i18n?.assistant?.summary?.noItems || "当前视频没有可用的AI总结")));
     
     // 监听媒体变化并加载字幕和摘要
     $: if (currentMedia?.url && player) {
         loadContent();
         startTracking();
     }
+    
+    // 面板切换处理
+    function changePanelTab(tabId) {
+        if (tabId === activeTabId) return;
+        window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', { 
+            detail: { tabId } 
+        }));
+    }
+    
+    // 生命周期
+    onMount(() => {
+        // 监听面板激活
+        const handleTabActivate = (e: any) => {
+            if (e.detail?.tabId) {
+                activeTabId = e.detail.tabId;
+            }
+        };
+        
+        window.addEventListener('mediaPlayerTabActivate', handleTabActivate);
+        
+        // 初始化时尝试加载内容
+        if (player && currentMedia?.url) {
+            loadContent();
+            startTracking();
+        }
+        
+        // 监听媒体更新
+        const handlePlayerUpdate = (e: any) => {
+            if (e.detail?.media && e.detail.media !== currentMedia) {
+                setTimeout(loadContent, 100);
+            }
+        };
+        
+        window.addEventListener('mediaPlayerUpdate', handlePlayerUpdate);
+        
+        return () => {
+            window.removeEventListener('mediaPlayerTabActivate', handleTabActivate);
+            window.removeEventListener('mediaPlayerUpdate', handlePlayerUpdate);
+            stopTracking();
+        };
+    });
     
     // 极简字幕追踪
     function startTracking() {
@@ -72,11 +118,12 @@
     }
     function stopTracking() { if (timer) { clearInterval(timer); timer = null; } }
     
-    // 加载字幕和AI摘要
+    // 加载字幕、弹幕和AI摘要
     async function loadContent() {
         // 重置状态
         subtitles = [];
         summaryItems = [];
+        danmakus = [];
         currentSubtitleIndex = -1;
         autoScrollEnabled = true;
     
@@ -90,8 +137,8 @@
                     currentMedia.cid, 
                     configManager.getConfig()
                 );
-            } else if (currentMedia.url?.startsWith('file://')) {
-                // 本地视频字幕
+            } else if (currentMedia.url) {
+                // 本地或AList字幕
                 const options = await SubtitleManager.getSubtitleForMedia(currentMedia.url);
                 if (options) {
                     subtitles = await SubtitleManager.loadSubtitle(options.url, options.type);
@@ -101,6 +148,29 @@
             console.error('[Assistant] 加载字幕失败:', e);
         } finally {
             isLoadingSubtitles = false;
+        }
+        
+        // 加载弹幕
+        isLoadingDanmakus = true;
+        try {
+            if (currentMedia.bvid && currentMedia.cid) {
+                // B站视频弹幕
+                const danmakuList = await DanmakuManager.getBiliDanmaku(
+                    currentMedia.cid,
+                    configManager.getConfig()
+                );
+                danmakus = danmakuList || [];
+            } else if (currentMedia.url) {
+                // 本地弹幕，统一使用与字幕相同的查找和加载方式
+                const options = await DanmakuManager.getDanmakuFileForMedia(currentMedia.url);
+                if (options) {
+                    danmakus = await DanmakuManager.loadDanmaku(options.url, options.type);
+                }
+            }
+        } catch (e) {
+            console.error('[Assistant] 加载弹幕失败:', e);
+        } finally {
+            isLoadingDanmakus = false;
         }
         
         // 加载B站AI总结（仅限B站视频）
@@ -190,9 +260,19 @@
 
 <div class="playlist assistant {className}" class:hidden={hidden}>
     <div class="playlist-header">
-        <h3>{i18n?.assistant?.title || "助手"}</h3>
+        <div class="panel-nav">
+            <h3 class:active={activeTabId === 'playlist'} on:click={() => changePanelTab('playlist')}>
+                {i18n.playList?.title || "列表"}
+            </h3>
+            <h3 class:active={activeTabId === 'assistant'} on:click={() => changePanelTab('assistant')}>
+                {i18n.assistant?.title || "助手"}
+            </h3>
+            <h3 class:active={activeTabId === 'settings'} on:click={() => changePanelTab('settings')}>
+                {i18n.setting?.title || "设置"}
+            </h3>
+        </div>
         <div class="header-controls">
-            <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (i18n?.assistant?.tabs?.summary || '总结')}</span>
+            <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || '总结'))}</span>
         </div>
     </div>
     
@@ -200,17 +280,22 @@
         <button class="tab" class:active={activeTab === 'subtitles'} on:click={() => activeTab = 'subtitles'}>
             {i18n?.assistant?.tabs?.subtitles || "字幕列表"}
         </button>
+        <button class="tab" class:active={activeTab === 'danmakus'} on:click={() => activeTab = 'danmakus'}>
+            {i18n?.assistant?.tabs?.danmakus || "弹幕列表"}
+        </button>
         <button class="tab" class:active={activeTab === 'summary'} on:click={() => activeTab = 'summary'}>
             {i18n?.assistant?.tabs?.summary || "视频总结"}
         </button>
     </div>
     
     <div class="playlist-content">
-        {#if (activeTab === 'summary' && isLoadingSummary) || (activeTab === 'subtitles' && isLoadingSubtitles)}
+        {#if (activeTab === 'summary' && isLoadingSummary) || (activeTab === 'subtitles' && isLoadingSubtitles) || (activeTab === 'danmakus' && isLoadingDanmakus)}
             <div class="playlist-empty">
                 {activeTab === 'summary' 
                     ? (i18n?.assistant?.summary?.loading || "正在加载AI总结...") 
-                    : (i18n?.assistant?.subtitles?.loading || "正在加载字幕...")}
+                    : (activeTab === 'danmakus'
+                        ? (i18n?.assistant?.danmakus?.loading || "正在加载弹幕...")
+                        : (i18n?.assistant?.subtitles?.loading || "正在加载字幕..."))}
             </div>
         {:else if hasItems}
             <div class="subtitle-list" bind:this={listElement} 

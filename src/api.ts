@@ -553,3 +553,51 @@ export async function forwardProxy(
     let url1 = '/api/network/forwardProxy';
     return request(url1, data);
 }
+
+// **************************************** Player API ****************************************
+
+export interface MediaPlayerAPI {
+    playMedia: (url: string, options?: MediaPlayOptions) => boolean;
+    getVersion: () => string;
+}
+
+export interface MediaPlayOptions {
+    title?: string;
+    autoPlay?: boolean;
+    addToPlaylist?: boolean;
+    startTime?: number;
+    endTime?: number;
+    isLoop?: boolean;
+}
+
+export function createMediaPlayerAPI(
+    pluginName: string, 
+    openTab: () => void
+): MediaPlayerAPI {
+    return {
+        playMedia: (url: string, options: MediaPlayOptions = {}) => {
+            if (!url) return false;
+            openTab();
+            
+            window.dispatchEvent(new CustomEvent(
+                options.addToPlaylist ? 'addMediaToPlaylist' : 'directMediaPlay', 
+                { 
+                    detail: options.addToPlaylist ? 
+                        { url, autoPlay: options.autoPlay !== false, ...options } : 
+                        {
+                            id: `api-${Date.now()}`,
+                            title: options.title || url.split('/').pop() || '外部媒体',
+                            url,
+                            type: url.match(/\.(mp3|wav|ogg|flac)$/i) ? 'audio' : 'video',
+                            startTime: options.startTime,
+                            endTime: options.endTime,
+                            isLoop: options.isLoop
+                        }
+                }
+            ));
+            return true;
+        },
+        
+        getVersion: () => pluginName
+    };
+}

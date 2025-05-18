@@ -1,6 +1,5 @@
 import md5 from 'md5';
 import type { MediaInfo } from "./types";
-import { VideoStream, VideoStreamResponse, selectBestStream, generateMPD } from './dash';
 import { fmt } from './utils';
 import { 
     BILI_API,
@@ -26,6 +25,29 @@ interface BiliApiResponse<T = any> {
     code: number;
     message: string;
     data: T;
+}
+
+/**
+ * B站视频流响应接口
+ */
+interface VideoStreamResponse {
+    code: number;
+    message: string;
+    ttl: number;
+    data: {
+        quality: number;
+        format: string;
+        timelength: number;
+        accept_format: string;
+        accept_description: string[];
+        accept_quality: number[];
+        video_codecid: number;
+        seek_param: string;
+        seek_type: string;
+        durl?: any[];
+        dash?: any;
+        support_formats: any[];
+    };
 }
 
 /**
@@ -127,6 +149,8 @@ export class BilibiliParser {
 
             // 返回规范化的媒体信息
             return {
+                id: `bili-${info.data.bvid}-${cid}`,
+                type: 'bilibili',
                 url,
                 title: info.data.title,
                 artist: info.data.owner?.name,
@@ -157,111 +181,48 @@ export class BilibiliParser {
     }
 
     /**
-     * 获取视频流信息
+     * 获取视频流
      */
     static async getVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<VideoStreamResponse> {
-        const params = {
-            bvid, cid, qn,
-            fnval: 16,  // 开启DASH格式
-            fnver: 0,
-            fourk: 1,   // 允许4K
-            platform: 'html5',
-            high_quality: 1  // 允许高质量
-        };
+        const wbiKeys = this.getWbiKeys(config);
+        const params = { bvid, cid, qn, fnval: 16, fnver: 0, fourk: 1, platform: 'html5', high_quality: 1 };
+        const signedParams = this.sign(params, wbiKeys.imgKey, wbiKeys.subKey);
+        const headers = getBiliHeaders(config, bvid);
 
-        try {
-            // 获取WBI签名
-            const wbiKeys = this.getWbiKeys(config);
-            const signedParams = this.sign(params, wbiKeys.imgKey, wbiKeys.subKey);
-            const headers = getBiliHeaders(config, bvid);
+        const response = await biliRequest<VideoStreamResponse>(
+            `${BILI_API.VIDEO_STREAM}?${signedParams}`, headers
+        );
 
-            // 请求视频流
-            const response = await biliRequest<VideoStreamResponse>(
-                `${BILI_API.VIDEO_STREAM}?${signedParams}`,
-                headers
-            );
-
-            // 处理非DASH格式视频
-            if (response.data.durl) {
-                response.data.dash = {
-                    video: [{
-                        id: response.data.quality,
-                        baseUrl: decodeURIComponent(response.data.durl[0].url),
-                        codecs: 'avc1.640032',
-                        bandwidth: response.data.durl[0].size,
-                        frameRate: '30',
-                        width: 1920,
-                        height: 1080
-                    }],
-                    audio: []
-                };
-            } 
-            // 处理DASH格式，解码URL
-            else if (response.data.dash) {
-                if (response.data.dash.video) {
-                    response.data.dash.video = response.data.dash.video.map(v => ({
-                        ...v, baseUrl: decodeURIComponent(v.baseUrl)
-                    }));
-                }
-                if (response.data.dash.audio) {
-                    response.data.dash.audio = response.data.dash.audio.map(a => ({
-                        ...a, baseUrl: decodeURIComponent(a.baseUrl)
-                    }));
-                }
+        // 解码URL
+        if (response.data.dash) {
+            if (response.data.dash.video) {
+                response.data.dash.video = response.data.dash.video.map(v => ({
+                    ...v, baseUrl: decodeURIComponent(v.baseUrl)
+                }));
             }
-
-            return response;
-        } catch (error) {
-            throw new Error(`获取视频流失败: ${error instanceof Error ? error.message : String(error)}`);
+            if (response.data.dash.audio) {
+                response.data.dash.audio = response.data.dash.audio.map(a => ({
+                    ...a, baseUrl: decodeURIComponent(a.baseUrl)
+                }));
+            }
         }
+
+        return response;
     }
 
     /**
-     * 获取处理后的最佳播放流
+     * 获取视频流数据
      */
-    static async getProcessedVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<VideoStream> {
-        try {
-            // 获取视频流数据
-            const streamData = await this.getVideoStream(bvid, cid, qn, config);
-            const headers = getBiliHeaders(config, bvid);
-            
-            if (!streamData.data.dash?.video?.length) {
-                throw new Error('未找到可用的视频流');
-            }
-            
-            // 选择最佳视频流
-            const bestVideo = selectBestStream(streamData.data.dash.video);
-            const videoUrl = bestVideo.baseUrl;
-            
-            // 获取音频流
-            const audioUrl = streamData.data.dash?.audio?.[0]?.baseUrl;
-            const duration = Math.floor(streamData.data.timelength / 1000);
-            
-            // 复杂视频流 - 生成MPD
-            if (audioUrl && streamData.data.dash.video.length > 1) {
-                const mpdContent = generateMPD(
-                    streamData.data.dash.video,
-                    streamData.data.dash.audio || [],
-                    duration
-                );
-                
-                return {
-                    video: { url: videoUrl },
-                    audio: { url: audioUrl },
-                    headers,
-                    mpdUrl: `data:application/dash+xml;charset=utf-8,${encodeURIComponent(mpdContent)}`
-                };
-            }
-            
-            // 简单视频流
-            return {
-                video: { url: videoUrl },
-                audio: audioUrl ? { url: audioUrl } : undefined,
-                headers
-            };
-        } catch (error) {
-            throw new Error(`处理视频流失败: ${error instanceof Error ? error.message : String(error)}`);
+    static async getProcessedVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<any> {
+        const streamData = await this.getVideoStream(bvid, cid, qn, config);
+        if (!streamData.data.dash?.video?.length) {
+            throw new Error('未找到可用的视频流');
         }
+        
+        return {
+            dash: streamData.data.dash,
+            headers: getBiliHeaders(config, bvid)
+        };
     }
 
     /**
