@@ -163,12 +163,20 @@ export default class MediaPlayerPlugin extends Plugin {
      * 添加侧边栏
      */
     private addSidebar() {
+        // 添加自定义图标
+        const iconId = 'siyuan-media-player-icon';
+        this.addIcons(`
+        <symbol id="${iconId}" viewBox="0 0 1024 1024">
+            <path d="M753.265 105.112c12.57 12.546 12.696 32.81 0.377 45.512l-0.377 0.383-73.131 72.992L816 224c70.692 0 128 57.308 128 128v448c0 70.692-57.308 128-128 128H208c-70.692 0-128-57.308-128-128V352c0-70.692 57.308-128 128-128l136.078-0.001-73.13-72.992c-12.698-12.674-12.698-33.222 0-45.895 12.697-12.674 33.284-12.674 45.982 0l119.113 118.887h152.126l119.114-118.887c12.697-12.674 33.284-12.674 45.982 0zM457 440c-28.079 0-51 22.938-51 51v170c0 9.107 2.556 18.277 7 26 15.025 24.487 46.501 32.241 71 18l138-84c7.244-4.512 13.094-10.313 17-17 15.213-24.307 7.75-55.875-16-71l-139-85c-7.994-5.355-17.305-8-27-8z"/>
+        </symbol>
+        `);
+        
         this.addDock({
             type: "SiyuanMediaSidebar",
             config: {
-                position: "RightBottom",
+                position: "RightTop",
                 size: { width: 300, height: 480 },
-                icon: "iconVideo",
+                icon: iconId,
                 title: this.i18n.sidebar?.title || "媒体助手"
             },
             data: { plugin: this },
@@ -272,7 +280,7 @@ export default class MediaPlayerPlugin extends Plugin {
         const options: any = {
             app: this.app,
             custom: {
-                icon: "iconVideo",
+                icon: "siyuan-media-player-icon",
                 title: this.i18n.name,
                 id: this.name + this.TAB_TYPE
             }
