@@ -8,13 +8,11 @@
     // 从'../core/media'中导入MediaManager
     import { MediaManager } from '../core/media';
     // 从'../core/bilibili'中导入BilibiliParser
-    import { BilibiliParser } from '../core/bilibili';
+    import { BilibiliParser, parseBiliUrl } from '../core/bilibili';
     // 从'../core/config'中导入ConfigManager类型
     import type { ConfigManager } from '../core/config';
     // 导入url工具
     import { url } from '../core/utils';
-    // 从'../core/biliUtils'中导入parseBiliUrl函数
-    import { parseBiliUrl } from '../core/biliUtils';
     // 从'../core/alist'中导入AListManager
     import { AListManager } from '../core/alist';
     // 导入子组件
@@ -278,13 +276,12 @@
             }
             
             // 仅接受特定类型的媒体URL
-            // 本地文件路径 (file://) 只允许从文件选择器添加
-            if ((mediaUrl.startsWith('file://') && !options.fromFileSelector) || 
-                (!mediaUrl.startsWith('file://') && 
+            // 本地文件路径 (file://) 允许从文件选择器或链接点击添加
+            if (!mediaUrl.startsWith('file://') && 
                 !mediaUrl.startsWith('http://') && 
                 !mediaUrl.startsWith('https://') &&
                 !mediaUrl.includes('bilibili.com') && 
-                !mediaUrl.includes('b23.tv'))) {
+                !mediaUrl.includes('b23.tv')) {
                 showMessage(i18n.playList.error.invalidMediaLink || "不支持的媒体链接格式");
                 return;
             }

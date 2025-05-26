@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.4 (2025.5.26)
+
+### Feature Updates
+- **Button Layout**: Optimized function button positions for better usability
+- **Icon Update**: Modified dock bar icon for improved visibility
+- **Media Link Logic**: Refactored media link checking logic to support local media links
+- **Bug Fixes**: Fixed issue with local media timestamp links not working properly
+- **Various Improvements**: Multiple detail enhancements and optimizations
+
 ## v0.3.3 (2025.5.18)
 
 ### Feature Updates

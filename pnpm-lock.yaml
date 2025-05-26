@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@types/md5':
+        specifier: ^2.3.5
+        version: 2.3.5
       '@types/node':
         specifier: ^20.2.5
         version: 20.17.10
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.5
       artplayer:
         specifier: ^5.2.1
         version: 5.2.1
@@ -503,8 +509,14 @@ packages:
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
+  '@types/md5@2.3.5':
+    resolution: {integrity: sha512-/i42wjYNgE6wf0j2bcTX6kuowmdL/6PE4IVitMpm2eYKBUuYCprdcWVK+xEF0gcV6ufMCRhtxmReGfc6hIK7Jw==}
+
   '@types/node@20.17.10':
     resolution: {integrity: sha512-/jrvh5h6NXhEauFFexRin69nA0uHJ5gwk4iDivp/DeoEua3uwCUto6PC86IpRITBOs4+6i2I56K5x5b6WYGXHA==}
+
+  '@types/qrcode@1.5.5':
+    resolution: {integrity: sha512-CdfBi/e3Qk+3Z/fXYShipBT13OJ2fDO2Q2w5CIP5anLTLIndQG9z6P1cnm+8zCWSpm5dnxMFd/uREtb0EXuQzg==}
 
   acorn-walk@8.3.4:
     resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
@@ -1466,9 +1478,15 @@ snapshots:
 
   '@types/estree@1.0.6': {}
 
+  '@types/md5@2.3.5': {}
+
   '@types/node@20.17.10':
     dependencies:
       undici-types: 6.19.8
+
+  '@types/qrcode@1.5.5':
+    dependencies:
+      '@types/node': 20.17.10
 
   acorn-walk@8.3.4:
     dependencies:

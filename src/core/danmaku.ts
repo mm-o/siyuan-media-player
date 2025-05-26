@@ -2,7 +2,7 @@
  * B站弹幕处理模块
  * 用于获取和转换B站弹幕为artplayer-plugin-danmuku支持的格式
  */
-import { BILI_API, getBiliHeaders } from './biliUtils';
+import { BILI_API, getBiliHeaders } from './bilibili';
 import artplayerPluginDanmuku from 'artplayer-plugin-danmuku';
 import { findMediaSupportFile } from './utils';
 

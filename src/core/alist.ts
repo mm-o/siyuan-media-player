@@ -2,7 +2,7 @@
  * AList API交互模块
  */
 import type { MediaItem } from './types';
-import { fmt, media } from './utils';
+import { fmt, EXT } from './utils';
 import { DEFAULT_THUMBNAILS } from './media';
 
 // 接口定义
@@ -26,6 +26,21 @@ export interface AListFile {
     raw_url?: string;
     url?: string;
 }
+
+// ===== 媒体检测工具 =====
+const media = {
+    isVideoFile: (name: string): boolean => 
+        EXT.VIDEO.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+    
+    isAudioFile: (name: string): boolean => 
+        EXT.AUDIO.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+    
+    isMediaFile: (name: string): boolean => 
+        EXT.MEDIA.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
+    
+    isSupported: (name: string): boolean => 
+        EXT.SUPPORT.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext))
+};
 
 /**
  * AList管理器

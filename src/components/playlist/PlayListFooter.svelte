@@ -22,14 +22,15 @@
             return;
         }
         
-        // 检查是否为本地文件路径
-        if (url.startsWith('file://') || url.includes(':\\') || url.includes('/') && !url.startsWith('http')) {
+        // 检查是否为本地文件路径但不是file://开头
+        if ((url.includes(':\\') || (url.includes('/') && !url.startsWith('http') && !url.startsWith('file://'))) && !url.includes('bilibili.com')) {
             showMessage(i18n.playList.error.useAddButtonForLocalFiles || "要添加本地文件，请清空输入框并直接点击添加按钮");
             return;
         }
         
         // 检查是否为不支持的链接格式
         if (!url.startsWith('http://') && !url.startsWith('https://') 
+            && !url.startsWith('file://')
             && !url.includes('bilibili.com') && !url.includes('b23.tv')) {
             showMessage(i18n.playList.error.invalidMediaLink || "不支持的媒体链接格式");
             return;

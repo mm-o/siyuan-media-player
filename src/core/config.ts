@@ -52,12 +52,6 @@ export class ConfigManager {
                 openMode: 'default',
                 playerPath: 'PotPlayerMini64.exe',
                 linkFormat: defaultLinkFormat,
-                topBarButtons: {
-                    screenshot: true,
-                    timestamp: true,
-                    loopSegment: true,
-                    mediaNotes: true
-                },
                 alistConfig: {
                     server: 'http://localhost:5244',
                     username: 'admin',

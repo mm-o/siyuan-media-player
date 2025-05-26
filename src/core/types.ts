@@ -144,13 +144,6 @@ export interface Config {
         targetNotebook?: string;
         /** 媒体笔记模板 */
         mediaNotesTemplate?: string;
-        /** 顶部工具栏按钮显示设置 */
-        topBarButtons?: {
-            screenshot?: boolean;    // 显示截图按钮
-            timestamp?: boolean;     // 显示时间戳按钮
-            loopSegment?: boolean;   // 显示循环片段按钮
-            mediaNotes?: boolean;    // 显示媒体笔记按钮
-        };
         /** 用户脚本 */
         scripts?: Array<{
             name: string;      // 脚本文件名

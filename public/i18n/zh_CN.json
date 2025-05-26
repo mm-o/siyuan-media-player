@@ -352,6 +352,10 @@
                 "title": "目标笔记本",
                 "description": "选择创建媒体笔记的目标笔记本"
             },
+            "screenshotWithTimestamp": {
+                "title": "截图包含时间戳",
+                "description": "启用后，截图功能也会添加时间戳链接"
+            },
             "alistConfig": {
                 "title": "AList配置",
                 "description": "配置AList服务器连接",

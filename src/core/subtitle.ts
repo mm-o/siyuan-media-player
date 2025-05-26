@@ -2,7 +2,7 @@
  * 字幕处理工具类
  * 用于处理播放器的字幕功能
  */
-import { BILI_API, getBiliHeaders } from './biliUtils';
+import { BILI_API, getBiliHeaders } from './bilibili';
 import { findMediaSupportFile } from './utils';
 
 /**

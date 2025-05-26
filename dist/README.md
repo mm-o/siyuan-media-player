@@ -21,6 +21,13 @@
 
 ## 🚀 Recent Updates
 
+**Version 0.3.4 (2025.5.26):**
+- **🎛️ Button Layout**: Optimized function button positions for better usability
+- **🔄 Icon Update**: Modified dock bar icon for improved visibility
+- **🔍 Media Link Logic**: Refactored media link checking logic to support local media links
+- **🛠️ Bug Fixes**: Fixed issue with local media timestamp links not working properly
+- **✨ Various Improvements**: Multiple detail enhancements and optimizations
+
 **Version 0.3.3 (2025.5.18):**
 - **🚀 UI Overhaul**: Removed top icons, now accessible through dock bar button
 - **🎛️ Button Layout**: Moved function buttons to the top with toggle visibility option

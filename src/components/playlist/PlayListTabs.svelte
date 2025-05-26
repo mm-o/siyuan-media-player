@@ -4,7 +4,6 @@
     import type { PlaylistConfig as BasePlaylistConfig } from '../../core/types';
     import { BilibiliParser } from '../../core/bilibili';
     import { AListManager } from '../../core/alist';
-    import { pro } from '../../core/utils';
 
     interface PlaylistConfig extends BasePlaylistConfig {
         isEditing?: boolean;
@@ -34,7 +33,9 @@
     const getDialog = () => isElectron() ? window.require('@electron/remote').dialog : null;
     const addMedia = (url, autoPlay = false, fromFileSelector = false) => 
         dispatch('addMedia', {url, options: {autoPlay, fromFileSelector}}) || true;
-    const needPro = fn => (e?) => pro.check(configManager.getConfig()) ? fn(e) : pro.alert(i18n);
+    
+    // Pro功能检查 - 精简版
+    const needPro = fn => e => configManager.getConfig()?.proEnabled ? fn(e) : showMessage(i18n?.pro?.notEnabled || "此功能需要Pro版本");
     
     // 核心功能
     function setActiveTab(id) {

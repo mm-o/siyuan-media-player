@@ -3,8 +3,8 @@
     import { showMessage } from "siyuan";
     import type { ConfigManager } from "../core/config";
     import type { ISettingItem, SettingType } from "../core/types";
-    import { QRCodeManager } from "../core/biliUtils";
-    import { notebook } from "../core/utils";
+    import { QRCodeManager } from "../core/bilibili";
+    import { notebook } from "../core/document";
 
     export let group: string;
     export let configManager: ConfigManager;
@@ -126,9 +126,6 @@
               description: i18n.setting.items?.loopSingle?.description || "重复播放当前媒体" },
             
             // 通用设置
-            { key: "topBarButtons", value: true, type: "checkbox" as SettingType,
-              title: i18n.setting.items?.topBarButtons?.title || "顶部工具栏按钮",
-              description: i18n.setting.items?.topBarButtons?.description || "选择要在顶部工具栏显示的按钮" },
             { key: "insertMode", value: "cursor", type: "select" as SettingType,
               title: i18n.setting.items.insertMode?.title || "插入方式",
               description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
@@ -145,17 +142,20 @@
               title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
               description: i18n.setting.items?.targetNotebook?.description || "选择创建媒体笔记的目标笔记本",
               options: [] },
-            { key: "linkFormat", value: "- [😄标题 艺术家 字幕 时间](链接)\n\n  ![截图](截图)", 
+            { key: "screenshotWithTimestamp", value: false, type: "checkbox" as SettingType,
+              title: i18n.setting.items?.screenshotWithTimestamp?.title || "截图包含时间戳",
+              description: i18n.setting.items?.screenshotWithTimestamp?.description || "启用后，截图功能也会添加时间戳链接" },
+            { key: "linkFormat", value: "- [😄标题 艺术家 字幕 时间](链接)", 
               type: "textarea" as SettingType, 
               title: i18n.setting.items?.linkFormat?.title || "链接格式",
               description: i18n.setting.items?.linkFormat?.description || "支持变量：标题、时间、艺术家、链接、字幕、截图",
-              rows: 3 },
+              rows: 1 },
             { key: "mediaNotesTemplate", 
               value: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容：", 
               type: "textarea" as SettingType, 
               title: i18n.setting.items?.mediaNotesTemplate?.title || "媒体笔记模板",
               description: i18n.setting.items?.mediaNotesTemplate?.description || "支持变量：标题、时间、艺术家、链接、时长、封面、类型、ID、日期、时间戳",
-              rows: 6 },
+              rows: 9 },
             { key: "loadScript", value: "", type: "account" as SettingType,
               title: i18n.setting.items?.loadScript?.title || "加载脚本",
               description: i18n.setting.items?.loadScript?.description || "选择脚本文件加载到插件",
@@ -186,9 +186,7 @@
         configManager.load().then(async config => {
             settingItems = createSettings().map(item => ({
                 ...item,
-                value: item.key === 'topBarButtons' 
-                    ? Object.values(config.settings.topBarButtons || {}).every(v => v !== false)
-                    : config.settings[item.key] ?? item.value
+                value: config.settings[item.key] ?? item.value
             }));
             
             state.selectedNotebookId = config.settings.targetNotebook || '';
@@ -434,12 +432,7 @@
         // 构建设置对象
         const settings: any = {};
         settingItems.forEach(item => {
-            if (item.key === 'topBarButtons') {
-                settings.topBarButtons = {
-                    screenshot: item.value, timestamp: item.value, 
-                    loopSegment: item.value, mediaNotes: item.value
-                };
-            } else if (item.key.includes('.')) {
+            if (item.key.includes('.')) {
                 const parts = item.key.split('.');
                 let current = settings;
                 for (let i = 0; i < parts.length - 1; i++) {
@@ -490,7 +483,7 @@
             return ['volume', 'speed', 'playerType', 'showSubtitles', 'enableDanmaku', 'loopCount', 'pauseAfterLoop', 'loopPlaylist', 'loopSingle', 'openMode'].includes(item.key) ||
                 (item.key === 'playerPath' && settingItems.find(i => i.key === 'playerType')?.value === 'potplayer');
         }
-        return ['topBarButtons','insertMode', 'targetNotebook', 'linkFormat', 'mediaNotesTemplate', 'loadScript'].includes(item.key) || item.key.startsWith('script-');
+        return ['insertMode', 'targetNotebook', 'screenshotWithTimestamp', 'linkFormat', 'mediaNotesTemplate', 'loadScript'].includes(item.key) || item.key.startsWith('script-');
     });
 </script>
 

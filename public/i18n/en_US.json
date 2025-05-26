@@ -347,7 +347,11 @@
             },
             "targetNotebook": {
                 "title": "Target Notebook",
-                "description": "Select the notebook where media notes will be created"
+                "description": "Select the target notebook for creating media notes"
+            },
+            "screenshotWithTimestamp": {
+                "title": "Screenshot with Timestamp",
+                "description": "When enabled, screenshots will also include timestamp links"
             },
             "alistConfig": {
                 "title": "AList Configuration",
