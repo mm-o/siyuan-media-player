@@ -162,22 +162,15 @@ export const player = {
         if (!player) return showMessage(i18n?.controlBar?.screenshot?.hint || "请先播放媒体");
 
         try {
-            // 获取截图数据
-            const dataUrl = await player.getScreenshotDataURL();
-            if (!dataUrl) return showMessage(i18n?.mediaPlayerTab?.screenshot?.failHint || "截图失败");
-            
-            // 转换截图为本地资源
-            const imageUrl = await imageToLocalAsset(dataUrl);
+            // 获取并上传截图
+            const imageUrl = await imageToLocalAsset(await player.getScreenshotDataURL());
             if (!imageUrl) throw new Error("截图上传失败");
             
-            // 获取当前时间和URL
-            const currentTime = player.getCurrentTime();
+            // 根据配置决定是否添加时间戳
+            const markdown = config?.settings?.screenshotWithTimestamp ? 
+                `${await link(item, config, player.getCurrentTime())}\n\n  ![截图](${imageUrl})` : 
+                `![截图](${imageUrl})`;
             
-            // 创建时间戳链接
-            const result = await link(item, config, currentTime);
-            
-            // 添加截图
-            const markdown = result + `\n\n  ![截图](${imageUrl})`;
             await doc.insert(markdown, config, i18n);
         } catch (error) {
             console.error("截图失败:", error);
