@@ -345,6 +345,16 @@ export class QRCodeManager {
 
     private async handleLoginSuccess(data: any) {
         const userInfo = await this.getUserInfo(data.url);
+        if (!userInfo || !userInfo.mid) {
+            // 登录未真正完成，继续显示二维码
+            this.onStatusChange({
+                data: this.qrcodeData,
+                key: this.qrcodeKey,
+                message: '扫码未完成，请在手机端确认'
+            });
+            this.startPolling(); // 继续轮询
+            return;
+        }
         const config = await this.configManager.getConfig();
         config.bilibiliLogin = {
             url: data.url,

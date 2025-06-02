@@ -16,12 +16,13 @@ export class ConfigManager {
     /**
      * 获取默认配置
      */
-    private getDefaultConfig(): Config {
+    public getDefaultConfig(): Config {
         const i18n = this.plugin.i18n;
         const playListI18n = i18n.playList;
         
         // 默认链接格式，使用带表情符号的示例
         const defaultLinkFormat = '- ![截图](截图)[😄标题 艺术家 时间 字幕](链接)';
+        const defaultMediaNotesTemplate = '# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容：';
         
         return {
             playlists: [
@@ -39,26 +40,52 @@ export class ConfigManager {
                 }
             ],
             settings: {
+                // 播放器设置
                 volume: 70,
                 speed: 100,
                 hotkey: true,
                 loop: false,
                 loopCount: 3,
                 pauseAfterLoop: false,
+                loopPlaylist: false,
+                loopSingle: false,
                 insertMode: 'insertBlock',
                 showSubtitles: true,
                 enableDanmaku: false,
                 playerType: 'built-in',
                 openMode: 'default',
                 playerPath: 'PotPlayerMini64.exe',
+                
+                // 通用设置
                 linkFormat: defaultLinkFormat,
+                mediaNotesTemplate: defaultMediaNotesTemplate,
+                playlistDbId: '',
+                screenshotWithTimestamp: false,
+                
+                // AList设置
                 alistConfig: {
                     server: 'http://localhost:5244',
                     username: 'admin',
                     password: ''
-                }
+                },
+                
+                // 账号/功能开关（持久化）
+                pro: { enabled: false },
+                alist: { showPanel: false }
             },
-            proEnabled: false // 默认不启用Pro版本
+            bilibiliLogin: undefined
+        };
+    }
+    
+    /**
+     * 获取UI状态的默认值(临时状态，不持久化)
+     */
+    getDefaultUIState(): any {
+        return {
+            qrcode: { data: '', key: '' },
+            bilibili: { login: false, userInfo: null },
+            alist: { enabled: false, showPanel: false },
+            scripts: []
         };
     }
     

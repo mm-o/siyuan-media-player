@@ -118,6 +118,10 @@ export interface Config {
         loopCount?: number;
         /** 循环后暂停 */
         pauseAfterLoop?: boolean;
+        /** 循环播放列表 */
+        loopPlaylist?: boolean;
+        /** 单项循环 */
+        loopSingle?: boolean;
         /** 插入方式：光标处/追加/前置/剪贴板 */
         insertMode: string;
         /** 是否显示字幕 */
@@ -132,6 +136,10 @@ export interface Config {
         playerPath: string;
         /** 链接格式模板 */
         linkFormat: string;
+        /** 截图包含时间戳 */
+        screenshotWithTimestamp?: boolean;
+        /** 播放列表数据库ID */
+        playlistDbId?: string;
         /** AList配置 */
         alistConfig?: {
             server: string;    // 服务器地址 
@@ -150,19 +158,16 @@ export interface Config {
             enabled: boolean;  // 是否启用
             path?: string;     // 脚本完整路径
         }>;
-        /** 播放列表数据库ID */
-        playlistDbId?: string;
-        /** 是否循环播放列表 */
-        loopPlaylist?: boolean;
-        /** 是否循环单个媒体 */
-        loopSingle?: boolean;
+        // UI临时状态(不持久化)
+        qrcode?: { data: string; key: string };
+        bilibili?: { login: boolean; userInfo: any };
+        alist?: { enabled: boolean; showPanel: boolean };
+        pro?: { enabled: boolean };
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
     /** 播放列表 */
     playlists: PlaylistConfig[];
-    /** Pro版本启用状态 */
-    proEnabled?: boolean;
 }
 
 /**
@@ -245,6 +250,16 @@ export interface ISettingItem {
     hide?: {
         save: string[];
     };
+    tab?: string;
+    displayCondition?: (state: any) => boolean;
+    onAction?: () => Promise<void> | void;
+    onChange?: (value: any) => Promise<void> | void;
+    avatar?: string;
+    name?: string;
+    level?: string | number;
+    uid?: string | number;
+    nickname?: string;
+    actionType?: string;
 }
 
 /**

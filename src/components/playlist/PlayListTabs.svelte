@@ -35,7 +35,7 @@
         dispatch('addMedia', {url, options: {autoPlay, fromFileSelector}}) || true;
     
     // Pro功能检查 - 精简版
-    const needPro = fn => e => configManager.getConfig()?.proEnabled ? fn(e) : showMessage(i18n?.pro?.notEnabled || "此功能需要Pro版本");
+    const needPro = fn => e => configManager.getConfig()?.settings?.pro?.enabled ? fn(e) : showMessage(i18n?.pro?.notEnabled || "此功能需要Pro版本");
     
     // 核心功能
     function setActiveTab(id) {

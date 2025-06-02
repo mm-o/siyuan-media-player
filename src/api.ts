@@ -248,7 +248,7 @@ export async function upload(assetsDirPath: string, files: any[]): Promise<IResU
 }
 
 // **************************************** Block ****************************************
-type DataType = "markdown" | "dom";
+type DataType = "markdown" | "dom" | "json";
 export async function insertBlock(
     dataType: DataType, data: string,
     nextID?: BlockId, previousID?: BlockId, parentID?: BlockId
