@@ -150,6 +150,12 @@ export interface Config {
             enabled: boolean;  // 是否启用
             path?: string;     // 脚本完整路径
         }>;
+        /** 播放列表数据库ID */
+        playlistDbId?: string;
+        /** 是否循环播放列表 */
+        loopPlaylist?: boolean;
+        /** 是否循环单个媒体 */
+        loopSingle?: boolean;
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;

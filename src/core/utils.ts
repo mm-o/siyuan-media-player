@@ -288,17 +288,34 @@ export const database = {
      */
     getDatabaseJson: async (databaseId: string) => {
         try {
+            // 查询数据库块信息
+            const blockData = await database.findDatabaseById(databaseId);
+            
+            // 从块内容中提取 avID
+            const markdown = blockData.markdown || '';
+            const avMatch = markdown.match(/data-av-id="([^"]+)"/);
+            
+            if (!avMatch || !avMatch[1]) {
+                throw new Error("无法在数据库块中找到属性视图ID");
+            }
+            
+            const avID = avMatch[1];
             const workspacePath = window.siyuan?.config?.system?.workspaceDir;
-            if (!workspacePath) throw new Error("无法获取工作空间路径");
-
+            
+            if (!workspacePath) {
+                throw new Error("无法获取工作空间路径");
+            }
+            
+            // 获取数据库文件路径
             const fs = window.require('fs');
             const path = window.require('path');
-            const dbFilePath = path.join(workspacePath, 'data', 'storage', 'av', `${databaseId}.json`);
+            const dbFilePath = path.join(workspacePath, 'data', 'storage', 'av', `${avID}.json`);
             
             if (!fs.existsSync(dbFilePath)) {
                 throw new Error(`数据库文件不存在: ${dbFilePath}`);
             }
-
+            
+            // 读取数据库文件
             const dbContent = fs.readFileSync(dbFilePath, 'utf-8');
             return JSON.parse(dbContent);
         } catch (error) {
@@ -314,12 +331,27 @@ export const database = {
      */
     saveDatabaseJson: async (databaseId: string, jsonData: any) => {
         try {
+            // 查询数据库块信息
+            const blockData = await database.findDatabaseById(databaseId);
+            
+            // 从块内容中提取 avID
+            const markdown = blockData.markdown || '';
+            const avMatch = markdown.match(/data-av-id="([^"]+)"/);
+            
+            if (!avMatch || !avMatch[1]) {
+                throw new Error("无法在数据库块中找到属性视图ID");
+            }
+            
+            const avID = avMatch[1];
             const workspacePath = window.siyuan?.config?.system?.workspaceDir;
-            if (!workspacePath) throw new Error("无法获取工作空间路径");
-
+            
+            if (!workspacePath) {
+                throw new Error("无法获取工作空间路径");
+            }
+            
             const fs = window.require('fs');
             const path = window.require('path');
-            const dbFilePath = path.join(workspacePath, 'data', 'storage', 'av', `${databaseId}.json`);
+            const dbFilePath = path.join(workspacePath, 'data', 'storage', 'av', `${avID}.json`);
             
             fs.writeFileSync(dbFilePath, JSON.stringify(jsonData, null, 2), 'utf-8');
         } catch (error) {
