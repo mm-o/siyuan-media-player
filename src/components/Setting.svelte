@@ -35,6 +35,9 @@
     
     // 创建默认设置项
     function createSettings(state): ISettingItem[] {
+        const scriptCount = (state.scripts || []).length;
+        const enabledCount = (state.scripts || []).filter(s => s.enabled).length;
+        
         return [
             // Pro账号
             {
@@ -42,11 +45,11 @@
                 type: "checkbox" as SettingType,
                 tab: "account",
                 title: i18n.pro?.title || "Media Player Pro",
-                value: state.pro?.enabled,
+                value: state.pro?.enabled ?? false,
                 description: i18n.pro?.desc || "开启Pro功能，支持更多特性",
                 onChange: async (v) => {
                     state.pro = { ...state.pro, enabled: v };
-                    settingItems = [...createSettings(state)];
+                    settingItems = createSettings(state);
                     await configManager.updateSettings(state);
                 }
             },
@@ -87,7 +90,7 @@
                         const config = await configManager.getConfig();
                         delete config.bilibiliLogin;
                         await configManager.save();
-                        settingItems = [...createSettings(state)];
+                        settingItems = createSettings(state);
                         if (qrCodeManager) qrCodeManager.stopPolling();
                     } else {
                         if (!qrCodeManager) {
@@ -95,13 +98,14 @@
                                 configManager,
                                 ({ data, key }) => {
                                     qrcode = { data, key };
-                                    settingItems = [...createSettings(state)];
+                                    settingItems = createSettings(state);
                                 },
                                 userInfo => {
                                     const { mid, uname, face, level } = userInfo || {};
                                     state.bilibili = { login: true, userInfo: { mid, uname, face, level } };
-                                    settingItems = [...createSettings(state)];
+                                    settingItems = createSettings(state);
                                     if (qrCodeManager) qrCodeManager.stopPolling();
+                                    configManager.updateSettings(state);
                                 }
                             );
                         }
@@ -125,25 +129,25 @@
                 description: i18n.setting.alist?.desc || "开启AList功能，配置服务器信息",
                 onChange: async (v) => {
                     state.alist = { ...state.alist, enabled: v };
-                    settingItems = [...createSettings(state)];
+                    settingItems = createSettings(state);
                     await configManager.updateSettings(state);
                 }
             },
-            { key: "alistServer", value: state.alistConfig?.server || "http://localhost:5244", type: "textarea" as SettingType, tab: "account",
+            { key: "alistServer", value: state.alistConfig?.server ?? "http://localhost:5244", type: "textarea" as SettingType, tab: "account",
               displayCondition: (s) => !s.alist?.enabled,
               title: i18n.setting.alist?.server || "AList 服务器", 
               description: i18n.setting.alistConfig?.server || "AList服务器地址", rows: 1 },
-            { key: "alistUsername", value: state.alistConfig?.username || "admin", type: "textarea" as SettingType, tab: "account",
+            { key: "alistUsername", value: state.alistConfig?.username ?? "admin", type: "textarea" as SettingType, tab: "account",
               displayCondition: (s) => !s.alist?.enabled,
               title: i18n.setting.alist?.username || "AList 用户名", 
               description: i18n.setting.alistConfig?.username || "AList账号用户名", rows: 1 },
-            { key: "alistPassword", value: state.alistConfig?.password || "", type: "textarea" as SettingType, tab: "account",
+            { key: "alistPassword", value: state.alistConfig?.password ?? "", type: "textarea" as SettingType, tab: "account",
               displayCondition: (s) => !s.alist?.enabled,
               title: i18n.setting.alist?.password || "AList 密码", 
               description: i18n.setting.alistConfig?.password || "AList账号密码", rows: 1 },
             
             // 播放器设置
-            { key: "openMode", value: "default", type: "select" as SettingType, tab: "player",
+            { key: "openMode", value: state.openMode ?? "default", type: "select" as SettingType, tab: "player",
               title: i18n.setting.items.openMode?.title || "打开方式",
               description: i18n.setting.items.openMode?.description,
               options: [
@@ -152,7 +156,7 @@
                 { label: i18n.setting.items.openMode?.options?.bottom || "底部新标签", value: "bottom" },
                 { label: i18n.setting.items.openMode?.options?.window || "新窗口", value: "window" }
               ] },
-            { key: "playerType", value: "built-in", type: "select" as SettingType, tab: "player",
+            { key: "playerType", value: state.playerType ?? "built-in", type: "select" as SettingType, tab: "player",
               title: i18n.setting.items.playerType.title,
               description: i18n.setting.items.playerType.description,
               options: [
@@ -160,41 +164,41 @@
                 { label: i18n.setting.items.playerType.potPlayer, value: "potplayer" },
                 { label: i18n.setting.items.playerType.browser, value: "browser" }
               ] },
-            { key: "playerPath", value: "PotPlayerMini64.exe", type: "textarea" as SettingType, tab: "player",
+            { key: "playerPath", value: state.playerPath ?? "PotPlayerMini64.exe", type: "textarea" as SettingType, tab: "player",
               displayCondition: () => settingItems.find(i => i.key === 'playerType')?.value === 'potplayer',
               title: i18n.setting.items?.playerPath?.title || "PotPlayer路径",
               description: i18n.setting.items?.playerPath?.description || "设置PotPlayer可执行文件路径",
               rows: 1 },
-            { key: "volume", value: 70, type: "slider" as SettingType, tab: "player",
+            { key: "volume", value: state.volume ?? 70, type: "slider" as SettingType, tab: "player",
               title: i18n.setting.items.volume.title,
               description: i18n.setting.items.volume.description,
               slider: { min: 0, max: 100, step: 1 } },
-            { key: "speed", value: 100, type: "slider" as SettingType, tab: "player",
+            { key: "speed", value: state.speed ?? 100, type: "slider" as SettingType, tab: "player",
               title: i18n.setting.items.speed.title,
               description: i18n.setting.items.speed.description,
               slider: { min: 25, max: 200, step: 25 } },
-            { key: "showSubtitles", value: false, type: "checkbox" as SettingType, tab: "player",
+            { key: "showSubtitles", value: state.showSubtitles ?? false, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items.showSubtitles?.title || "显示字幕",
               description: i18n.setting.items.showSubtitles?.description },
-            { key: "enableDanmaku", value: false, type: "checkbox" as SettingType, tab: "player",
+            { key: "enableDanmaku", value: state.enableDanmaku ?? false, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items.enableDanmaku?.title || "启用弹幕",
               description: i18n.setting.items.enableDanmaku?.description },
-            { key: "loopCount", value: 3, type: "slider" as SettingType, tab: "player",
+            { key: "loopCount", value: state.loopCount ?? 3, type: "slider" as SettingType, tab: "player",
               title: i18n.setting.items.loopCount.title,
               description: i18n.setting.items.loopCount.description,
               slider: { min: 1, max: 10, step: 1 } },
-            { key: "pauseAfterLoop", value: false, type: "checkbox" as SettingType, tab: "player",
+            { key: "pauseAfterLoop", value: state.pauseAfterLoop ?? false, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items.pauseAfterLoop?.title || "循环后暂停",
               description: i18n.setting.items.pauseAfterLoop?.description },
-            { key: "loopPlaylist", value: false, type: "checkbox" as SettingType, tab: "player",
+            { key: "loopPlaylist", value: state.loopPlaylist ?? false, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items?.loopPlaylist?.title || "循环列表",
               description: i18n.setting.items?.loopPlaylist?.description || "播放完列表后从头开始" },
-            { key: "loopSingle", value: false, type: "checkbox" as SettingType, tab: "player",
+            { key: "loopSingle", value: state.loopSingle ?? false, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items?.loopSingle?.title || "单项循环",
               description: i18n.setting.items?.loopSingle?.description || "重复播放当前媒体" },
             
             // 通用设置
-            { key: "insertMode", value: "updateBlock", type: "select" as SettingType, tab: "general",
+            { key: "insertMode", value: state.insertMode ?? "updateBlock", type: "select" as SettingType, tab: "general",
               title: i18n.setting.items.insertMode?.title || "插入方式",
               description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
               options: [
@@ -206,7 +210,7 @@
                 { label: i18n.setting.items.insertMode?.appendDoc || "插入到文档底部", value: "appendDoc" },
                 { label: i18n.setting.items.insertMode?.clipboard || "复制到剪贴板", value: "clipboard" }
               ] },
-            { key: "targetNotebook", value: state.selectedNotebookId, type: "select" as SettingType, tab: "general",
+            { key: "targetNotebook", value: state.targetNotebook?.id ?? "", type: "select" as SettingType, tab: "general",
               title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
               description: i18n.setting.items?.targetNotebook?.description || "选择创建媒体笔记的目标笔记本",
               options: (notebooks || []).map(nb => ({ label: nb.name, value: nb.id })) },
@@ -214,7 +218,7 @@
               title: "播放列表数据库ID",
               description: "输入用于保存播放列表的数据库块ID",
               rows: 1 },
-            { key: "screenshotWithTimestamp", value: false, type: "checkbox" as SettingType, tab: "general",
+            { key: "screenshotWithTimestamp", value: state.screenshotWithTimestamp ?? false, type: "checkbox" as SettingType, tab: "general",
               title: i18n.setting.items?.screenshotWithTimestamp?.title || "截图包含时间戳",
               description: i18n.setting.items?.screenshotWithTimestamp?.description || "启用后，截图功能也会添加时间戳链接" },
             { key: "linkFormat", value: state.linkFormat || "- [😄标题 艺术家 字幕 时间](链接)", 
@@ -228,110 +232,124 @@
               title: i18n.setting.items?.mediaNotesTemplate?.title || "媒体笔记模板",
               description: i18n.setting.items?.mediaNotesTemplate?.description || "支持变量：标题、时间、艺术家、链接、时长、封面、类型、ID、日期、时间戳",
               rows: 9 },
-            { key: "loadScript", value: "", type: "account" as SettingType, tab: "general",
-              actionType: "custom",
-              title: i18n.setting.items?.loadScript?.title || "加载脚本",
-              description: i18n.setting.items?.loadScript?.description || "选择脚本文件加载到插件",
-              button: { config: i18n.setting.items?.loadScript?.buttonText || "选择脚本文件", save: "", exit: "" },
-              onAction: async () => { await loadScript(); settingItems = [...settingItems]; }
-            }
+
+            // 脚本管理 - 完全内联状态显示，极简化
+            { 
+                key: "loadScript", 
+                type: "account" as SettingType, 
+                tab: "general",
+                title: i18n.setting.items?.loadScript?.title || "加载脚本",
+                description: i18n.setting.items?.loadScript?.description || "选择脚本文件加载到插件",
+                button: { config: i18n.setting.items?.loadScript?.buttonText || "选择脚本文件", save: "", exit: "" },
+                status: `已加载：${enabledCount}/${scriptCount}`,
+                name: i18n.setting.items?.loadScript?.scriptManager || "脚本管理器",
+                nickname: "",
+                onAction: () => handleScripts('load')
+            },
+            
+            // 脚本开关项 - 使用最简洁的表达，无多余变量
+            ...(state.scripts || []).map(s => ({
+                key: `script_${s.name}`,
+                type: "checkbox" as SettingType,
+                tab: "general",
+                title: s.name,
+                value: s.enabled ?? true,
+                description: i18n.setting.items?.script?.description || "控制脚本是否启用",
+                onChange: v => { s.enabled = v; configManager.updateSettings(state); settingItems = createSettings(state); }
+            }))
         ];
     }
 
-    // 初始化
+    // 初始化 - 精简方式加载初始数据
     async function refreshSettings() {
         const config = await configManager.load();
         Object.assign(state, configManager.getDefaultUIState(), config.settings || {});
-        if (!state.pro || typeof state.pro !== 'object') state.pro = {};
-        state.pro.enabled = config.settings?.pro?.enabled ?? state.pro.enabled ?? false;
-        try {
-            notebooks = await notebook.getList ? await notebook.getList() : [];
-        } catch {}
-        settingItems = [...createSettings(state)];
-        const targetNotebookItem = settingItems.find(i => i.key === 'targetNotebook');
-        if (targetNotebookItem) {
-            targetNotebookItem.options = (notebooks || []).map(nb => ({ label: nb.name, value: nb.id }));
-        }
+        state.pro = config.settings?.pro ?? { enabled: false };
+        state.insertMode = config.settings?.insertMode ?? "updateBlock";
+        state.scripts = config.settings?.scripts || [];
+        
+        try { notebooks = await notebook.getList?.() || []; } catch {}
+        handleScripts(); // 默认同步脚本
+        settingItems = createSettings(state);
+        
+        // 更新笔记本选项
+        const nbItem = settingItems.find(i => i.key === 'targetNotebook');
+        nbItem && (nbItem.options = (notebooks || []).map(nb => ({ label: nb.name, value: nb.id })));
     }
-
-    onMount(refreshSettings);
     
-    // 加载脚本文件
-    async function loadScript() {
+    // 极简化的脚本处理函数 - 合并条件，减少重复
+    async function handleScripts(action = 'sync') {
         if (!window.require) return;
+        
         try {
-            const { dialog } = window.require('@electron/remote'), 
-                  fs = window.require('fs'), 
-                  path = window.require('path');
-            
-            const result = await dialog.showOpenDialog({
-                properties: ['openFile'],
-                filters: [{ extensions: ['js'] }]
-            });
-            
-            if (result?.filePaths?.[0] && window.siyuan?.config?.system?.workspaceDir) {
-                // 复制到插件目录
-                const dir = path.join(window.siyuan.config.system.workspaceDir, 'data/storage/petal/siyuan-media-player');
-                !fs.existsSync(dir) && fs.mkdirSync(dir, { recursive: true });
-                fs.copyFileSync(result.filePaths[0], path.join(dir, path.basename(result.filePaths[0])));
-                getScriptList();
-                showMessage(i18n.setting.items?.loadScript?.loadSuccess || "脚本已加载");
-            }
-        } catch (e) {}
-    }
-    
-    // 获取脚本列表并创建设置项
-    async function getScriptList() {
-        if (!window.require) return [];
-        try {
+            const { dialog } = window.require('@electron/remote');
             const fs = window.require('fs'), path = window.require('path');
             const dir = path.join(window.siyuan.config.system.workspaceDir, 'data/storage/petal/siyuan-media-player');
-            if (!fs.existsSync(dir)) return [];
-            const savedScripts = state.scripts || [];
-            const files = fs.readdirSync(dir).filter(f => f.endsWith('.js'));
-            return files.map(f => ({ name: f, enabled: savedScripts.find(s => s.name === f)?.enabled ?? true }));
-        } catch (e) { return []; }
+            !fs.existsSync(dir) && fs.mkdirSync(dir, { recursive: true });
+            
+            // 先处理文件加载
+            if (action === 'load') {
+                const result = await dialog.showOpenDialog({properties: ['openFile'], filters: [{extensions: ['js']}]});
+                if (result?.filePaths?.[0]) {
+                    fs.copyFileSync(result.filePaths[0], path.join(dir, path.basename(result.filePaths[0])));
+                    showMessage(i18n.setting.items?.loadScript?.loadSuccess || "脚本已加载");
+                }
+            }
+            
+            // 更新脚本列表
+            const savedMap = Object.fromEntries((state.scripts || []).map(s => [s.name, s.enabled ?? true]));
+            state.scripts = fs.readdirSync(dir).filter(f => f.endsWith('.js'))
+                .map(f => ({ name: f, enabled: savedMap[f] ?? true }));
+            
+            // 所有情况下都更新UI，确保立即显示
+            settingItems = createSettings(state);
+            await configManager.updateSettings(state);
+        } catch (e) {}
     }
 
     // 保存设置（极简）
     async function save() {
         await configManager.updateSettings(state);
         showMessage(i18n.setting.saveSuccess || "保存成功");
-        settingItems = [...createSettings(state)];
+        settingItems = createSettings(state);
     }
 
     // 重置设置（极简）
     function reset() {
         const config = configManager.getDefaultConfig();
         state = { ...configManager.getDefaultUIState(), ...config.settings };
-        if (!state.pro || typeof state.pro !== 'object') state.pro = {};
-        state.pro.enabled = config.settings?.pro?.enabled ?? state.pro.enabled ?? false;
-        settingItems = [...createSettings(state)];
+        settingItems = createSettings(state);
         showMessage(i18n.setting.resetSuccess || "已重置");
     }
 
     function resetItem(key) {
         const config = configManager.getDefaultConfig();
         state[key] = config.settings[key] || configManager.getDefaultUIState()[key];
-        if (!state.pro || typeof state.pro !== 'object') state.pro = {};
-        state.pro.enabled = config.settings?.pro?.enabled ?? state.pro.enabled ?? false;
-        settingItems = [...createSettings(state)];
+        settingItems = createSettings(state);
     }
 
     // 设置项变更处理
     function handleChange(e, item) {
         const v = e.target.type === 'checkbox' 
             ? e.target.checked 
-            : item.type === 'select' || item.type === 'textarea'
-                ? e.target.value 
-                : Number(e.target.value);
+            : e.target.value;
         if (item.key === 'alistServer') state.alistConfig.server = v;
         else if (item.key === 'alistUsername') state.alistConfig.username = v;
         else if (item.key === 'alistPassword') state.alistConfig.password = v;
+        else if (item.key === 'pro') state.pro = { ...state.pro, enabled: v };
+        else if (item.key === 'insertMode') state.insertMode = v;
+        else if (item.key === 'targetNotebook') {
+            const nb = notebooks.find(n => n.id === v);
+            state.targetNotebook = { id: v, name: nb ? nb.name : "" };
+        }
         else state[item.key] = v;
-        settingItems = [...createSettings(state)];
+        if (item.onChange) item.onChange(v);
+        settingItems = createSettings(state);
         configManager.updateSettings(state);
     }
+    $: if (activeTab) refreshSettings();
+
+    onMount(refreshSettings);
 </script>
 
 <div class="settings common-panel" data-name={group}>
