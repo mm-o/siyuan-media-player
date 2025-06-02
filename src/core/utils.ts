@@ -251,3 +251,178 @@ export const findMediaSupportFile = async (mediaUrl: string, exts: string[]): Pr
     
     return null;
 };
+
+/**
+ * 数据库工具类
+ * 用于处理与思源笔记属性视图数据库的交互
+ */
+export const database = {
+    /**
+     * 根据ID查找数据库块
+     * @param databaseId 数据库块ID
+     * @returns 数据库块信息
+     */
+    findDatabaseById: async (databaseId: string) => {
+        try {
+            const result = await fetch('/api/query/sql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stmt: `SELECT * FROM blocks WHERE id = "${databaseId}"` })
+            }).then(r => r.json());
+            
+            if (result?.code !== 0 || !result?.data?.length) {
+                throw new Error("未找到数据库块");
+            }
+            
+            return result.data[0];
+        } catch (error) {
+            console.error("查找数据库块失败:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * 获取数据库JSON数据
+     * @param databaseId 数据库块ID
+     * @returns 数据库JSON对象
+     */
+    getDatabaseJson: async (databaseId: string) => {
+        try {
+            const workspacePath = window.siyuan?.config?.system?.workspaceDir;
+            if (!workspacePath) throw new Error("无法获取工作空间路径");
+
+            const fs = window.require('fs');
+            const path = window.require('path');
+            const dbFilePath = path.join(workspacePath, 'data', 'storage', 'av', `${databaseId}.json`);
+            
+            if (!fs.existsSync(dbFilePath)) {
+                throw new Error(`数据库文件不存在: ${dbFilePath}`);
+            }
+
+            const dbContent = fs.readFileSync(dbFilePath, 'utf-8');
+            return JSON.parse(dbContent);
+        } catch (error) {
+            console.error("获取数据库JSON失败:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * 保存数据库JSON数据
+     * @param databaseId 数据库块ID
+     * @param jsonData 要保存的JSON数据
+     */
+    saveDatabaseJson: async (databaseId: string, jsonData: any) => {
+        try {
+            const workspacePath = window.siyuan?.config?.system?.workspaceDir;
+            if (!workspacePath) throw new Error("无法获取工作空间路径");
+
+            const fs = window.require('fs');
+            const path = window.require('path');
+            const dbFilePath = path.join(workspacePath, 'data', 'storage', 'av', `${databaseId}.json`);
+            
+            fs.writeFileSync(dbFilePath, JSON.stringify(jsonData, null, 2), 'utf-8');
+        } catch (error) {
+            console.error("保存数据库JSON失败:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * 添加字段到数据库
+     * @param jsonData 数据库JSON对象
+     * @param fieldType 字段类型
+     * @param fieldName 字段名称
+     * @param options 可选参数
+     * @returns 添加的字段对象
+     */
+    addField: (jsonData: any, fieldType: string, fieldName: string, options?: any) => {
+        const field = {
+            name: fieldName,
+            type: fieldType,
+            options: options || {}
+        };
+        jsonData.fields = jsonData.fields || [];
+        jsonData.fields.push(field);
+        return field;
+    },
+
+    /**
+     * 设置字段值
+     * @param jsonData 数据库JSON对象
+     * @param blockId 行ID
+     * @param fieldName 字段名
+     * @param value 字段值
+     */
+    setFieldValue: (jsonData: any, blockId: string, fieldName: string, value: any) => {
+        jsonData.rows = jsonData.rows || [];
+        let row = jsonData.rows.find((r: any) => r.id === blockId);
+        if (!row) {
+            row = { id: blockId, values: {} };
+            jsonData.rows.push(row);
+        }
+        row.values[fieldName] = value;
+    },
+
+    /**
+     * 获取字段值
+     * @param jsonData 数据库JSON对象
+     * @param blockId 行ID
+     * @param fieldName 字段名
+     * @returns 字段值
+     */
+    getFieldValue: (jsonData: any, blockId: string, fieldName: string) => {
+        const row = jsonData.rows?.find((r: any) => r.id === blockId);
+        return row?.values?.[fieldName];
+    },
+
+    /**
+     * 删除行数据
+     * @param jsonData 数据库JSON对象
+     * @param blockId 要删除的行ID
+     * @returns 更新后的JSON对象
+     */
+    deleteRow: (jsonData: any, blockId: string) => {
+        if (!jsonData.rows) return jsonData;
+        jsonData.rows = jsonData.rows.filter((r: any) => r.id !== blockId);
+        return jsonData;
+    },
+
+    /**
+     * 更新字段值
+     * @param jsonData 数据库JSON对象
+     * @param blockId 行ID
+     * @param fieldName 字段名
+     * @param value 新值
+     * @returns 更新后的JSON对象
+     */
+    updateFieldValue: (jsonData: any, blockId: string, fieldName: string, value: any) => {
+        if (!jsonData.rows) return jsonData;
+        const row = jsonData.rows.find((r: any) => r.id === blockId);
+        if (row) {
+            row.values = row.values || {};
+            row.values[fieldName] = value;
+        }
+        return jsonData;
+    },
+
+    /**
+     * 获取特定类型的所有字段
+     * @param jsonData 数据库JSON对象
+     * @param fieldType 字段类型
+     * @returns 字段列表
+     */
+    getFieldsByType: (jsonData: any, fieldType: string) => {
+        return (jsonData.fields || []).filter((f: any) => f.type === fieldType);
+    },
+
+    /**
+     * 根据字段名获取字段
+     * @param jsonData 数据库JSON对象
+     * @param fieldName 字段名
+     * @returns 字段对象
+     */
+    getFieldByName: (jsonData: any, fieldName: string) => {
+        return (jsonData.fields || []).find((f: any) => f.name === fieldName);
+    }
+};
