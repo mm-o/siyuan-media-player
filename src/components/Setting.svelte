@@ -3,7 +3,7 @@
     import { showMessage } from "siyuan";
     import type { ConfigManager } from "../core/config";
     import type { ISettingItem, SettingType } from "../core/types";
-    import { notebook } from "../core/document";
+    import { notebook, database } from "../core/document";
     import { QRCodeManager } from "../core/bilibili";
 
     export let group: string;
@@ -212,11 +212,11 @@
               ] },
             { key: "targetNotebook", value: state.targetNotebook?.id ?? "", type: "select" as SettingType, tab: "general",
               title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
-              description: i18n.setting.items?.targetNotebook?.description || "选择创建媒体笔记的目标笔记本",
+              description: state.targetNotebook?.id ? `ID: ${state.targetNotebook.id}` : "选择创建媒体笔记的目标笔记本",
               options: (notebooks || []).map(nb => ({ label: nb.name, value: nb.id })) },
-            { key: "playlistDbId", value: state.playlistDbId || "", type: "textarea" as SettingType, tab: "general",
-              title: "播放列表数据库ID",
-              description: "输入用于保存播放列表的数据库块ID",
+            { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
+              title: "播放列表数据库",
+              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : "输入数据库块ID，属性视图ID将自动获取",
               rows: 1 },
             { key: "screenshotWithTimestamp", value: state.screenshotWithTimestamp ?? false, type: "checkbox" as SettingType, tab: "general",
               title: i18n.setting.items?.screenshotWithTimestamp?.title || "截图包含时间戳",
@@ -267,6 +267,8 @@
         state.pro = config.settings?.pro ?? { enabled: false };
         state.insertMode = config.settings?.insertMode ?? "updateBlock";
         state.scripts = config.settings?.scripts || [];
+        state.playlistDb = config.settings?.playlistDb || { id: '', avId: '' };
+        state.targetNotebook = config.settings?.targetNotebook || { id: '', name: '' };
         
         try { notebooks = await notebook.getList?.() || []; } catch {}
         handleScripts(); // 默认同步脚本
@@ -307,21 +309,7 @@
         } catch (e) {}
     }
 
-    // 保存设置（极简）
-    async function save() {
-        await configManager.updateSettings(state);
-        showMessage(i18n.setting.saveSuccess || "保存成功");
-        settingItems = createSettings(state);
-    }
-
-    // 重置设置（极简）
-    function reset() {
-        const config = configManager.getDefaultConfig();
-        state = { ...configManager.getDefaultUIState(), ...config.settings };
-        settingItems = createSettings(state);
-        showMessage(i18n.setting.resetSuccess || "已重置");
-    }
-
+    // 重置单个设置项
     function resetItem(key) {
         const config = configManager.getDefaultConfig();
         state[key] = config.settings[key] || configManager.getDefaultUIState()[key];
@@ -342,11 +330,17 @@
             const nb = notebooks.find(n => n.id === v);
             state.targetNotebook = { id: v, name: nb ? nb.name : "" };
         }
+        else if (item.key === 'playlistDb') {
+            state.playlistDb = { id: v, avId: '' };
+            if (v) database.getAvIdByBlockId(v).then(avId => 
+                avId && (state.playlistDb.avId = avId, settingItems = createSettings(state), configManager.updateSettings(state)));
+        }
         else state[item.key] = v;
         if (item.onChange) item.onChange(v);
         settingItems = createSettings(state);
         configManager.updateSettings(state);
     }
+
     $: if (activeTab) refreshSettings();
 
     onMount(refreshSettings);
@@ -465,16 +459,5 @@
             </div>
             {/if}
         {/each}
-    </div>
-    
-    <div class="playlist-footer">
-        <button class="add-btn" on:click={reset}>
-            <svg class="icon"><use xlink:href="#iconRefresh"></use></svg>
-            <span>{i18n.setting.reset}</span>
-        </button>
-        <button class="add-btn" on:click={save}>
-            <svg class="icon"><use xlink:href="#iconCheck"></use></svg>
-            <span>{i18n.setting.save}</span>
-        </button>
     </div>
 </div>

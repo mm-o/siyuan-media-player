@@ -229,6 +229,43 @@ export const notebook = {
     }
 }; 
 
+// ===== 数据库管理 =====
+export const database = {
+    /**
+     * 通过块id获取数据库id
+     */
+    getAvIdByBlockId: async (blockId: string): Promise<string> => {
+        if (!blockId) return '';
+        try {
+            const res = await fetch('/api/query/sql', {
+                method: 'POST', 
+                body: JSON.stringify({stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'`})
+            }).then(r => r.json());
+            
+            if (res.code === 0 && res.data?.[0]?.markdown) {
+                const match = res.data[0].markdown.match(/data-av-id="([^"]+)"/);
+                return match?.[1] || '';
+            }
+        } catch {}
+        return '';
+    },
+    
+    /**
+     * 获取数据库字段信息
+     */
+    getKeysByAvId: async (avId: string): Promise<any[]> => {
+        if (!avId) return [];
+        try {
+            const res = await fetch('/api/av/getAttributeViewKeysByAvID', {
+                method: 'POST',
+                body: JSON.stringify({avID: avId})
+            }).then(r => r.json());
+            return res.code === 0 ? res.data || [] : [];
+        } catch {}
+        return [];
+    }
+};
+
 // ===== 媒体笔记工具 =====
 export const mediaNotes = {
     /**

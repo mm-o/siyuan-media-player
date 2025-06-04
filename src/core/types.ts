@@ -138,8 +138,11 @@ export interface Config {
         linkFormat: string;
         /** 截图包含时间戳 */
         screenshotWithTimestamp?: boolean;
-        /** 播放列表数据库ID */
-        playlistDbId?: string;
+        /** 播放列表数据库 */
+        playlistDb?: {
+            id: string;     // 数据库块ID
+            avId?: string;  // 数据库ID(avID)
+        };
         /** AList配置 */
         alistConfig?: {
             server: string;    // 服务器地址 
@@ -148,8 +151,11 @@ export interface Config {
             token?: string;    // 认证令牌
             connected?: boolean; // 连接状态
         };
-        /** 目标笔记本ID */
-        targetNotebook?: string;
+        /** 目标笔记本 */
+        targetNotebook?: {
+            id: string;     // 笔记本ID
+            name: string;   // 笔记本名称
+        };
         /** 媒体笔记模板 */
         mediaNotesTemplate?: string;
         /** 用户脚本 */

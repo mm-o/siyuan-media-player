@@ -59,8 +59,9 @@ export class ConfigManager {
                 // 通用设置
                 linkFormat: defaultLinkFormat,
                 mediaNotesTemplate: defaultMediaNotesTemplate,
-                playlistDbId: '',
+                playlistDb: { id: '', avId: '' },
                 screenshotWithTimestamp: false,
+                targetNotebook: { id: '', name: '' },
                 
                 // AList设置
                 alistConfig: {
@@ -71,7 +72,7 @@ export class ConfigManager {
                 
                 // 账号/功能开关（持久化）
                 pro: { enabled: false },
-                alist: { showPanel: false }
+                alist: { enabled: false, showPanel: false }
             },
             bilibiliLogin: undefined
         };
