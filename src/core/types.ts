@@ -139,10 +139,7 @@ export interface Config {
         /** 截图包含时间戳 */
         screenshotWithTimestamp?: boolean;
         /** 播放列表数据库 */
-        playlistDb?: {
-            id: string;     // 数据库块ID
-            avId?: string;  // 数据库ID(avID)
-        };
+        playlistDb?: { id: string; avId?: string };
         /** AList配置 */
         alistConfig?: {
             server: string;    // 服务器地址 
@@ -152,10 +149,7 @@ export interface Config {
             connected?: boolean; // 连接状态
         };
         /** 目标笔记本 */
-        targetNotebook?: {
-            id: string;     // 笔记本ID
-            name: string;   // 笔记本名称
-        };
+        targetNotebook?: { id: string; name: string };
         /** 媒体笔记模板 */
         mediaNotesTemplate?: string;
         /** 用户脚本 */

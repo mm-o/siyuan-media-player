@@ -40,19 +40,14 @@
         
         return [
             // Pro账号
-            {
-                key: "pro",
-                type: "checkbox" as SettingType,
-                tab: "account",
+            { key: "pro",type: "checkbox" as SettingType,tab: "account",
                 title: i18n.pro?.title || "Media Player Pro",
                 value: state.pro?.enabled ?? false,
                 description: i18n.pro?.desc || "开启Pro功能，支持更多特性",
                 onChange: async (v) => {
                     state.pro = { ...state.pro, enabled: v };
                     settingItems = createSettings(state);
-                    await configManager.updateSettings(state);
-                }
-            },
+                    await configManager.updateSettings(state); } },
             { key: "proPanel", type: "images" as SettingType, value: [
                 { url: "/plugins/siyuan-media-player/assets/images/alipay.jpg", caption: "支付宝付款码" },
                 { url: "/plugins/siyuan-media-player/assets/images/wechat.jpg", caption: "微信付款码" }
@@ -61,13 +56,31 @@
               title: i18n.pro?.priceTag || "¥ 18.00",
               description: i18n.pro?.priceWithStar || "或 ¥ 16.00 + <a href=\"https://github.com/mm-o/siyuan-media-player\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Star</a> 关注" },
 
+            // AList账号
+            { key: "alist",type: "checkbox" as SettingType,tab: "account",
+                title: i18n.setting.alist?.title || "AList 服务器",
+                value: state.alist?.enabled,
+                description: i18n.setting.alist?.desc || "开启AList功能，配置服务器信息",
+                onChange: (v) => { state.alist = { ...state.alist, enabled: v }; } },
+            { key: "alistServer", value: state.alistConfig?.server ?? "http://localhost:5244", type: "textarea" as SettingType, tab: "account",
+              displayCondition: (s) => !s.alist?.enabled,
+              title: i18n.setting.alist?.server || "AList 服务器", 
+              description: i18n.setting.alistConfig?.server || "AList服务器地址", rows: 1,
+              onChange: (v) => state.alistConfig.server = v },
+            { key: "alistUsername", value: state.alistConfig?.username ?? "admin", type: "textarea" as SettingType, tab: "account",
+              displayCondition: (s) => !s.alist?.enabled,
+              title: i18n.setting.alist?.username || "AList 用户名", 
+              description: i18n.setting.alistConfig?.username || "AList账号用户名", rows: 1,
+              onChange: (v) => state.alistConfig.username = v },
+            { key: "alistPassword", value: state.alistConfig?.password ?? "", type: "textarea" as SettingType, tab: "account",
+              displayCondition: (s) => !s.alist?.enabled,
+              title: i18n.setting.alist?.password || "AList 密码", 
+              description: i18n.setting.alistConfig?.password || "AList账号密码", rows: 1,
+              onChange: (v) => state.alistConfig.password = v },
+ 
             // B站账号（合并二维码管理）
-            {
-                key: "biliAccount",
-                type: "account" as SettingType,
-                tab: "account",
-                title: i18n.setting.bilibili.account,
-                value: "",
+            { key: "biliAccount",type: "account" as SettingType,tab: "account",
+                title: i18n.setting.bilibili.account,value: "",
                 avatar: (state.bilibili.userInfo && state.bilibili.userInfo.face) ? state.bilibili.userInfo.face : "#iconBili",
                 name: (state.bilibili.userInfo && state.bilibili.userInfo.uname) ? state.bilibili.userInfo.uname : "Bilibili",
                 nickname: (state.bilibili.userInfo && state.bilibili.userInfo.uname) ? state.bilibili.userInfo.uname : "",
@@ -118,34 +131,7 @@
               displayCondition: () => !!qrcode?.data && !state.bilibili.login,
               title: i18n.setting.bilibili?.scanTitle || "B站登录",
               description: i18n.setting.bilibili?.waitingScan || "等待扫码" },
-            
-            // AList账号
-            {
-                key: "alist",
-                type: "checkbox" as SettingType,
-                tab: "account",
-                title: i18n.setting.alist?.title || "AList 服务器",
-                value: state.alist?.enabled,
-                description: i18n.setting.alist?.desc || "开启AList功能，配置服务器信息",
-                onChange: async (v) => {
-                    state.alist = { ...state.alist, enabled: v };
-                    settingItems = createSettings(state);
-                    await configManager.updateSettings(state);
-                }
-            },
-            { key: "alistServer", value: state.alistConfig?.server ?? "http://localhost:5244", type: "textarea" as SettingType, tab: "account",
-              displayCondition: (s) => !s.alist?.enabled,
-              title: i18n.setting.alist?.server || "AList 服务器", 
-              description: i18n.setting.alistConfig?.server || "AList服务器地址", rows: 1 },
-            { key: "alistUsername", value: state.alistConfig?.username ?? "admin", type: "textarea" as SettingType, tab: "account",
-              displayCondition: (s) => !s.alist?.enabled,
-              title: i18n.setting.alist?.username || "AList 用户名", 
-              description: i18n.setting.alistConfig?.username || "AList账号用户名", rows: 1 },
-            { key: "alistPassword", value: state.alistConfig?.password ?? "", type: "textarea" as SettingType, tab: "account",
-              displayCondition: (s) => !s.alist?.enabled,
-              title: i18n.setting.alist?.password || "AList 密码", 
-              description: i18n.setting.alistConfig?.password || "AList账号密码", rows: 1 },
-            
+                       
             // 播放器设置
             { key: "openMode", value: state.openMode ?? "default", type: "select" as SettingType, tab: "player",
               title: i18n.setting.items.openMode?.title || "打开方式",
@@ -201,6 +187,7 @@
             { key: "insertMode", value: state.insertMode ?? "updateBlock", type: "select" as SettingType, tab: "general",
               title: i18n.setting.items.insertMode?.title || "插入方式",
               description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
+              onChange: (v) => state.insertMode = v,
               options: [
                 { label: i18n.setting.items.insertMode?.insertBlock || "插入光标处", value: "insertBlock" },
                 { label: i18n.setting.items.insertMode?.appendBlock || "追加到块末尾", value: "appendBlock" },
@@ -213,10 +200,17 @@
             { key: "targetNotebook", value: state.targetNotebook?.id ?? "", type: "select" as SettingType, tab: "general",
               title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
               description: state.targetNotebook?.id ? `ID: ${state.targetNotebook.id}` : "选择创建媒体笔记的目标笔记本",
+              onChange: (v) => {
+                const nb = notebooks.find(n => n.id === v);
+                state.targetNotebook = { id: v, name: nb ? nb.name : "" };},
               options: (notebooks || []).map(nb => ({ label: nb.name, value: nb.id })) },
             { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
               title: "播放列表数据库",
               description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : "输入数据库块ID，属性视图ID将自动获取",
+              onChange: (v) => {
+                state.playlistDb = { id: v, avId: '' };
+                if (v) database.getAvIdByBlockId(v).then(avId => 
+                  avId && (state.playlistDb.avId = avId, settingItems = createSettings(state), configManager.updateSettings(state))); },
               rows: 1 },
             { key: "screenshotWithTimestamp", value: state.screenshotWithTimestamp ?? false, type: "checkbox" as SettingType, tab: "general",
               title: i18n.setting.items?.screenshotWithTimestamp?.title || "截图包含时间戳",
@@ -233,11 +227,8 @@
               description: i18n.setting.items?.mediaNotesTemplate?.description || "支持变量：标题、时间、艺术家、链接、时长、封面、类型、ID、日期、时间戳",
               rows: 9 },
 
-            // 脚本管理 - 完全内联状态显示，极简化
-            { 
-                key: "loadScript", 
-                type: "account" as SettingType, 
-                tab: "general",
+            // 脚本管理
+            { key: "loadScript", type: "account" as SettingType, tab: "general",
                 title: i18n.setting.items?.loadScript?.title || "加载脚本",
                 description: i18n.setting.items?.loadScript?.description || "选择脚本文件加载到插件",
                 button: { config: i18n.setting.items?.loadScript?.buttonText || "选择脚本文件", save: "", exit: "" },
@@ -247,20 +238,17 @@
                 onAction: () => handleScripts('load')
             },
             
-            // 脚本开关项 - 使用最简洁的表达，无多余变量
+            // 脚本开关项
             ...(state.scripts || []).map(s => ({
-                key: `script_${s.name}`,
-                type: "checkbox" as SettingType,
-                tab: "general",
-                title: s.name,
-                value: s.enabled ?? true,
+                key: `script_${s.name}`,type: "checkbox" as SettingType,tab: "general",
+                title: s.name,value: s.enabled ?? true,
                 description: i18n.setting.items?.script?.description || "控制脚本是否启用",
                 onChange: v => { s.enabled = v; configManager.updateSettings(state); settingItems = createSettings(state); }
             }))
         ];
     }
 
-    // 初始化 - 精简方式加载初始数据
+    // 初始化
     async function refreshSettings() {
         const config = await configManager.load();
         Object.assign(state, configManager.getDefaultUIState(), config.settings || {});
@@ -273,13 +261,9 @@
         try { notebooks = await notebook.getList?.() || []; } catch {}
         handleScripts(); // 默认同步脚本
         settingItems = createSettings(state);
-        
-        // 更新笔记本选项
-        const nbItem = settingItems.find(i => i.key === 'targetNotebook');
-        nbItem && (nbItem.options = (notebooks || []).map(nb => ({ label: nb.name, value: nb.id })));
     }
     
-    // 极简化的脚本处理函数 - 合并条件，减少重复
+    // 脚本处理函数
     async function handleScripts(action = 'sync') {
         if (!window.require) return;
         
@@ -321,22 +305,8 @@
         const v = e.target.type === 'checkbox' 
             ? e.target.checked 
             : e.target.value;
-        if (item.key === 'alistServer') state.alistConfig.server = v;
-        else if (item.key === 'alistUsername') state.alistConfig.username = v;
-        else if (item.key === 'alistPassword') state.alistConfig.password = v;
-        else if (item.key === 'pro') state.pro = { ...state.pro, enabled: v };
-        else if (item.key === 'insertMode') state.insertMode = v;
-        else if (item.key === 'targetNotebook') {
-            const nb = notebooks.find(n => n.id === v);
-            state.targetNotebook = { id: v, name: nb ? nb.name : "" };
-        }
-        else if (item.key === 'playlistDb') {
-            state.playlistDb = { id: v, avId: '' };
-            if (v) database.getAvIdByBlockId(v).then(avId => 
-                avId && (state.playlistDb.avId = avId, settingItems = createSettings(state), configManager.updateSettings(state)));
-        }
-        else state[item.key] = v;
-        if (item.onChange) item.onChange(v);
+        if (item.onChange) {item.onChange(v);} 
+        else {state[item.key] = v;}
         settingItems = createSettings(state);
         configManager.updateSettings(state);
     }
