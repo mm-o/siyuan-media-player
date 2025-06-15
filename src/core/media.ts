@@ -1,7 +1,8 @@
 import { MediaItem, MediaInfo, PlaylistConfig, PlayerType } from "./types";
 import { BilibiliParser } from "./bilibili";
-import { fmt, url } from './utils';
+import { URLUtils } from './PlayList';
 import { AListManager } from './alist';
+import { imageToLocalAsset } from './document';
 
 // 常量
 const CACHE_PREFIX = 'media_info_';
@@ -9,11 +10,21 @@ const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24小时
 const MAX_RETRIES = 2;
 const LOAD_TIMEOUT = 15000; // 15秒
 
-// 默认缩略图
+// 默认缩略图 - 统一PNG资源路径
 export const DEFAULT_THUMBNAILS = {
-    audio: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M628.905386 769.860427 628.905386 482.261019l169.381759-27.464779C771.308637 311.811584 645.822916 203.633728 494.993179 203.633728c-170.51599 0-308.738475 138.222485-308.738475 308.738875 0 170.516989 138.222485 308.738875 308.738475 308.738875 16.540186 0 32.756191-1.34209 48.589456-3.839397 12.391598-20.573051 34.625524-37.084856 62.858182-44.145869C613.897561 771.276467 621.429455 770.182208 628.905386 769.860427zM551.718919 228.830645l-33.079572 144.922942-33.078373 0-23.62798-144.922942C496.589896 211.497397 551.718919 228.830645 551.718919 228.830645zM494.993179 626.995689c-63.300482 0-114.622086-51.317007-114.622086-114.622886 0-63.30348 51.321604-114.622486 114.622086-114.622486 63.306478 0 114.622486 51.319006 114.622486 114.622486C609.615665 575.678482 558.299457 626.995689 494.993179 626.995689zM494.993179 424.978057c-48.20112 0-87.394147 39.192827-87.394147 87.394546 0 48.20112 39.192827 87.395546 87.394147 87.395546 48.201719 0 87.395946-39.194226 87.395946-87.395546C582.389124 464.170884 543.194698 424.978057 494.993179 424.978057zM494.993179 574.79708c-34.421063 0-62.423477-28.002015-62.423477-62.424476 0-34.421662 28.011408-62.424076 62.423477-62.424076 34.432055 0 62.416082 28.002414 62.416082 62.424076C557.409061 546.795265 529.425034 574.79708 494.993179 574.79708zM534.528574 870.531771c1.499983 8.297374 4.789753 16.008146 9.524542 22.939447-16.073102 2.058604-32.429013 3.239803-49.050144 3.239803-211.934708 0-384.347812-172.417701-384.347812-384.338419 0-211.922716 172.413104-384.338419 384.338019-384.338419 188.118456 0 345.001689 135.905456 377.892189 314.664258l-37.310503 6.059292c-29.969681-160.790984-171.236502-282.919381-340.581686-282.919381-191.084445 0-346.53365 155.451604-346.53365 346.53425 0 191.080048 155.449205 346.53425 346.53365 346.53425 12.796724 0 25.414169-0.748493 37.859731-2.104573C532.968631 861.361189 533.461497 865.948079 534.528574 870.531771zM912.096583 463.425989l0 333.227272c0 27.59629-20.573051 49.609165-52.658098 57.716668-35.234911 8.736077-69.250848-6.021917-75.997274-33.022611-6.760416-27.057655 16.31294-56.065787 51.53386-64.879811 15.920206-3.931335 31.587384-3.128879 44.698494 1.494986L879.673565 557.20001l-180.148459 32.927675-0.834434 249.757065-0.036975 0c-0.156894 23.646767-21.482435 46.868223-52.156438 54.45388-34.814196 8.759061-71.280472-7.807706-75.193819-32.597899-6.691463-26.747865 16.124068-55.470191 51.00222-64.201272 15.699356-3.904353 31.039755-3.119885 43.933013 1.402049L666.238674 503.300354 912.096583 463.425989z" fill="currentColor" style="color:var(--b3-theme-primary)"/></svg>`,
-    video: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M512 74.666667C270.933333 74.666667 74.666667 270.933333 74.666667 512S270.933333 949.333333 512 949.333333 949.333333 753.066667 949.333333 512 753.066667 74.666667 512 74.666667z m0 810.666666c-204.8 0-373.333333-168.533333-373.333333-373.333333S307.2 138.666667 512 138.666667 885.333333 307.2 885.333333 512 716.8 885.333333 512 885.333333z" fill="currentColor" style="color:var(--b3-theme-primary)"></path><path d="M512 320c-14.933333 0-32 4.266667-44.8 12.8L298.666667 458.666667c-29.866667 19.2-38.4 59.733333-19.2 89.6 4.266667 8.533333 12.8 14.933333 19.2 19.2l168.533333 125.866666c12.8 8.533333 29.866667 12.8 44.8 12.8 42.666667 0 76.8-34.133333 76.8-76.8V396.8c0-42.666667-34.133333-76.8-76.8-76.8z m12.8 308.266667c0 8.533333-4.266667 12.8-12.8 12.8-2.133333 0-4.266667 0-6.4-2.133334l-168.533333-125.866666c-4.266667-4.266667-6.4-10.666667-2.133334-17.066667 0-2.133333 2.133333-4.266667 2.133334-4.266667l168.533333-125.866666c2.133333-2.133333 4.266667-2.133333 6.4-2.133334 8.533333 0 12.8 4.266667 12.8 12.8v251.733334z" fill="currentColor" style="color:var(--b3-theme-primary)"></path></svg>`,
-    folder: `data:image/svg+xml;charset=utf-8,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M810.666667 213.333333H631.893333L631.04 212.373333C617.706667 196.48 598.933333 186.666667 578.346667 186.666667H444.16C423.573333 186.666667 404.8 196.48 391.466667 212.373333L390.613333 213.333333H213.333333C177.92 213.333333 149.333333 241.92 149.333333 277.333333V746.666667C149.333333 782.08 177.92 810.666667 213.333333 810.666667H810.666667C846.08 810.666667 874.666667 782.08 874.666667 746.666667V277.333333C874.666667 241.92 846.08 213.333333 810.666667 213.333333zM213.333333 277.333333H432L432.746667 276.48C439.04 269.973333 446.613333 266.666667 454.4 266.666667H568.32C576.106667 266.666667 583.68 269.973333 589.973333 276.48L590.826667 277.333333H810.666667V426.666667H213.333333V277.333333z m597.333334 469.333334H213.333333V501.333333H810.666667V746.666667z" fill="currentColor" style="color:var(--b3-theme-primary)"></path></svg>`
+    audio: '/plugins/siyuan-media-player/assets/images/audio.png',
+    video: '/plugins/siyuan-media-player/assets/images/video.png',
+    folder: '/plugins/siyuan-media-player/assets/images/folder.png'
+};
+
+/**
+ * 获取媒体项的缩略图URL - 统一fallback逻辑
+ */
+export const getThumbnailUrl = (item: MediaItem | any): string => {
+    if (item?.thumbnail) return item.thumbnail;
+    if (item?.type === 'audio') return DEFAULT_THUMBNAILS.audio;
+    if (item?.type === 'folder' || item?.is_dir) return DEFAULT_THUMBNAILS.folder;
+    return DEFAULT_THUMBNAILS.video;
 };
 
 /**
@@ -73,8 +84,8 @@ export class MediaManager {
     // 媒体信息获取
     private static async getMediaInfoFromElement(mediaUrl: string, retryCount = 0): Promise<MediaInfo> {
         return new Promise((resolve) => {
-            const fileUrl = url.toFile(mediaUrl);
-            const type = url.type(mediaUrl);
+            const fileUrl = URLUtils.toFile(mediaUrl);
+            const type = URLUtils.getType(mediaUrl);
             const mediaEl = document.createElement(type === 'audio' ? 'audio' : 'video');
             mediaEl.style.display = 'none';
             document.body.appendChild(mediaEl);
@@ -84,7 +95,7 @@ export class MediaManager {
             // 基本信息（用于超时或错误情况）
             const basicInfo = {
                 id: '',
-                title: url.title(mediaUrl),
+                title: URLUtils.getTitle(mediaUrl),
                 duration: '00:00',
                 thumbnail: type === 'audio' ? DEFAULT_THUMBNAILS.audio : '',
                 artist: '',
@@ -101,7 +112,7 @@ export class MediaManager {
             };
 
             const handleMetadata = async () => {
-                const duration = fmt(mediaEl.duration);
+                const duration = URLUtils.fmt(mediaEl.duration);
                 let thumbnail = '';
                 
                 if (mediaEl instanceof HTMLVideoElement) {
@@ -118,7 +129,10 @@ export class MediaManager {
                         canvas.width = mediaEl.videoWidth;
                         canvas.height = mediaEl.videoHeight;
                         canvas.getContext('2d')?.drawImage(mediaEl, 0, 0, canvas.width, canvas.height);
-                        thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+                        const base64Thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        // 立即转换base64为本地资源，避免存储大量base64字符串
+                        thumbnail = await imageToLocalAsset(base64Thumbnail);
                     } catch {}
                 }
 
@@ -151,11 +165,11 @@ export class MediaManager {
     static async createMediaItem(mediaUrl: string, savedInfo?: { aid?: string; bvid?: string; cid?: string }): Promise<MediaItem | null> {
         try {
             // 解析并移除时间戳
-            const { mediaUrl: clean, startTime, endTime } = url.parseTime(mediaUrl);
+            const { mediaUrl: clean, startTime, endTime } = URLUtils.parseTime(mediaUrl);
             
-            const fileUrl = url.toFile(clean);
+            const fileUrl = URLUtils.toFile(clean);
             const isBili = fileUrl.includes('bilibili.com');
-            const type = url.type(fileUrl);
+            const type = URLUtils.getType(fileUrl);
                 
             // 获取媒体信息
             let info = this.getCachedInfo(fileUrl) || 
@@ -165,6 +179,17 @@ export class MediaManager {
             // 合并信息并缓存
             if (!info) return null;
             if (savedInfo) info = { ...info, ...savedInfo };
+            
+            // 处理遗留的base64缩略图，转换为本地资源
+            if (info.thumbnail && info.thumbnail.startsWith('data:image/')) {
+                try {
+                    info.thumbnail = await imageToLocalAsset(info.thumbnail);
+                } catch (e) {
+                    console.warn('转换base64缩略图失败，使用默认缩略图:', e);
+                    info.thumbnail = type === 'audio' ? DEFAULT_THUMBNAILS.audio : '';
+                }
+            }
+            
             this.cacheInfo(fileUrl, info);
             
             // 创建媒体项
@@ -282,11 +307,11 @@ export async function openWithExternalPlayer(
     playerPath?: string
 ): Promise<string | void> {
     try {
-        const { mediaUrl: parsedUrl, startTime } = url.parseTime(mediaUrl);
+        const { mediaUrl: parsedUrl, startTime } = URLUtils.parseTime(mediaUrl);
         
         // 浏览器打开
         if (playerType === PlayerType.BROWSER) {
-            const urlWithTimestamp = startTime !== undefined ? url.withTime(parsedUrl, startTime) : parsedUrl;
+            const urlWithTimestamp = startTime !== undefined ? URLUtils.withTime(parsedUrl, startTime) : parsedUrl;
             
             if (window.navigator.userAgent.includes('Electron')) {
                 const { shell } = require('electron');
@@ -301,7 +326,7 @@ export async function openWithExternalPlayer(
         const cleanPath = playerPath?.replace(/^["']|["']$/g, '');
         if (!cleanPath) return "请在设置中配置播放器路径";
         
-        const timeParam = startTime !== undefined ? ` /seek=${fmt(startTime, {anchor: true})}` : '';
+        const timeParam = startTime !== undefined ? ` /seek=${URLUtils.fmt(startTime, {anchor: true})}` : '';
         const processedUrl = parsedUrl.startsWith('file://') 
             ? parsedUrl.substring(8).replace(/\//g, '\\') 
             : parsedUrl;
@@ -332,13 +357,12 @@ export async function handleMediaError(
     error: any, 
     currentItem: any, 
     player: any, 
-    configManager: any, 
+    config: any, 
     i18n?: any
 ): Promise<void> {
     try {
         // 处理B站错误
         if (currentItem?.type === 'bilibili' && currentItem.bvid && currentItem.cid) {
-            const config = await configManager.getConfig();
             // 尝试使用高质量设置重新获取流
             const streamInfo = await BilibiliParser.getProcessedVideoStream(
                 currentItem.bvid, 
@@ -376,7 +400,7 @@ export async function handleMediaError(
 export async function playMedia(
     options: any,
     player: any,
-    configManager: any,
+    config: any,
     setCurrentItem: (item: any) => void,
     i18n?: any
 ): Promise<void> {
@@ -389,8 +413,6 @@ export async function playMedia(
         // 创建媒体项并设置
         const currentItem = createMediaItemFromOptions(options);
         setCurrentItem(currentItem);
-        
-        const config = await configManager.getConfig();
         
         // 检查是否使用外部播放器
         if (config.settings.playerType !== PlayerType.BUILT_IN) {
@@ -430,6 +452,6 @@ export async function playMedia(
         // 使用内置播放器播放
         await player.play(playUrl, playConfig);
     } catch (error) {
-        await handleMediaError(error, options, player, configManager, i18n);
+        await handleMediaError(error, options, player, config, i18n);
     }
 }

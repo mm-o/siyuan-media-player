@@ -14,6 +14,7 @@
         "warning": "警告",
         "tip": "提示"
     },
+
     "pro": {
         "notEnabled": "此功能需要Pro版本，请在设置中启用Media Player Pro",
         "title": "Media Player Pro",
@@ -263,9 +264,55 @@
         },
         "sortMode": {
             "0": "默认排序",
-            "1": "按名称排序",
+            "1": "按名称排序", 
             "2": "按时间排序",
             "3": "按类型排序"
+        },
+        "errors": {
+            "operationFailed": "操作失败",
+            "initFailed": "初始化失败",
+            "loadDataFailed": "加载数据失败",
+            "getFolderListFailed": "获取文件列表失败",
+            "alistConnectionRequired": "请先配置AList连接",
+            "selectionFailed": "选择失败",
+            "playFailed": "播放失败",
+            "desktopRequired": "需要桌面版支持",
+            "fileSelectionFailed": "文件选择失败",
+            "updatePartFailed": "更新分P失败",
+            "playNextFailed": "播放下一个失败",
+            "handleMediaItemFailed": "处理媒体项失败",
+            "biliLoginRequired": "需要登录B站才能播放视频"
+        },
+        "messages": {
+            "filesAdded": "已添加${count}个文件"
+        },
+        "ui": {
+            "itemCount": "项",
+            "viewMode": "视图模式",
+            "newTabPlaceholder": "新标签名",
+            "rootDirectory": "根目录",
+            "mediaLinkPlaceholder": "输入链接或直接点击添加本地文件...",
+            "addButton": "添加",
+            "emptyStateNoDatabase": "请先在设置中配置播放列表数据库",
+            "emptyStateNoItems": "当前标签暂无媒体项目"
+        },
+        "labels": {
+            "tag": "标签",
+            "siyuan": "思源",
+            "audio": "音频",
+            "video": "视频",
+            "folder": "文件夹"
+        },
+        "tabs": {
+            "directory": "目录",
+            "default": "默认",
+            "favorites": "收藏"
+        },
+        "sources": {
+            "bilibili": "B站",
+            "local": "本地",
+            "general": "普通",
+            "alist": "AList"
         }
     },
     "setting": {

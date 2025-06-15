@@ -5,7 +5,7 @@
 import { showMessage } from "siyuan";
 import type { MediaItem } from './types';
 import * as api from '../api';
-import { fmt, url } from './utils';
+import { URLUtils } from './PlayList';
 
 // 类型定义
 type Block = {
@@ -16,62 +16,37 @@ type Block = {
 
 type ReplacePattern = Record<string, string>;
 
-// ===== 文档操作核心功能 =====
+// ===== 文档操作 =====
 export const doc = {
-    /**
-     * 获取当前块ID
-     */
     getBlockID: async (i18n?: any): Promise<string> => {
         const selection = window.getSelection();
-        if (!selection?.focusNode) 
-            throw new Error(i18n?.mediaPlayerTab?.block?.cursorNotFound || "未找到光标");
-
+        if (!selection?.focusNode) throw new Error(i18n?.mediaPlayerTab?.block?.cursorNotFound || "未找到光标");
         let el = selection.focusNode as HTMLElement;
         while (el && !el.dataset?.nodeId) el = el.parentElement as HTMLElement;
-
-        if (!el?.dataset.nodeId) 
-            throw new Error(i18n?.mediaPlayerTab?.block?.targetBlockNotFound || "未找到目标块");
-        
+        if (!el?.dataset.nodeId) throw new Error(i18n?.mediaPlayerTab?.block?.targetBlockNotFound || "未找到目标块");
         return el.dataset.nodeId;
     },
     
-    /**
-     * 获取文档ID (通过块ID)
-     */
     getDocID: async (blockId?: string, i18n?: any): Promise<string> => {
         try {
-            const id = blockId || await doc.getBlockID(i18n);
-            const block = await api.getBlockByID(id) as Block;
+            const block = await api.getBlockByID(blockId || await doc.getBlockID(i18n)) as Block;
             return block?.root_id || block?.id?.split('/')[0] || '';
-        } catch {
-            throw new Error(i18n?.mediaPlayerTab?.block?.docIdNotFound || "无法获取文档ID");
-        }
+        } catch { throw new Error(i18n?.mediaPlayerTab?.block?.docIdNotFound || "无法获取文档ID"); }
     },
     
-    /**
-     * 插入内容到文档
-     */
     insert: async (content: string, config: any, i18n?: any): Promise<void> => {
-        const insertMode = config?.settings?.insertMode || 'insertBlock';
-        
-        // 处理剪贴板模式
-        if (insertMode === 'clipboard') {
+        const mode = config?.settings?.insertMode || 'insertBlock';
+        if (mode === 'clipboard') {
             await navigator.clipboard.writeText(content);
             return showMessage(i18n?.mediaPlayerTab?.block?.copiedToClipboard || "已复制到剪贴板");
         }
         
         try {
-            // 获取目标ID
             const blockId = await doc.getBlockID(i18n);
-            const docId = insertMode.includes('Doc') ? await doc.getDocID(blockId, i18n) : null;
-            const targetId = docId || blockId;
-            
-            // 执行块操作
-            const method = insertMode.replace('Block', '').replace('Doc', '');
-            await api[`${method}Block`]("markdown", content, 
-                ...(method === 'insert' ? [undefined, undefined, targetId] : [targetId]));
+            const targetId = mode.includes('Doc') ? await doc.getDocID(blockId, i18n) : blockId;
+            const method = mode.replace('Block', '').replace('Doc', '');
+            await api[`${method}Block`]("markdown", content, ...(method === 'insert' ? [undefined, undefined, targetId] : [targetId]));
         } catch {
-            // 失败时复制到剪贴板
             await navigator.clipboard.writeText(content);
             showMessage(i18n?.mediaPlayerTab?.block?.insertFailed || "操作失败，已复制");
         }
@@ -102,9 +77,9 @@ export const link = async (
     
     try {
         const timeText = endTime 
-            ? `${fmt(time, {anchor: true})}-${fmt(endTime, {anchor: true})}` 
-            : fmt(time, {anchor: true});
-        const baseUrl = url.getStandardUrl(item, config);
+            ? `${URLUtils.fmt(time, {anchor: true})}-${URLUtils.fmt(endTime, {anchor: true})}` 
+            : URLUtils.fmt(time, {anchor: true});
+        const baseUrl = URLUtils.getStandardUrl(item, config);
         
         // 应用模板替换
         let format = config?.settings?.linkFormat || "- [时间 字幕](链接)";
@@ -116,11 +91,11 @@ export const link = async (
             '字幕|{{subtitle}}': subtitle || '',
             '标题|{{title}}': item.title || '',
             '艺术家|{{artist}}': item.artist || '',
-            '链接|{{url}}': url.withTime(baseUrl, time, endTime)
+            '链接|{{url}}': URLUtils.withTime(baseUrl, time, endTime)
         });
     } catch {
         // 出错时返回最简格式
-        return `- [${subtitle ? `${fmt(time, {anchor: true})} ${subtitle}` : fmt(time, {anchor: true})}](${item.url})`;
+        return `- [${subtitle ? `${URLUtils.fmt(time, {anchor: true})} ${subtitle}` : URLUtils.fmt(time, {anchor: true})}](${item.url})`;
     }
 };
 
@@ -181,116 +156,43 @@ export const player = {
 
 // ===== 笔记本管理 =====
 export const notebook = {
-    /**
-     * 获取/保存首选笔记本ID
-     */
     getPreferredId: (): string => localStorage.getItem('notebookId') || '',
     savePreferredId: (id: string): void => localStorage.setItem('notebookId', id),
-    
-    /**
-     * 获取笔记本列表
-     */
     getList: async (): Promise<any[]> => {
-        try {
-            const response = await api.lsNotebooks();
-            return (response?.notebooks || []).filter((nb: any) => !nb.closed);
-        } catch { return []; }
+        try { return (await api.lsNotebooks())?.notebooks?.filter((nb: any) => !nb.closed) || []; } catch { return []; }
     },
-    
-    /**
-     * 获取笔记本选项
-     */
     getOptions: async (): Promise<{label: string, value: string}[]> => {
-        const notebooks = await notebook.getList();
-        return notebooks.map(nb => ({
-            label: nb.name || "未命名笔记本",
-            value: nb.id || ""
-        }));
+        return (await notebook.getList()).map(nb => ({label: nb.name || "未命名笔记本", value: nb.id || ""}));
     },
-    
-    /**
-     * 初始化设置项
-     */
     initSettingItem: async (items: any[], selectedId: string = ''): Promise<{items: any[], selectedId: string}> => {
         try {
             const options = await notebook.getOptions();
-            if (!options.length) return { items, selectedId };
-            
+            if (!options.length) return {items, selectedId};
             const index = items.findIndex(item => item.key === "targetNotebook");
-            if (index === -1) return { items, selectedId };
-            
+            if (index === -1) return {items, selectedId};
             items[index].options = options;
-            const validId = (!selectedId || !options.some(opt => opt.value === selectedId))
-                ? options[0].value : selectedId;
+            const validId = (!selectedId || !options.some(opt => opt.value === selectedId)) ? options[0].value : selectedId;
             items[index].value = validId;
-            
-            return { items: [...items], selectedId: validId };
-        } catch { return { items, selectedId }; }
+            return {items: [...items], selectedId: validId};
+        } catch { return {items, selectedId}; }
     }
 }; 
 
-// ===== 数据库管理 =====
-export const database = {
-    /**
-     * 通过块id获取数据库id
-     */
-    getAvIdByBlockId: async (blockId: string): Promise<string> => {
-        if (!blockId) return '';
-        try {
-            const res = await fetch('/api/query/sql', {
-                method: 'POST', 
-                body: JSON.stringify({stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'`})
-            }).then(r => r.json());
-            
-            if (res.code === 0 && res.data?.[0]?.markdown) {
-                const match = res.data[0].markdown.match(/data-av-id="([^"]+)"/);
-                return match?.[1] || '';
-            }
-        } catch {}
-        return '';
-    },
-    
-    /**
-     * 获取数据库字段信息
-     */
-    getKeysByAvId: async (avId: string): Promise<any[]> => {
-        if (!avId) return [];
-        try {
-            const res = await fetch('/api/av/getAttributeViewKeysByAvID', {
-                method: 'POST',
-                body: JSON.stringify({avID: avId})
-            }).then(r => r.json());
-            return res.code === 0 ? res.data || [] : [];
-        } catch {}
-        return [];
-    }
-};
 
-// ===== 媒体笔记工具 =====
+
+// ===== 媒体笔记 =====
 export const mediaNotes = {
-    /**
-     * 创建媒体笔记
-     */
     create: async (mediaItem: MediaItem, config: any, player: any, i18n?: any): Promise<void> => {
         try {
-            // 准备笔记内容
-            const standardUrl = url.getStandardUrl(mediaItem, config);
             const currentTime = player.getCurrentTime();
-            const timeText = fmt(currentTime, {anchor: true});
-            const thumbnailUrl = mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '';
-            
-            // 获取模板并替换变量
-            const template = config.settings.mediaNotesTemplate || 
-                "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：";
-            
-            // 替换模板变量
-            const content = applyTemplate(template, {
+            const content = applyTemplate(config.settings.mediaNotesTemplate || 
+                "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：", {
                 '标题|{{title}}': mediaItem.title || '未命名媒体',
-                '时间|{{time}}': timeText,
+                '时间|{{time}}': URLUtils.fmt(currentTime, {anchor: true}),
                 '艺术家|{{artist}}': mediaItem.artist || '',
-                '链接|{{url}}': standardUrl,
+                '链接|{{url}}': URLUtils.getStandardUrl(mediaItem, config),
                 '时长|{{duration}}': mediaItem.duration || '',
-                '封面|{{thumbnail}}': thumbnailUrl,
+                '封面|{{thumbnail}}': mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '',
                 '类型|{{type}}': mediaItem.type || 'video',
                 'ID|{{id}}': mediaItem.id || '',
                 '日期|{{date}}': new Date().toLocaleDateString(),
@@ -298,100 +200,70 @@ export const mediaNotes = {
             });
             
             try {
-                // 尝试在当前文档插入块
                 await api.insertBlock("markdown", content, undefined, undefined, await doc.getBlockID(i18n));
             } catch {
-                // 创建新文档
-                const notebookId = config.settings.targetNotebook || notebook.getPreferredId();
-                const response = await fetch('/api/filetree/createDocWithMd', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        notebook: notebookId, 
-                        path: `/${mediaItem.title || '媒体笔记'}`, 
-                        markdown: content 
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.code === 0) {
-                    window.open(`siyuan://blocks/${result.data}`, '_blank');
-                } else {
-                    throw new Error(result.msg || "创建文档失败");
-                }
+                const result = await (await fetch('/api/filetree/createDocWithMd', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({notebook: config.settings.targetNotebook || notebook.getPreferredId(), 
+                                        path: `/${mediaItem.title || '媒体笔记'}`, markdown: content})
+                })).json();
+                if (result.code === 0) window.open(`siyuan://blocks/${result.data}`, '_blank');
+                else throw new Error(result.msg || "创建文档失败");
             }
+            
+            try {
+                const dbBlockId = config?.settings?.playlistDb?.id;
+                if (dbBlockId) {
+                    const {createPlaylistManager} = await import('./PlayList');
+                    await createPlaylistManager().addMedia(mediaItem.url, '默认');
+                }
+            } catch (dbError) { console.warn("添加到数据库失败:", dbError); }
         } catch (error) {
             console.error("创建媒体笔记失败:", error);
             showMessage(i18n?.mediaPlayerTab?.mediaNotes?.createFailed || "创建媒体笔记失败");
-            
-            // 失败时尝试复制简单笔记到剪贴板
             try {
-                await navigator.clipboard.writeText(
-                    `# ${mediaItem.title || '媒体笔记'}\n- 时间：${fmt(player?.getCurrentTime?.() || 0, {anchor: true})}`
-                );
+                await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${URLUtils.fmt(player?.getCurrentTime?.() || 0, {anchor: true})}`);
                 showMessage(i18n?.mediaPlayerTab?.mediaNotes?.copiedToClipboard || "已复制到剪贴板");
             } catch {}
         }
     }
-}; /**
- * 将图片转换为思源笔记本地资源
- */
-export const imageToLocalAsset = async (imageUrl: string): Promise<string> => {
-    if (!imageUrl || 
-        imageUrl === '/plugins/siyuan-media-player/thumbnails/default.svg' || 
-        imageUrl.startsWith('/assets/')) return imageUrl;
-    
-    try {
-        // 处理网络图片
-        if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
-            const url = imageUrl.startsWith('//') ? `https:${imageUrl}` : imageUrl;
-            
-            // 尝试使用API直接获取
-            try {
-                const resp = await fetch('/api/asset/netImg', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url })
-                });
-                
-                const json = await resp.json();
-                if (json.code === 0 && json.data) return json.data;
-            } catch {}
-            
-            // 手动下载并上传
-            return await uploadImageBlob(await (await fetch(url)).blob());
-        }
-        
-        // 处理Base64图片
-        else if (imageUrl.startsWith('data:image')) {
-            const arr = imageUrl.split(',');
-            const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
-            const bstr = atob(arr[1]);
-            const u8arr = new Uint8Array(bstr.length);
-            
-            for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
-            
-            return await uploadImageBlob(new Blob([u8arr], { type: mime }));
-        }
-    } catch (e) {
-        console.warn('图片转换失败:', e);
-    }
-    
-    return imageUrl;
-};
+}; 
 
 /**
- * 上传图片Blob到思源笔记
+ * 图片转本地资源 - 统一处理
  */
-async function uploadImageBlob(blob: Blob): Promise<string> {
-    const form = new FormData();
-    form.append('file[]', new File(
-        [blob], 
-        `img_${Date.now()}.${blob.type.split('/')[1] || 'png'}`, 
-        { type: blob.type }
-    ));
+export const imageToLocalAsset = async (imageUrl: string): Promise<string> => {
+    if (!imageUrl || imageUrl.startsWith('/assets/')) return imageUrl;
     
-    const result = await (await fetch('/api/asset/upload', { method: 'POST', body: form })).json();
-    return result.code === 0 ? Object.values(result.data.succMap)[0] as string : '';
-} 
+    try {
+        const form = new FormData();
+        let file: File;
+        
+        if (imageUrl.startsWith('http') || imageUrl.startsWith('//')) {
+            // 网络图片
+            const url = imageUrl.startsWith('//') ? `https:${imageUrl}` : imageUrl;
+            const blob = await (await fetch(url)).blob();
+            const ext = blob.type.split('/')[1] || 'png';
+            file = new File([blob], `img_${Date.now()}.${ext}`, {type: blob.type});
+        } else if (imageUrl.startsWith('data:image')) {
+            // Base64图片
+            const [header, data] = imageUrl.split(',');
+            const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
+            const bytes = atob(data);
+            const array = new Uint8Array(bytes.length);
+            for (let i = 0; i < bytes.length; i++) array[i] = bytes.charCodeAt(i);
+            const ext = mime.split('/')[1] || 'png';
+            file = new File([new Blob([array], {type: mime})], `img_${Date.now()}.${ext}`, {type: mime});
+        } else {
+            return imageUrl;
+        }
+        
+        form.append('file[]', file);
+        const result = await (await fetch('/api/asset/upload', {method: 'POST', body: form})).json();
+        return result.code === 0 ? Object.values(result.data.succMap)[0] as string : '';
+    } catch (e) {
+        console.warn('图片转换失败:', e);
+        return imageUrl;
+    }
+}; 
 

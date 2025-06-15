@@ -2,7 +2,7 @@
  * AList API交互模块
  */
 import type { MediaItem } from './types';
-import { fmt, EXT } from './utils';
+import { URLUtils, EXT } from './PlayList';
 import { DEFAULT_THUMBNAILS } from './media';
 
 // 接口定义
@@ -240,7 +240,7 @@ export class AListManager {
             startTime: timeParams.startTime,
             endTime: timeParams.endTime,
             isLoop: timeParams.endTime !== undefined,
-            thumbnail: DEFAULT_THUMBNAILS[isAudio ? 'audio' : 'video']
+            thumbnail: isAudio ? DEFAULT_THUMBNAILS.audio : DEFAULT_THUMBNAILS.video
         };
     }
 
@@ -299,7 +299,7 @@ export class AListManager {
                     id: `alist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
                     title: file.name,
                     url: `${this.config!.server}${filePath}`,
-                    thumbnail: file.thumb || DEFAULT_THUMBNAILS[media.isAudioFile(file.name) ? 'audio' : 'video'],
+                    thumbnail: file.thumb || (media.isAudioFile(file.name) ? DEFAULT_THUMBNAILS.audio : DEFAULT_THUMBNAILS.video),
                     type: media.isAudioFile(file.name) ? 'audio' : 'video',
                     source: 'alist',
                     sourcePath: filePath

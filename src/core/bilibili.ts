@@ -1,7 +1,7 @@
 import md5 from 'md5';
 import QRCode from 'qrcode';
 import type { MediaInfo } from "./types";
-import { fmt } from './utils';
+import { URLUtils } from './PlayList';
 
 // ===== 1. API配置 =====
 export const BILI_API = {
@@ -149,7 +149,7 @@ export class BilibiliParser {
                 artist: info.data.owner?.name,
                 artistIcon: info.data.owner?.face,
                 artistId: info.data.owner?.mid?.toString(),
-                duration: fmt(info.data.duration),
+                duration: URLUtils.fmt(info.data.duration),
                 thumbnail: info.data.pic,
                 aid: String(info.data.aid),
                 bvid: info.data.bvid,
@@ -355,14 +355,14 @@ export class QRCodeManager {
             this.startPolling(); // 继续轮询
             return;
         }
-        const config = await this.configManager.getConfig();
+        const config = this.configManager.getConfig();
         config.bilibiliLogin = {
             url: data.url,
             refresh_token: data.refresh_token,
             timestamp: data.timestamp,
             userInfo
         };
-        await this.configManager.save();
+        this.configManager.save(config);
         this.onLoginSuccess(userInfo);
     }
 

@@ -1,16 +1,33 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { showMessage } from "siyuan";
-    import type { ConfigManager } from "../core/config";
     import type { ISettingItem, SettingType } from "../core/types";
-    import { notebook, database } from "../core/document";
+    import { notebook } from "../core/document";
+    import { getAvIdByBlockId, MediaDB } from "../core/PlayList";
     import { QRCodeManager } from "../core/bilibili";
 
     export let group: string;
-    export let configManager: ConfigManager;
+    export let config: any;
     export let i18n: any;
     export let allTabs = [];
     export let activeTabId = 'settings';
+    
+    // 配置管理
+    const workspace = window.siyuan.config.system.workspaceDir;
+    const configPath = `${workspace}/data/storage/petal/siyuan-media-player/config.json`;
+    
+    function getConfig() {
+        try { return JSON.parse(window.require('fs').readFileSync(configPath, 'utf-8')); }
+        catch { return { settings: {}, bilibiliLogin: undefined }; }
+    }
+    
+    function saveConfig(newConfig: any) {
+        try { 
+            window.require('fs').writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
+            // 通知其他组件配置已更新
+            window.dispatchEvent(new CustomEvent('configUpdated', { detail: newConfig }));
+        } catch (e) { console.error('保存配置失败:', e); }
+    }
     
     // 状态和数据
     let activeTab = 'account';
@@ -47,7 +64,7 @@
                 onChange: async (v) => {
                     state.pro = { ...state.pro, enabled: v };
                     settingItems = createSettings(state);
-                    await configManager.updateSettings(state); } },
+                    const cfg = getConfig(); cfg.settings = state; saveConfig(cfg); } },
             { key: "proPanel", type: "images" as SettingType, value: [
                 { url: "/plugins/siyuan-media-player/assets/images/alipay.jpg", caption: "支付宝付款码" },
                 { url: "/plugins/siyuan-media-player/assets/images/wechat.jpg", caption: "微信付款码" }
@@ -100,15 +117,16 @@
                     if (state.bilibili.login) {
                         state.bilibili = { login: false, userInfo: null };
                         qrcode = { data: '', key: '' };
-                        const config = await configManager.getConfig();
-                        delete config.bilibiliLogin;
-                        await configManager.save();
+                        const cfg = getConfig();
+                        delete cfg.bilibiliLogin;
+                        cfg.settings = state;
+                        saveConfig(cfg);
                         settingItems = createSettings(state);
                         if (qrCodeManager) qrCodeManager.stopPolling();
                     } else {
                         if (!qrCodeManager) {
                             qrCodeManager = new QRCodeManager(
-                                configManager,
+                                { getConfig, save: () => {}, updateSettings: (s) => { const cfg = getConfig(); cfg.settings = s; saveConfig(cfg); } },
                                 ({ data, key }) => {
                                     qrcode = { data, key };
                                     settingItems = createSettings(state);
@@ -118,7 +136,7 @@
                                     state.bilibili = { login: true, userInfo: { mid, uname, face, level } };
                                     settingItems = createSettings(state);
                                     if (qrCodeManager) qrCodeManager.stopPolling();
-                                    configManager.updateSettings(state);
+                                    const cfg = getConfig(); cfg.settings = state; cfg.bilibiliLogin = userInfo; saveConfig(cfg);
                                 }
                             );
                         }
@@ -206,11 +224,21 @@
               options: (notebooks || []).map(nb => ({ label: nb.name, value: nb.id })) },
             { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
               title: "播放列表数据库",
-              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : "输入数据库块ID，属性视图ID将自动获取",
-              onChange: (v) => {
+              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : "输入数据库块ID",
+              onChange: async (v) => {
                 state.playlistDb = { id: v, avId: '' };
-                if (v) database.getAvIdByBlockId(v).then(avId => 
-                  avId && (state.playlistDb.avId = avId, settingItems = createSettings(state), configManager.updateSettings(state))); },
+                if (v) {
+                    try {
+                        const avId = await getAvIdByBlockId(v);
+                        if (avId) {
+                            state.playlistDb.avId = avId;
+                            const mediaDb = new MediaDB();
+                            await mediaDb.init(v);
+                        }
+                    } catch {}
+                }
+                settingItems = createSettings(state);
+              },
               rows: 1 },
             { key: "screenshotWithTimestamp", value: state.screenshotWithTimestamp ?? false, type: "checkbox" as SettingType, tab: "general",
               title: i18n.setting.items?.screenshotWithTimestamp?.title || "截图包含时间戳",
@@ -243,20 +271,20 @@
                 key: `script_${s.name}`,type: "checkbox" as SettingType,tab: "general",
                 title: s.name,value: s.enabled ?? true,
                 description: i18n.setting.items?.script?.description || "控制脚本是否启用",
-                onChange: v => { s.enabled = v; configManager.updateSettings(state); settingItems = createSettings(state); }
+                onChange: v => { s.enabled = v; const cfg = getConfig(); cfg.settings = state; saveConfig(cfg); settingItems = createSettings(state); }
             }))
         ];
     }
 
     // 初始化
     async function refreshSettings() {
-        const config = await configManager.load();
-        Object.assign(state, configManager.getDefaultUIState(), config.settings || {});
-        state.pro = config.settings?.pro ?? { enabled: false };
-        state.insertMode = config.settings?.insertMode ?? "updateBlock";
-        state.scripts = config.settings?.scripts || [];
-        state.playlistDb = config.settings?.playlistDb || { id: '', avId: '' };
-        state.targetNotebook = config.settings?.targetNotebook || { id: '', name: '' };
+        const cfg = getConfig();
+        Object.assign(state, { qrcode: { data: '', key: '' }, bilibili: { login: false, userInfo: null }, alist: { enabled: false, showPanel: false }, scripts: [] }, cfg.settings || {});
+        state.pro = cfg.settings?.pro ?? { enabled: false };
+        state.insertMode = cfg.settings?.insertMode ?? "updateBlock";
+        state.scripts = cfg.settings?.scripts || [];
+        state.playlistDb = cfg.settings?.playlistDb || { id: '', avId: '' };
+        state.targetNotebook = cfg.settings?.targetNotebook || { id: '', name: '' };
         
         try { notebooks = await notebook.getList?.() || []; } catch {}
         handleScripts(); // 默认同步脚本
@@ -289,14 +317,14 @@
             
             // 所有情况下都更新UI，确保立即显示
             settingItems = createSettings(state);
-            await configManager.updateSettings(state);
+            const cfg = getConfig(); cfg.settings = state; saveConfig(cfg);
         } catch (e) {}
     }
 
     // 重置单个设置项
     function resetItem(key) {
-        const config = configManager.getDefaultConfig();
-        state[key] = config.settings[key] || configManager.getDefaultUIState()[key];
+        const defaults = { volume: 70, speed: 100, hotkey: true, loop: false, loopCount: 3, pauseAfterLoop: false, loopPlaylist: false, loopSingle: false, insertMode: 'insertBlock', showSubtitles: true, enableDanmaku: false, playerType: 'built-in', openMode: 'default', playerPath: 'PotPlayerMini64.exe', linkFormat: '- [😄标题 艺术家 时间 字幕](链接)', screenshotWithTimestamp: false, targetNotebook: { id: '', name: '' }, pro: { enabled: false }, alist: { enabled: false, showPanel: false } };
+        state[key] = defaults[key];
         settingItems = createSettings(state);
     }
 
@@ -308,7 +336,7 @@
         if (item.onChange) {item.onChange(v);} 
         else {state[item.key] = v;}
         settingItems = createSettings(state);
-        configManager.updateSettings(state);
+        const cfg = getConfig(); cfg.settings = state; saveConfig(cfg);
     }
 
     $: if (activeTab) refreshSettings();
@@ -328,6 +356,7 @@
             <h3 class:active={activeTabId === 'settings'} on:click={() => changePanelTab('settings')}>
                 {i18n.setting?.title || "设置"}
             </h3>
+
         </div>
         <span class="playlist-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
     </div>

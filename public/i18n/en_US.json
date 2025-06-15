@@ -14,6 +14,7 @@
         "warning": "Warning",
         "tip": "Tip"
     },
+
     "pro": {
         "notEnabled": "This feature requires Pro version. Please enable Media Player Pro in settings",
         "title": "Media Player Pro",
@@ -263,6 +264,52 @@
             "1": "Sort by name",
             "2": "Sort by time",
             "3": "Sort by type"
+        },
+        "errors": {
+            "operationFailed": "Operation failed",
+            "initFailed": "Initialization failed",
+            "loadDataFailed": "Failed to load data",
+            "getFolderListFailed": "Failed to get folder list",
+            "alistConnectionRequired": "Please configure AList connection first",
+            "selectionFailed": "Selection failed",
+            "playFailed": "Play failed",
+            "desktopRequired": "Desktop version required",
+            "fileSelectionFailed": "File selection failed",
+            "updatePartFailed": "Failed to update part",
+            "playNextFailed": "Failed to play next",
+            "handleMediaItemFailed": "Failed to handle media item",
+            "biliLoginRequired": "Bilibili login required to play video"
+        },
+        "messages": {
+            "filesAdded": "Added ${count} files"
+        },
+        "ui": {
+            "itemCount": "items",
+            "viewMode": "View Mode",
+            "newTabPlaceholder": "New tab name",
+            "rootDirectory": "Root Directory",
+            "mediaLinkPlaceholder": "Enter link or click to add local files...",
+            "addButton": "Add",
+            "emptyStateNoDatabase": "Please configure playlist database in settings first",
+            "emptyStateNoItems": "No media items in current tab"
+        },
+        "labels": {
+            "tag": "Tag",
+            "siyuan": "SiYuan",
+            "audio": "Audio",
+            "video": "Video",
+            "folder": "Folder"
+        },
+        "tabs": {
+            "directory": "Directory",
+            "default": "Default",
+            "favorites": "Favorites"
+        },
+        "sources": {
+            "bilibili": "Bilibili",
+            "local": "Local",
+            "general": "General",
+            "alist": "AList"
         }
     },
     "setting": {

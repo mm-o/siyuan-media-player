@@ -166,8 +166,6 @@ export interface Config {
     };
     /** B站登录信息 */
     bilibiliLogin?: BilibiliLogin;
-    /** 播放列表 */
-    playlists: PlaylistConfig[];
 }
 
 /**

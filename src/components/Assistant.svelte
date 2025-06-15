@@ -6,10 +6,17 @@
     import { showMessage } from 'siyuan';
 
     // 组件属性
-    export let configManager, className = '', hidden = false, i18n: any = {}, currentMedia: any = null, player: any = null;
+    export let className = '', hidden = false, i18n: any = {}, currentMedia: any = null, player: any = null;
     export let insertContentCallback, createTimestampLinkCallback;
     export let allTabs = [];
     export let activeTabId = 'assistant';
+    
+    // 配置管理
+    const workspace = window.siyuan.config.system.workspaceDir;
+    const getConfig = () => {
+        try { return JSON.parse(window.require('fs').readFileSync(`${workspace}/data/storage/petal/siyuan-media-player/config.json`, 'utf-8')); }
+        catch { return { settings: {}, bilibiliLogin: undefined }; }
+    };
 
     // 组件状态
     let activeTab = 'subtitles';
@@ -135,7 +142,7 @@
                 subtitles = await SubtitleManager.loadBilibiliSubtitle(
                     currentMedia.bvid, 
                     currentMedia.cid, 
-                    configManager.getConfig()
+                    getConfig()
                 );
             } else if (currentMedia.url) {
                 // 本地或AList字幕
@@ -157,7 +164,7 @@
                 // B站视频弹幕
                 const danmakuList = await DanmakuManager.getBiliDanmaku(
                     currentMedia.cid,
-                    configManager.getConfig()
+                    getConfig()
                 );
                 danmakus = danmakuList || [];
             } else if (currentMedia.url) {
@@ -177,7 +184,7 @@
         if (currentMedia.bvid && currentMedia.cid) {
             isLoadingSummary = true;
             try {
-                const config = configManager.getConfig();
+                const config = getConfig();
                 const upMid = currentMedia.artistId 
                     || (await BilibiliParser.getVideoInfo(`https://www.bilibili.com/video/${currentMedia.bvid}/`)?.then(info => info?.artistId))
                     || config.bilibiliLogin?.userInfo?.mid;
@@ -270,6 +277,7 @@
             <h3 class:active={activeTabId === 'settings'} on:click={() => changePanelTab('settings')}>
                 {i18n.setting?.title || "设置"}
             </h3>
+
         </div>
         <div class="header-controls">
             <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || '总结'))}</span>
