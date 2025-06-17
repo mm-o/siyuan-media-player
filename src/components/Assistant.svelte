@@ -10,12 +10,12 @@
     export let insertContentCallback, createTimestampLinkCallback;
     export let allTabs = [];
     export let activeTabId = 'assistant';
+    export let plugin: any;
     
     // 配置管理
-    const workspace = window.siyuan.config.system.workspaceDir;
-    const getConfig = () => {
-        try { return JSON.parse(window.require('fs').readFileSync(`${workspace}/data/storage/petal/siyuan-media-player/config.json`, 'utf-8')); }
-        catch { return { settings: {}, bilibiliLogin: undefined }; }
+    const getConfig = async () => {
+        const data = await plugin.loadData('config.json');
+        return (data && typeof data === 'object' && !Array.isArray(data)) ? { settings: {}, bilibiliLogin: undefined, ...data } : { settings: {}, bilibiliLogin: undefined };
     };
 
     // 组件状态
@@ -142,7 +142,7 @@
                 subtitles = await SubtitleManager.loadBilibiliSubtitle(
                     currentMedia.bvid, 
                     currentMedia.cid, 
-                    getConfig()
+                    await getConfig()
                 );
             } else if (currentMedia.url) {
                 // 本地或AList字幕
@@ -164,7 +164,7 @@
                 // B站视频弹幕
                 const danmakuList = await DanmakuManager.getBiliDanmaku(
                     currentMedia.cid,
-                    getConfig()
+                    await getConfig()
                 );
                 danmakus = danmakuList || [];
             } else if (currentMedia.url) {
@@ -184,7 +184,7 @@
         if (currentMedia.bvid && currentMedia.cid) {
             isLoadingSummary = true;
             try {
-                const config = getConfig();
+                const config = await getConfig();
                 const upMid = currentMedia.artistId 
                     || (await BilibiliParser.getVideoInfo(`https://www.bilibili.com/video/${currentMedia.bvid}/`)?.then(info => info?.artistId))
                     || config.bilibiliLogin?.userInfo?.mid;

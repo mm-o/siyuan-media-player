@@ -152,12 +152,6 @@ export interface Config {
         targetNotebook?: { id: string; name: string };
         /** 媒体笔记模板 */
         mediaNotesTemplate?: string;
-        /** 用户脚本 */
-        scripts?: Array<{
-            name: string;      // 脚本文件名
-            enabled: boolean;  // 是否启用
-            path?: string;     // 脚本完整路径
-        }>;
         // UI临时状态(不持久化)
         qrcode?: { data: string; key: string };
         bilibili?: { login: boolean; userInfo: any };

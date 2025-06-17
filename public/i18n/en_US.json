@@ -430,14 +430,6 @@
             "topBarButtons": {
                 "title": "Top Bar Buttons",
                 "description": "Choose buttons to display in the top toolbar"
-            },
-            "loadScript": {
-                "title": "Load Script",
-                "description": "Select script files to load into the plugin",
-                "buttonText": "Select Script File",
-                "scriptFiles": "Script Files",
-                "loadFailed": "Failed to load script",
-                "loadSuccess": "Script loaded to plugin"
             }
         },
         "bilibili": {

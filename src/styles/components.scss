@@ -444,10 +444,11 @@ input[type="range"] {
 }
 .slider-value { min-width: 40px; text-align: right; color: color(on-surface); }
 
-// 账号样式
-.setting-item-account .user-wrapper, .setting-item-alist .user-wrapper {
-  @include flex(row, flex-start, center, 8px);
-  img, .user-avatar, svg { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+// 账号描述样式
+.acc-desc {
+  display: flex; gap: 10px;
+  .acc-icon { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; fill: color(primary); }
+  .acc-info { line-height: 1.5; b { font-size: 14px; } small { color: #888; } .acc-muted { font-size: 11px; color: #aaa; } }
 }
 
 // 文本区域
@@ -462,4 +463,10 @@ input[type="range"] {
   padding: 4px 12px; font-size: 12px; 
   .path-item { background: none; border: none; color: color(primary); cursor: pointer; padding: 0; } 
   .path-sep { margin: 0 4px; opacity: 0.6; } 
+}
+
+// 图片画廊样式
+.image-gallery {
+  display: flex; gap: 10px; margin-top: 10px;
+  .image-item { width: 200px; height: 200px; object-fit: contain; border-radius: 8px; }
 }

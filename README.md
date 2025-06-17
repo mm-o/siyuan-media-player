@@ -21,6 +21,17 @@
 
 ## 🚀 Recent Updates
 
+**Version 0.3.5 (2025.6.2):**
+- **🎛️ Playlist Refactoring**: Optimized playlist component structure and performance
+- **🎛️ Settings Component Refactoring**:
+  - Removed complex pro and alist styles, simplified to toggle switches
+  - Unified component processing logic, significantly improved efficiency
+  - Added database avid and notebook ID display
+  - Removed save and reset buttons, implemented real-time saving with individual reset
+- **📜 Script Feature Removal**: Removed built-in custom script loading functionality, recommend using SiYuan's built-in JS script feature instead
+- **⚡ Code Simplification**: Cleaned up script management related code, reduced plugin size
+- **🎯 Core Focus**: Focus on media playback and note integration features, avoiding feature duplication
+
 **Version 0.3.4 (2025.5.26):**
 - **🎛️ Button Layout**: Optimized function button positions for better usability
 - **🔄 Icon Update**: Modified dock bar icon for improved visibility

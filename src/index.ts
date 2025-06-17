@@ -9,7 +9,7 @@ import PlayList from "./components/PlayList.svelte";
 import Setting from "./components/Setting.svelte";
 // @ts-ignore
 import Assistant from "./components/Assistant.svelte";
-import { MediaHandler } from './core/PlayList';
+import { MediaHandler, Config } from './core/PlayList';
 import type { ComponentInstance } from './core/types';
 import { createMediaPlayerAPI } from './api';
 
@@ -24,24 +24,25 @@ export default class MediaPlayerPlugin extends Plugin {
     public api: any;
     public playerAPI: any;
     
-    // 配置管理
-    private getConfig() {
-        try { 
-            const workspace = window.siyuan.config.system.workspaceDir;
-            return JSON.parse(window.require('fs').readFileSync(`${workspace}/data/storage/petal/siyuan-media-player/config.json`, 'utf-8'));
-        } catch { 
-            return { settings: {}, bilibiliLogin: undefined }; 
-        } 
+    // 重写 saveData 支持格式化
+    async saveData(f: string, d: any, i?: number) { return super.saveData(f, i !== undefined ? JSON.stringify(d, null, i) : d); }
+    
+        // 配置管理
+    private async getConfig() {
+        const d = await this.loadData('config.json');
+        return d && typeof d === 'object' && !Array.isArray(d) ? { settings: {}, ...d } : { settings: {} };
     }
     
     // 插件初始化
     async onload() {
+        // 初始化配置模块
+        Config.setPlugin(this);
+        
         this.initAPI();
         this.registerUIEvents();
         this.registerHotkeys();
         this.addSidebar();
         this.addTopBarButton();
-        this.loadUserScripts();
     }
     
     // 插件清理
@@ -52,7 +53,6 @@ export default class MediaPlayerPlugin extends Plugin {
         this.components.clear();
         this.tabInstance = this.mediaHandler = this.playerAPI = null;
         (window as any).siyuanMediaPlayer = null;
-        document.querySelectorAll('[id^="media-player-script-"]').forEach(el => el.remove());
     }
     
     // API初始化
@@ -86,18 +86,15 @@ export default class MediaPlayerPlugin extends Plugin {
             
             'updatePlayerConfig': (e: CustomEvent) => {
                 this.playerAPI?.updateConfig?.(e.detail);
-                this.loadUserScripts();
             },
             
-            'mediaPlayerTabChange': (e: CustomEvent) => {
+            'mediaPlayerTabChange': async (e: CustomEvent) => {
                 const tabId = e.detail?.tabId;
                 if (tabId) {
                     const container = document.querySelector('.media-player-sidebar-content');
-                    if (container) this.showTabContent(tabId, container as HTMLElement);
+                    if (container) await this.showTabContent(tabId, container as HTMLElement);
                 }
-            },
-            
-            'reloadUserScripts': () => this.loadUserScripts()
+            }
         };
         
         Object.entries(handlers).forEach(([event, handler]) => {
@@ -135,46 +132,29 @@ export default class MediaPlayerPlugin extends Plugin {
             position: 'right',
             callback: (event: MouseEvent) => {
                 const menu = new Menu();
-                menu.addItem({ icon: 'iconSettings', label: this.i18n.settings?.title || '设置', click: () => this.openDialog() });
+                menu.addItem({ icon: 'iconSettings', label: this.i18n.settings?.title || '设置', click: () => this.openSettings() });
                 menu.open({ x: event.clientX, y: event.clientY });
             }
         });
     }
     
-    // Dialog设置面板
-    private openDialog() {
-        const dialog = new Dialog({
-            title: this.i18n.settings?.title || '设置',
-            content: `<div class="b3-dialog__content"><div class="dialog-content" style="display: flex; height: 100%;"></div></div><div class="b3-dialog__action" style="display: none;"></div>`,
-            width: "500px", height: "600px",
-            destroyCallback: () => {
-                const comp = this.components.get('dialog-settings');
-                if (comp?.$destroy) try { comp.$destroy(); } catch (e) {}
-                this.components.delete('dialog-settings');
-            }
-        });
-        
-        const container = dialog.element.querySelector('.dialog-content') as HTMLElement;
-        if (container) this.showTabContentInDialog('settings', container);
-    }
-    
-    // 在Dialog中显示设置内容
-    private showTabContentInDialog(tabId: string, container: HTMLElement) {
-        const el = document.createElement('div');
-        el.style.cssText = 'height: 100%; width: 100%; display: contents;';
-        container.appendChild(el);
-        
-        const instance = new Setting({ 
-            target: el, 
-            props: { config: this.getConfig(), i18n: this.i18n, group: 'media-player', api: this.playerAPI }
-        });
-        this.components.set('dialog-settings', instance);
-        
-        instance.$on?.('changed', (e: CustomEvent<any>) => window.dispatchEvent(new CustomEvent('updatePlayerConfig', { detail: e.detail.settings })));
+    // 打开设置面板
+    private openSettings() {
+        // 打开侧边栏并切换到设置标签页
+        const sidebar = document.querySelector('.dock__item[aria-label*="媒体播放器"]') as HTMLElement;
+        if (sidebar) {
+            sidebar.click();
+            setTimeout(async () => {
+                const container = document.querySelector('.media-player-sidebar-content') as HTMLElement;
+                if (container) {
+                    await this.showTabContent('settings', container);
+                }
+            }, 100);
+        }
     }
     
     // 标签页内容管理
-    private showTabContent(tabId: string, container: HTMLElement) {
+    private async showTabContent(tabId: string, container: HTMLElement) {
         const components = { playlist: PlayList, assistant: Assistant, settings: Setting };
         
         // 切换显示已有组件
@@ -196,7 +176,7 @@ export default class MediaPlayerPlugin extends Plugin {
         if (!component) return;
         
         // 组件属性配置
-        const baseProps = { config: this.getConfig(), i18n: this.i18n, allTabs: ['playlist', 'assistant', 'settings'], activeTabId: tabId, api: this.playerAPI };
+        const baseProps = { config: await this.getConfig(), i18n: this.i18n, allTabs: ['playlist', 'assistant', 'settings'], activeTabId: tabId, api: this.playerAPI, plugin: this };
         const specificProps = {
             playlist: { currentItem: this.playerAPI?.getCurrentMedia?.() },
             settings: { group: 'media-player' },
@@ -205,7 +185,7 @@ export default class MediaPlayerPlugin extends Plugin {
                 currentMedia: this.playerAPI?.getCurrentMedia?.(),
                 insertContentCallback: async (content) => {
                     const { doc } = await import('./core/document');
-                    doc.insert(content, this.getConfig(), this.i18n);
+                    doc.insert(content, await this.getConfig(), this.i18n);
                 },
                 createTimestampLinkCallback: this.playerAPI.createTimestampLink
             }
@@ -230,8 +210,8 @@ export default class MediaPlayerPlugin extends Plugin {
     }
     
     // 播放器标签页
-    private openTab() {
-        const config = this.getConfig();
+    private async openTab() {
+        const config = await this.getConfig();
         const openMode = config?.settings?.openMode || 'default';
         const plugin = this;
         
@@ -314,31 +294,7 @@ export default class MediaPlayerPlugin extends Plugin {
         }));
     }
     
-    // 用户脚本加载
-    private async loadUserScripts() {
-        document.querySelectorAll('[id^="media-player-script-"]').forEach(el => el.remove());
-        
-        try {
-            if (!window.require || !window.siyuan?.config?.system?.workspaceDir) return;
-            
-            const fs = window.require('fs'), path = window.require('path');
-            const dir = path.join(window.siyuan.config.system.workspaceDir, 'data/storage/petal/siyuan-media-player');
-            
-            (this.getConfig().settings.scripts || [])
-                .filter(s => s.enabled)
-                .forEach(s => {
-                    const file = path.join(dir, s.name);
-                    if (fs.existsSync(file)) {
-                        document.head.appendChild(
-                            Object.assign(document.createElement('script'), {
-                                id: `media-player-script-${s.name}`,
-                                textContent: fs.readFileSync(file, 'utf-8')
-                            })
-                        );
-                    }
-                });
-        } catch (e) {}
-    }
+
     
     // DOM元素等待工具
     private async waitForElement(selector: string, timeout = 2000): Promise<Element | null> {

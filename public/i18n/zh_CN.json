@@ -433,14 +433,6 @@
             "topBarButtons": {
                 "title": "顶部工具栏按钮",
                 "description": "选择要在顶部工具栏显示的按钮"
-            },
-            "loadScript": {
-                "title": "加载脚本",
-                "description": "选择脚本文件加载到插件中",
-                "buttonText": "选择脚本文件",
-                "scriptFiles": "脚本文件",
-                "loadFailed": "加载脚本失败",
-                "loadSuccess": "脚本已加载到插件"
             }
         },
         "bilibili": {
