@@ -1,6 +1,6 @@
 import md5 from 'md5';
 import QRCode from 'qrcode';
-import type { MediaInfo } from "./types";
+import type { MediaInfo, BiliApiResponse } from "./types";
 import { URLUtils } from './PlayList';
 
 // ===== 1. API配置 =====
@@ -19,64 +19,31 @@ export const BILI_API = {
     FAVORITE_FOLDER_LIST: "https://api.bilibili.com/x/v3/fav/folder/created/list-all"
 };
 
-// ===== 2. 接口定义 =====
-interface BiliApiResponse<T = any> {
-    code: number;
-    message: string;
-    data: T;
-}
-
-interface VideoStreamResponse extends BiliApiResponse {
-    data: {
-        quality: number;
-        format: string;
-        timelength: number;
-        accept_format: string;
-        accept_description: string[];
-        accept_quality: number[];
-        video_codecid: number;
-        seek_param: string;
-        seek_type: string;
-        durl?: any[];
-        dash?: any;
-        support_formats: any[];
-    };
-}
-
-// ===== 3. 工具函数 =====
+// ===== 2. 工具函数 =====
 export const biliRequest = async <T>(url: string, headers: Record<string, string> = {}): Promise<T> => {
-    const response = await fetch(BILI_API.PROXY, {
+    const res = await fetch(BILI_API.PROXY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             url, method: 'GET', timeout: 7000,
             headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
         })
-    });
+    }).then(r => r.json());
     
-    const result = await response.json();
-    if (result.code !== 0) throw new Error(`请求失败: ${result.msg}`);
-    return JSON.parse(result.data.body);
+    if (res.code !== 0) throw new Error(`请求失败: ${res.msg}`);
+    return JSON.parse(res.data.body);
 };
 
 export const getBiliHeaders = (config: any, bvid?: string): Record<string, string> => {
     const headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Origin': 'https://www.bilibili.com',
         'Referer': bvid ? `https://www.bilibili.com/video/${bvid}/` : 'https://www.bilibili.com'
     };
-
-    if (!config.bilibiliLogin?.url) return headers;
-
-    try {
-        const loginUrl = new URL(config.bilibiliLogin.url);
-        const sessdata = loginUrl.searchParams.get('SESSDATA');
-        headers['Cookie'] = sessdata ? `SESSDATA=${sessdata}` : Array.from(loginUrl.searchParams.entries())
-            .filter(([k]) => k !== 'url')
-            .map(([k, v]) => `${k}=${v}`)
-            .join('; ');
-    } catch {}
-
+    
+    const sessdata = config?.settings?.bilibiliLogin?.sessdata;
+    if (sessdata) headers['Cookie'] = `SESSDATA=${sessdata}`;
+    
     return headers;
 };
 
@@ -101,27 +68,16 @@ export const parseBiliUrl = (url: string): { bvid?: string; aid?: string; p?: nu
 export class BilibiliParser {
     private static readonly MIXIN_KEY_ENC_TAB = [46,47,18,2,53,8,23,32,15,50,10,31,58,3,45,35,27,43,5,49,33,9,42,19,29,28,14,39,12,38,41,13,37,48,7,16,24,55,40,61,26,17,0,1,60,51,30,4,22,25,54,21,56,59,6,63,57,62,11,36,20,34,44,52];
 
-    private static mixinKey(orig: string): string {
-        return this.MIXIN_KEY_ENC_TAB.map(n => orig[n]).join('').slice(0, 32);
-    }
-
-    private static sign(params: Record<string, any>, imgKey: string, subKey: string): string {
-        const key = this.mixinKey(imgKey + subKey);
+    private static sign(params: Record<string, any>, wbiImg: any): string {
+        const imgKey = wbiImg.img_url.split('/').pop()?.split('.')[0] || '';
+        const subKey = wbiImg.sub_url.split('/').pop()?.split('.')[0] || '';
+        const key = this.MIXIN_KEY_ENC_TAB.map(n => (imgKey + subKey)[n]).join('').slice(0, 32);
+        
         params = { ...params, wts: Math.round(Date.now() / 1000) };
-        const query = Object.keys(params)
-            .sort()
-            .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k].toString())}`)
+        const query = Object.keys(params).sort()
+            .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
             .join('&');
         return `${query}&w_rid=${md5(query + key)}`;
-    }
-
-    private static getWbiKeys(config: any): { imgKey: string; subKey: string } {
-        const wbiImg = config?.bilibiliLogin?.userInfo?.wbi_img;
-        if (!wbiImg) throw new Error('未找到WBI密钥信息');
-        return {
-            imgKey: wbiImg.img_url.split('/').pop()?.split('.')[0] || '',
-            subKey: wbiImg.sub_url.split('/').pop()?.split('.')[0] || ''
-        };
     }
 
     static async getVideoInfo(url: string): Promise<MediaInfo | null> {
@@ -170,13 +126,15 @@ export class BilibiliParser {
         }
     }
 
-    static async getVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<VideoStreamResponse> {
-        const wbiKeys = this.getWbiKeys(config);
+    static async getVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<BiliApiResponse> {
+        const wbiImg = config?.settings?.bilibiliLogin?.wbi_img;
+        if (!wbiImg) throw new Error('未找到WBI密钥信息');
+        
         const params = { bvid, cid, qn, fnval: 16, fnver: 0, fourk: 1, platform: 'html5', high_quality: 1 };
-        const signedParams = this.sign(params, wbiKeys.imgKey, wbiKeys.subKey);
+        const signedParams = this.sign(params, wbiImg);
         const headers = getBiliHeaders(config, bvid);
 
-        const response = await biliRequest<VideoStreamResponse>(`${BILI_API.VIDEO_STREAM}?${signedParams}`, headers);
+        const response = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_STREAM}?${signedParams}`, headers);
         
         if (response.data.dash) {
             const decodeUrl = (url: string) => decodeURIComponent(url);
@@ -216,12 +174,12 @@ export class BilibiliParser {
     }
 
     static async getUserFavoriteFolders(config: any): Promise<{id: number, title: string, media_count: number}[]> {
-        if (!config.bilibiliLogin?.userInfo?.mid) {
+        if (!config.settings?.bilibiliLogin?.mid) {
             throw new Error('未登录或无法获取用户信息');
         }
         
         const response = await biliRequest<BiliApiResponse>(
-            `${BILI_API.FAVORITE_FOLDER_LIST}?up_mid=${config.bilibiliLogin.userInfo.mid}`,
+            `${BILI_API.FAVORITE_FOLDER_LIST}?up_mid=${config.settings.bilibiliLogin.mid}`,
             getBiliHeaders(config)
         );
         
@@ -235,8 +193,10 @@ export class BilibiliParser {
             const params: Record<string, any> = { bvid, cid };
             if (upMid) params.up_mid = upMid;
             
-            const wbiKeys = this.getWbiKeys(config);
-            const signedParams = this.sign(params, wbiKeys.imgKey, wbiKeys.subKey);
+            const wbiImg = config?.settings?.bilibiliLogin?.wbi_img;
+            if (!wbiImg) throw new Error('未找到WBI密钥信息');
+            
+            const signedParams = this.sign(params, wbiImg);
             
             return await biliRequest<any>(`${BILI_API.VIDEO_AI_SUMMARY}?${signedParams}`, getBiliHeaders(config, bvid));
         } catch (error) {
@@ -282,106 +242,76 @@ export const createBiliMPD = (dash: any): string => {
 // ===== 6. 登录管理 =====
 export class QRCodeManager {
     private timer: number | null = null;
-    private qrcodeData: string = '';
-    private qrcodeKey: string = '';
+    private qrcodeData = '';
+    private qrcodeKey = '';
 
     constructor(
-        private configManager: any,
         private onStatusChange: (status: any) => void,
-        private onLoginSuccess: (userInfo: any) => void
+        private onLoginSuccess: (loginData: any) => void
     ) {}
 
     async startLogin() {
-        const response = await biliRequest<any>(BILI_API.QR_LOGIN);
-        if (response.code !== 0) throw new Error(response.message);
+        const res = await biliRequest<any>(BILI_API.QR_LOGIN);
+        if (res.code !== 0) throw new Error(res.message);
         
-        const qrcodeData = await QRCode.toDataURL(response.data.url, {
-            width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' }
-        });
+        this.qrcodeData = await QRCode.toDataURL(res.data.url, { width: 200, margin: 2 });
+        this.qrcodeKey = res.data.qrcode_key;
         
-        this.qrcodeData = qrcodeData;
-        this.qrcodeKey = response.data.qrcode_key;
-        this.onStatusChange({ data: qrcodeData, key: response.data.qrcode_key, message: '等待扫码' });
+        this.onStatusChange({ data: this.qrcodeData, key: this.qrcodeKey, message: '等待扫码' });
         this.startPolling();
-        return { qrcodeData, qrcode_key: response.data.qrcode_key };
     }
 
     private startPolling() {
-        if (this.timer) clearInterval(this.timer);
+        this.stopPolling();
         this.timer = window.setInterval(async () => {
             try {
-                const response = await biliRequest<any>(`${BILI_API.QR_POLL}?qrcode_key=${this.qrcodeKey}`);
-                const status = {
-                    data: this.qrcodeData,
-                    key: this.qrcodeKey,
-                    message: this.getStatusMessage(response.code)
-                };
-                
-                this.onStatusChange(status);
+                const res = await biliRequest<any>(`${BILI_API.QR_POLL}?qrcode_key=${this.qrcodeKey}`);
+                this.onStatusChange({ 
+                    data: this.qrcodeData, 
+                    key: this.qrcodeKey, 
+                    message: { 0: '登录成功', 86038: '二维码已过期', 86090: '已扫码，请确认', 86101: '等待扫码' }[res.data.code] || '未知状态' 
+                });
 
-                if (response.code === 0) {
+                if (res.data.code === 0) {
                     this.stopPolling();
-                    await this.handleLoginSuccess(response.data);
-                } else if (response.code === 86038) {
+                    await this.handleLoginSuccess(res.data);
+                } else if (res.data.code === 86038) {
                     this.stopPolling();
-                    this.qrcodeData = '';
-                    this.qrcodeKey = '';
                 }
-            } catch {
-                this.stopPolling();
-            }
+            } catch { this.stopPolling(); }
         }, 3000);
     }
 
-    private getStatusMessage(code: number): string {
-        const messages = {
-            0: '登录成功',
-            86038: '二维码已过期',
-            86090: '已扫码，请确认',
-            86101: '等待扫码'
-        };
-        return messages[code as keyof typeof messages] || '未知状态';
-    }
-
     private async handleLoginSuccess(data: any) {
-        const userInfo = await this.getUserInfo(data.url);
-        if (!userInfo || !userInfo.mid) {
-            // 登录未真正完成，继续显示二维码
-            this.onStatusChange({
-                data: this.qrcodeData,
-                key: this.qrcodeKey,
-                message: '扫码未完成，请在手机端确认'
+        const sessdata = new URL(data.url).searchParams.get('SESSDATA');
+        if (!sessdata) return;
+        
+        const userInfo = await biliRequest<any>(BILI_API.USER_INFO, { 
+            'User-Agent': 'Mozilla/5.0', 
+            'Cookie': `SESSDATA=${sessdata}` 
+        });
+        
+        if (userInfo.code === 0 && userInfo.data?.mid) {
+            this.onLoginSuccess({
+                sessdata,
+                refresh_token: data.refresh_token,
+                timestamp: data.timestamp,
+                mid: userInfo.data.mid,
+                uname: userInfo.data.uname,
+                face: userInfo.data.face,
+                level_info: {
+                    current_level: userInfo.data.level_info.current_level,
+                    current_exp: userInfo.data.level_info.current_exp,
+                    next_exp: userInfo.data.level_info.next_exp
+                },
+                money: userInfo.data.money,
+                vipStatus: userInfo.data.vipStatus,
+                wbi_img: userInfo.data.wbi_img
             });
-            this.startPolling(); // 继续轮询
-            return;
-        }
-        const config = this.configManager.getConfig();
-        config.bilibiliLogin = {
-            url: data.url,
-            refresh_token: data.refresh_token,
-            timestamp: data.timestamp,
-            userInfo
-        };
-        this.configManager.save(config);
-        this.onLoginSuccess(userInfo);
-    }
-
-    private async getUserInfo(url: string): Promise<any | null> {
-        try {
-            const sessdata = new URL(url).searchParams.get('SESSDATA');
-            if (!sessdata) return null;
-            
-            const response = await biliRequest<any>(
-                BILI_API.USER_INFO,
-                { ...getBiliHeaders({}), 'Cookie': `SESSDATA=${sessdata}` }
-            );
-            return response.code === 0 ? response.data : null;
-        } catch {
-            return null;
         }
     }
 
-    public stopPolling() {
+    stopPolling() {
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;

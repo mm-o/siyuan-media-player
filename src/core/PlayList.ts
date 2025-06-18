@@ -25,7 +25,7 @@ const WS = window.siyuan.config.system.workspaceDir;
 const Config = {
     _c: null as any, _p: null as any,
     setPlugin(p: any) { this._p = p; },
-    async get() { return this._c || (this._c = await this._p?.loadData?.('config.json') || { settings: {}, bilibiliLogin: undefined }); },
+    async get() { return this._c || (this._c = await this._p?.loadData?.('config.json') || { settings: {} }); },
     clear() { this._c = null; }
 };
 
@@ -487,7 +487,7 @@ export class PlaylistManager {
             },
             'source.listBiliFavs': async () => { 
                 const config = await Config.get(); 
-                return !config?.bilibiliLogin?.userInfo?.mid ? { success: false, message: '请先登录B站账号' } : (folders => folders?.length ? { success: true, message: '获取收藏夹列表成功', data: folders } : { success: false, message: '未找到收藏夹' })(await BilibiliParser.getUserFavoriteFolders(config)); 
+                return !config?.settings?.bilibiliLogin?.mid ? { success: false, message: '请先登录B站账号' } : (folders => folders?.length ? { success: true, message: '获取收藏夹列表成功', data: folders } : { success: false, message: '未找到收藏夹' })(await BilibiliParser.getUserFavoriteFolders(config)); 
             }
         };
         return ops[type] ? await ops[type]() : { success: false, message: `未知操作: ${type}` };
@@ -579,7 +579,7 @@ export class MediaHandler {
                 try {
                     this.currentItem = m;
                     const { playMedia } = await import('./media');
-                    await playMedia(m, this.playerAPI, this.getConfig(), 
+                    await playMedia(m, this.playerAPI, await this.getConfig(), 
                         (item) => {
                             this.currentItem = item;
                             window.dispatchEvent(new CustomEvent('siyuanMediaPlayerUpdate', { detail: { player: this.playerAPI, currentItem: this.currentItem } }));
@@ -606,7 +606,7 @@ export class MediaHandler {
             
             createTimestampLink: async (l = false, s?: number, e?: number, t?: string) => {
                 if (!this.playerAPI || !this.currentItem) return null;
-                const config = this.getConfig();
+                const config = await this.getConfig();
                 const time = s ?? this.playerAPI.getCurrentTime();
                 const loopEnd = l ? (e ?? time + 3) : e;
                 const { link } = await import('./document');
@@ -625,7 +625,7 @@ export class MediaHandler {
                 const { action, loopStartTime } = e.detail;
                 if (!this.components.get('player') || !this.currentItem) return;
                 try {
-                    const settings = this.getConfig();
+                    const settings = await this.getConfig();
                     switch (action) {
                         case 'loopSegment': {
                             const currentTime = this.playerAPI.getCurrentTime();
@@ -672,8 +672,8 @@ export class MediaHandler {
             if (!mediaItem) return;
             let playOptions = { ...mediaItem, type: mediaItem.type || 'video', startTime: mediaItem.startTime, endTime: mediaItem.endTime };
             if ((mediaItem.source === 'B站' || mediaItem.type === 'bilibili') && mediaItem.bvid && mediaItem.cid) {
-                const config = this.getConfig();
-                if (!config.bilibiliLogin?.userInfo?.mid) { showMessage('需要登录B站才能播放视频'); return; }
+                const config = await this.getConfig();
+                if (!config.settings?.bilibiliLogin?.mid) { showMessage('需要登录B站才能播放视频'); return; }
                 try {
                     const { BilibiliParser } = await import('./bilibili');
                     const stream = await BilibiliParser.getProcessedVideoStream(mediaItem.bvid, mediaItem.cid, 0, config);
@@ -703,7 +703,7 @@ export class MediaHandler {
             if (!urlStr || !MediaUtils.isSupportedMediaLink(urlStr)) return;
             e.preventDefault();
             e.stopPropagation();
-            const config = this.getConfig();
+            const config = await this.getConfig();
             const playerType = e.ctrlKey ? PlayerType.BROWSER : config.settings.playerType;
             if (playerType === PlayerType.POT_PLAYER || playerType === PlayerType.BROWSER) {
                 const error = await openWithExternalPlayer(urlStr, playerType, config.settings.playerPath);

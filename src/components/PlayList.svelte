@@ -84,7 +84,7 @@
         
         const config = await cfg(), opts = { ...item, type: item.type || 'video' };
         if ((item.source === 'B站' || item.type === 'bilibili') && item.bvid && item.cid) {
-            if (!config.bilibiliLogin?.userInfo?.mid) return showMessage('需要登录B站才能播放视频');
+            if (!config.settings?.bilibiliLogin?.mid) return showMessage('需要登录B站才能播放视频');
             const stream = await BilibiliParser.getProcessedVideoStream(item.bvid, item.cid, 0, config);
             if (stream.dash) Object.assign(opts, { url: stream.dash.video?.[0]?.baseUrl || '', headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash });
         }

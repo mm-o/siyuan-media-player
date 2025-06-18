@@ -5,29 +5,37 @@ export type MediaType = 'video' | 'audio' | 'bilibili';
 export type SettingType = 'slider' | 'checkbox' | 'select' | 'textarea' | 'images' | 'custom' | 'account';
 
 /**
- * B站相关类型
+ * B站登录信息（合并后）
  */
-export interface BilibiliUserInfo {
+export interface BilibiliLogin {
+    // 登录凭证
+    sessdata: string;
+    refresh_token: string;
+    timestamp: number;
+    // 用户信息
+    mid: number;
+    uname: string;
     face: string;
     level_info: {
         current_level: number;
-        current_min: number;
         current_exp: number;
         next_exp: string | number;
     };
-    mid: number;
-    uname: string;
+    money: number;
+    vipStatus: number;
     wbi_img?: {
         img_url: string;
         sub_url: string;
     };
 }
 
-export interface BilibiliLogin {
-    url?: string;
-    refresh_token?: string;
-    timestamp?: number;
-    userInfo?: BilibiliUserInfo;
+/**
+ * 通用B站API响应
+ */
+export interface BiliApiResponse<T = any> {
+    code: number;
+    message: string;
+    data: T;
 }
 
 /**

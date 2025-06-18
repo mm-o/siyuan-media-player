@@ -20,9 +20,9 @@
     // 默认值定义
     const DEFAULTS = {
         pro: { enabled: false },
-        bilibili: { login: false, userInfo: null },
         alist: { enabled: false },
         alistConfig: { server: "http://localhost:5244", username: "admin", password: "" },
+        bilibiliLogin: null,
         openMode: "default",
         playerType: "built-in",
         playerPath: "PotPlayerMini64.exe",
@@ -121,23 +121,26 @@
  
             // B站账号
             { key: "bilibili", type: "checkbox" as SettingType, tab: "account",
-              title: i18n.setting.bilibili?.account || "B站账号", value: state.bilibili?.login,
+              title: i18n.setting.bilibili?.account || "B站账号", 
+              value: !!state.bilibiliLogin?.sessdata,
               description: ((u) => accDesc(
                 u?.face || '#iconBili', u?.uname || 'Bilibili',
                 u ? `LV${u.level_info?.current_level} ${u.vipStatus ? '💎' : ''}` : '未登录', u ? '#fb7299' : '#999',
                 u ? `UID ${u.mid} · 硬币 ${u.money}` : '登录B站账号',
                 u ? `EXP ${u.level_info?.current_exp}/${u.level_info?.next_exp === '--' ? 'MAX' : u.level_info?.next_exp}` : '解锁视频播放功能'
-              ))(state.bilibili?.userInfo),
+              ))(state.bilibiliLogin),
               onChange: async (v) => v ? 
                 (qrCodeManager ||= new QRCodeManager(
-                    { getConfig, save: () => {}, updateSettings: async s => await saveConfig({ ...(await getConfig()), settings: s }) },
                     q => (qrcode = q, settingItems = createSettings(state)),
-                    async u => (state.bilibili = { login: true, userInfo: u }, await saveConfig({ ...(await getConfig()), settings: state }), qrCodeManager?.stopPolling(), settingItems = createSettings(state))
+                    async loginData => (state.bilibiliLogin = loginData, settingItems = createSettings(state), 
+                        await saveConfig({ ...(await getConfig()), settings: state }), qrCodeManager?.stopPolling())
                 ), await qrCodeManager.startLogin()) :
-                (state.bilibili = { login: false, userInfo: null }, qrCodeManager?.stopPolling(), qrcode = { data: '', key: '' })},
+                (state.bilibiliLogin = null, qrcode = { data: '', key: '' }, settingItems = createSettings(state),
+                    await saveConfig({ ...(await getConfig()), settings: state }), qrCodeManager?.stopPolling())
+            },
             { key: "biliQr", type: "images" as SettingType, tab: "account",
               value: qrcode?.data ? [{ url: qrcode.data }] : [],
-              displayCondition: () => !!qrcode?.data && !state.bilibili?.login,
+              displayCondition: () => !!qrcode?.data && !state.bilibiliLogin?.sessdata,
               title: "扫码登录" },
                        
             // 播放器设置

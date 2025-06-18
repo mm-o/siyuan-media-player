@@ -187,7 +187,7 @@
                 const config = await getConfig();
                 const upMid = currentMedia.artistId 
                     || (await BilibiliParser.getVideoInfo(`https://www.bilibili.com/video/${currentMedia.bvid}/`)?.then(info => info?.artistId))
-                    || config.bilibiliLogin?.userInfo?.mid;
+                    || config.settings?.bilibiliLogin?.mid;
                 
                 const result = await BilibiliParser.getVideoAiSummary(currentMedia.bvid, currentMedia.cid, upMid, config);
                 
