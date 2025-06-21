@@ -2,7 +2,7 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage, Menu } from "siyuan";
     import type { MediaItem } from '../core/types';
-    import { createPlaylistManager, Config } from '../core/PlayList';
+    import { PlaylistManager, Config } from '../core/PlayList';
     import { getThumbnailUrl } from '../core/media';
     import { AListManager } from '../core/alist';
     import { BilibiliParser } from '../core/bilibili';
@@ -10,9 +10,14 @@
     export let className = '', hidden = false, i18n: any, activeTabId = 'playlist', currentItem: MediaItem | null = null, plugin: any;
     
     // 极简状态
-    let s = { tab: '目录', view: 'detailed' as 'detailed'|'compact'|'grid'|'grid-single', sort: 0, input: '', mgr: null as any };
+    const views = ['detailed', 'compact', 'grid', 'grid-single'] as const, icons = ['M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z', 'M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z', 'M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z'];
+    const getStore = (k: string, def = '') => localStorage.getItem(`media-player-${k}`) || def;
+    let s = { tab: '目录', view: 'detailed' as typeof views[number], sort: +getStore('sort', '0'), input: '', mgr: null as any };
     let d = { tags: ['目录', '默认'], items: [] as MediaItem[], folder: { type: '', path: '', connected: false } };
     let ui = { edit: '', add: false, exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any };
+    
+    // 拖拽状态
+    let dragIndex = -1, dragTag = '';
     
     // 计算属性
     $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: (d.folder.type === 'alist' ? '/' : '') + arr.slice(0, i + 1).join('/') }));
@@ -22,23 +27,37 @@
     $: hasDir = d.items.some(i => i?.is_dir);
     $: playing = (item: MediaItem) => currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`);
     $: selected = (item: MediaItem) => ui.sel?.id === item.id;
+    $: isGrid = s.view.includes('grid');
+    $: isCompact = s.view === 'compact';
+    $: isDetailed = s.view === 'detailed';
     
     const dispatch = createEventDispatcher();
     const safe = (fn: Function) => async (...args: any[]) => { try { return await fn(...args); } catch (e: any) { showMessage(e?.message || "操作失败"); } };
     const cfg = async () => await plugin.loadData('config.json') || {};
     const map = (m: any, k: string) => m[k] || k;
-    const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default, '收藏': i18n?.playList?.tabs?.favorites };
+    const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default };
     const srcs = { 'B站': i18n?.playList?.sources?.bilibili, '本地': i18n?.playList?.sources?.local, '普通': i18n?.playList?.sources?.general, 'AList': i18n?.playList?.sources?.alist };
     
+    // 视图&标签渲染
+    const tags = (item: MediaItem) => `<span class="meta-tag source" data-source="${item.source}">${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : map(srcs, item.source)}</span><span class="meta-tag type" data-type="${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}">${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>`;
+    const setStore = (k: string, v: any) => localStorage.setItem(`media-player-${k}`, v), nextView = () => (s.view = views[(views.indexOf(s.view) + 1) % 4], exec('view.set', { view: s.view }));
+    
+    // 拖拽处理
+    const itemDragStart = (index: number) => dragIndex = index;
+    const itemDragEnter = (e: DragEvent, index: number) => (e.preventDefault(), dragIndex !== index && dragIndex !== -1 && ([d.items[dragIndex], d.items[index]] = [d.items[index], d.items[dragIndex]], dragIndex = index));
+    const itemDragEnd = () => dragIndex !== -1 && (exec('media.reorder', { tagName: s.tab, itemIds: d.items.map(i => i.id) }).then(() => load()), dragIndex = -1);
+    const tagDragStart = (tag: string) => dragTag = tag;
+    const tagDragEnter = (e: DragEvent, tag: string) => (e.preventDefault(), dragTag && dragTag !== tag && d.tags.splice(d.tags.indexOf(tag), 0, d.tags.splice(d.tags.indexOf(dragTag), 1)[0]));
+    const tagDragEnd = () => dragTag && (exec('tag.reorder', { tagOrder: d.tags }).then(() => load()), dragTag = '');
+
     // 初始化
-    const init = safe(async () => { s.mgr = createPlaylistManager(); await load(); });
+    const init = safe(async () => { s.mgr = new PlaylistManager(); await load(); s.view = (await s.mgr.operation('view.get')).data || 'detailed'; });
     const load = safe(async () => {
         if (!s.mgr) return;
         const res = await s.mgr.getViewData(s.tab);
-        const tags = ['目录', ...(res.tags || []).filter(t => t !== '目录')];
         d = s.tab === '目录' ? 
-            { tags, items: tags.slice(1).map(t => ({ id: `dir-${t}`, title: t, type: 'folder', url: '#', source: 'directory', targetTabId: t, is_dir: true, thumbnail: getThumbnailUrl({ type: 'folder' }) })), folder: d.folder } : 
-            { tags, items: res.items || [], folder: d.folder };
+            { tags: ['目录', ...res.tags.filter(t => t !== '目录')], items: res.tags.filter(t => t !== '目录').map(t => ({ id: `dir-${t}`, title: t, type: 'folder', url: '#', source: 'directory', targetTabId: t, is_dir: true, thumbnail: getThumbnailUrl({ type: 'folder' }) })), folder: d.folder } : 
+            { tags: ['目录', ...res.tags.filter(t => t !== '目录')], items: res.items || [], folder: d.folder };
     });
 
     // 文件夹
@@ -97,7 +116,6 @@
         if (['play', 'playPart'].includes(action)) return play(params);
         
         const res = await s.mgr.operation(action, params);
-        if (res?.message) showMessage(res.message);
         if (res?.needsRefresh) {
             if (action === 'tag.delete' && s.tab === params.name) s.tab = '默认';
             if (action === 'tag.rename' && s.tab === params.oldName) s.tab = params.newName;
@@ -112,17 +130,16 @@
         media: (item: any) => [
             ["iconPlay", "播放", () => exec('play', item)], 
             ["iconPin", item.isPinned ? "取消置顶" : "置顶", () => exec('media.toggle', { title: item.title, field: 'pinned' })], 
-            ["iconHeart", item.isFavorite ? "取消收藏" : "收藏", () => exec('media.toggle', { title: item.title, field: 'favorite' })], 
             ...(d.tags.filter(t => t !== s.tab).length ? [["iconMove", "移动到", d.tags.filter(t => t !== s.tab).map(t => [t, () => exec('media.move', { title: item.title, newPlaylist: t })])]] : []), 
             ["iconTrashcan", "删除", () => exec('media.removeFromTag', { title: item.title, tagName: s.tab })]
         ],
         tab: (tag: any) => [
-            ...(['默认', '收藏'].includes(tag) ? [] : [["iconEdit", "重命名", () => (ui.edit = tag, setTimeout(() => ui.refs.edit?.focus(), 0))]]), 
+            ...(tag === '默认' ? [] : [["iconEdit", "重命名", () => (ui.edit = tag, setTimeout(() => ui.refs.edit?.focus(), 0))]]), 
             ["iconClear", "清空", () => exec('media.delete', { tagName: s.tab })], 
-            ...(['默认', '收藏'].includes(tag) ? [] : [["iconTrashcan", "删除", () => exec('tag.delete', { name: tag })]])
+            ...(tag === '默认' ? [] : [["iconTrashcan", "删除", () => exec('tag.delete', { name: tag })]])
         ],
         add: (_, e: MouseEvent) => [
-            ["iconAdd", "添加新标签页", () => (ui.add = true, setTimeout(() => ui.refs.new?.focus(), 0))], 
+            ["iconAdd", "添加新标签页", () => { ui.add = true; setTimeout(() => ui.refs.new?.focus(), 0); }], 
             ["iconFolder", "添加本地文件夹", () => exec('folder.add', { isSiyuan: false })], 
             ["iconImage", "添加思源空间", () => ensure('siyuan', '思源空间', '')], 
             ["iconCloud", "浏览AList云盘", checkPro(() => ensure('alist', 'AList', '/'))], 
@@ -152,10 +169,6 @@
         type === 'tag' ? (exec('tag.rename', { oldName: old, newName: v }), ui.edit = '') : (exec('tag.add', { name: v }), ui.add = false);
     };
 
-    // 视图切换
-    const views = ['detailed', 'compact', 'grid', 'grid-single'] as const;
-    const nextView = () => s.view = views[(views.indexOf(s.view) + 1) % 4];
-
     // 播放下一个
     export const playNext = safe(async () => {
         if (!d.items.length || !currentItem) return false;
@@ -182,11 +195,13 @@
         init();
         ['playlist-data-updated', 'configUpdated'].forEach(e => 
             window.addEventListener(e, e === 'playlist-data-updated' ? load : 
-                (ev: CustomEvent) => ev.detail?.settings?.playlistDb?.id && (Config.clear(), s.mgr = createPlaylistManager(), init()))
+                (ev: CustomEvent) => ev.detail?.settings?.playlistDb?.id && (Config.clear(), s.mgr = new PlaylistManager(), init()))
         );
         return () => ['playlist-data-updated', 'configUpdated'].forEach(e => window.removeEventListener(e, () => {}));
     });
 </script>
+
+
 
 <div class="playlist {className}" class:hidden>
     <!-- 头部 -->
@@ -198,22 +213,32 @@
         </div>
         <div class="header-controls">
             <span class="playlist-count">{d.items.length} 项</span>
-            <button class="view-mode-btn" on:click={() => s.sort = (s.sort + 1) % 4} title={["默认", "名称", "时间", "类型"][s.sort] + "排序"}>
+            <button class="view-mode-btn" on:click={() => (s.sort = (s.sort + 1) % 4, setStore('sort', s.sort))} title={["默认", "名称", "时间", "类型"][s.sort] + "排序"}>
                 <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
             </button>
             <button class="view-mode-btn" on:click={nextView} title="视图">
-                <svg viewBox="0 0 24 24" width="16" height="16"><path d={s.view === 'detailed' ? 'M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z' : s.view === 'compact' ? 'M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z' : 'M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z'}/></svg>
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d={icons[views.indexOf(s.view) % 3]}/></svg>
             </button>
         </div>
     </div>
     
     <!-- 标签 -->
     <div class="playlist-tabs">
-        {#each d.tags as tag (tag)}
+        {#each d.tags as tag, index (tag)}
             {#if ui.edit === tag}
                 <input bind:this={ui.refs.edit} type="text" class="tab-input" value={tag} on:blur={e => input(e, 'tag', tag)} on:keydown={e => input(e, 'tag', tag)}>
             {:else}
-                <button class="tab" class:active={s.tab === tag} on:click={() => setTab(tag)} on:contextmenu|preventDefault={e => menu(e, 'tab', tag)}>{map(tabs, tag)}</button>
+                <button 
+                    class="tab" 
+                    class:active={s.tab === tag} 
+                    draggable={tag !== '目录' && tag !== '默认'}
+                    on:click={() => setTab(tag)} 
+                    on:contextmenu|preventDefault={e => menu(e, 'tab', tag)}
+                    on:dragstart={() => tagDragStart(tag)}
+                    on:dragover|preventDefault
+                    on:dragenter={e => dragIndex !== -1 ? (exec('media.move', { title: d.items[dragIndex].title, newPlaylist: tag }), load(), dragIndex = -1) : tagDragEnter(e, tag)}
+                    on:dragend={tagDragEnd}
+                >{map(tabs, tag)}</button>
             {/if}
         {/each}
         {#if ui.add}
@@ -235,23 +260,36 @@
     {/if}
     
     <!-- 内容 -->
-    <div class="playlist-content" class:grid-view={s.view.includes('grid')}>
+    <div class="playlist-content" class:grid-view={isGrid}>
         {#if items.length}
             <div class="playlist-items" class:grid-single={s.view === 'grid-single'}>
-                {#each items as item (item.id)}
-                   <div class="playlist-item" class:playing={playing(item)} class:selected={selected(item)} class:compact={s.view === 'compact'} class:grid={s.view.includes('grid')} class:folder={item.is_dir} 
+                {#each items as item, index (item.id)}
+                   <div class="playlist-item" 
+                        class:playing={playing(item)} 
+                        class:selected={selected(item)} 
+                        class:compact={isCompact} 
+                        class:grid={isGrid} 
+                        class:folder={item.is_dir}
+                        draggable={!item.is_dir}
                         on:click={() => click(item)} 
                         on:dblclick={() => exec('play', item.bvid && ui.parts[item.id]?.length > 1 ? {...item, cid: String(ui.parts[item.id][0].cid)} : item)} 
-                        on:contextmenu|preventDefault={e => menu(e, 'media', item)}>
+                        on:contextmenu|preventDefault={e => menu(e, 'media', item)}
+                        on:dragstart={() => itemDragStart(index)}
+                        on:dragover|preventDefault
+                        on:dragenter={e => itemDragEnter(e, index)}
+                        on:dragend={itemDragEnd}>
                         
-                        {#if s.view.includes('grid')}
+                        <!-- 极简视图 -->
+                        {#if isCompact}
+                            <div class="item-title" title={item.title}>{item.title}</div>
+                            <div class="item-tags">{@html tags(item)}</div>
+                        {:else if isGrid}
                             <div class="item-thumbnail">
                                 <img src={getThumbnailUrl(item)} alt={item.title} loading="lazy">
+                                <div class="grid-tags">{@html tags(item)}</div>
                                 {#if item.duration}<div class="duration">{item.duration}</div>{/if}
                                 <div class="item-title" title={item.title}>{item.title}</div>
                             </div>
-                        {:else if s.view === 'compact'}
-                            <div class="item-title" title={item.title}>{item.title}</div>
                         {:else}
                             <div class="item-content">
                                 <div class="item-thumbnail">
@@ -262,8 +300,7 @@
                                     <div class="item-title" title={item.title}>{item.title}</div>
                                     <div class="item-meta">
                                         {#if item.artist}<div class="item-artist">{#if item.artistIcon}<img class="artist-icon" src={item.artistIcon} alt={item.artist} loading="lazy">{/if}<span>{item.artist}</span></div>{/if}
-                                        <span class="meta-tag source" data-source={item.source}>{item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : map(srcs, item.source)}</span>
-                                        <span class="meta-tag type" data-type={item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}>{item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>
+                                        {@html tags(item)}
                                     </div>
                                     {#if item.url}<div class="item-url" title={item.url}><a href={item.url} target="_blank" rel="noopener noreferrer" on:click|stopPropagation>{item.url}</a></div>{/if}
                                 </div>
@@ -271,7 +308,7 @@
                         {/if}
                         
                         {#if ui.exp.has(item.id) && ui.parts[item.id]?.length > 1}
-                            <div class="item-parts" class:grid-parts={s.view === 'grid'} class:single-parts={s.view === 'grid-single'}>
+                            <div class="item-parts" class:grid-parts={isGrid && s.view === 'grid'} class:single-parts={s.view === 'grid-single'}>
                                 {#each ui.parts[item.id] as part}
                                     <button class="part-item {currentItem?.id === `${item.id}-p${part.page}` ? 'playing' : ''}" 
                                             on:click|stopPropagation={() => exec('playPart', {...item, id: `${item.id}-p${part.page}`, title: `${item.title.split(' - P')[0]} - P${part.page}${part.part ? ': ' + part.part : ''}`, cid: String(part.cid)})} 

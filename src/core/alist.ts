@@ -2,7 +2,7 @@
  * AList API交互模块
  */
 import type { MediaItem } from './types';
-import { URLUtils, EXT } from './PlayList';
+import { MediaUtils, EXT } from './PlayList';
 import { DEFAULT_THUMBNAILS } from './media';
 
 // 接口定义

@@ -94,7 +94,6 @@ export interface MediaItem {
     isLoop?: boolean;      // 是否循环播放
     loopCount?: number;    // 循环次数
     isPinned?: boolean;    // 是否置顶
-    isFavorite?: boolean;  // 是否收藏
     source?: string;       // 来源, 如 'alist'
     sourcePath?: string;   // 来源路径
     size?: number;         // 文件大小(字节)

@@ -48,7 +48,9 @@ export default class MediaPlayerPlugin extends Plugin {
     // 插件清理
     onunload() {
         this.mediaHandler?.cleanup();
-        this.events.forEach((handler, event) => window.removeEventListener(event, handler));
+        this.events.forEach((handler, event) => 
+            (event === 'linkClick' ? document : window).removeEventListener(event === 'linkClick' ? 'click' : event, handler as EventListener, event === 'linkClick')
+        );
         this.components.forEach(component => { if (component?.$destroy) try { component.$destroy(); } catch (e) {} });
         this.components.clear();
         this.tabInstance = this.mediaHandler = this.playerAPI = null;
@@ -67,6 +69,11 @@ export default class MediaPlayerPlugin extends Plugin {
         
         this.playerAPI = this.mediaHandler.getPlayerAPI();
         this.api = createMediaPlayerAPI(this.name, () => this.openTab());
+        
+        // 统一链接处理
+        const handler = this.mediaHandler.createLinkClickHandler();
+        document.addEventListener('click', handler, true);
+        this.events.set('linkClick', handler);
     }
     
     // UI事件注册

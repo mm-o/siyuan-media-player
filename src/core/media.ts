@@ -1,6 +1,6 @@
 import { MediaItem, MediaInfo, PlaylistConfig, PlayerType } from "./types";
 import { BilibiliParser } from "./bilibili";
-import { URLUtils } from './PlayList';
+import { MediaUtils } from './PlayList';
 import { AListManager } from './alist';
 import { imageToLocalAsset } from './document';
 
@@ -84,8 +84,8 @@ export class MediaManager {
     // 媒体信息获取
     private static async getMediaInfoFromElement(mediaUrl: string, retryCount = 0): Promise<MediaInfo> {
         return new Promise((resolve) => {
-            const fileUrl = URLUtils.toFile(mediaUrl);
-            const type = URLUtils.getType(mediaUrl);
+            const fileUrl = MediaUtils.toFile(mediaUrl);
+            const type = MediaUtils.getMediaInfo(mediaUrl).type;
             const mediaEl = document.createElement(type === 'audio' ? 'audio' : 'video');
             mediaEl.style.display = 'none';
             document.body.appendChild(mediaEl);
@@ -95,7 +95,7 @@ export class MediaManager {
             // 基本信息（用于超时或错误情况）
             const basicInfo = {
                 id: '',
-                title: URLUtils.getTitle(mediaUrl),
+                title: MediaUtils.getTitle(mediaUrl),
                 duration: '00:00',
                 thumbnail: type === 'audio' ? DEFAULT_THUMBNAILS.audio : '',
                 artist: '',
@@ -112,7 +112,7 @@ export class MediaManager {
             };
 
             const handleMetadata = async () => {
-                const duration = URLUtils.fmt(mediaEl.duration);
+                const duration = MediaUtils.fmt(mediaEl.duration);
                 let thumbnail = '';
                 
                 if (mediaEl instanceof HTMLVideoElement) {
@@ -165,11 +165,11 @@ export class MediaManager {
     static async createMediaItem(mediaUrl: string, savedInfo?: { aid?: string; bvid?: string; cid?: string }): Promise<MediaItem | null> {
         try {
             // 解析并移除时间戳
-            const { mediaUrl: clean, startTime, endTime } = URLUtils.parseTime(mediaUrl);
+            const { mediaUrl: clean, startTime, endTime } = MediaUtils.parseTime(mediaUrl);
             
-            const fileUrl = URLUtils.toFile(clean);
+            const fileUrl = MediaUtils.toFile(clean);
             const isBili = fileUrl.includes('bilibili.com');
-            const type = URLUtils.getType(fileUrl);
+            const type = MediaUtils.getMediaInfo(fileUrl).type;
                 
             // 获取媒体信息
             let info = this.getCachedInfo(fileUrl) || 
@@ -203,7 +203,6 @@ export class MediaManager {
                 url: fileUrl,
                 type,
                 isPinned: false,
-                isFavorite: false,
                 ...(startTime !== undefined && { startTime }),
                 ...(endTime !== undefined && { endTime }),
                 ...(info.aid && { aid: info.aid }),
@@ -307,11 +306,11 @@ export async function openWithExternalPlayer(
     playerPath?: string
 ): Promise<string | void> {
     try {
-        const { mediaUrl: parsedUrl, startTime } = URLUtils.parseTime(mediaUrl);
+        const { mediaUrl: parsedUrl, startTime } = MediaUtils.parseTime(mediaUrl);
         
         // 浏览器打开
         if (playerType === PlayerType.BROWSER) {
-            const urlWithTimestamp = startTime !== undefined ? URLUtils.withTime(parsedUrl, startTime) : parsedUrl;
+            const urlWithTimestamp = startTime !== undefined ? MediaUtils.withTime(parsedUrl, startTime) : parsedUrl;
             
             if (window.navigator.userAgent.includes('Electron')) {
                 const { shell } = require('electron');
@@ -326,7 +325,7 @@ export async function openWithExternalPlayer(
         const cleanPath = playerPath?.replace(/^["']|["']$/g, '');
         if (!cleanPath) return "请在设置中配置播放器路径";
         
-        const timeParam = startTime !== undefined ? ` /seek=${URLUtils.fmt(startTime, {anchor: true})}` : '';
+        const timeParam = startTime !== undefined ? ` /seek=${MediaUtils.fmt(startTime, {anchor: true})}` : '';
         const processedUrl = parsedUrl.startsWith('file://') 
             ? parsedUrl.substring(8).replace(/\//g, '\\') 
             : parsedUrl;

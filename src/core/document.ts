@@ -5,7 +5,7 @@
 import { showMessage } from "siyuan";
 import type { MediaItem } from './types';
 import * as api from '../api';
-import { URLUtils } from './PlayList';
+import { MediaUtils } from './PlayList';
 
 // 类型定义
 type Block = {
@@ -77,9 +77,9 @@ export const link = async (
     
     try {
         const timeText = endTime 
-            ? `${URLUtils.fmt(time, {anchor: true})}-${URLUtils.fmt(endTime, {anchor: true})}` 
-            : URLUtils.fmt(time, {anchor: true});
-        const baseUrl = URLUtils.getStandardUrl(item, config);
+            ? `${MediaUtils.fmt(time, {anchor: true})}-${MediaUtils.fmt(endTime, {anchor: true})}` 
+            : MediaUtils.fmt(time, {anchor: true});
+        const baseUrl = MediaUtils.getStandardUrl(item, config);
         
         // 应用模板替换
         let format = config?.settings?.linkFormat || "- [时间 字幕](链接)";
@@ -91,11 +91,11 @@ export const link = async (
             '字幕|{{subtitle}}': subtitle || '',
             '标题|{{title}}': item.title || '',
             '艺术家|{{artist}}': item.artist || '',
-            '链接|{{url}}': URLUtils.withTime(baseUrl, time, endTime)
+            '链接|{{url}}': MediaUtils.withTime(baseUrl, time, endTime)
         });
     } catch {
         // 出错时返回最简格式
-        return `- [${subtitle ? `${URLUtils.fmt(time, {anchor: true})} ${subtitle}` : URLUtils.fmt(time, {anchor: true})}](${item.url})`;
+        return `- [${subtitle ? `${MediaUtils.fmt(time, {anchor: true})} ${subtitle}` : MediaUtils.fmt(time, {anchor: true})}](${item.url})`;
     }
 };
 
@@ -188,9 +188,9 @@ export const mediaNotes = {
             const content = applyTemplate(config.settings.mediaNotesTemplate || 
                 "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：", {
                 '标题|{{title}}': mediaItem.title || '未命名媒体',
-                '时间|{{time}}': URLUtils.fmt(currentTime, {anchor: true}),
+                '时间|{{time}}': MediaUtils.fmt(currentTime, {anchor: true}),
                 '艺术家|{{artist}}': mediaItem.artist || '',
-                '链接|{{url}}': URLUtils.getStandardUrl(mediaItem, config),
+                '链接|{{url}}': MediaUtils.getStandardUrl(mediaItem, config),
                 '时长|{{duration}}': mediaItem.duration || '',
                 '封面|{{thumbnail}}': mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '',
                 '类型|{{type}}': mediaItem.type || 'video',
@@ -222,7 +222,7 @@ export const mediaNotes = {
             console.error("创建媒体笔记失败:", error);
             showMessage(i18n?.mediaPlayerTab?.mediaNotes?.createFailed || "创建媒体笔记失败");
             try {
-                await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${URLUtils.fmt(player?.getCurrentTime?.() || 0, {anchor: true})}`);
+                await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${MediaUtils.fmt(player?.getCurrentTime?.() || 0, {anchor: true})}`);
                 showMessage(i18n?.mediaPlayerTab?.mediaNotes?.copiedToClipboard || "已复制到剪贴板");
             } catch {}
         }

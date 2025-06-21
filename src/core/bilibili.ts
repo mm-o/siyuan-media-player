@@ -1,7 +1,7 @@
 import md5 from 'md5';
 import QRCode from 'qrcode';
 import type { MediaInfo, BiliApiResponse } from "./types";
-import { URLUtils } from './PlayList';
+import { MediaUtils } from './PlayList';
 
 // ===== 1. API配置 =====
 export const BILI_API = {
@@ -105,7 +105,7 @@ export class BilibiliParser {
                 artist: info.data.owner?.name,
                 artistIcon: info.data.owner?.face,
                 artistId: info.data.owner?.mid?.toString(),
-                duration: URLUtils.fmt(info.data.duration),
+                duration: MediaUtils.fmt(info.data.duration),
                 thumbnail: info.data.pic,
                 aid: String(info.data.aid),
                 bvid: info.data.bvid,
