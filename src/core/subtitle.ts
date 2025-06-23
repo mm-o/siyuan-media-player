@@ -3,7 +3,7 @@
  * 用于处理播放器的字幕功能
  */
 import { BILI_API, getBiliHeaders } from './bilibili';
-import { MediaUtils } from './PlayList';
+import { Media } from './player';
 
 /**
  * 字幕配置对象
@@ -46,7 +46,7 @@ export class SubtitleManager {
      */
     static async getSubtitleForMedia(mediaUrl: string): Promise<SubtitleOptions | null> {
         try {
-            const url = await MediaUtils.findSupportFile(mediaUrl, this.formats.map(f => `.${f}`));
+            const url = await Media.findSupportFile(mediaUrl, this.formats.map(f => `.${f}`));
             if (!url) return null;
             
             const type = url.split('.').pop()?.toLowerCase() || 'srt';

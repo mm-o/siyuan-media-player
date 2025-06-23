@@ -4,7 +4,7 @@
  */
 import { BILI_API, getBiliHeaders } from './bilibili';
 import artplayerPluginDanmuku from 'artplayer-plugin-danmuku';
-import { MediaUtils } from './PlayList';
+import { Media } from './player';
 
 /**
  * artplayer弹幕格式
@@ -61,7 +61,7 @@ export class DanmakuManager {
      */
     static async getDanmakuFileForMedia(mediaUrl: string): Promise<DanmakuFileOptions | null> {
         try {
-            const url = await MediaUtils.findSupportFile(mediaUrl, this.formats.map(f => `.${f}`));
+            const url = await Media.findSupportFile(mediaUrl, this.formats.map(f => `.${f}`));
             if (!url) return null;
             
             const type = url.split('.').pop()?.toLowerCase() || 'xml';

@@ -9,9 +9,9 @@ import PlayList from "./components/PlayList.svelte";
 import Setting from "./components/Setting.svelte";
 // @ts-ignore
 import Assistant from "./components/Assistant.svelte";
-import { MediaHandler, Config } from './core/PlayList';
+import { Utils } from './core/playlist';
 import type { ComponentInstance } from './core/types';
-import { createMediaPlayerAPI } from './api';
+// API功能已迁移到player.ts中统一处理
 
 /**
  * 思源笔记媒体播放器插件
@@ -19,7 +19,7 @@ import { createMediaPlayerAPI } from './api';
 export default class MediaPlayerPlugin extends Plugin {
     private components = new Map<string, ComponentInstance>();
     private events = new Map<string, EventListener>();
-    private mediaHandler: MediaHandler | null = null;
+    private linkClickHandler: ((e: MouseEvent) => Promise<void>) | null = null;
     private tabInstance: any = null;
     public api: any;
     public playerAPI: any;
@@ -36,7 +36,7 @@ export default class MediaPlayerPlugin extends Plugin {
     // 插件初始化
     async onload() {
         // 初始化配置模块
-        Config.setPlugin(this);
+        Utils.setPlugin(this);
         
         this.initAPI();
         this.registerUIEvents();
@@ -47,33 +47,39 @@ export default class MediaPlayerPlugin extends Plugin {
     
     // 插件清理
     onunload() {
-        this.mediaHandler?.cleanup();
         this.events.forEach((handler, event) => 
             (event === 'linkClick' ? document : window).removeEventListener(event === 'linkClick' ? 'click' : event, handler as EventListener, event === 'linkClick')
         );
         this.components.forEach(component => { if (component?.$destroy) try { component.$destroy(); } catch (e) {} });
         this.components.clear();
-        this.tabInstance = this.mediaHandler = this.playerAPI = null;
+        this.tabInstance = this.linkClickHandler = this.playerAPI = null;
         (window as any).siyuanMediaPlayer = null;
     }
     
     // API初始化
-    private initAPI() {        
-        this.mediaHandler = new MediaHandler({
-            getConfig: () => this.getConfig(),
-            openTab: () => this.openTab(),
-            waitForElement: (selector: string, timeout?: number) => this.waitForElement(selector, timeout),
-            components: this.components,
-            i18n: this.i18n
-        });
+    private async initAPI() {        
+        // 导入媒体处理功能
+        const { createLinkClickHandler } = await import('./core/player');
         
-        this.playerAPI = this.mediaHandler.getPlayerAPI();
-        this.api = createMediaPlayerAPI(this.name, () => this.openTab());
+        // 创建简化的播放器API
+        this.playerAPI = {
+            getCurrentTime: () => this.components.get('player')?.getCurrentTime?.() || 0,
+            seekTo: (time: number) => this.components.get('player')?.seekTo?.(time),
+            getCurrentMedia: () => null // 临时简化
+        };
+        
+        // API功能已迁移到player.ts中统一处理
         
         // 统一链接处理
-        const handler = this.mediaHandler.createLinkClickHandler();
-        document.addEventListener('click', handler, true);
-        this.events.set('linkClick', handler);
+        this.linkClickHandler = createLinkClickHandler(
+            this.playerAPI, 
+            await this.getConfig(),
+            () => this.openTab(),
+            (selector: string, timeout?: number) => this.waitForElement(selector, timeout),
+            this.i18n
+        );
+        document.addEventListener('click', this.linkClickHandler, true);
+        this.events.set('linkClick', this.linkClickHandler);
     }
     
     // UI事件注册
@@ -81,7 +87,7 @@ export default class MediaPlayerPlugin extends Plugin {
         const handlers = {
             'siyuanMediaPlayerUpdate': (e: CustomEvent<any>) => {
                 const { currentItem } = e.detail;
-                this.mediaHandler?.setCurrentItem(currentItem);
+                // mediaHandler removed in simplification
                 
                 if (this.tabInstance?.parent?.updateTitle && currentItem?.title) {
                     try { this.tabInstance.parent.updateTitle(currentItem.title); } catch {}
@@ -258,6 +264,7 @@ export default class MediaPlayerPlugin extends Plugin {
                     plugin.components.delete('player');
                 }
                 plugin.tabInstance = null;
+                // mediaHandler removed in simplification
                 (window as any).siyuanMediaPlayer = null;
             }
         });

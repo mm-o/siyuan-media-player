@@ -2,8 +2,8 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage, Menu } from "siyuan";
     import type { MediaItem } from '../core/types';
-    import { PlaylistManager, Config } from '../core/PlayList';
-    import { getThumbnailUrl } from '../core/media';
+    import { PlaylistManager, Utils } from '../core/PlayList';
+    import { Media, EXT } from '../core/player';
     import { AListManager } from '../core/alist';
     import { BilibiliParser } from '../core/bilibili';
 
@@ -16,8 +16,8 @@
     let d = { tags: ['目录', '默认'], items: [] as MediaItem[], folder: { type: '', path: '', connected: false } };
     let ui = { edit: '', add: false, exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any };
     
-    // 拖拽状态
-    let dragIndex = -1, dragTag = '';
+    // 拖拽状态 - 极简版
+    let drag = { item: -1, tag: '', target: '' };
     
     // 计算属性
     $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: (d.folder.type === 'alist' ? '/' : '') + arr.slice(0, i + 1).join('/') }));
@@ -42,21 +42,28 @@
     const tags = (item: MediaItem) => `<span class="meta-tag source" data-source="${item.source}">${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : map(srcs, item.source)}</span><span class="meta-tag type" data-type="${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}">${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>`;
     const setStore = (k: string, v: any) => localStorage.setItem(`media-player-${k}`, v), nextView = () => (s.view = views[(views.indexOf(s.view) + 1) % 4], exec('view.set', { view: s.view }));
     
-    // 拖拽处理
-    const itemDragStart = (index: number) => dragIndex = index;
-    const itemDragEnter = (e: DragEvent, index: number) => (e.preventDefault(), dragIndex !== index && dragIndex !== -1 && ([d.items[dragIndex], d.items[index]] = [d.items[index], d.items[dragIndex]], dragIndex = index));
-    const itemDragEnd = () => dragIndex !== -1 && (exec('media.reorder', { tagName: s.tab, itemIds: d.items.map(i => i.id) }).then(() => load()), dragIndex = -1);
-    const tagDragStart = (tag: string) => dragTag = tag;
-    const tagDragEnter = (e: DragEvent, tag: string) => (e.preventDefault(), dragTag && dragTag !== tag && d.tags.splice(d.tags.indexOf(tag), 0, d.tags.splice(d.tags.indexOf(dragTag), 1)[0]));
-    const tagDragEnd = () => dragTag && (exec('tag.reorder', { tagOrder: d.tags }).then(() => load()), dragTag = '');
+    // 拖拽处理 - 一体化极简
+    const dragStart = (type, i) => (drag = type === 'item' ? { item: i, tag: '', target: '' } : { item: -1, tag: i, target: '' });
+    const dragEnter = (e, type, i) => (e.preventDefault(), 
+        type === 'item' && drag.item !== i && drag.item > -1 && ([d.items[drag.item], d.items[i]] = [d.items[i], d.items[drag.item]], drag.item = i),
+        type === 'tag' && drag.item > -1 && (drag.target = i),
+        type === 'tag' && drag.tag && drag.tag !== i && d.tags.splice(d.tags.indexOf(i), 0, d.tags.splice(d.tags.indexOf(drag.tag), 1)[0]));
+    const dragEnd = () => ((drag.item > -1 && drag.target ? exec('media.move', { title: d.items[drag.item].title, newPlaylist: drag.target }) : 
+        drag.item > -1 ? exec('media.reorder', { tagName: s.tab, itemIds: d.items.map(i => i.id) }) : 
+        drag.tag ? exec('tag.reorder', { tagOrder: d.tags }) : Promise.resolve()).then(() => load()), drag = { item: -1, tag: '', target: '' });
 
     // 初始化
-    const init = safe(async () => { s.mgr = new PlaylistManager(); await load(); s.view = (await s.mgr.operation('view.get')).data || 'detailed'; });
+    const init = safe(async () => { 
+        Utils.setPlugin(plugin);
+        s.mgr = new PlaylistManager(); 
+        await load(); 
+        s.view = (await s.mgr.operation('view.get')).data || 'detailed'; 
+    });
     const load = safe(async () => {
         if (!s.mgr) return;
         const res = await s.mgr.getViewData(s.tab);
         d = s.tab === '目录' ? 
-            { tags: ['目录', ...res.tags.filter(t => t !== '目录')], items: res.tags.filter(t => t !== '目录').map(t => ({ id: `dir-${t}`, title: t, type: 'folder', url: '#', source: 'directory', targetTabId: t, is_dir: true, thumbnail: getThumbnailUrl({ type: 'folder' }) })), folder: d.folder } : 
+            { tags: ['目录', ...res.tags.filter(t => t !== '目录')], items: res.tags.filter(t => t !== '目录').map(t => ({ id: `dir-${t}`, title: t, type: 'folder', url: '#', source: 'directory', targetTabId: t, is_dir: true, thumbnail: Media.getThumbnail({ type: 'folder' }) })), folder: d.folder } : 
             { tags: ['目录', ...res.tags.filter(t => t !== '目录')], items: res.items || [], folder: d.folder };
     });
 
@@ -195,7 +202,7 @@
         init();
         ['playlist-data-updated', 'configUpdated'].forEach(e => 
             window.addEventListener(e, e === 'playlist-data-updated' ? load : 
-                (ev: CustomEvent) => ev.detail?.settings?.playlistDb?.id && (Config.clear(), s.mgr = new PlaylistManager(), init()))
+                (ev: CustomEvent) => ev.detail?.settings?.playlistDb?.id && (Utils.clearConfig(), s.mgr = new PlaylistManager(), init()))
         );
         return () => ['playlist-data-updated', 'configUpdated'].forEach(e => window.removeEventListener(e, () => {}));
     });
@@ -234,10 +241,11 @@
                     draggable={tag !== '目录' && tag !== '默认'}
                     on:click={() => setTab(tag)} 
                     on:contextmenu|preventDefault={e => menu(e, 'tab', tag)}
-                    on:dragstart={() => tagDragStart(tag)}
+                    on:dragstart={() => dragStart('tag', tag)}
                     on:dragover|preventDefault
-                    on:dragenter={e => dragIndex !== -1 ? (exec('media.move', { title: d.items[dragIndex].title, newPlaylist: tag }), load(), dragIndex = -1) : tagDragEnter(e, tag)}
-                    on:dragend={tagDragEnd}
+                    on:dragenter={e => dragEnter(e, 'tag', tag)}
+                    on:dragleave={e => drag.item !== -1 && (drag.target = '')}
+                    on:dragend={dragEnd}
                 >{map(tabs, tag)}</button>
             {/if}
         {/each}
@@ -274,10 +282,10 @@
                         on:click={() => click(item)} 
                         on:dblclick={() => exec('play', item.bvid && ui.parts[item.id]?.length > 1 ? {...item, cid: String(ui.parts[item.id][0].cid)} : item)} 
                         on:contextmenu|preventDefault={e => menu(e, 'media', item)}
-                        on:dragstart={() => itemDragStart(index)}
+                        on:dragstart={() => dragStart('item', index)}
                         on:dragover|preventDefault
-                        on:dragenter={e => itemDragEnter(e, index)}
-                        on:dragend={itemDragEnd}>
+                        on:dragenter={e => dragEnter(e, 'item', index)}
+                        on:dragend={dragEnd}>
                         
                         <!-- 极简视图 -->
                         {#if isCompact}
@@ -285,7 +293,7 @@
                             <div class="item-tags">{@html tags(item)}</div>
                         {:else if isGrid}
                             <div class="item-thumbnail">
-                                <img src={getThumbnailUrl(item)} alt={item.title} loading="lazy">
+                                <img src={Media.getThumbnail(item)} alt={item.title} loading="lazy">
                                 <div class="grid-tags">{@html tags(item)}</div>
                                 {#if item.duration}<div class="duration">{item.duration}</div>{/if}
                                 <div class="item-title" title={item.title}>{item.title}</div>
@@ -293,7 +301,7 @@
                         {:else}
                             <div class="item-content">
                                 <div class="item-thumbnail">
-                                    <img src={getThumbnailUrl(item)} alt={item.title} loading="lazy">
+                                    <img src={Media.getThumbnail(item)} alt={item.title} loading="lazy">
                                     {#if item.duration}<div class="duration">{item.duration}</div>{/if}
                                 </div>
                                 <div class="item-info">
@@ -328,13 +336,13 @@
     <div class="playlist-footer">
         <input type="text" class="tab-input playlist-input" placeholder="输入链接或直接点击添加本地文件..." bind:value={s.input} on:keydown={e => e.key === 'Enter' && (s.input.trim() ? exec('media.add', { url: s.input.trim(), playlist: s.tab }) : (async () => {
             if (!window.navigator.userAgent.includes('Electron')) return showMessage("需要桌面版支持");
-            const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'mp4', 'webm', 'mkv', 'avi', 'mov'] }] });
+            const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] });
             if (filePaths?.length) await Promise.all(filePaths.map(path => exec('media.add', { url: `file://${path.replace(/\\/g, '/')}`, playlist: s.tab })));
         })())}>
         {#if s.input}<span class="clear-icon" on:click={() => s.input = ''}>×</span>{/if}
         <button class="add-btn" on:click={() => s.input.trim() ? exec('media.add', { url: s.input.trim(), playlist: s.tab }) : (async () => {
             if (!window.navigator.userAgent.includes('Electron')) return showMessage("需要桌面版支持");
-            const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'mp4', 'webm', 'mkv', 'avi', 'mov'] }] });
+            const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] });
             if (filePaths?.length) await Promise.all(filePaths.map(path => exec('media.add', { url: `file://${path.replace(/\\/g, '/')}`, playlist: s.tab })));
         })()}>添加</button>
     </div>
