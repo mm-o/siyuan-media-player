@@ -12,7 +12,7 @@
     // 极简状态
     const views = ['detailed', 'compact', 'grid', 'grid-single'] as const, icons = ['M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z', 'M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z', 'M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z'];
     const getStore = (k: string, def = '') => localStorage.getItem(`media-player-${k}`) || def;
-    let s = { tab: '目录', view: 'detailed' as typeof views[number], sort: +getStore('sort', '0'), input: '', mgr: null as any };
+    let s = { tab: '目录', view: 'detailed' as typeof views[number], input: '', mgr: null as any };
     let d = { tags: ['目录', '默认'], items: [] as MediaItem[], folder: { type: '', path: '', connected: false } };
     let ui = { edit: '', add: false, exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any };
     
@@ -21,9 +21,7 @@
     
     // 计算属性
     $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: (d.folder.type === 'alist' ? '/' : '') + arr.slice(0, i + 1).join('/') }));
-    $: items = !s.sort ? d.items : [...d.items].sort((a, b) => 
-        a.isPinned !== b.isPinned ? (a.isPinned ? -1 : 1) : 
-        [0, (a, b) => a.title.localeCompare(b.title), (a, b) => (b.id?.split('-').pop() || '0').localeCompare(a.id?.split('-').pop() || '0'), (a, b) => (a.type || '').localeCompare(b.type || '')][s.sort]);
+    $: items = d.items;
     $: hasDir = d.items.some(i => i?.is_dir);
     $: playing = (item: MediaItem) => currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`);
     $: selected = (item: MediaItem) => ui.sel?.id === item.id;
@@ -109,10 +107,13 @@
         if (item.source === 'alist' && item.sourcePath && !item.is_dir) return dispatch('play', await AListManager.createMediaItemFromPath(item.sourcePath));
         
         const config = await cfg(), opts = { ...item, type: item.type || 'video' };
-        if ((item.source === 'B站' || item.type === 'bilibili') && item.bvid && item.cid) {
+        if ((item.source === 'B站' || item.type === 'bilibili') && item.bvid) {
             if (!config.settings?.bilibiliLogin?.mid) return showMessage('需要登录B站才能播放视频');
-            const stream = await BilibiliParser.getProcessedVideoStream(item.bvid, item.cid, 0, config);
-            if (stream.dash) Object.assign(opts, { url: stream.dash.video?.[0]?.baseUrl || '', headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash });
+            const cid = item.cid || (await BilibiliParser.getVideoParts({ bvid: item.bvid }))?.[0]?.cid;
+            if (cid) {
+                const stream = await BilibiliParser.getProcessedVideoStream(item.bvid, cid, 0, config);
+                if (stream.dash) Object.assign(opts, { url: stream.dash.video?.[0]?.baseUrl || '', headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash, cid });
+            }
         }
         currentItem = item; dispatch('play', opts);
     });
@@ -136,7 +137,6 @@
     const menus = {
         media: (item: any) => [
             ["iconPlay", "播放", () => exec('play', item)], 
-            ["iconPin", item.isPinned ? "取消置顶" : "置顶", () => exec('media.toggle', { title: item.title, field: 'pinned' })], 
             ...(d.tags.filter(t => t !== s.tab).length ? [["iconMove", "移动到", d.tags.filter(t => t !== s.tab).map(t => [t, () => exec('media.move', { title: item.title, newPlaylist: t })])]] : []), 
             ["iconTrashcan", "删除", () => exec('media.removeFromTag', { title: item.title, tagName: s.tab })]
         ],
@@ -220,9 +220,6 @@
         </div>
         <div class="header-controls">
             <span class="playlist-count">{d.items.length} 项</span>
-            <button class="view-mode-btn" on:click={() => (s.sort = (s.sort + 1) % 4, setStore('sort', s.sort))} title={["默认", "名称", "时间", "类型"][s.sort] + "排序"}>
-                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
-            </button>
             <button class="view-mode-btn" on:click={nextView} title="视图">
                 <svg viewBox="0 0 24 24" width="16" height="16"><path d={icons[views.indexOf(s.view) % 3]}/></svg>
             </button>

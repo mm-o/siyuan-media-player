@@ -2,7 +2,7 @@
  * AList API交互模块
  */
 import type { MediaItem } from './types';
-import { MediaUtils, EXT, DEFAULT_THUMBNAILS } from './player';
+import { EXT } from './player';
 
 // 接口定义
 export interface AListConfig {
@@ -239,7 +239,7 @@ export class AListManager {
             startTime: timeParams.startTime,
             endTime: timeParams.endTime,
             isLoop: timeParams.endTime !== undefined,
-            thumbnail: isAudio ? DEFAULT_THUMBNAILS.audio : DEFAULT_THUMBNAILS.video
+            thumbnail: isAudio ? '/plugins/siyuan-media-player/assets/images/audio.png' : '/plugins/siyuan-media-player/assets/images/video.png'
         };
     }
 
@@ -289,7 +289,7 @@ export class AListManager {
                     source: 'alist',
                     sourcePath: `${path === '/' ? '' : path}/${file.name}`,
                     is_dir: true,
-                    thumbnail: DEFAULT_THUMBNAILS.folder
+                    thumbnail: '/plugins/siyuan-media-player/assets/images/folder.png'
                 } as MediaItem;
             } else if (media.isMediaFile(file.name)) {
                 // 媒体文件项
@@ -298,7 +298,7 @@ export class AListManager {
                     id: `alist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
                     title: file.name,
                     url: `${this.config!.server}${filePath}`,
-                    thumbnail: file.thumb || (media.isAudioFile(file.name) ? DEFAULT_THUMBNAILS.audio : DEFAULT_THUMBNAILS.video),
+                    thumbnail: file.thumb || (media.isAudioFile(file.name) ? '/plugins/siyuan-media-player/assets/images/audio.png' : '/plugins/siyuan-media-player/assets/images/video.png'),
                     type: media.isAudioFile(file.name) ? 'audio' : 'video',
                     source: 'alist',
                     sourcePath: filePath

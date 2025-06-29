@@ -288,6 +288,12 @@
         try {
             currentChapter = null;
             loopCount = 0;
+
+            // 更新当前项目和标题
+            currentItem = options;
+            window.dispatchEvent(new CustomEvent('siyuanMediaPlayerUpdate', {
+                detail: { currentItem: options }
+            }));
             
             let playerConfig: any = {};
             let actualUrl = url;

@@ -57,9 +57,7 @@ interface MediaBase {
  * B站视频特有属性
  */
 interface BilibiliProps {
-    aid?: string;         // B站av号
     bvid?: string;        // B站bv号
-    cid?: string;         // B站视频cid
     headers?: Record<string, string>;
 }
 
@@ -81,9 +79,7 @@ export interface MediaItem {
     title: string;         // 标题
     type?: string;         // 类型：'video', 'audio', 'bilibili', 'folder'等
     url: string;           // 媒体URL
-    aid?: string;          // 辅助ID (比如B站aid)
     bvid?: string;         // B站BV号
-    cid?: string;          // B站cid
     thumbnail?: string;    // 缩略图
     artist?: string;       // 艺术家/UP主名
     artistIcon?: string;   // 艺术家/UP主头像
@@ -93,7 +89,6 @@ export interface MediaItem {
     endTime?: number;      // 结束时间(秒)
     isLoop?: boolean;      // 是否循环播放
     loopCount?: number;    // 循环次数
-    isPinned?: boolean;    // 是否置顶
     source?: string;       // 来源, 如 'alist'
     sourcePath?: string;   // 来源路径
     size?: number;         // 文件大小(字节)

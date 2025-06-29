@@ -52,13 +52,9 @@ class FieldManager {
         { k: 'artistIcon', n: '艺术家头像', t: 'mAsset', i: '1f464' },
         { k: 'thumbnail', n: '封面图', t: 'mAsset', i: '1f5bc' },
         { k: 'playlist', n: '所在标签', t: 'mSelect', i: '1f4d1', o: [['默认', '1']] },
-        { k: 'path', n: '地址', t: 'select', i: '1f4cd' },
         { k: 'duration', n: '时长', t: 'text', i: '23f1' },
         { k: 'type', n: '类型', t: 'select', i: '1f4c1', o: [['视频', '4'], ['音频', '5'], ['文件夹', '7']] },
-        { k: 'aid', n: 'aid', t: 'text', i: '1f194' },
         { k: 'bvid', n: 'bvid', t: 'text', i: '1f4dd' },
-        { k: 'cid', n: 'cid', t: 'text', i: '1f4c4' },
-        { k: 'pinned', n: '置顶', t: 'checkbox', i: '1f4cc' },
         { k: 'created', n: '创建时间', t: 'date', i: '1f4c5' }
     ];
     
@@ -95,7 +91,7 @@ class FieldManager {
             else if (k === 'type') v = media.type === 'audio' ? '音频' : '视频';
             else if (k === 'created') v = Date.now();
             
-            if (v || t === 'checkbox' || t === 'date') {
+            if (v || t === 'date') {
                 col.values = col.values || [];
                 col.values.push({ id: Utils.id(), keyID: col.key.id, blockID: blockId, type: t, createdAt: Date.now(), updatedAt: Date.now(), ...this.val(t, v) });
             }
@@ -107,7 +103,6 @@ class FieldManager {
         this.fields.forEach(({ k, n, t }) => {
             const field = Utils.field(data, n, blockId);
             if (k === 'type') result[k] = this.val(t, field, true) === '音频' ? 'audio' : 'video';
-            else if (k === 'pinned') result.isPinned = this.val(t, field, true);
             else result[k] = this.val(t, field, true);
         });
         return result as MediaItem;
@@ -202,30 +197,11 @@ export class MediaDB {
                 return { success: true, message: `删除了${blockIds.length}条记录` };
             }
             
-            case 'toggle': {
-                const record = Utils.rec(data, title);
-                if (!record) return { success: false, message: '未找到媒体' };
-                
-                if (field === 'pinned') {
-                    const fieldValue = Utils.field(data, FieldManager.map().pinned, record.blockID);
-                    if (fieldValue) {
-                        fieldValue.checkbox.checked = !fieldValue?.checkbox?.checked;
-                        fieldValue.updatedAt = Date.now();
-                    } else {
-                        const fieldCol = Utils.col(data, FieldManager.map().pinned);
-                        if (fieldCol) {
-                            fieldCol.values = fieldCol.values || [];
-                            fieldCol.values.push({ id: Utils.id(), keyID: fieldCol.key.id, blockID: record.blockID, type: 'checkbox', createdAt: Date.now(), updatedAt: Date.now(), ...FieldManager.val('checkbox', true) });
-                        }
-                    }
-                    return { success: true, message: '操作成功' };
-                }
-                return { success: false, message: '不支持的操作' };
-            }
+
             
-            case 'ensureTag': case 'ensurePath': {
-                const colName = action === 'ensureTag' ? FieldManager.map().playlist : FieldManager.map().path;
-                const optName = name || params.path;
+            case 'ensureTag': {
+                const colName = FieldManager.map().playlist;
+                const optName = name;
                 if (!optName) return;
                 const col = Utils.col(data, colName);
                 if (!col?.key) return;
@@ -323,7 +299,7 @@ export class PlaylistManager {
             if (!result.success || !result.mediaItem) return { success: false, message: result.error || '无法解析媒体链接' };
             
             const mediaItem = result.mediaItem;
-            const dbResult = await this.db.op(await this.getId(), 'create', { media: { ...mediaItem, playlist, path: '', pinned: false }, allowDuplicate: !checkDuplicate });
+            const dbResult = await this.db.op(await this.getId(), 'create', { media: { ...mediaItem, playlist }, allowDuplicate: !checkDuplicate });
             
             if (dbResult.success) {
                 await this.refresh();
@@ -337,15 +313,14 @@ export class PlaylistManager {
     }
     
     // 批量添加 - 简化版
-    private batch = async (sources: any[], tag: string, type: string, isItems = false, path = '', check = true): Promise<Result> => {
+    private batch = async (sources: any[], tag: string, type: string, isItems = false, check = true): Promise<Result> => {
         const dbId = await this.getId();
         let count = 0, dups = 0;
-        if (path) await this.db.op(dbId, 'ensurePath', { path });
         
         for (const src of sources) {
             const item = isItems ? src : (await Media.processUrl(src)).mediaItem;
             if (item) { 
-                const result = await this.db.op(dbId, 'create', { media: { ...item, playlist: tag, path, pinned: false }, allowDuplicate: !check });
+                const result = await this.db.op(dbId, 'create', { media: { ...item, playlist: tag }, allowDuplicate: !check });
                 result.isDuplicate ? dups++ : count++;
             }
         }
@@ -389,7 +364,7 @@ export class PlaylistManager {
             'media.add': async () => { await this.db.op(d, 'ensureTag', { name: params.playlist || '默认' }); return this.addMedia(params.url, params); },
             'media.delete': () => this.db.op(d, 'delete', { title: params.title, tagName: params.tagName }),
             'media.move': async () => { await this.db.op(d, 'ensureTag', { name: params.newPlaylist }); return this.db.op(d, 'update', { title: params.title, updates: { playlist: params.newPlaylist } }); },
-            'media.toggle': () => this.db.op(d, 'toggle', { title: params.title, field: params.field }),
+
             'media.removeFromTag': () => this.db.op(d, 'update', { title: params.title, updates: { removeTag: params.tagName } }),
             'media.reorder': () => this.db.do(d, (data) => (data.views[0].table.rowIds = params.itemIds)),
             'tag.reorder': () => this.db.do(d, (data) => { const c = Utils.col(data, FieldManager.map().playlist); if (c?.key?.options) c.key.options = params.tagOrder.map(t => c.key.options.find(o => o.name === t)).filter(Boolean); }),
@@ -404,7 +379,7 @@ export class PlaylistManager {
             if (!path) return { success: false, message: '未选择文件夹' }; 
             const name = params.isSiyuan ? "思源空间" : path.split(/[\\/]/).pop(); 
                 await this.db.op(d, 'ensureTag', { name });
-                return this.batch((await this.folder(params.isSiyuan ? 'siyuan' : 'folder', path, true)).urls, name, '媒体文件', false, path, params.checkDuplicate !== false);
+                return this.batch((await this.folder(params.isSiyuan ? 'siyuan' : 'folder', path, true)).urls, name, '媒体文件', false, params.checkDuplicate !== false);
             },
             'folder.browse': async () => ({ success: true, message: '获取文件夹成功', data: await this.folder(params.type, params.path || '', false) }),
             'source.addBiliFav': async () => {
@@ -412,7 +387,7 @@ export class PlaylistManager {
                 const { title, items } = await BilibiliParser.getFavoritesList(params.favId, config);
                 const name = params.favTitle || title;
                 await this.db.op(d, 'ensureTag', { name });
-                return this.batch((items || []).map((item: any) => `https://www.bilibili.com/video/${item.bvid}`), name, 'B站视频', false, params.favId, params.checkDuplicate !== false);
+                return this.batch((items || []).map((item: any) => `https://www.bilibili.com/video/${item.bvid}`), name, 'B站视频', false, params.checkDuplicate !== false);
             },
             'source.listBiliFavs': async () => {
                 const config = await Utils.getConfig();
@@ -440,7 +415,7 @@ export class PlaylistManager {
         const blockIds = new Set((tagCol?.values?.filter(v => v.mSelect?.some(tag => tag.content === activeTag)) || []).map(r => r.blockID));
         const items = (data.views[0].table.rowIds || []).filter(id => blockIds.has(id)).map(id => ({ ...FieldManager.get(data, id), title: titleCol?.values?.find(v => v.blockID === id)?.block?.content || '未知标题' } as MediaItem));
         
-        return { tags, items, activeTag, stats: { total: items.length, pinned: items.filter(item => item.isPinned).length } };
+        return { tags, items, activeTag, stats: { total: items.length, pinned: 0 } };
     }
     
     // 刷新数据 - 简化版

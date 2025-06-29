@@ -205,7 +205,7 @@ export const mediaNotes = {
                 '标题|{{title}}': mediaItem.title || '未命名媒体',
                 '时间|{{time}}': Media.fmt(currentTime, {anchor: true}),
                 '艺术家|{{artist}}': mediaItem.artist || '',
-                '链接|{{url}}': Media.getStandardUrl(mediaItem, config),
+                '链接|{{url}}': mediaItem.url || '',
                 '时长|{{duration}}': mediaItem.duration || '',
                 '封面|{{thumbnail}}': mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '',
                 '类型|{{type}}': mediaItem.type || 'video',
