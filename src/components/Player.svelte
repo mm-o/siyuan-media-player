@@ -331,7 +331,7 @@
             
             // 设置播放位置和循环
             if (options.startTime !== undefined) {
-                if (options.isLoop && options.endTime !== undefined) {
+                if (options.endTime !== undefined) {
                     setPlayTime(options.startTime, options.endTime);
                 } else {
                     art.currentTime = options.startTime;
@@ -428,6 +428,7 @@
         pause: () => art && art.pause(),
         resume: () => art && art.play(),
         getScreenshotDataURL: () => art ? Promise.resolve(art.getDataURL()) : Promise.resolve(null),
+        getCurrentMedia: () => currentItem,
         setLoop: (isLoop, loopTimes) => {
             if (art) {
                 art.loop = isLoop;

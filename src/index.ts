@@ -53,13 +53,14 @@ export default class MediaPlayerPlugin extends Plugin {
         this.playerAPI = {
             getCurrentTime: () => this.components.get('player')?.getCurrentTime?.() || 0,
             seekTo: (time: number) => this.components.get('player')?.seekTo?.(time),
-            getCurrentMedia: () => null
+            getCurrentMedia: () => this.components.get('player')?.getCurrentMedia?.() || null
         };
 
         this.linkClickHandler = createLinkClickHandler(
             this.playerAPI,
             await this.getConfig(),
-            () => this.openTab()
+            () => this.openTab(),
+            (item: any, startTime?: number, endTime?: number) => this.components.get('playlist')?.play?.(item, startTime, endTime)
         );
         document.addEventListener('click', this.linkClickHandler, true);
         this.events.set('linkClick', this.linkClickHandler);
@@ -88,6 +89,38 @@ export default class MediaPlayerPlugin extends Plugin {
                     const container = document.querySelector('.media-player-sidebar-content');
                     if (container) await this.showTabContent(tabId, container as HTMLElement);
                 }
+            },
+            'mediaPlayerAction': async (e: CustomEvent) => {
+                const { action, loopStartTime } = e.detail;
+                const currentItem = this.playerAPI?.getCurrentMedia?.();
+                const config = await this.getConfig();
+
+                if (!currentItem) return;
+
+                try {
+                    const { player, mediaNotes } = await import('./core/document');
+
+                    switch (action) {
+                        case 'screenshot':
+                            await player.screenshot(this.playerAPI, currentItem, config, this.i18n);
+                            break;
+                        case 'timestamp':
+                            await player.timestamp(this.playerAPI, currentItem, config, this.i18n);
+                            break;
+                        case 'loopSegment':
+                            // loopStartTime存在说明是第二次点击，创建循环链接
+                            if (loopStartTime !== undefined) {
+                                await player.loop(this.playerAPI, currentItem, config, this.i18n, loopStartTime);
+                            }
+                            break;
+                        case 'mediaNotes':
+                            await mediaNotes.create(currentItem, config, this.playerAPI, this.i18n);
+                            break;
+                    }
+                } catch (error) {
+                    console.error(`执行${action}失败:`, error);
+                    showMessage(`操作失败: ${error.message || error}`);
+                }
             }
         };
 
@@ -109,7 +142,7 @@ export default class MediaPlayerPlugin extends Plugin {
 
         this.addDock({
             type: "SiyuanMediaSidebar",
-            config: { position: "RightTop", size: { width: 400, height: 480 }, icon: iconId, title: this.i18n.sidebar?.title || "媒体播放器" },
+            config: { position: "RightTop", size: { width: 400, height: 480 }, icon: iconId, title: this.i18n.sidebar?.title || "媒体播放器", show: true },
             data: { plugin: this },
             init: function() {
                 const container = this.element;
@@ -270,7 +303,7 @@ export default class MediaPlayerPlugin extends Plugin {
                     return;
                 }
 
-                if (!this.components.get('player') || !this.playerAPI?.getCurrentMedia?.()) {
+                if (!this.playerAPI?.getCurrentMedia?.()) {
                     showMessage(this.i18n.openPlayer);
                     this.openTab();
                     return;

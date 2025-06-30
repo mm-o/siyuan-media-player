@@ -16,7 +16,7 @@ const TIME_REGEX = /[?&]t=([^&]+)/;
 export const EXT = { AUDIO: AUDIO_EXTS, VIDEO: VIDEO_EXTS, MEDIA: MEDIA_EXTS };
 export const detectMediaType = (url: string) => AUDIO_EXTS.some(ext => url.toLowerCase().endsWith(ext)) ? 'audio' : 'video';
 
-const isMedia = (url: string) => MEDIA_EXTS.some(ext => url.toLowerCase().endsWith(ext));
+const isMedia = (url: string) => MEDIA_EXTS.some(ext => url.toLowerCase().split('?')[0].endsWith(ext));
 const isBilibili = (url: string) => BILIBILI_REGEX.test(url);
 const error = (msg: string, ctx = '') => { console.error(`[player] ${ctx}:`, msg); showMessage(msg); return msg; };
 
@@ -185,35 +185,14 @@ export class Media {
 
 /** 播放器核心类 */
 export class Player {
-    /** 处理播放请求 */
-    static async handle(input: string | MediaItem, currentItem: any, config: any): Promise<{
-        action: 'play' | 'seek'; url?: string; startTime?: number; endTime?: number; info?: any; error?: string;
-    }> {
-        try {
-            const url = typeof input === 'string' ? input : Media.withTime(input.url, input.startTime, input.endTime);
-            const parsed = Media.parse(url);
-
-            // 判断是否同一媒体
-            if (this.isSame(currentItem, parsed.url)) {
-                return { action: 'seek', startTime: parsed.startTime, endTime: parsed.endTime };
-            }
-
-            // 获取播放URL
-            const playUrl = await this.getPlayUrl(parsed, config);
-            const info = typeof input === 'object' ? input : { title: Media.getTitle(parsed.url), type: parsed.type };
-
-            return { action: 'play', url: playUrl, startTime: parsed.startTime, endTime: parsed.endTime, info };
-        } catch (e) {
-            return { action: 'play', error: error(String(e), 'handle') };
-        }
+    /** 判断是否同一媒体需要丝滑跳转 */
+    static isSameMedia(currentItem: any, clickedItem: any, hadTab: boolean): boolean {
+        return this.isSame(currentItem, clickedItem) && hadTab;
     }
 
     /** 判断是否同一媒体 */
-    private static isSame(current: any, url: string): boolean {
-        if (!current?.url) return false;
-        const c = Media.parse(current.url);
-        const n = Media.parse(url);
-        return c.url === n.url;
+    private static isSame(current: any, clicked: any): boolean {
+        return current?.title?.trim() === clicked?.title?.trim() && current.title?.trim();
     }
 
     /** 获取播放URL */
@@ -322,7 +301,7 @@ export function registerGlobalPlayer(currentItem: any, player: any): void {
 }
 
 /** 创建链接点击处理器 */
-export function createLinkClickHandler(playerAPI: any, config: any, openTab: () => void): (e: MouseEvent) => Promise<void> {
+export function createLinkClickHandler(playerAPI: any, config: any, openTab: () => void, playlistPlay?: any): (e: MouseEvent) => Promise<void> {
     return async (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         const url = target.getAttribute('data-href');
@@ -344,32 +323,35 @@ export function createLinkClickHandler(playerAPI: any, config: any, openTab: () 
             }
 
             // 内置播放器
-            if (!document.querySelector('.media-player-tab')) {
+            const hasTab = !!document.querySelector('.media-player-tab');
+            const parsed = Media.parse(url);
+            const currentItem = playerAPI.getCurrentMedia?.();
+
+            // 获取媒体信息
+            const processResult = await Media.processUrl(url);
+            const mediaItem = processResult.success && processResult.mediaItem ? processResult.mediaItem :
+                             { title: Media.getTitle(parsed.url), type: parsed.type, url: parsed.url };
+
+            // 判断是否同一媒体需要丝滑跳转
+            if (Player.isSameMedia(currentItem, mediaItem, hasTab)) {
+                if (parsed.endTime !== undefined) {
+                    playerAPI.setPlayTime?.(parsed.startTime, parsed.endTime);
+                } else {
+                    playerAPI.seekTo?.(parsed.startTime);
+                }
+                console.log(`丝滑跳转: ${Media.fmt(parsed.startTime)}${parsed.endTime ? `-${Media.fmt(parsed.endTime)}` : ''}`);
+                return;
+            }
+
+            // 打开tab并播放
+            if (!hasTab) {
                 openTab();
                 await new Promise(resolve => setTimeout(resolve, 800));
             }
 
-            const result = await Player.handle(url, playerAPI.getCurrentMedia?.(), config);
-
-            if (result.error) {
-                showMessage(`播放失败: ${result.error}`);
-                return;
-            }
-
-            if (result.action === 'seek' && result.startTime !== undefined) {
-                playerAPI.seekTo?.(result.startTime);
-            } else if (result.action === 'play' && result.url) {
-                await play({
-                    url: result.url,
-                    title: result.info?.title || '未知',
-                    type: result.info?.type || 'video',
-                    startTime: result.startTime,
-                    endTime: result.endTime
-                }, playerAPI, config, (item) => {
-                    window.dispatchEvent(new CustomEvent('siyuanMediaPlayerUpdate', {
-                        detail: { player: playerAPI, currentItem: item }
-                    }));
-                });
+            // 使用播放列表的play函数
+            if (playlistPlay) {
+                await playlistPlay(mediaItem, parsed.startTime, parsed.endTime);
             }
         } catch (e) {
             error(String(e), 'linkClick');

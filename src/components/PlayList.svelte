@@ -264,13 +264,13 @@
         if (ui.parts[item.id]?.length > 1) ui.exp = new Set(ui.exp.has(item.id) ? [...ui.exp].filter(id => id !== item.id) : [...ui.exp, item.id]);
     });
 
-    const play = safe(async (item: MediaItem) => {
+    const play = safe(async (item: MediaItem, startTime?: number, endTime?: number) => {
         if (item.source === 'directory' && item.targetTabId) { s.tab = item.targetTabId; return load(); }
         if (item.is_dir) return browse(item.source === 'alist' ? 'alist' : item.source === 'siyuan' ? 'siyuan' : 'folder', item.sourcePath || '');
         if (item.source === 'alist' && item.sourcePath && !item.is_dir) return dispatch('play', await AListManager.createMediaItemFromPath(item.sourcePath));
 
         const config = await cfg();
-        const opts = { ...item, type: item.type || 'video' };
+        const opts = { ...item, type: item.type || 'video', startTime, endTime };
 
         // B站视频处理 - 确保bvid和cid传递
         const bvid = item.bvid || item.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
@@ -365,6 +365,9 @@
 
     // ==================== 生命周期 ====================
     onMount(() => { safe(init)(); const handleDataUpdate = () => load(); const handleConfigUpdate = (ev: CustomEvent) => { if (ev.detail?.settings?.playlistDb?.id) safe(init)(); }; window.addEventListener('playlist-data-updated', handleDataUpdate); window.addEventListener('configUpdated', handleConfigUpdate); return () => { window.removeEventListener('playlist-data-updated', handleDataUpdate); window.removeEventListener('configUpdated', handleConfigUpdate); }; });
+
+    // ==================== 导出API ====================
+    export { play };
 </script>
 
 <div class="playlist {className}" class:hidden>

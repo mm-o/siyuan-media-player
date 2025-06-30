@@ -82,24 +82,32 @@ export const withTime = (url: string, startTime?: number, endTime?: number): str
  * 创建媒体链接
  */
 export const link = async (
-    item: MediaItem, 
-    config: any, 
-    time: number, 
-    endTime?: number, 
+    item: MediaItem,
+    config: any,
+    time: number,
+    endTime?: number,
     subtitle?: string
 ): Promise<string> => {
     if (!item) return '';
-    
+
     try {
         const timeText = endTime
             ? `${Media.fmt(time)}-${Media.fmt(endTime)}`
             : Media.fmt(time);
-        const baseUrl = item.url;
-        
+
+        // 对于B站视频，使用标准的B站链接格式
+        let baseUrl = item.url;
+        if (item.bvid && (item.type === 'bilibili' || item.source === 'B站')) {
+            // 检查是否为分P视频
+            const pageMatch = item.id?.match(/-p(\d+)$/);
+            const page = pageMatch ? parseInt(pageMatch[1]) : null;
+            baseUrl = `https://www.bilibili.com/video/${item.bvid}${page && page > 1 ? `?p=${page}` : ''}`;
+        }
+
         // 应用模板替换
         let format = config?.settings?.linkFormat || "- [时间 字幕](链接)";
         format = format.replace(/!?\[截图\]\(截图\)/g, '').replace(/!?\[.*?\]\(截图\)/g, '').trim();
-        
+
         // 替换模板变量
         return applyTemplate(format, {
             '时间|{{time}}': timeText,
