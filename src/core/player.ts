@@ -74,6 +74,7 @@ export class Media {
             thumbnail: data.thumbnail || '',
             duration: data.duration || '',
             artist: data.artist || '',
+            artistIcon: data.artistIcon || '',
             startTime: data.startTime,
             endTime: data.endTime,
             bvid: data.bv || data.bvid

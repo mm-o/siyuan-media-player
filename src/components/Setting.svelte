@@ -3,7 +3,7 @@
     import { showMessage } from "siyuan";
     import type { ISettingItem, SettingType } from "../core/types";
     import { notebook } from "../core/document";
-    import { getAvIdByBlockId, MediaDB } from "../core/PlayList";
+
     import { QRCodeManager } from "../core/bilibili";
 
     export let group: string;
@@ -13,9 +13,13 @@
     export let activeTabId = 'settings';
     export let plugin: any;
     
-    // 配置管理
+    // 配置管理 - 极简版
     const getConfig = async () => await plugin.loadData('config.json') || {};
     const saveConfig = async (cfg) => { await plugin.saveData('config.json', cfg, 2); window.dispatchEvent(new CustomEvent('configUpdated', { detail: cfg })); };
+
+    // 数据库操作 - 极简版
+    const getAvIdByBlockId = async (blockId: string) => (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'` }) }).then(r => r.json())).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || '';
+    const initDb = async (blockId: string) => { try { const avId = await getAvIdByBlockId(blockId); if (avId) { const data = JSON.parse(window.require('fs').readFileSync(`${window.siyuan.config.system.workspaceDir}/data/storage/av/${avId}.json`, 'utf-8')); return true; } } catch {} return false; };
     
     // 默认值定义
     const DEFAULTS = {
@@ -219,7 +223,7 @@
               onChange: async (v) => {
                 const avId = v ? await getAvIdByBlockId(v).catch(() => '') : '';
                 state.playlistDb = { id: v, avId };
-                if (avId) await new MediaDB().init(v).catch(() => {});
+                if (avId) await initDb(v).catch(() => {});
                 settingItems = createSettings(state);
               },
               rows: 1 },

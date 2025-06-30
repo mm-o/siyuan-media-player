@@ -8,7 +8,7 @@ import PlayList from "./components/PlayList.svelte";
 import Setting from "./components/Setting.svelte";
 // @ts-ignore
 import Assistant from "./components/Assistant.svelte";
-import { Utils } from './core/playlist';
+
 import type { ComponentInstance } from './core/types';
 
 export default class MediaPlayerPlugin extends Plugin {
@@ -29,7 +29,6 @@ export default class MediaPlayerPlugin extends Plugin {
 
     /** 插件加载初始化 */
     async onload() {
-        Utils.setPlugin(this);
         await this.initAPI();
         this.registerEvents();
         this.addUI();
@@ -282,20 +281,5 @@ export default class MediaPlayerPlugin extends Plugin {
         }));
     }
 
-    /** 等待DOM元素出现 */
-    private async waitForElement(selector: string, timeout = 2000): Promise<Element | null> {
-        const element = document.querySelector(selector);
-        if (element) return element;
 
-        return new Promise<Element | null>(resolve => {
-            const endTime = Date.now() + timeout;
-            const checkInterval = setInterval(() => {
-                const element = document.querySelector(selector);
-                if (element || Date.now() > endTime) {
-                    clearInterval(checkInterval);
-                    resolve(element);
-                }
-            }, 50);
-        });
-    }
 }

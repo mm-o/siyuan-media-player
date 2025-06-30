@@ -91,10 +91,10 @@ export const link = async (
     if (!item) return '';
     
     try {
-        const timeText = endTime 
-            ? `${Media.fmt(time, {anchor: true})}-${Media.fmt(endTime, {anchor: true})}` 
-            : Media.fmt(time, {anchor: true});
-        const baseUrl = Media.getStandardUrl(item, config);
+        const timeText = endTime
+            ? `${Media.fmt(time)}-${Media.fmt(endTime)}`
+            : Media.fmt(time);
+        const baseUrl = item.url;
         
         // 应用模板替换
         let format = config?.settings?.linkFormat || "- [时间 字幕](链接)";
@@ -110,7 +110,7 @@ export const link = async (
         });
     } catch {
         // 出错时返回最简格式
-        return `- [${subtitle ? `${Media.fmt(time, {anchor: true})} ${subtitle}` : Media.fmt(time, {anchor: true})}](${item.url})`;
+        return `- [${subtitle ? `${Media.fmt(time)} ${subtitle}` : Media.fmt(time)}](${item.url})`;
     }
 };
 
@@ -203,7 +203,7 @@ export const mediaNotes = {
             const content = applyTemplate(config.settings.mediaNotesTemplate || 
                 "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：", {
                 '标题|{{title}}': mediaItem.title || '未命名媒体',
-                '时间|{{time}}': Media.fmt(currentTime, {anchor: true}),
+                '时间|{{time}}': Media.fmt(currentTime),
                 '艺术家|{{artist}}': mediaItem.artist || '',
                 '链接|{{url}}': mediaItem.url || '',
                 '时长|{{duration}}': mediaItem.duration || '',
@@ -226,19 +226,12 @@ export const mediaNotes = {
                 else throw new Error(result.msg || "创建文档失败");
             }
             
-            try {
-                const dbBlockId = config?.settings?.playlistDb?.id;
-                if (dbBlockId) {
-                    const {PlaylistManager} = await import('./playlist');
-                    const manager = new PlaylistManager();
-                    await manager.addMedia(mediaItem.url, '默认');
-                }
-            } catch (dbError) { console.warn("添加到数据库失败:", dbError); }
+            // 数据库添加功能已移至PlayList组件中
         } catch (error) {
             console.error("创建媒体笔记失败:", error);
             showMessage(i18n?.mediaPlayerTab?.mediaNotes?.createFailed || "创建媒体笔记失败");
             try {
-                await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${Media.fmt(player?.getCurrentTime?.() || 0, {anchor: true})}`);
+                await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${Media.fmt(player?.getCurrentTime?.() || 0)}`);
                 showMessage(i18n?.mediaPlayerTab?.mediaNotes?.copiedToClipboard || "已复制到剪贴板");
             } catch {}
         }

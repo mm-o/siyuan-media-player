@@ -40,49 +40,45 @@
                 ? (i18n?.assistant?.summary?.onlyForBilibili || "AI总结功能仅支持哔哩哔哩视频。")
                 : (i18n?.assistant?.summary?.noItems || "当前视频没有可用的AI总结")));
     
-    // 监听媒体变化并加载字幕和摘要
-    $: if (currentMedia?.url && player) {
-        loadContent();
-        startTracking();
+    // 媒体变化监听 - 极简版
+    $: {
+        stopTracking();
+        if (currentMedia?.url && player) {
+            loadContent();
+            startTracking();
+        } else {
+            clearContent();
+        }
     }
-    
+
+    // 清理内容状态
+    function clearContent() {
+        subtitles = [];
+        summaryItems = [];
+        danmakus = [];
+        currentSubtitleIndex = -1;
+        autoScrollEnabled = true;
+        isLoadingSubtitles = false;
+        isLoadingSummary = false;
+        isLoadingDanmakus = false;
+    }
+
     // 面板切换处理
     function changePanelTab(tabId) {
         if (tabId === activeTabId) return;
-        window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', { 
-            detail: { tabId } 
+        window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', {
+            detail: { tabId }
         }));
     }
-    
+
     // 生命周期
     onMount(() => {
-        // 监听面板激活
         const handleTabActivate = (e: any) => {
-            if (e.detail?.tabId) {
-                activeTabId = e.detail.tabId;
-            }
+            if (e.detail?.tabId) activeTabId = e.detail.tabId;
         };
-        
         window.addEventListener('mediaPlayerTabActivate', handleTabActivate);
-        
-        // 初始化时尝试加载内容
-        if (player && currentMedia?.url) {
-            loadContent();
-            startTracking();
-        }
-        
-        // 监听媒体更新
-        const handlePlayerUpdate = (e: any) => {
-            if (e.detail?.media && e.detail.media !== currentMedia) {
-                setTimeout(loadContent, 100);
-            }
-        };
-        
-        window.addEventListener('mediaPlayerUpdate', handlePlayerUpdate);
-        
         return () => {
             window.removeEventListener('mediaPlayerTabActivate', handleTabActivate);
-            window.removeEventListener('mediaPlayerUpdate', handlePlayerUpdate);
             stopTracking();
         };
     });
@@ -125,92 +121,53 @@
     }
     function stopTracking() { if (timer) { clearInterval(timer); timer = null; } }
     
-    // 加载字幕、弹幕和AI摘要
+    // 加载内容 - 极简版
     async function loadContent() {
-        // 重置状态
-        subtitles = [];
-        summaryItems = [];
-        danmakus = [];
-        currentSubtitleIndex = -1;
-        autoScrollEnabled = true;
-    
-        // 加载字幕
-        isLoadingSubtitles = true;
+        if (!currentMedia?.url) return clearContent();
+
+        clearContent();
+        isLoadingSubtitles = isLoadingDanmakus = isLoadingSummary = true;
+
         try {
-            if (currentMedia.bvid && currentMedia.cid) {
-                // B站视频字幕
-                subtitles = await SubtitleManager.loadBilibiliSubtitle(
-                    currentMedia.bvid, 
-                    currentMedia.cid, 
-                    await getConfig()
-                );
-            } else if (currentMedia.url) {
-                // 本地或AList字幕
-                const options = await SubtitleManager.getSubtitleForMedia(currentMedia.url);
-                if (options) {
-                    subtitles = await SubtitleManager.loadSubtitle(options.url, options.type);
-                }
-            }
+            const config = await getConfig();
+            const { bvid, cid, url } = currentMedia;
+
+            // 并行加载所有内容
+            const [subtitleResult, danmakuResult, summaryResult] = await Promise.allSettled([
+                // 字幕
+                bvid && cid
+                    ? SubtitleManager.loadBilibiliSubtitle(bvid, cid, config)
+                    : url ? SubtitleManager.getSubtitleForMedia(url).then(opt => opt ? SubtitleManager.loadSubtitle(opt.url, opt.type) : []) : [],
+
+                // 弹幕
+                bvid && cid
+                    ? DanmakuManager.getBiliDanmaku(cid, config)
+                    : url ? DanmakuManager.getDanmakuFileForMedia(url).then(opt => opt ? DanmakuManager.loadDanmaku(opt.url, opt.type) : []) : [],
+
+                // 总结
+                bvid && cid
+                    ? BilibiliParser.getVideoAiSummary(bvid, cid, currentMedia.artistId || config.settings?.bilibiliLogin?.mid, config)
+                        .then(result => result?.code === 0 && result?.data?.code === 0 && result.data.model_result
+                            ? [{ startTime: 0, text: result.data.model_result.summary, type: 'summary' },
+                               ...(result.data.model_result.outline?.flatMap(section => [
+                                   { startTime: section.timestamp, text: section.title, type: 'chapter' },
+                                   ...section.part_outline.map(point => ({ startTime: point.timestamp, text: point.content }))
+                               ]) || [])]
+                            : [])
+                    : []
+            ]);
+
+            subtitles = subtitleResult.status === 'fulfilled' ? subtitleResult.value || [] : [];
+            danmakus = danmakuResult.status === 'fulfilled' ? danmakuResult.value || [] : [];
+            summaryItems = summaryResult.status === 'fulfilled' ? summaryResult.value || [] : [];
+
         } catch (e) {
-            console.error('[Assistant] 加载字幕失败:', e);
+            console.error('[Assistant] 加载内容失败:', e);
         } finally {
-            isLoadingSubtitles = false;
-        }
-        
-        // 加载弹幕
-        isLoadingDanmakus = true;
-        try {
-            if (currentMedia.bvid && currentMedia.cid) {
-                // B站视频弹幕
-                const danmakuList = await DanmakuManager.getBiliDanmaku(
-                    currentMedia.cid,
-                    await getConfig()
-                );
-                danmakus = danmakuList || [];
-            } else if (currentMedia.url) {
-                // 本地弹幕，统一使用与字幕相同的查找和加载方式
-                const options = await DanmakuManager.getDanmakuFileForMedia(currentMedia.url);
-                if (options) {
-                    danmakus = await DanmakuManager.loadDanmaku(options.url, options.type);
-                }
-            }
-        } catch (e) {
-            console.error('[Assistant] 加载弹幕失败:', e);
-        } finally {
-            isLoadingDanmakus = false;
-        }
-        
-        // 加载B站AI总结（仅限B站视频）
-        if (currentMedia.bvid && currentMedia.cid) {
-            isLoadingSummary = true;
-            try {
-                const config = await getConfig();
-                const upMid = currentMedia.artistId 
-                    || (await BilibiliParser.getVideoInfo(`https://www.bilibili.com/video/${currentMedia.bvid}/`)?.then(info => info?.artistId))
-                    || config.settings?.bilibiliLogin?.mid;
-                
-                const result = await BilibiliParser.getVideoAiSummary(currentMedia.bvid, currentMedia.cid, upMid, config);
-                
-                if (result?.code === 0 && result?.data?.code === 0 && result.data.model_result) {
-                    const model = result.data.model_result;
-                    summaryItems = [
-                        {startTime: 0, text: model.summary, type: 'summary'},
-                        ...(model.outline?.flatMap(section => [
-                            {startTime: section.timestamp, text: section.title, type: 'chapter'},
-                            ...section.part_outline.map(point => ({
-                                startTime: point.timestamp, 
-                                text: point.content
-                            }))
-                        ]) || [])
-                    ];
-                }
-            } catch (e) {
-                console.error('[Assistant] 加载AI总结失败:', e);
-            } finally {
-                isLoadingSummary = false;
-            }
+            isLoadingSubtitles = isLoadingDanmakus = isLoadingSummary = false;
         }
     }
+
     
     // 工具函数
     const getTimeDisplay = item => activeTab === 'summary' && item.type
@@ -254,11 +211,10 @@
         }
     }
     
-    // Tab切换时重启追踪
+    // Tab切换时重置状态
     $: if (activeTab) {
         currentSubtitleIndex = -1;
         autoScrollEnabled = true;
-        if (player && items.length) setTimeout(startTracking, 100);
     }
     
     // 组件销毁时清理
