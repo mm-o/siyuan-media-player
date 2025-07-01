@@ -11,7 +11,7 @@
     // ==================== 常量配置 ====================
     const VIEWS = ['detailed', 'compact', 'grid', 'grid-single'] as const;
     const ICONS = ['M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z', 'M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z', 'M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z'];
-    const FIELDS = { title: '媒体标题', source: '来源', url: 'URL', artist: '艺术家', artistIcon: '艺术家头像', thumbnail: '封面图', playlist: '所在标签', duration: '时长', type: '类型', created: '创建时间' };
+    const FIELDS = { title: '媒体标题', playlist: '所在标签', url: 'URL', artist: '艺术家', duration: '时长', type: '类型', source: '来源', created: '创建时间', thumbnail: '封面图', artistIcon: '艺术家头像' };
     const FIELD_DEFS = {
         title: { type: 'block', pin: true },
         source: { type: 'select', options: [['B站', '4'], ['本地', '6'], ['AList', '3']] },
@@ -77,7 +77,7 @@
                         const k: any = { id: keyId, name, type: fieldDef.type, icon: '', desc: '', numberFormat: '', template: '' };
                         if (fieldDef.options) k.options = fieldDef.options.map(([n, c]) => ({ name: n, color: c, desc: '' }));
                         data.keyValues.push({ key: k });
-                        data.views[0].table.columns[fieldDef.pin ? 'unshift' : 'push']({ id: keyId, wrap: false, hidden: false, pin: !!fieldDef.pin, width: '' });
+                        data.views[0].table.columns[fieldDef.pin ? 'unshift' : 'push']({ id: keyId, wrap: false, hidden: false, pin: !!fieldDef.pin });
                     }
                 });
                 s.view = data.views[0].view || 'detailed';
@@ -183,7 +183,7 @@
         }
 
         await saveDb(avId, data);
-        if (['load', 'add', 'del', 'move'].includes(action)) await dbOp('load');
+        if (['load', 'add', 'del', 'move', 'ensure'].includes(action)) await dbOp('load');
     };
 
     // ==================== 核心业务操作 ====================
@@ -298,7 +298,7 @@
     const menus = {
         media: (item: any) => [["iconPlay", "播放", () => play(item)], ...(d.tags.filter(t => t !== s.tab && t !== '目录').length ? [["iconMove", "移动到", d.tags.filter(t => t !== s.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
         tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => (ui.edit = tag, setTimeout(() => ui.refs.edit?.focus(), 0))]]), ["iconClear", "清空", () => del(undefined, s.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
-        add: (_, e: MouseEvent) => [["iconAdd", "添加新标签页", () => (ui.add = true, setTimeout(() => ui.refs.new?.focus(), 0))], ["iconFolder", "添加本地文件夹", () => addFolder()], ["iconImage", "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", "浏览AList云盘", checkPro(() => connect('alist', 'AList', '/'))], ["iconHeart", "添加B站收藏夹", checkPro(() => addBili(e))]]
+        add: (_, e: MouseEvent) => [["iconAdd", "添加新标签页", () => { ui.add = true; setTimeout(() => ui.refs.new?.focus(), 50); }], ["iconFolder", "添加本地文件夹", () => addFolder()], ["iconImage", "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", "浏览AList云盘", checkPro(() => connect('alist', 'AList', '/'))], ["iconHeart", "添加B站收藏夹", checkPro(() => addBili(e))]]
     };
     const menu = (e: MouseEvent, type: keyof typeof menus, target?: any) => { const m = new Menu(`${type}Menu`); menus[type](target, e).forEach(([icon, label, action]) => m.addItem(Array.isArray(action) ? { icon, label, submenu: action.map(([l, a]) => ({ label: l, click: a })) } : { icon, label, click: action })); m.open({ x: e.clientX, y: e.clientY }); };
 
@@ -327,7 +327,7 @@
     // ==================== 标签管理 ====================
     const delTag = async (tagName: string) => { if (tagName === '默认') { showMessage('不能删除系统标签'); return; } const avId = await getAvId(s.dbId); const data = await loadDb(avId); const playlistCol = col(data, FIELDS.playlist); if (playlistCol?.key?.options) playlistCol.key.options = playlistCol.key.options.filter(opt => opt.name !== tagName); const singleTagRecords = playlistCol?.values?.filter(v => v.mSelect?.some(tag => tag.content === tagName) && v.mSelect?.length === 1).map(v => v.blockID) || []; playlistCol?.values?.forEach(value => { if (value.mSelect?.some(tag => tag.content === tagName)) { value.mSelect = value.mSelect.filter(tag => tag.content !== tagName); value.updatedAt = Date.now(); } }); if (singleTagRecords.length) { const blockIdSet = new Set(singleTagRecords); data.keyValues.forEach((kv: any) => { if (kv.values) kv.values = kv.values.filter((v: any) => !blockIdSet.has(v.blockID)); }); data.views[0].table.rowIds = data.views[0].table.rowIds?.filter((id: string) => !blockIdSet.has(id)) || []; } await saveDb(avId, data); if (s.tab === tagName) s.tab = '默认'; await load(); showMessage(`标签"${tagName}"已删除`); };
     const renameTag = async (oldName: string, newName: string) => { if (oldName === '默认' || !newName?.trim()) { showMessage(oldName === '默认' ? '不能重命名系统标签' : '新标签名不能为空'); return; } const avId = await getAvId(s.dbId); const data = await loadDb(avId); const playlistCol = col(data, FIELDS.playlist); if (playlistCol?.key?.options?.some(opt => opt.name === newName)) { showMessage('标签名已存在'); return; } playlistCol?.values?.forEach(value => { if (value.mSelect?.some(tag => tag.content === oldName)) { value.mSelect = value.mSelect.map(tag => tag.content === oldName ? { ...tag, content: newName } : tag); value.updatedAt = Date.now(); } }); const option = playlistCol?.key?.options?.find(opt => opt.name === oldName); if (option) option.name = newName; await saveDb(avId, data); if (s.tab === oldName) s.tab = newName; await load(); showMessage(`标签已重命名为"${newName}"`); };
-    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? ui.edit = '' : ui.add = false); type === 'tag' ? (renameTag(old!, value), ui.edit = '') : (ensure(value), ui.add = false); };
+    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? ui.edit = '' : ui.add = false); type === 'tag' ? (renameTag(old!, value), ui.edit = '') : (ensure(value).then(() => { ui.add = false; })); };
 
     // ==================== 播放控制和其他功能 ====================
     export const playNext = safe(async () => {
