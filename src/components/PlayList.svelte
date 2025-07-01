@@ -3,7 +3,7 @@
     import { showMessage, Menu } from "siyuan";
     import type { MediaItem } from '../core/types';
     import { Media, EXT } from '../core/player';
-    import { AListManager } from '../core/alist';
+    import { OpenListManager } from '../core/openlist';
     import { BilibiliParser } from '../core/bilibili';
 
     export let className = '', hidden = false, i18n: any, activeTabId = 'playlist', currentItem: MediaItem | null = null, plugin: any;
@@ -11,10 +11,10 @@
     // ==================== 常量配置 ====================
     const VIEWS = ['detailed', 'compact', 'grid', 'grid-single'] as const;
     const ICONS = ['M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z', 'M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z', 'M3 3h8v8H3V3zm0 10h8v8H3v-8zm10 0h8v8h-8v-8zm0-10h8v8h-8V3z'];
-    const FIELDS = { title: '媒体标题', playlist: '所在标签', url: 'URL', artist: '艺术家', duration: '时长', type: '类型', source: '来源', created: '创建时间', thumbnail: '封面图', artistIcon: '艺术家头像' };
+    const FIELDS = { title: '媒体标题', url: 'URL', duration: '时长', playlist: '所在标签', source: '来源', type: '类型', artist: '艺术家', thumbnail: '封面图', artistIcon: '艺术家头像', created: '创建时间' };
     const FIELD_DEFS = {
         title: { type: 'block', pin: true },
-        source: { type: 'select', options: [['B站', '4'], ['本地', '6'], ['AList', '3']] },
+        source: { type: 'select', options: [['B站', '4'], ['本地', '6'], ['OpenList', '3']] },
         url: { type: 'url' },
         artist: { type: 'text' },
         artistIcon: { type: 'mAsset' },
@@ -38,7 +38,7 @@
     let drag = { item: -1, tag: '', target: '' };
 
     // ==================== 数据库操作 ====================
-    const getAvId = async (blockId: string) => (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'` }) }).then(r => r.json())).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || (() => { throw new Error('未找到属性视图ID'); })();
+    const getAvId = async (blockId: string) => (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'` }) }).then(r => r.json())).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || (() => { throw new Error('请在设置-通用中输入数据库块Id用于配置播放列表数据库'); })();
     const loadDb = async (avId: string) => JSON.parse(window.require('fs').readFileSync(`${window.siyuan.config.system.workspaceDir}/data/storage/av/${avId}.json`, 'utf-8'));
     const saveDb = async (avId: string, data: any) => (window.require('fs').writeFileSync(`${window.siyuan.config.system.workspaceDir}/data/storage/av/${avId}.json`, JSON.stringify(data, null, 2)), fetch('/api/ui/reloadAttributeView', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: avId }) }).catch(() => {}));
     const col = (data: any, name: string) => data.keyValues?.find((kv: any) => kv.key.name === name);
@@ -121,7 +121,7 @@
                     if (!c) return;
                     let v = media[key];
                     if (key === 'title') v = media.title;
-                    else if (key === 'source') v = media.source === 'alist' ? 'AList' : (media.url?.includes('bilibili.com') || media.bvid) ? 'B站' : (media.source === 'local' || media.url?.startsWith('file://')) ? '本地' : '普通';
+                    else if (key === 'source') v = media.source === 'openlist' ? 'OpenList' : (media.url?.includes('bilibili.com') || media.bvid) ? 'B站' : (media.source === 'local' || media.url?.startsWith('file://')) ? '本地' : '普通';
                     else if (key === 'playlist') v = [playlist];
                     else if (key === 'type') v = media.type === 'audio' ? '音频' : '视频';
                     else if (key === 'created') v = Date.now();
@@ -190,7 +190,7 @@
     const init = async () => {
         const config = await cfg();
         s.dbId = config.settings?.playlistDb?.id;
-        if (!s.dbId) throw new Error('未配置数据库');
+        if (!s.dbId) throw new Error('请在设置-通用中输入数据库块Id用于配置播放列表数据库');
         await dbOp('init');
         await load();
     };
@@ -208,10 +208,10 @@
 
     // ==================== 文件夹浏览 ====================
     const browse = async (type: string, path = '') => {
-        if (type === 'alist') {
-            const items = await AListManager.createMediaItemsFromDirectory(path || '/');
-            d.folder = { type: 'alist', path: path || '/', connected: true };
-            if (s.tab === 'AList') d.items = Array.isArray(items) ? items : [];
+        if (type === 'openlist') {
+            const items = await OpenListManager.createMediaItemsFromDirectory(path || '/');
+            d.folder = { type: 'openlist', path: path || '/', connected: true };
+            if (s.tab === 'OpenList') d.items = Array.isArray(items) ? items : [];
         } else {
             if (!window.navigator.userAgent.includes('Electron')) throw new Error('此功能仅在桌面版可用');
             const fs = window.require('fs'), pathLib = window.require('path');
@@ -237,7 +237,7 @@
     };
 
     // ==================== UI状态和交互 ====================
-    $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: (d.folder.type === 'alist' ? '/' : '') + arr.slice(0, i + 1).join('/') }));
+    $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: (d.folder.type === 'openlist' ? '/' : '') + arr.slice(0, i + 1).join('/') }));
     $: items = d.items;
     $: hasDir = d.items.some(i => i?.is_dir);
     $: playing = (item: MediaItem) => currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`);
@@ -247,12 +247,12 @@
 
     const map = (m: any, k: string) => m[k] || k;
     const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default };
-    const srcs = { 'B站': i18n?.playList?.sources?.bilibili, '本地': i18n?.playList?.sources?.local, '普通': i18n?.playList?.sources?.general, 'AList': i18n?.playList?.sources?.alist };
+    const srcs = { 'B站': i18n?.playList?.sources?.bilibili, '本地': i18n?.playList?.sources?.local, '普通': i18n?.playList?.sources?.general, 'OpenList': i18n?.playList?.sources?.openlist };
 
     const tags = (item: MediaItem) => `<span class="meta-tag source" data-source="${item.source}">${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : map(srcs, item.source)}</span><span class="meta-tag type" data-type="${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}">${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>`;
     const nextView = () => (s.view = VIEWS[(VIEWS.indexOf(s.view) + 1) % 4], dbOp('setView', { view: s.view }));
-    const setTab = async (tag: string) => { if (tag === s.tab) return; s.tab = tag; await load(); if (tag === 'AList' && !d.items.length) await connect('alist', 'AList', '/'); else if (tag === '思源空间' && !d.items.length) await browse('siyuan', ''); else if (!['AList', '思源空间'].includes(tag)) d.folder = { type: '', path: '', connected: false }; };
-    const connect = async (type: string, tag: string, path = '') => { if (type === 'alist' && !d.folder.connected && !await AListManager.initFromConfig(await cfg())) { showMessage("请先配置AList连接"); return; } if (type === 'alist') d.folder = { connected: true, type: 'alist', path: '' }; if (!d.tags.includes(tag)) { await ensure(tag); await load(); } s.tab = tag; await browse(type, path); };
+    const setTab = async (tag: string) => { if (tag === s.tab) return; s.tab = tag; await load(); if (tag === 'OpenList' && !d.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === '思源空间' && !d.items.length) await browse('siyuan', ''); else if (!['OpenList', '思源空间'].includes(tag)) d.folder = { type: '', path: '', connected: false }; };
+    const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && !d.folder.connected && !await OpenListManager.initFromConfig(await cfg())) { showMessage("请先配置OpenList连接"); return; } if (type === 'openlist') d.folder = { connected: true, type: 'openlist', path: '' }; if (!d.tags.includes(tag)) { await ensure(tag); await load(); } s.tab = tag; await browse(type, path); };
 
     // ==================== 播放和交互 ====================
     const click = safe(async (item: MediaItem) => {
@@ -266,8 +266,8 @@
 
     const play = safe(async (item: MediaItem, startTime?: number, endTime?: number) => {
         if (item.source === 'directory' && item.targetTabId) { s.tab = item.targetTabId; return load(); }
-        if (item.is_dir) return browse(item.source === 'alist' ? 'alist' : item.source === 'siyuan' ? 'siyuan' : 'folder', item.sourcePath || '');
-        if (item.source === 'alist' && item.sourcePath && !item.is_dir) return dispatch('play', await AListManager.createMediaItemFromPath(item.sourcePath));
+        if (item.is_dir) return browse(item.source === 'openlist' ? 'openlist' : item.source === 'siyuan' ? 'siyuan' : 'folder', item.sourcePath || '');
+        if (item.source === 'openlist' && item.sourcePath && !item.is_dir) return dispatch('play', await OpenListManager.createMediaItemFromPath(item.sourcePath));
 
         const config = await cfg();
         const opts = { ...item, type: item.type || 'video', startTime, endTime };
@@ -298,7 +298,7 @@
     const menus = {
         media: (item: any) => [["iconPlay", "播放", () => play(item)], ...(d.tags.filter(t => t !== s.tab && t !== '目录').length ? [["iconMove", "移动到", d.tags.filter(t => t !== s.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
         tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => (ui.edit = tag, setTimeout(() => ui.refs.edit?.focus(), 0))]]), ["iconClear", "清空", () => del(undefined, s.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
-        add: (_, e: MouseEvent) => [["iconAdd", "添加新标签页", () => { ui.add = true; setTimeout(() => ui.refs.new?.focus(), 50); }], ["iconFolder", "添加本地文件夹", () => addFolder()], ["iconImage", "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", "浏览AList云盘", checkPro(() => connect('alist', 'AList', '/'))], ["iconHeart", "添加B站收藏夹", checkPro(() => addBili(e))]]
+        add: (_, e: MouseEvent) => [["iconAdd", "添加新标签页", () => { ui.add = true; setTimeout(() => ui.refs.new?.focus(), 50); }], ["iconFolder", "添加本地文件夹", () => addFolder()], ["iconImage", "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconHeart", "添加B站收藏夹", checkPro(() => addBili(e))]]
     };
     const menu = (e: MouseEvent, type: keyof typeof menus, target?: any) => { const m = new Menu(`${type}Menu`); menus[type](target, e).forEach(([icon, label, action]) => m.addItem(Array.isArray(action) ? { icon, label, submenu: action.map(([l, a]) => ({ label: l, click: a })) } : { icon, label, click: action })); m.open({ x: e.clientX, y: e.clientY }); };
 
@@ -414,12 +414,12 @@
     </div>
     
     <!-- 路径 -->
-    {#if d.folder.type && (s.tab === 'AList' || s.tab === '思源空间') && (hasDir || paths.length)}
-        <div class="alist-path-nav">
-            <button class="path-item" on:click={() => browse(d.folder.type, d.folder.type === 'alist' ? '/' : '')}>根目录</button>
+    {#if d.folder.type && (s.tab === 'OpenList' || s.tab === '思源空间') && (hasDir || paths.length)}
+            <div class="openlist-path-nav">
+        <button class="path-item" on:click={() => browse(d.folder.type, d.folder.type === 'openlist' ? '/' : '')}>根目录</button>
             {#each paths as part, i}
                 <span class="path-sep">/</span>
-                <button class="path-item" on:click={() => browse(d.folder.type, (d.folder.type === 'alist' ? '/' : '') + paths.slice(0, i + 1).map(p => p.name).join('/'))}>{part.name}</button>
+                <button class="path-item" on:click={() => browse(d.folder.type, (d.folder.type === 'openlist' ? '/' : '') + paths.slice(0, i + 1).map(p => p.name).join('/'))}>{part.name}</button>
             {/each}
         </div>
     {/if}

@@ -21,16 +21,32 @@
 
 ## 🚀 Recent Updates
 
-**Version 0.3.5 (2025.6.2):**
-- **🎛️ Playlist Refactoring**: Optimized playlist component structure and performance
-- **🎛️ Settings Component Refactoring**:
-  - Removed complex pro and alist styles, simplified to toggle switches
-  - Unified component processing logic, significantly improved efficiency
-  - Added database avid and notebook ID display
+**Version 0.3.5 (2025.7.2):**
+
+> ⚠️ **Important Notice: Due to major refactoring, this update causes incompatibility with playlist and settings configurations!**  
+> 📋 **Please backup your data before updating. Config file location: `data\storage\petal\siyuan-media-player\config.json`**  
+> 🔄 **You will need to reconfigure playlists and related settings after updating**
+
+- **📋 Playlist Refactoring**: Optimized playlist component structure and performance for better responsiveness with large media collections
+- **⚙️ Settings Component Refactoring**:
+  - Removed complex styles, simplified to intuitive toggle switch interface
+  - Unified component processing logic, significantly improved configuration efficiency
+  - Added real-time display of database avid and notebook ID
   - Removed save and reset buttons, implemented real-time saving with individual reset
-- **📜 Script Feature Removal**: Removed built-in custom script loading functionality, recommend using SiYuan's built-in JS script feature instead
-- **⚡ Code Simplification**: Cleaned up script management related code, reduced plugin size
-- **🎯 Core Focus**: Focus on media playback and note integration features, avoiding feature duplication
+- **💾 Database Configuration Sync**: Playlist configurations automatically sync to database, ensuring data consistency
+- **🎯 Drag & Drop Enhancement**:
+  - Support drag & drop media items for sorting and cross-tab movement
+  - Support drag & drop playlist tabs for reordering
+  - Removed traditional sort buttons, unified with drag & drop operations
+- **📷 Screenshot Function Fix**: Fixed screenshot with timestamp feature, ensuring proper screenshot-timestamp association
+- **🏷️ Visual Tag Optimization**: Added visual source and type tags for playlist items, making interface more intuitive and beautiful
+- **👨‍💼 Account Style Optimization**: Improved Bilibili account display styling for better user experience
+- **📁 SiYuan Workspace Enhancement**: Complete browsing of SiYuan Note workspace file system, supporting browsing and playing media files from all folders
+- **🔗 Media Notes URL Fix**: Fixed issue where Bilibili media notes used playback URLs instead of standard links
+- **🧹 Feature Streamlining**: Removed built-in script loading functionality, recommend using SiYuan's built-in JS script feature
+- **🔄 Cloud Storage Refactoring**: Refactored AList cloud storage functionality to OpenList, providing unified cloud storage interface with improved compatibility and stability
+- **⚡ Code Optimization**: Extremely simplified core code, cleaned up redundant logic, reduced plugin size
+- **🎯 Core Focus**: Focus on media playback and note integration features, improving stability and performance
 
 **Version 0.3.4 (2025.5.26):**
 - **🎛️ Button Layout**: Optimized function button positions for better usability
@@ -51,7 +67,7 @@
 
 **Version 0.3.2 (2025.5.11):**
 - **🎨 UI Optimization**: Unified styling for assistant, playlist, and settings panels
-- **☁️ AList Support**: Added AList cloud storage support for more media sources
+- **☁️ OpenList Support**: Added AList cloud storage support for more media sources
 - **📂 File Selection**: Enhanced local file import with direct file selection
 - **📋 Menu Simplification**: Streamlined tab menu, removing complex tab+right-click logic
 - **↔️ Resizable Panels**: Added support for resizing panels through drag and drop
@@ -147,13 +163,13 @@ SiYuan Media Player is a powerful multimedia playback plugin that helps you conv
 </details>
 
 <details>
-<summary><b>Using AList Cloud Storage</b></summary>
+<summary><b>Using OpenList Cloud Storage</b></summary>
 
-1. Configure your AList server connection in the settings panel
-2. Click "Add Media" and select "Add AList Cloud"
-3. Browse the AList directory structure to find media files
+1. Configure your OpenList server connection in the settings panel
+2. Click "Add Media" and select "Add OpenList Cloud"
+3. Browse the OpenList directory structure to find media files
 4. Select the media you want to add to the playlist
-5. The player will stream content directly from your AList server
+5. The player will stream content directly from your OpenList server
 </details>
 
 <details>

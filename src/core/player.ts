@@ -1,6 +1,6 @@
 import { MediaItem, PlayerType } from "./types";
 import { BilibiliParser } from "./bilibili";
-import { AListManager } from './alist';
+import { OpenListManager } from './openlist';
 import { imageToLocalAsset } from './document';
 import { showMessage } from 'siyuan';
 
@@ -54,7 +54,7 @@ export class Media {
         }
 
         if (url.includes('/#/')) {
-            return { url: cleanUrl, type, source: 'alist', path: url.split('/#/')[1]?.split('?')[0], startTime, endTime };
+            return { url: cleanUrl, type, source: 'openlist', path: url.split('/#/')[1]?.split('?')[0], startTime, endTime };
         }
 
         if (url.startsWith('file://')) {
@@ -207,8 +207,8 @@ export class Player {
             } catch (e) { console.warn('B站流获取失败:', e); }
         }
 
-        if (parsed.source === 'alist' && parsed.path) {
-            return await AListManager.getFileLink(parsed.path);
+        if (parsed.source === 'openlist' && parsed.path) {
+            return await OpenListManager.getFileLink(parsed.path);
         }
 
         return parsed.url;
@@ -268,8 +268,8 @@ export async function play(options: any, player: any, config: any, setItem: (ite
 
         // 获取播放URL
         let playUrl = options.url;
-        if (options.source === 'alist' && options.sourcePath) {
-            playUrl = await AListManager.getFileLink(options.sourcePath);
+        if (options.source === 'openlist' && options.sourcePath) {
+            playUrl = await OpenListManager.getFileLink(options.sourcePath);
         }
 
         // 播放

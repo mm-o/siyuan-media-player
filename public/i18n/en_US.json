@@ -168,7 +168,7 @@
             "favorite": "Favorites",
             "local": "Local Media",
             "bilibili": "Bilibili Videos",
-            "alist": "Cloud Media",
+            "openlist": "Cloud Media",
             "root": "Root Directory"
         },
         "viewMode": {
@@ -207,7 +207,7 @@
             "addNewTab": "Add New Tab",
             "addLocalFolder": "Add Local Folder",
             "addMediaFiles": "Add Media Files",
-            "addAList": "Add AList Cloud",
+            "addOpenList": "Add OpenList Cloud",
             "addBilibiliFavorites": "Add Bilibili Favorites",
             "addSiyuanAssets": "Add SiYuan Assets",
             "open": "Open",
@@ -270,7 +270,7 @@
             "initFailed": "Initialization failed",
             "loadDataFailed": "Failed to load data",
             "getFolderListFailed": "Failed to get folder list",
-            "alistConnectionRequired": "Please configure AList connection first",
+            "openlistConnectionRequired": "Please configure OpenList connection first",
             "selectionFailed": "Selection failed",
             "playFailed": "Play failed",
             "desktopRequired": "Desktop version required",
@@ -309,7 +309,7 @@
             "bilibili": "Bilibili",
             "local": "Local",
             "general": "General",
-            "alist": "AList"
+            "openlist": "OpenList"
         }
     },
     "setting": {
@@ -400,9 +400,9 @@
                 "title": "Screenshot with Timestamp",
                 "description": "When enabled, screenshots will also include timestamp links"
             },
-            "alistConfig": {
-                "title": "AList Configuration",
-                "description": "Configure AList server connection",
+                "openlistConfig": {
+        "title": "OpenList Configuration",
+        "description": "Configure OpenList server connection",
                 "server": "Server Address",
                 "username": "Username",
                 "password": "Password",
@@ -458,15 +458,15 @@
             "paid": "I have paid",
             "loggedIn": "Logged in",
             "notLoggedIn": "Click to login",
-            "alistConfigured": "AList configured",
-            "alistNotConfigured": "Configure AList server connection"
+                    "openlistConfigured": "OpenList configured",
+        "openlistNotConfigured": "Configure OpenList server connection"
         },
-        "alist": {
-            "title": "AList Configuration",
-            "server": "AList Server",
-            "username": "AList Username",
-            "password": "AList Password",
-            "configured": "AList configured",
+            "openlist": {
+        "title": "OpenList Configuration",
+        "server": "OpenList Server",
+        "username": "OpenList Username",
+        "password": "OpenList Password",
+        "configured": "OpenList configured",
             "notConfigured": "Not configured"
         }
     },

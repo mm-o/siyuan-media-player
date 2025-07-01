@@ -438,7 +438,8 @@
         setPlayTime,
         setLoopSegment: setPlayTime, // 保留兼容性
         updateConfig,
-        play
+        play,
+        triggerAction
     };
     
     // ===== 初始化 =====

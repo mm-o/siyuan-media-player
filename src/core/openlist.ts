@@ -1,11 +1,11 @@
 /**
- * AList API交互模块
+ * OpenList API交互模块
  */
 import type { MediaItem } from './types';
 import { EXT } from './player';
 
 // 接口定义
-export interface AListConfig {
+export interface OpenListConfig {
     server: string;
     username: string;
     password: string;
@@ -13,7 +13,7 @@ export interface AListConfig {
     connected?: boolean;
 }
 
-export interface AListFile {
+export interface OpenListFile {
     name: string;
     path: string;
     size: number;
@@ -38,23 +38,23 @@ const media = {
         EXT.MEDIA.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext)),
     
     isSupported: (name: string): boolean => 
-        EXT.SUPPORT.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext))
+        EXT.MEDIA.some(ext => name.toLowerCase().endsWith(ext) || name.toLowerCase().split('?')[0].endsWith(ext))
 };
 
 /**
- * AList管理器
+ * OpenList管理器
  */
-export class AListManager {
-    private static config: AListConfig | null = null;
+export class OpenListManager {
+    private static config: OpenListConfig | null = null;
     private static token: string | null = null;
-    private static FILE_CACHE = new Map<string, {files: AListFile[], timestamp: number}>();
+    private static FILE_CACHE = new Map<string, {files: OpenListFile[], timestamp: number}>();
     private static CACHE_EXPIRY = 5 * 60 * 1000; // 5分钟缓存过期
 
     // 基础API方法
     /**
-     * 连接到AList服务器并登录
+     * 连接到OpenList服务器并登录
      */
-    static async checkConnection(config: AListConfig): Promise<{connected: boolean, message: string}> {
+    static async checkConnection(config: OpenListConfig): Promise<{connected: boolean, message: string}> {
         try {
             const res = await fetch(`${config.server}/api/auth/login`, {
                 method: 'POST',
@@ -88,15 +88,15 @@ export class AListManager {
     }
 
     /**
-     * 执行AList API请求
+     * 执行OpenList API请求
      */
     private static async apiRequest<T>(
         endpoint: string, 
         body: any, 
         errorMessage: string
     ): Promise<T> {
-        if (!this.config?.token) throw new Error("未连接到AList服务器");
-        if (!await this.ensureConnection()) throw new Error("AList连接失败");
+        if (!this.config?.token) throw new Error("未连接到OpenList服务器");
+        if (!await this.ensureConnection()) throw new Error("OpenList连接失败");
         
         const res = await fetch(`${this.config.server}${endpoint}`, {
             method: 'POST',
@@ -155,7 +155,7 @@ export class AListManager {
     /**
      * 获取目录内容列表
      */
-    static async getDirectoryContents(path: string = '/'): Promise<AListFile[]> {
+    static async getDirectoryContents(path: string = '/'): Promise<OpenListFile[]> {
         // 检查缓存
         const now = Date.now();
         const cached = this.FILE_CACHE.get(path);
@@ -164,7 +164,7 @@ export class AListManager {
         }
 
         try {
-            const data = await this.apiRequest<{content: AListFile[]}>(
+            const data = await this.apiRequest<{content: OpenListFile[]}>(
                 '/api/fs/list', 
                 {path, password: '', page: 1, per_page: 1000, refresh: false},
                 "获取文件列表失败"
@@ -181,7 +181,7 @@ export class AListManager {
     }
 
     /**
-     * 从URL解析AList路径
+     * 从URL解析OpenList路径
      */
     static parsePathFromUrl(url: string): string | null {
         try {
@@ -190,7 +190,7 @@ export class AListManager {
             // 检查是否包含支持的扩展名
             if (!media.isSupported(url)) return null;
             
-            // 如果配置了AList服务器，优先通过服务器地址判断
+            // 如果配置了OpenList服务器，优先通过服务器地址判断
             if (this.config?.server) {
                 const serverDomain = this.config.server.replace(/^https?:\/\//, '').replace(/\/$/, '');
                 if (url.includes(serverDomain)) {
@@ -203,7 +203,7 @@ export class AListManager {
                 }
             }
             
-            // 通用解析：判断是否为典型AList URL格式
+            // 通用解析：判断是否为典型OpenList URL格式
             if (url.match(/https?:\/\/.*?:\d+\/[^?#]+\.\w+/i)) {
                 try {
                     const urlObj = new URL(url);
@@ -220,21 +220,21 @@ export class AListManager {
     }
 
     /**
-     * 创建媒体项 - 从AList路径创建媒体项用于播放
+     * 创建媒体项 - 从OpenList路径创建媒体项用于播放
      */
     static async createMediaItemFromPath(path: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<MediaItem> {
-        if (!this.config?.token) throw new Error("未连接到AList服务器");
+        if (!this.config?.token) throw new Error("未连接到OpenList服务器");
 
         const fileName = path.split('/').pop() || '未知文件';
         const isAudio = media.isAudioFile(fileName);
         const fileLink = await this.getFileLink(path);
         
         return {
-            id: `alist-direct-${Date.now()}`,
+            id: `openlist-direct-${Date.now()}`,
             title: fileName,
             url: fileLink,
             type: isAudio ? 'audio' : 'video',
-            source: 'alist',
+            source: 'openlist',
             sourcePath: path,
             startTime: timeParams.startTime,
             endTime: timeParams.endTime,
@@ -244,25 +244,25 @@ export class AListManager {
     }
 
     /**
-     * 处理AList媒体链接 - 从链接直接播放媒体
+     * 处理OpenList媒体链接 - 从链接直接播放媒体
      */
-    static async handleAListMediaLink(url: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<{success: boolean; mediaItem?: MediaItem; error?: string}> {
+    static async handleOpenListMediaLink(url: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<{success: boolean; mediaItem?: MediaItem; error?: string}> {
         if (!this.config?.token) {
-            return {success: false, error: "未连接到AList服务器"};
+            return {success: false, error: "未连接到OpenList服务器"};
         }
         
         // 尝试获取路径
-        let alistPath = this.parsePathFromUrl(url);
-        if (!alistPath && this.config.server && url.startsWith(this.config.server)) {
-            alistPath = url.substring(this.config.server.length).split('?')[0];
+        let openlistPath = this.parsePathFromUrl(url);
+        if (!openlistPath && this.config.server && url.startsWith(this.config.server)) {
+            openlistPath = url.substring(this.config.server.length).split('?')[0];
         }
         
-        if (!alistPath) {
-            return {success: false, error: "无法从链接解析AList路径"};
+        if (!openlistPath) {
+            return {success: false, error: "无法从链接解析OpenList路径"};
         }
         
         try {
-            const mediaItem = await this.createMediaItemFromPath(alistPath, timeParams);
+            const mediaItem = await this.createMediaItemFromPath(openlistPath, timeParams);
             return {success: true, mediaItem};
         } catch (error) {
             return {
@@ -282,11 +282,11 @@ export class AListManager {
             if (file.is_dir) {
                 // 文件夹项
                 return {
-                    id: `alist-folder-${Date.now()}-${Math.random().toString(36).slice(2,5)}`,
+                    id: `openlist-folder-${Date.now()}-${Math.random().toString(36).slice(2,5)}`,
                     title: file.name,
                     type: 'folder',
                     url: '#',
-                    source: 'alist',
+                    source: 'openlist',
                     sourcePath: `${path === '/' ? '' : path}/${file.name}`,
                     is_dir: true,
                     thumbnail: '/plugins/siyuan-media-player/assets/images/folder.png'
@@ -295,12 +295,12 @@ export class AListManager {
                 // 媒体文件项
                 const filePath = `${path === '/' ? '' : path}/${file.name}`;
                 return {
-                    id: `alist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                    id: `openlist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
                     title: file.name,
                     url: `${this.config!.server}${filePath}`,
                     thumbnail: file.thumb || (media.isAudioFile(file.name) ? '/plugins/siyuan-media-player/assets/images/audio.png' : '/plugins/siyuan-media-player/assets/images/video.png'),
                     type: media.isAudioFile(file.name) ? 'audio' : 'video',
-                    source: 'alist',
+                    source: 'openlist',
                     sourcePath: filePath
                 } as MediaItem;
             }
@@ -309,7 +309,7 @@ export class AListManager {
     }
 
     /**
-     * 获取AList中同名文件的直接链接 (用于查找字幕/弹幕等辅助文件)
+     * 获取OpenList中同名文件的直接链接 (用于查找字幕/弹幕等辅助文件)
      */
     static async getSupportFileLink(mediaPath: string, extensions: string[]): Promise<string | null> {
         if (!this.config?.server || !this.token) return null;
@@ -352,7 +352,7 @@ export class AListManager {
 
     // 公共工具方法
     static getConfig = () => this.config;
-    static setConfig = (config: AListConfig) => { this.config = config; };
+    static setConfig = (config: OpenListConfig) => { this.config = config; };
     static clearConnection = () => { 
         this.config = null;
         this.token = null;
@@ -360,14 +360,14 @@ export class AListManager {
     };
 
     /**
-     * 从配置中初始化AList
+     * 从配置中初始化OpenList
      */
     static async initFromConfig(config: any): Promise<boolean> {
-        const alistConfig = config?.settings?.alistConfig;
-        if (!alistConfig?.server || !alistConfig?.username || !alistConfig?.password) return false;
+        const openlistConfig = config?.settings?.openlistConfig;
+        if (!openlistConfig?.server || !openlistConfig?.username || !openlistConfig?.password) return false;
         
         try {
-            return (await this.checkConnection(alistConfig)).connected;
+            return (await this.checkConnection(openlistConfig)).connected;
         } catch {
             return false;
         }

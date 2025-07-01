@@ -242,8 +242,7 @@ $transition: 0.3s ease;
   // 颜色映射
   &[data-source="B站"] { --tag-color: #fb7185; }
   &[data-source="本地"] { --tag-color: #22c55e; }
-  &[data-source="AList"] { --tag-color: #f97316; }
-  &[data-source="alist"] { --tag-color: #f97316; }
+  &[data-source="openlist"] { --tag-color: #f97316; }
   &[data-source="普通"] { --tag-color: #3b82f6; }
   &[data-source="directory"] { --tag-color: #8b5cf6; }
   &[data-source="siyuan"] { --tag-color: #06b6d4; }
@@ -378,7 +377,7 @@ input[type="range"] {
 
 // 辅助元素
 .setting-label { @include standard-text(14px, 500); margin-bottom: 4px; }
-.alist-path-nav { 
+.openlist-path-nav { 
   padding: 4px 12px; font-size: 12px; 
   .path-item { background: none; border: none; color: color(primary); cursor: pointer; padding: 0; } 
   .path-sep { margin: 0 4px; opacity: 0.6; } 

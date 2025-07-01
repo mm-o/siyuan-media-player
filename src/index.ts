@@ -32,6 +32,7 @@ export default class MediaPlayerPlugin extends Plugin {
         await this.initAPI();
         this.registerEvents();
         this.addUI();
+        setTimeout(() => document.querySelector('.dock__item[aria-label*="媒体播放器"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })), 100);
     }
 
     /** 插件卸载清理 */
@@ -309,7 +310,7 @@ export default class MediaPlayerPlugin extends Plugin {
                     return;
                 }
 
-                window.dispatchEvent(new CustomEvent('mediaPlayerAction', { detail: { action } }));
+                this.playerAPI.triggerAction(action);
             }
         }));
     }

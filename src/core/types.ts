@@ -89,7 +89,7 @@ export interface MediaItem {
     endTime?: number;      // 结束时间(秒)
     isLoop?: boolean;      // 是否循环播放
     loopCount?: number;    // 循环次数
-    source?: string;       // 来源, 如 'alist'
+    source?: string;       // 来源, 如 'openlist'
     sourcePath?: string;   // 来源路径
     size?: number;         // 文件大小(字节)
     is_dir?: boolean;      // 是否为文件夹
@@ -142,8 +142,8 @@ export interface Config {
         screenshotWithTimestamp?: boolean;
         /** 播放列表数据库 */
         playlistDb?: { id: string; avId?: string };
-        /** AList配置 */
-        alistConfig?: {
+            /** OpenList配置 */
+    openlistConfig?: {
             server: string;    // 服务器地址 
             username: string;  // 用户名
             password: string;  // 密码
@@ -157,7 +157,7 @@ export interface Config {
         // UI临时状态(不持久化)
         qrcode?: { data: string; key: string };
         bilibili?: { login: boolean; userInfo: any };
-        alist?: { enabled: boolean; showPanel: boolean };
+        openlist?: { enabled: boolean; showPanel: boolean };
         pro?: { enabled: boolean };
     };
     /** B站登录信息 */
@@ -172,10 +172,10 @@ export interface PlaylistConfig {
     name: string;        // 列表名称
     isFixed?: boolean;   // 是否为固定列表
     items: MediaItem[];  // 媒体项列表
-    path?: string;       // 媒体源路径（本地文件夹/alist/思源/B站收藏夹）
-    sourceType?: string; // 源类型：folder/alist/siyuan/bilibili
-    alistPath?: string;  // AList当前路径 (已废弃，使用path替代)
-    alistPathParts?: {name: string; path: string}[];  // AList路径各部分
+    path?: string;       // 媒体源路径（本地文件夹/openlist/思源/B站收藏夹）
+    sourceType?: string; // 源类型：folder/openlist/siyuan/bilibili
+    openlistPath?: string;  // OpenList当前路径 (已废弃，使用path替代)
+    openlistPathParts?: {name: string; path: string}[];  // OpenList路径各部分
 }
 
 /**

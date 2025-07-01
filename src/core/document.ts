@@ -208,12 +208,15 @@ export const mediaNotes = {
     create: async (mediaItem: MediaItem, config: any, player: any, i18n?: any): Promise<void> => {
         try {
             const currentTime = player.getCurrentTime();
-            const content = applyTemplate(config.settings.mediaNotesTemplate || 
+            const p = mediaItem.id?.match(/-p(\d+)$/)?.[1];
+            const noteUrl = mediaItem.bvid ? `https://www.bilibili.com/video/${mediaItem.bvid}${+p > 1 ? `?p=${p}` : ''}` : mediaItem.url;
+
+            const content = applyTemplate(config.settings.mediaNotesTemplate ||
                 "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：", {
                 '标题|{{title}}': mediaItem.title || '未命名媒体',
                 '时间|{{time}}': Media.fmt(currentTime),
                 '艺术家|{{artist}}': mediaItem.artist || '',
-                '链接|{{url}}': mediaItem.url || '',
+                '链接|{{url}}': noteUrl,
                 '时长|{{duration}}': mediaItem.duration || '',
                 '封面|{{thumbnail}}': mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '',
                 '类型|{{type}}': mediaItem.type || 'video',
