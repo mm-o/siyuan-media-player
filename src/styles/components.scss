@@ -243,6 +243,7 @@ $transition: 0.3s ease;
   &[data-source="B站"] { --tag-color: #fb7185; }
   &[data-source="本地"] { --tag-color: #22c55e; }
   &[data-source="openlist"] { --tag-color: #f97316; }
+  &[data-source="webdav"] { --tag-color: #10b981; }
   &[data-source="普通"] { --tag-color: #3b82f6; }
   &[data-source="directory"] { --tag-color: #8b5cf6; }
   &[data-source="siyuan"] { --tag-color: #06b6d4; }
@@ -353,7 +354,7 @@ $transition: 0.3s ease;
 // 滑块样式
 .slider-wrapper { width: 100%; display: flex; align-items: center; gap: 8px; }
 
-input[type="range"] {
+.slider-wrapper input[type="range"] {
   flex: 1; height: 4px; background: color(surface-lighter); border-radius: 2px; cursor: pointer;
   &::-webkit-slider-thumb {
     width: 12px; height: 12px; border-radius: 50%; background: color(primary);

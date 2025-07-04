@@ -79,6 +79,7 @@ export interface MediaItem {
     title: string;         // 标题
     type?: string;         // 类型：'video', 'audio', 'bilibili', 'folder'等
     url: string;           // 媒体URL
+    originalUrl?: string;  // 原始URL(用于时间戳链接，WebDAV等)
     bvid?: string;         // B站BV号
     thumbnail?: string;    // 缩略图
     artist?: string;       // 艺术家/UP主名
@@ -144,10 +145,17 @@ export interface Config {
         playlistDb?: { id: string; avId?: string };
             /** OpenList配置 */
     openlistConfig?: {
-            server: string;    // 服务器地址 
+            server: string;    // 服务器地址
             username: string;  // 用户名
             password: string;  // 密码
             token?: string;    // 认证令牌
+            connected?: boolean; // 连接状态
+        };
+        /** WebDAV配置 */
+        webdavConfig?: {
+            server: string;    // 服务器地址
+            username: string;  // 用户名
+            password: string;  // 密码
             connected?: boolean; // 连接状态
         };
         /** 目标笔记本 */
@@ -158,6 +166,7 @@ export interface Config {
         qrcode?: { data: string; key: string };
         bilibili?: { login: boolean; userInfo: any };
         openlist?: { enabled: boolean; showPanel: boolean };
+        webdav?: { enabled: boolean };
         pro?: { enabled: boolean };
     };
     /** B站登录信息 */

@@ -49,7 +49,7 @@
             miniProgressBar: true,
             mutex: true,
             playsInline: true,
-            loop: !!safeConfig.loopSingle,
+            loop: false, // 禁用原生循环，改为手动处理
             theme: 'var(--b3-theme-primary)',
             lang: window.siyuan?.config?.lang?.toLowerCase() === 'en_us' ? 'en' : 'zh-cn',
             controls: [
@@ -167,12 +167,14 @@
             player.playbackRate = safeConfig.speed / 100;
             subtitleVisible = safeConfig.showSubtitles !== undefined ? safeConfig.showSubtitles : true;
             startSubtitleTracking(player);
-            
+
             // 显示就绪提示
             if (currentItem?.title) {
                 player.notice.show = `${currentItem.title} ${i18n.player?.ready || "准备就绪"}`;
             }
-            
+
+            // 自动播放（静音绕过策略）
+            player.muted = true;
             player.play().then(() => player.muted = false).catch(() => {});
         });
         
@@ -184,10 +186,10 @@
         
         // 视频结束事件处理
         player.on('video:ended', () => {
-            if (!safeConfig.loopSingle && safeConfig.loopPlaylist) {
-                window.dispatchEvent(new CustomEvent('mediaEnded', { 
-                    detail: { loopPlaylist: true }
-                }));
+            if (safeConfig.loopSingle) {
+                setTimeout(() => player && !player.isDestroyed && (player.currentTime = 0, player.muted = true, player.play().then(() => player.muted = false).catch(() => {})), 200);
+            } else if (safeConfig.loopPlaylist) {
+                window.dispatchEvent(new CustomEvent('mediaEnded', { detail: { loopPlaylist: true } }));
             }
         });
     }
@@ -225,28 +227,17 @@
     }
     
     // ===== 媒体处理 =====
-    // DASH播放支持
+    // DASH播放器自定义类型处理 - 统一管理
     function playMpd(video: HTMLVideoElement, url: string, art: any) {
-        if (!dashjs.supportsMediaSource()) {
-            art.notice.show = '当前环境不支持播放B站视频';
-            return;
-        }
-        
-        if (art.dash) art.dash.destroy();
-        
+        if (!dashjs.supportsMediaSource()) return art.notice.show = '当前环境不支持DASH播放';
+
         try {
-            const dash = dashjs.MediaPlayer().create();
-            dash.initialize(video, url, art.option.autoplay);
-            art.dash = dash;
-            
-            art.on('destroy', () => {
-                if (art.dash) {
-                    art.dash.destroy();
-                    art.dash = null;
-                }
-            });
+            art.dash?.destroy();
+            art.dash = dashjs.MediaPlayer().create();
+            art.dash.initialize(video, url, false);
+            art.on('destroy', () => (art.dash?.destroy(), art.dash = null));
         } catch (error) {
-            console.error("[Player] DASH初始化失败:", error);
+            console.error("[DASH] 初始化失败:", error);
             art.notice.show = 'DASH播放器初始化失败';
         }
     }
@@ -295,19 +286,13 @@
                 detail: { currentItem: options }
             }));
             
-            let playerConfig: any = {};
-            let actualUrl = url;
-            
-            // 处理特殊媒体源
-            if (options.biliDash) {
-                const mpdUrl = createBiliMPD(options.biliDash);
-                if (mpdUrl) {
-                    actualUrl = mpdUrl;
-                    playerConfig.type = 'mpd';
-                    playerConfig.customType = { mpd: playMpd };
-                    playerConfig.headers = options.headers;
-                }
-            }
+            // 处理B站DASH媒体源
+            const actualUrl = options.biliDash ? createBiliMPD(options.biliDash) || url : url;
+            const playerConfig = options.biliDash ? {
+                type: 'mpd',
+                customType: { mpd: playMpd },
+                headers: options.headers
+            } : {};
             
             // 加载弹幕
             if (config?.enableDanmaku) {
@@ -339,7 +324,6 @@
                 }
             }
             
-            art.play().catch(() => {});
         } catch (error) {
             console.error("[Player] 播放失败", error);
             if (art) art.notice.show = i18n.player?.error?.playRetry || "播放失败，请重试";
@@ -417,7 +401,6 @@
         // 应用新配置
         art.volume = (config.volume || DEFAULT_CONFIG.volume) / 100;
         art.playbackRate = (config.speed || DEFAULT_CONFIG.speed) / 100;
-        art.loop = !!config.loopSingle;
         subtitleVisible = config.showSubtitles !== undefined ? config.showSubtitles : true;
     }
     

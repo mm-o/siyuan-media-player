@@ -4,6 +4,7 @@
     import type { MediaItem } from '../core/types';
     import { Media, EXT } from '../core/player';
     import { OpenListManager } from '../core/openlist';
+    import { WebDAVManager } from '../core/webdav';
     import { BilibiliParser } from '../core/bilibili';
 
     export let className = '', hidden = false, i18n: any, activeTabId = 'playlist', currentItem: MediaItem | null = null, plugin: any;
@@ -14,7 +15,7 @@
     const FIELDS = { title: '媒体标题', url: 'URL', duration: '时长', playlist: '所在标签', source: '来源', type: '类型', artist: '艺术家', thumbnail: '封面图', artistIcon: '艺术家头像', created: '创建时间' };
     const FIELD_DEFS = {
         title: { type: 'block', pin: true },
-        source: { type: 'select', options: [['B站', '4'], ['本地', '6'], ['OpenList', '3']] },
+        source: { type: 'select', options: [['B站', '4'], ['本地', '6'], ['OpenList', '3'], ['WebDAV', '5']] },
         url: { type: 'url' },
         artist: { type: 'text' },
         artistIcon: { type: 'mAsset' },
@@ -113,6 +114,12 @@
                     const dup = col(data, FIELDS.url)?.values?.find(v => v.url?.content === media.url);
                     if (dup) { showMessage('媒体已存在'); return; }
                 }
+
+                // 转换图片为本地资源
+                const { imageToLocalAsset } = await import('../core/document');
+                if (media.thumbnail) media.thumbnail = await imageToLocalAsset(media.thumbnail);
+                if (media.artistIcon) media.artistIcon = await imageToLocalAsset(media.artistIcon);
+
                 const blockId = id();
                 data.views[0].table.rowIds = data.views[0].table.rowIds || [];
                 data.views[0].table.rowIds.push(blockId);
@@ -121,7 +128,7 @@
                     if (!c) return;
                     let v = media[key];
                     if (key === 'title') v = media.title;
-                    else if (key === 'source') v = media.source === 'openlist' ? 'OpenList' : (media.url?.includes('bilibili.com') || media.bvid) ? 'B站' : (media.source === 'local' || media.url?.startsWith('file://')) ? '本地' : '普通';
+                    else if (key === 'source') v = media.source === 'openlist' ? 'OpenList' : media.source === 'webdav' ? 'WebDAV' : (media.url?.includes('bilibili.com') || media.bvid) ? 'B站' : (media.source === 'local' || media.url?.startsWith('file://')) ? '本地' : '普通';
                     else if (key === 'playlist') v = [playlist];
                     else if (key === 'type') v = media.type === 'audio' ? '音频' : '视频';
                     else if (key === 'created') v = Date.now();
@@ -197,7 +204,7 @@
 
     const load = () => dbOp('load');
     const add = async (url: string, playlist = '默认', checkDup = true) => {
-        const result = await Media.processUrl(url);
+        const result = await Media.getMediaInfo(url);
         if (!result.success || !result.mediaItem) throw new Error(result.error || '无法解析媒体链接');
         await dbOp('add', { media: result.mediaItem, playlist, checkDup });
         window.dispatchEvent(new CustomEvent('refreshPlaylist'));
@@ -212,6 +219,10 @@
             const items = await OpenListManager.createMediaItemsFromDirectory(path || '/');
             d.folder = { type: 'openlist', path: path || '/', connected: true };
             if (s.tab === 'OpenList') d.items = Array.isArray(items) ? items : [];
+        } else if (type === 'webdav') {
+            const items = await WebDAVManager.createMediaItemsFromDirectory(path || '/');
+            d.folder = { type: 'webdav', path: path || '/', connected: true };
+            if (s.tab === 'WebDAV') d.items = Array.isArray(items) ? items : [];
         } else {
             if (!window.navigator.userAgent.includes('Electron')) throw new Error('此功能仅在桌面版可用');
             const fs = window.require('fs'), pathLib = window.require('path');
@@ -226,7 +237,8 @@
                     if (stats.isDirectory()) {
                         items.push({ id: `${type}-folder-${Date.now()}-${Math.random().toString(36).slice(2,5)}`, title: file, type: 'folder', url: '#', source: type, sourcePath: type === 'siyuan' ? pathLib.relative(pathLib.join(window.siyuan.config.system.workspaceDir, 'data'), filePath).replace(/\\/g, '/') : filePath, is_dir: true });
                     } else if (EXT.MEDIA.some(ext => file.toLowerCase().endsWith(ext))) {
-                        items.push({ id: `${type}-${Date.now()}-${Math.floor(Math.random() * 1000)}`, title: file, url: `file://${filePath.replace(/\\/g, '/')}`, type: EXT.AUDIO.includes(`.${file.toLowerCase().split('.').pop()}`) ? 'audio' : 'video', source: '本地', sourcePath: filePath });
+                        const relativePath = type === 'siyuan' ? pathLib.relative(pathLib.join(window.siyuan.config.system.workspaceDir, 'data'), filePath).replace(/\\/g, '/') : filePath;
+                        items.push({ id: `${type}-${Date.now()}-${Math.floor(Math.random() * 1000)}`, title: file, url: `file://${filePath.replace(/\\/g, '/')}`, originalUrl: type === 'siyuan' ? relativePath : undefined, type: EXT.AUDIO.includes(`.${file.toLowerCase().split('.').pop()}`) ? 'audio' : 'video', source: '本地', sourcePath: filePath });
                     }
                 });
             } catch (error) { console.error('扫描文件夹失败:', fullPath, error); }
@@ -237,7 +249,7 @@
     };
 
     // ==================== UI状态和交互 ====================
-    $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: (d.folder.type === 'openlist' ? '/' : '') + arr.slice(0, i + 1).join('/') }));
+    $: paths = d.folder.path.split('/').filter(Boolean).map((p, i, arr) => ({ name: p, path: ((d.folder.type === 'openlist' || d.folder.type === 'webdav') ? '/' : '') + arr.slice(0, i + 1).join('/') }));
     $: items = d.items;
     $: hasDir = d.items.some(i => i?.is_dir);
     $: playing = (item: MediaItem) => currentItem?.id === item.id || currentItem?.id?.startsWith(`${item.id}-p`);
@@ -247,12 +259,12 @@
 
     const map = (m: any, k: string) => m[k] || k;
     const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default };
-    const srcs = { 'B站': i18n?.playList?.sources?.bilibili, '本地': i18n?.playList?.sources?.local, '普通': i18n?.playList?.sources?.general, 'OpenList': i18n?.playList?.sources?.openlist };
+    const srcs = { 'B站': i18n?.playList?.sources?.bilibili, '本地': i18n?.playList?.sources?.local, '普通': i18n?.playList?.sources?.general, 'OpenList': i18n?.playList?.sources?.openlist, 'WebDAV': i18n?.playList?.sources?.webdav || 'WebDAV' };
 
     const tags = (item: MediaItem) => `<span class="meta-tag source" data-source="${item.source}">${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : map(srcs, item.source)}</span><span class="meta-tag type" data-type="${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}">${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>`;
     const nextView = () => (s.view = VIEWS[(VIEWS.indexOf(s.view) + 1) % 4], dbOp('setView', { view: s.view }));
-    const setTab = async (tag: string) => { if (tag === s.tab) return; s.tab = tag; await load(); if (tag === 'OpenList' && !d.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === '思源空间' && !d.items.length) await browse('siyuan', ''); else if (!['OpenList', '思源空间'].includes(tag)) d.folder = { type: '', path: '', connected: false }; };
-    const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && !d.folder.connected && !await OpenListManager.initFromConfig(await cfg())) { showMessage("请先配置OpenList连接"); return; } if (type === 'openlist') d.folder = { connected: true, type: 'openlist', path: '' }; if (!d.tags.includes(tag)) { await ensure(tag); await load(); } s.tab = tag; await browse(type, path); };
+    const setTab = async (tag: string) => { if (tag === s.tab) return; s.tab = tag; await load(); if (tag === 'OpenList' && !d.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === 'WebDAV' && !d.items.length) await connect('webdav', 'WebDAV', '/'); else if (tag === '思源空间' && !d.items.length) await browse('siyuan', ''); else if (!['OpenList', 'WebDAV', '思源空间'].includes(tag)) d.folder = { type: '', path: '', connected: false }; };
+    const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && (d.folder.type !== 'openlist' || !d.folder.connected) && !await OpenListManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.openlistConnectionRequired || "请先配置OpenList连接"); return; } if (type === 'webdav' && (d.folder.type !== 'webdav' || !d.folder.connected) && !await WebDAVManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.webdavConnectionRequired || "请先配置WebDAV连接"); return; } if (type === 'openlist') d.folder = { connected: true, type: 'openlist', path: '' }; if (type === 'webdav') d.folder = { connected: true, type: 'webdav', path: '' }; if (!d.tags.includes(tag)) { await ensure(tag); await load(); } s.tab = tag; await browse(type, path); };
 
     // ==================== 播放和交互 ====================
     const click = safe(async (item: MediaItem) => {
@@ -266,8 +278,9 @@
 
     const play = safe(async (item: MediaItem, startTime?: number, endTime?: number) => {
         if (item.source === 'directory' && item.targetTabId) { s.tab = item.targetTabId; return load(); }
-        if (item.is_dir) return browse(item.source === 'openlist' ? 'openlist' : item.source === 'siyuan' ? 'siyuan' : 'folder', item.sourcePath || '');
+        if (item.is_dir) return browse(item.source === 'openlist' ? 'openlist' : item.source === 'webdav' ? 'webdav' : item.source === 'siyuan' ? 'siyuan' : 'folder', item.sourcePath || '');
         if (item.source === 'openlist' && item.sourcePath && !item.is_dir) return dispatch('play', await OpenListManager.createMediaItemFromPath(item.sourcePath));
+        if (item.source === 'webdav' && item.sourcePath && !item.is_dir) return dispatch('play', await WebDAVManager.createMediaItemFromPath(item.sourcePath));
 
         const config = await cfg();
         const opts = { ...item, type: item.type || 'video', startTime, endTime };
@@ -280,7 +293,7 @@
             if (cid) {
                 Object.assign(opts, { bvid, cid });
                 const stream = await BilibiliParser.getProcessedVideoStream(bvid, cid, 0, config);
-                if (stream.dash) Object.assign(opts, { url: stream.dash.video?.[0]?.baseUrl || '', headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash });
+                if (stream.dash) Object.assign(opts, {url: stream.dash.video?.[0]?.baseUrl || '', originalUrl: item.originalUrl || item.url, headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash});
             }
         }
 
@@ -297,8 +310,8 @@
     const checkPro = (fn: Function) => async () => (await cfg())?.settings?.pro?.enabled ? fn() : showMessage("此功能需要Pro版本");
     const menus = {
         media: (item: any) => [["iconPlay", "播放", () => play(item)], ...(d.tags.filter(t => t !== s.tab && t !== '目录').length ? [["iconMove", "移动到", d.tags.filter(t => t !== s.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
-        tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => (ui.edit = tag, setTimeout(() => ui.refs.edit?.focus(), 0))]]), ["iconClear", "清空", () => del(undefined, s.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
-        add: (_, e: MouseEvent) => [["iconAdd", "添加新标签页", () => { ui.add = true; setTimeout(() => ui.refs.new?.focus(), 50); }], ["iconFolder", "添加本地文件夹", () => addFolder()], ["iconImage", "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconHeart", "添加B站收藏夹", checkPro(() => addBili(e))]]
+        tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => { ui.edit = tag; setTimeout(() => ui.refs.edit?.focus(), 0); }]]), ["iconClear", "清空", () => del(undefined, s.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
+        add: (_, e: MouseEvent) => [["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { ui.add = true; setTimeout(() => ui.refs.new?.focus(), 50); }], ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()], ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))], ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))]]
     };
     const menu = (e: MouseEvent, type: keyof typeof menus, target?: any) => { const m = new Menu(`${type}Menu`); menus[type](target, e).forEach(([icon, label, action]) => m.addItem(Array.isArray(action) ? { icon, label, submenu: action.map(([l, a]) => ({ label: l, click: a })) } : { icon, label, click: action })); m.open({ x: e.clientX, y: e.clientY }); };
 
@@ -332,6 +345,8 @@
     // ==================== 播放控制和其他功能 ====================
     export const playNext = safe(async () => {
         if (!d.items.length || !currentItem) return false;
+        const config = await cfg();
+        if (!config?.settings?.loopPlaylist) return false;
 
         // B站分P视频处理
         const bvid = currentItem.bvid || currentItem.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
@@ -339,23 +354,15 @@
             const currentPage = parseInt(currentItem.id?.match(/-p(\d+)/)?.[1] || '1', 10);
             const parts = await BilibiliParser.getVideoParts({ bvid });
             const nextPart = parts?.find(pt => pt.page === currentPage + 1);
-
-            if (nextPart || (await cfg())?.settings?.loop) {
-                const item = { ...currentItem };
+            if (nextPart || config.settings.loop) {
                 const part = nextPart || parts?.find(pt => pt.page === 1);
-
-                if (part) {
-                    Object.assign(item, { id: `${item.id.split('-p')[0]}-p${part.page}`, title: `${item.title.split(' - P')[0]}${part.page > 1 ? ` - P${part.page}${part.part ? ': ' + part.part : ''}` : ''}`, bvid, cid: String(part.cid) });
-                    await play(item);
-                    return true;
-                }
+                if (part) return (Object.assign(currentItem, { id: `${currentItem.id.split('-p')[0]}-p${part.page}`, title: `${currentItem.title.split(' - P')[0]}${part.page > 1 ? ` - P${part.page}${part.part ? ': ' + part.part : ''}` : ''}`, bvid, cid: String(part.cid) }), await play(currentItem), true);
             }
         }
 
         // 播放列表下一个
         const currentIndex = d.items.findIndex(i => i.id === currentItem.id || i.url === currentItem.url);
-        if (currentIndex >= 0) { await play(d.items[(currentIndex + 1) % d.items.length]); return true; }
-        return false;
+        return currentIndex >= 0 ? (await play(d.items[(currentIndex + 1) % d.items.length]), true) : false;
     });
 
     const handleAdd = async () => {
@@ -414,12 +421,12 @@
     </div>
     
     <!-- 路径 -->
-    {#if d.folder.type && (s.tab === 'OpenList' || s.tab === '思源空间') && (hasDir || paths.length)}
+    {#if d.folder.type && (s.tab === 'OpenList' || s.tab === 'WebDAV' || s.tab === '思源空间') && (hasDir || paths.length)}
             <div class="openlist-path-nav">
-        <button class="path-item" on:click={() => browse(d.folder.type, d.folder.type === 'openlist' ? '/' : '')}>根目录</button>
+        <button class="path-item" on:click={() => browse(d.folder.type, (d.folder.type === 'openlist' || d.folder.type === 'webdav') ? '/' : '')}>根目录</button>
             {#each paths as part, i}
                 <span class="path-sep">/</span>
-                <button class="path-item" on:click={() => browse(d.folder.type, (d.folder.type === 'openlist' ? '/' : '') + paths.slice(0, i + 1).map(p => p.name).join('/'))}>{part.name}</button>
+                <button class="path-item" on:click={() => browse(d.folder.type, ((d.folder.type === 'openlist' || d.folder.type === 'webdav') ? '/' : '') + paths.slice(0, i + 1).map(p => p.name).join('/'))}>{part.name}</button>
             {/each}
         </div>
     {/if}

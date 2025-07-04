@@ -21,6 +21,44 @@
 
 ## 🚀 Recent Updates
 
+**Version 0.3.6 (2025.7.5):**
+
+### 🆕 New Features
+- **☁️ WebDAV Cloud Storage Support**: Added WebDAV cloud storage integration
+  - WebDAV server configuration in settings panel
+  - "Browse WebDAV Cloud" menu item in tag menu
+  - Direct streaming playback from WebDAV servers
+  - Timestamp links and loop segments support for WebDAV media
+- **🎛️ Top Quick Menu**: Added purple TV icon in top bar for quick settings access
+- **🎨 Dedicated Icons**: Added dedicated SVG icons for OpenList and WebDAV services
+
+### ✨ Improvements
+- **🖼️ Image Localization**: Automatically convert cover images and artist avatars to local resources
+  - Improved loading speed and offline display support
+- **📔 Media Notes Enhancement**: Newly created documents automatically open in right-side tabs
+- **🔄 Loop Function Enhancement**: Added mutual exclusion between single loop and playlist loop settings
+- **📝 Terminology Update**: Updated "Loop Count" to "Segment Loop Count" and "Pause After Loop" to "Pause After Segment Loop"
+- **📁 SiYuan Assets Relative Path**: SiYuan assets media now generate timestamp and loop segment links using relative paths
+  - Consistent with SiYuan assets menu items path format
+  - Improved portability and workspace independence
+
+### 🐛 Bug Fixes
+- **🔗 Bilibili Timestamp Links**: Fixed timestamp link generation using playback URLs instead of standard links
+- **📤 Export Functions**: Fixed subtitle, danmaku, and AI summary export functionality
+- **📔 Media Notes**: Fixed document creation failure issue
+- **📸 Screenshot Function**: Fixed screenshot with timestamp option not working
+- **🏷️ Playlist Tab Menu**: Fixed right-click menu rename function not hiding menu after click
+- **🔄 Loop Functions**:
+  - Fixed single loop not working for Bilibili videos
+  - Fixed playlist loop loading next media but remaining paused
+  - Enhanced Bilibili multi-part video series support
+- **🎨 Style Scope**: Fixed SCSS selector affecting SiYuan's scrollbar
+
+### 🔧 Technical Improvements
+- Unified core module code structure for improved stability and performance
+- Implemented muted autoplay bypass strategy for reliable playlist loop
+- Unified loop mechanism across all media types
+
 **Version 0.3.5 (2025.7.2):**
 
 > ⚠️ **Important Notice: Due to major refactoring, this update causes incompatibility with playlist and settings configurations!**  

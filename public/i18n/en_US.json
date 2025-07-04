@@ -208,6 +208,7 @@
             "addLocalFolder": "Add Local Folder",
             "addMediaFiles": "Add Media Files",
             "addOpenList": "Add OpenList Cloud",
+            "addWebDAV": "Add WebDAV Cloud",
             "addBilibiliFavorites": "Add Bilibili Favorites",
             "addSiyuanAssets": "Add SiYuan Assets",
             "open": "Open",
@@ -271,6 +272,7 @@
             "loadDataFailed": "Failed to load data",
             "getFolderListFailed": "Failed to get folder list",
             "openlistConnectionRequired": "Please configure OpenList connection first",
+            "webdavConnectionRequired": "Please configure WebDAV connection first",
             "selectionFailed": "Selection failed",
             "playFailed": "Play failed",
             "desktopRequired": "Desktop version required",
@@ -309,7 +311,8 @@
             "bilibili": "Bilibili",
             "local": "Local",
             "general": "General",
-            "openlist": "OpenList"
+            "openlist": "OpenList",
+            "webdav": "WebDAV"
         }
     },
     "setting": {
@@ -333,12 +336,12 @@
                 "description": "Default playback speed"
             },
             "loopCount": {
-                "title": "Loop Count",
+                "title": "Segment Loop Count",
                 "description": "Number of times to loop a segment"
             },
             "pauseAfterLoop": {
-                "title": "Pause After Loop",
-                "description": "Pause media playback after loop ends"
+                "title": "Pause After Segment Loop",
+                "description": "Pause media playback after segment loop ends"
             },
             "openMode": {
                 "title": "Open Mode",
@@ -458,16 +461,31 @@
             "paid": "I have paid",
             "loggedIn": "Logged in",
             "notLoggedIn": "Click to login",
-                    "openlistConfigured": "OpenList configured",
-        "openlistNotConfigured": "Configure OpenList server connection"
+            "openlistConfigured": "OpenList configured",
+            "openlistNotConfigured": "Configure OpenList server connection",
+            "webdavConfigured": "WebDAV configured",
+            "webdavNotConfigured": "Configure WebDAV server connection"
         },
-            "openlist": {
-        "title": "OpenList Configuration",
-        "server": "OpenList Server",
-        "username": "OpenList Username",
-        "password": "OpenList Password",
-        "configured": "OpenList configured",
+        "openlist": {
+            "title": "OpenList Configuration",
+            "server": "OpenList Server",
+            "username": "OpenList Username",
+            "password": "OpenList Password",
+            "configured": "OpenList configured",
             "notConfigured": "Not configured"
+        },
+        "webdav": {
+            "title": "WebDAV Configuration",
+            "server": "WebDAV Server",
+            "username": "WebDAV Username",
+            "password": "WebDAV Password",
+            "configured": "WebDAV configured",
+            "notConfigured": "Not configured"
+        },
+        "webdavConfig": {
+            "server": "WebDAV server address",
+            "username": "WebDAV account username",
+            "password": "WebDAV account password"
         }
     },
     "screenshot": {

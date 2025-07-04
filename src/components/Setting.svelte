@@ -26,6 +26,8 @@
         pro: { enabled: false },
         openlist: { enabled: false },
         openlistConfig: { server: "http://localhost:5244", username: "admin", password: "" },
+        webdav: { enabled: false },
+        webdavConfig: { server: "https://your-webdav-server.com", username: "", password: "" },
         bilibiliLogin: null,
         openMode: "default",
         playerType: "built-in",
@@ -80,7 +82,7 @@
     function createSettings(state): ISettingItem[] {
         
         return [
-            // Pro账号
+        // Pro账号
             { key: "pro",type: "checkbox" as SettingType,tab: "account",
                 title: i18n.pro?.title || "Media Player Pro", value: state.pro?.enabled,
                 description: accDesc('#iconVIP', 'Pro会员', 
@@ -99,10 +101,10 @@
               title: i18n.pro?.priceTag || "¥ 18.00",
               description: i18n.pro?.priceWithStar || "或 ¥ 16.00 + <a href=\"https://github.com/mm-o/siyuan-media-player\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Star</a> 关注" },
 
-                    // OpenList账号
+        // OpenList账号
         { key: "openlist",type: "checkbox" as SettingType,tab: "account",
         title: i18n.setting.openlist?.title || "OpenList 服务器", value: state.openlist?.enabled,
-        description: accDesc('#iconCloud', 'OpenList云盘',
+        description: accDesc('/plugins/siyuan-media-player/assets/images/openlist.svg', 'OpenList云盘',
             state.openlist?.enabled ? '已连接' : '未启用', state.openlist?.enabled ? '#4caf50' : '#999',
             state.openlist?.enabled ? (state.openlistConfig?.server || '未配置服务器') : '连接您的云存储服务',
             state.openlist?.enabled ? `用户: ${state.openlistConfig?.username || '未设置'}` : '支持多种云盘协议'),
@@ -122,7 +124,31 @@
         title: i18n.setting.openlist?.password || "OpenList 密码",
         description: i18n.setting.openlistConfig?.password || "OpenList账号密码", rows: 1,
         onChange: (v) => state.openlistConfig.password = v },
- 
+
+        // WebDAV账号
+        { key: "webdav", type: "checkbox" as SettingType, tab: "account",
+        title: i18n.setting.webdav?.title || "WebDAV 服务器", value: state.webdav?.enabled,
+        description: accDesc('/plugins/siyuan-media-player/assets/images/webdav.svg', 'WebDAV云盘',
+            state.webdav?.enabled ? '已连接' : '未启用', state.webdav?.enabled ? '#4caf50' : '#999',
+            state.webdav?.enabled ? (state.webdavConfig?.server || '未配置服务器') : '连接您的WebDAV存储',
+            state.webdav?.enabled ? `用户: ${state.webdavConfig?.username || '未设置'}` : '支持标准WebDAV协议'),
+        onChange: (v) => { state.webdav = { ...state.webdav, enabled: v }; } },
+        { key: "webdavServer", value: state.webdavConfig?.server, type: "textarea" as SettingType, tab: "account",
+        displayCondition: (s) => !s.webdav?.enabled,
+        title: i18n.setting.webdav?.server || "WebDAV 服务器",
+        description: i18n.setting.webdavConfig?.server || "WebDAV服务器地址", rows: 1,
+        onChange: (v) => state.webdavConfig.server = v },
+        { key: "webdavUsername", value: state.webdavConfig?.username, type: "textarea" as SettingType, tab: "account",
+        displayCondition: (s) => !s.webdav?.enabled,
+        title: i18n.setting.webdav?.username || "WebDAV 用户名",
+        description: i18n.setting.webdavConfig?.username || "WebDAV账号用户名", rows: 1,
+        onChange: (v) => state.webdavConfig.username = v },
+        { key: "webdavPassword", value: state.webdavConfig?.password, type: "textarea" as SettingType, tab: "account",
+        displayCondition: (s) => !s.webdav?.enabled,
+        title: i18n.setting.webdav?.password || "WebDAV 密码",
+        description: i18n.setting.webdavConfig?.password || "WebDAV账号密码", rows: 1,
+        onChange: (v) => state.webdavConfig.password = v },
+
             // B站账号
             { key: "bilibili", type: "checkbox" as SettingType, tab: "account",
               title: i18n.setting.bilibili?.account || "B站账号", 
@@ -189,14 +215,16 @@
               description: i18n.setting.items.loopCount.description,
               slider: { min: 1, max: 10, step: 1 } },
             { key: "pauseAfterLoop", value: state.pauseAfterLoop, type: "checkbox" as SettingType, tab: "player",
-              title: i18n.setting.items.pauseAfterLoop?.title || "循环后暂停",
+              title: i18n.setting.items.pauseAfterLoop?.title || "片段循环后暂停",
               description: i18n.setting.items.pauseAfterLoop?.description },
             { key: "loopPlaylist", value: state.loopPlaylist, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items?.loopPlaylist?.title || "循环列表",
-              description: i18n.setting.items?.loopPlaylist?.description || "播放完列表后从头开始" },
+              description: i18n.setting.items?.loopPlaylist?.description || "播放完列表后从头开始",
+              onChange: (v) => (state.loopPlaylist = v, v && (state.loopSingle = false)) },
             { key: "loopSingle", value: state.loopSingle, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items?.loopSingle?.title || "单项循环",
-              description: i18n.setting.items?.loopSingle?.description || "重复播放当前媒体" },
+              description: i18n.setting.items?.loopSingle?.description || "重复播放当前媒体",
+              onChange: (v) => (state.loopSingle = v, v && (state.loopPlaylist = false)) },
             
             // 通用设置
             { key: "insertMode", value: state.insertMode, type: "select" as SettingType, tab: "general",

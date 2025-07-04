@@ -54,7 +54,13 @@ export default class MediaPlayerPlugin extends Plugin {
         this.playerAPI = {
             getCurrentTime: () => this.components.get('player')?.getCurrentTime?.() || 0,
             seekTo: (time: number) => this.components.get('player')?.seekTo?.(time),
-            getCurrentMedia: () => this.components.get('player')?.getCurrentMedia?.() || null
+            getCurrentMedia: () => this.components.get('player')?.getCurrentMedia?.() || null,
+            createTimestampLink: async (withScreenshot: boolean, startTime: number, endTime?: number, subtitle?: string) => {
+                const { link } = await import('./core/document');
+                const currentItem = this.playerAPI.getCurrentMedia();
+                if (!currentItem) return '';
+                return await link(currentItem, await this.getConfig(), startTime, endTime, subtitle);
+            }
         };
 
         this.linkClickHandler = createLinkClickHandler(
@@ -115,14 +121,15 @@ export default class MediaPlayerPlugin extends Plugin {
                             }
                             break;
                         case 'mediaNotes':
-                            await mediaNotes.create(currentItem, config, this.playerAPI, this.i18n);
+                            await mediaNotes.create(currentItem, config, this.playerAPI, this.i18n, this.app);
                             break;
                     }
                 } catch (error) {
                     console.error(`执行${action}失败:`, error);
                     showMessage(`操作失败: ${error.message || error}`);
                 }
-            }
+            },
+            'mediaEnded': () => this.components.get('playlist')?.playNext?.()
         };
 
         Object.entries(handlers).forEach(([event, handler]) => {

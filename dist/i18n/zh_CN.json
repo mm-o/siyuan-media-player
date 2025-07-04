@@ -208,6 +208,7 @@
             "addLocalFolder": "添加本地文件夹",
             "addMediaFiles": "添加媒体文件",
             "addOpenList": "添加OpenList云盘",
+            "addWebDAV": "添加WebDAV云盘",
             "addBilibiliFavorites": "添加B站收藏夹",
             "addSiyuanAssets": "添加思源空间",
             "open": "打开",
@@ -274,6 +275,7 @@
             "loadDataFailed": "加载数据失败",
             "getFolderListFailed": "获取文件列表失败",
             "openlistConnectionRequired": "请先配置OpenList连接",
+            "webdavConnectionRequired": "请先配置WebDAV连接",
             "selectionFailed": "选择失败",
             "playFailed": "播放失败",
             "desktopRequired": "需要桌面版支持",
@@ -312,7 +314,8 @@
             "bilibili": "B站",
             "local": "本地",
             "general": "普通",
-            "openlist": "OpenList"
+            "openlist": "OpenList",
+            "webdav": "WebDAV"
         }
     },
     "setting": {
@@ -336,12 +339,12 @@
                 "description": "默认播放速度"
             },
             "loopCount": {
-                "title": "循环次数",
+                "title": "片段循环次数",
                 "description": "片段循环播放次数"
             },
             "pauseAfterLoop": {
-                "title": "循环后暂停",
-                "description": "循环结束后暂停播放媒体"
+                "title": "片段循环后暂停",
+                "description": "片段循环结束后暂停播放媒体"
             },
             "openMode": {
                 "title": "打开方式",
@@ -461,16 +464,31 @@
             "paid": "我已付款",
             "loggedIn": "已登录",
             "notLoggedIn": "点击登录",
-                    "openlistConfigured": "OpenList 已配置",
-        "openlistNotConfigured": "配置 OpenList 服务器连接信息"
+            "openlistConfigured": "OpenList 已配置",
+            "openlistNotConfigured": "配置 OpenList 服务器连接信息",
+            "webdavConfigured": "WebDAV 已配置",
+            "webdavNotConfigured": "配置 WebDAV 服务器连接信息"
         },
-            "openlist": {
-        "title": "OpenList 配置",
-        "server": "OpenList 服务器",
-        "username": "OpenList 用户名",
-        "password": "OpenList 密码",
-        "configured": "OpenList 已配置",
+        "openlist": {
+            "title": "OpenList 配置",
+            "server": "OpenList 服务器",
+            "username": "OpenList 用户名",
+            "password": "OpenList 密码",
+            "configured": "OpenList 已配置",
             "notConfigured": "未配置"
+        },
+        "webdav": {
+            "title": "WebDAV 配置",
+            "server": "WebDAV 服务器",
+            "username": "WebDAV 用户名",
+            "password": "WebDAV 密码",
+            "configured": "WebDAV 已配置",
+            "notConfigured": "未配置"
+        },
+        "webdavConfig": {
+            "server": "WebDAV服务器地址",
+            "username": "WebDAV账号用户名",
+            "password": "WebDAV账号密码"
         }
     },
     "screenshot": {
