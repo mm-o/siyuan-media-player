@@ -1,27 +1,63 @@
-# 🎬 思源媒体播放器
+<div class="sy__outline" style="max-width: 800px; margin: 0 auto;">
+    <div style="text-align: center; padding: 2em; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px;">
+        <h1 style="color: white; margin: 0; font-size: 2.2em;">🎬 思源媒体播放器</h1>
+        <div style="color: rgba(255,255,255,0.9); margin-top: 0.5em; font-size: 1.1em;">专业的思源笔记媒体播放插件，集成多平台播放、智能笔记管理与高效学习工具</div>
+        <div style="margin-top: 1.5em; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">📖 帮助文档</a>
+            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-JcVadDDYzoViQNxltupcIrJxnSg"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">💬 反馈交流</a>
+            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/FEDdw8o7ti1IPpkJLjXcNX7En6d"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">📋 更新日志</a>
+            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-PKecdG4eboPDjAxo4Apc0vuTnJb"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">👏 鸣谢</a>
+        </div>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #eef2ff, #e0e7ff); border: 1px solid #c7d2fe; border-radius: 8px; box-shadow: 0 4px 12px rgba(99,102,241,0.15);">
+        <h2 style="color: #6366f1; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 核心功能</h2>
+        <ul style="margin: 0; padding-left: 1.2em;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>多平台播放</strong> - 本地媒体、B站视频、OpenList、WebDAV云存储统一播放</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>时间戳跳转</strong> - 精确时间戳链接，一键跳转到指定播放位置</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>循环片段</strong> - 自定义循环播放片段，重点内容反复学习</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，完整的学习笔记生态</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
+        </ul>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: #fff9f2; border-left: 4px solid #ffc107; border-radius: 8px;">
+        <h2 style="color: #ff9f00; margin: 0 0 1em;">🧧 打赏、鼓励、催更</h2>
+        <p style="margin: 0.5em 0;">如果思源媒体播放器对你有帮助，欢迎给作者点个赞或打赏一杯咖啡，这将鼓励作者持续优化和开发更多实用功能：</p>
+        <div style="margin: 1em 0; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+            <div style="text-align: center;">
+                <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg"
+                     alt="支付宝付款码"
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="margin: 0.5em 0; color: #666;">支付宝</p>
+            </div>
+            <div style="text-align: center;">
+                <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg"
+                     alt="微信付款码"
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="margin: 0.5em 0; color: #666;">微信</p>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: #f0f8ff; border-left: 4px solid #4a90e2; border-radius: 8px;">
+        <h2 style="color: #2c5aa0; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
-> 一个功能强大的思源笔记媒体播放插件，支持视频、音频、B站视频播放，提供时间戳跳转、循环片段和丰富的笔记集成功能。
+<h3 style="margin: 0 0 1em 0; color: #2c5aa0; font-size: 1.2em;">📦 v0.3.7 (2025.7.6)</h3>
 
-## 📌 快速导航
+<h4 style="margin: 1em 0 0.5em 0; color: #4a90e2; font-size: 1em;">🐛 缺陷修复</h4>
+- **📊 播放列表数据库优化**: 修复数据库字段规范性问题，单选多选项具有正确颜色标识，自动创建画廊视图
+- **🔄 拖拽排序修复**: 修复拖拽排序后播放列表无法加载的问题，确保多标签环境下数据完整性
 
-📖 [帮助文档](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh) | 💬 [反馈与交流](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-JcVadDDYzoViQNxltupcIrJxnSg) | 📋 [更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/FEDdw8o7ti1IPpkJLjXcNX7En6d) | 👏 [鸣谢](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-PKecdG4eboPDjAxo4Apc0vuTnJb)
+<h4 style="margin: 1em 0 0.5em 0; color: #4a90e2; font-size: 1em;">🔧 开发重构</h4>
+- **⚡ 代码极限精简**: 优化播放列表组件核心逻辑，提升代码简洁性和执行效率
 
-> 关于最新功能和改进的详细信息，请参阅[更新日志](https://vcne5rvqxi9z.feishu.cn/wiki/FEDdw8o7ti1IPpkJLjXcNX7En6d)。
-
-## 🧧 打赏、鼓励、催更
-
-<div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-  <div style="text-align: center; margin: 10px;">
-    <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg" alt="支付宝付款码" width="300" />
-    <p>支付宝</p>
-  </div>
-  <div style="text-align: center; margin: 10px;">
-    <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg" alt="微信付款码" width="300" />
-    <p>微信</p>
-  </div>
-</div>
-
-## 🚀近期更新
+<details style="margin-top: 1.5em;">
+<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
+<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
 
 **0.3.6版本更新 (2025.7.5)：**
 
@@ -95,9 +131,6 @@
 - **🛠️ 问题修复**: 修复本地媒体时间戳链接无法正常工作的问题
 - **✨ 细节优化**: 多项细节改进和功能优化
 
-<details>
-<summary>查看历史更新</summary>
-
 **0.3.3版本更新 (2025.5.18)：**
 - **🚀 界面大改**: 移除顶部图标，通过dock栏按钮打开播放器
 - **🎛️ 按钮布局**: 将功能按钮移动到顶部，可以通过开关隐藏
@@ -138,7 +171,12 @@
 - **🧠 媒体助手功能**：字幕浏览和视频摘要功能
 - **💬 字幕支持**：支持本地媒体和B站视频字幕
 - **📑 视频摘要**：AI生成视频内容概要（目前仅支持B站视频）
+
+</div>
 </details>
+
+    </div>
+</div>
 
 ## � 功能概述
 

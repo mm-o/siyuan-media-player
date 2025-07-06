@@ -47,19 +47,19 @@
     const record = (data: any, title: string) => col(data, FIELDS.title)?.values?.find((v: any) => v.block?.content === title);
 
     // 字段值创建器
-    const createFieldValue = (key: string, value: any) => {
-        const creators = {
-            title: (v: any) => ({ block: { id: id(), icon: '', content: String(v), created: Date.now(), updated: Date.now() }, isDetached: true }),
-            url: (v: any) => ({ url: { content: String(v) } }),
-            playlist: (v: any) => ({ mSelect: Array.isArray(v) ? v.map(i => ({ content: String(i), color: '' })) : [{ content: String(v), color: '' }] }),
-            source: (v: any) => ({ mSelect: [{ content: String(v), color: '' }] }),
-            type: (v: any) => ({ mSelect: [{ content: String(v), color: '' }] }),
-            artistIcon: (v: any) => ({ mAsset: [{ type: 'image', name: '', content: String(v) }] }),
-            thumbnail: (v: any) => ({ mAsset: [{ type: 'image', name: '', content: String(v) }] }),
-            created: (v: any) => ({ date: { content: v, isNotEmpty: true, hasEndDate: false, isNotTime: false, content2: 0, isNotEmpty2: false, formattedContent: '' } }),
-            default: (v: any) => ({ text: { content: String(v) } })
-        };
-        return creators[key] || creators.default;
+    const createFieldValue = (key: string, value: any, data?: any) => {
+        const getColor = (fn: string, on: string) => col(data, fn)?.key?.options?.find(o => o.name === on)?.color || '';
+        const v = String(value);
+        return {
+            title: () => ({ block: { id: id(), icon: '', content: v, created: Date.now(), updated: Date.now() }, isDetached: true }),
+            url: () => ({ url: { content: v } }),
+            playlist: () => ({ mSelect: Array.isArray(value) ? value.map(i => ({ content: String(i), color: getColor(FIELDS.playlist, String(i)) })) : [{ content: v, color: getColor(FIELDS.playlist, v) }] }),
+            source: () => ({ mSelect: [{ content: v, color: getColor(FIELDS.source, v) }] }),
+            type: () => ({ mSelect: [{ content: v, color: getColor(FIELDS.type, v) }] }),
+            artistIcon: () => ({ mAsset: [{ type: 'image', name: '', content: v }] }),
+            thumbnail: () => ({ mAsset: [{ type: 'image', name: '', content: v }] }),
+            created: () => ({ date: { content: value, isNotEmpty: true, hasEndDate: false, isNotTime: false, content2: 0, isNotEmpty2: false, formattedContent: '' } })
+        }[key] || (() => ({ text: { content: v } }));
     };
 
     // ==================== 数据库操作核心 ====================
@@ -81,6 +81,16 @@
                         data.views[0].table.columns[fieldDef.pin ? 'unshift' : 'push']({ id: keyId, wrap: false, hidden: false, pin: !!fieldDef.pin });
                     }
                 });
+
+                // 创建画廊视图
+                const tf = col(data, FIELDS.thumbnail);
+                if (tf && !data.views.find(v => v.type === 'gallery')) {
+                    data.views.push({
+                        id: id(), icon: '', name: '画廊', hideAttrViewName: false, desc: '', pageSize: 50, type: 'gallery',
+                        gallery: { spec: 0, id: id(), showIcon: true, wrapField: false, coverFrom: 2, coverFromAssetKeyID: tf.key.id, cardAspectRatio: 0, cardSize: 1, fitImage: false, fields: data.keyValues.map(kv => ({ id: kv.key.id, wrap: false, hidden: false })), cardIds: null }
+                    });
+                }
+
                 s.view = data.views[0].view || 'detailed';
                 break;
 
@@ -94,8 +104,8 @@
                 } else {
                     const titleCol = col(data, FIELDS.title);
                     if (!titleCol?.values) { d.items = []; return; }
-                    const blockIds = new Set(playlistCol?.values?.filter(v => v.mSelect?.some(tag => tag.content === s.tab)).map(r => r.blockID) || []);
-                    d.items = (data.views[0].table.rowIds || []).filter(id => blockIds.has(id)).map(id => {
+                    const blockIds = new Set(playlistCol?.values?.filter(v => v.mSelect?.some?.(tag => tag.content === s.tab)).map(r => r.blockID) || []);
+                    d.items = (data.views[0].itemIds || data.views[0].table?.rowIds || []).filter(id => blockIds.has(id)).map(id => {
                         const item: any = { id };
                         Object.entries(FIELDS).forEach(([key, name]) => {
                             const f = field(data, name, id);
@@ -121,8 +131,8 @@
                 if (media.artistIcon) media.artistIcon = await imageToLocalAsset(media.artistIcon);
 
                 const blockId = id();
-                data.views[0].table.rowIds = data.views[0].table.rowIds || [];
-                data.views[0].table.rowIds.push(blockId);
+                data.views[0].itemIds = data.views[0].itemIds || data.views[0].table?.rowIds || [];
+                data.views[0].itemIds.push(blockId);
                 Object.entries(FIELDS).forEach(([key, name]) => {
                     const c = col(data, name);
                     if (!c) return;
@@ -135,7 +145,7 @@
 
                     if (v !== undefined && v !== null && v !== '') {
                         c.values = c.values || [];
-                        const val = createFieldValue(key)(v);
+                        const val = createFieldValue(key, v, data)(v);
                         c.values.push({ id: id(), keyID: c.key.id, blockID: blockId, type: c.key.type, createdAt: Date.now(), updatedAt: Date.now(), ...val });
                     }
                 });
@@ -145,12 +155,12 @@
             case 'del':
                 const { title, tagName } = params;
                 let blockIds: string[] = [];
-                if (tagName) blockIds = col(data, FIELDS.playlist)?.values?.filter(v => v.mSelect?.some(tag => tag.content === tagName)).map(r => r.blockID) || [];
+                if (tagName) blockIds = col(data, FIELDS.playlist)?.values?.filter(v => v.mSelect?.some?.(tag => tag.content === tagName)).map(r => r.blockID) || [];
                 else if (title) { const r = record(data, title); blockIds = r ? [r.blockID] : []; }
                 if (!blockIds.length) throw new Error('未找到记录');
                 const blockIdSet = new Set(blockIds);
                 data.keyValues.forEach((kv: any) => { if (kv.values) kv.values = kv.values.filter((v: any) => !blockIdSet.has(v.blockID)); });
-                data.views[0].table.rowIds = data.views[0].table.rowIds?.filter((id: string) => !blockIdSet.has(id)) || [];
+                data.views[0].itemIds = (data.views[0].itemIds || data.views[0].table?.rowIds || []).filter((id: string) => !blockIdSet.has(id));
                 showMessage(`删除了${blockIds.length}条记录`);
                 break;
 
@@ -161,8 +171,10 @@
                 await dbOp('ensure', { tagName: newPlaylist });
                 const playlistCol2 = col(data, FIELDS.playlist);
                 const f = playlistCol2?.values?.find(v => v.blockID === rec.blockID);
-                if (f) { f.mSelect = [{ content: newPlaylist, color: '' }]; f.updatedAt = Date.now(); }
-                else if (playlistCol2) { playlistCol2.values = playlistCol2.values || []; playlistCol2.values.push({ id: id(), keyID: playlistCol2.key.id, blockID: rec.blockID, type: 'mSelect', createdAt: Date.now(), updatedAt: Date.now(), mSelect: [{ content: newPlaylist, color: '' }] }); }
+                const color = playlistCol2?.key?.options?.find(o => o.name === newPlaylist)?.color || '';
+                const mSelect = [{ content: newPlaylist, color }];
+                if (f) { f.mSelect = mSelect; f.updatedAt = Date.now(); }
+                else if (playlistCol2) { playlistCol2.values = playlistCol2.values || []; playlistCol2.values.push({ id: id(), keyID: playlistCol2.key.id, blockID: rec.blockID, type: 'mSelect', createdAt: Date.now(), updatedAt: Date.now(), mSelect }); }
                 showMessage(`已移动到"${newPlaylist}"`);
                 break;
 
@@ -181,8 +193,17 @@
                 break;
 
             case 'reorder':
-                if (params.type === 'items') data.views[0].table.rowIds = d.items.map(i => i.id);
-                else if (params.type === 'tags') {
+                if (params.type === 'items') {
+                    // 获取当前标签的项目ID和其他标签的项目ID
+                    const playlistCol = col(data, FIELDS.playlist);
+                    const currentTabIds = new Set(playlistCol?.values?.filter(v => v.mSelect?.some?.(tag => tag.content === s.tab)).map(r => r.blockID) || []);
+                    const otherIds = (data.views[0].itemIds || data.views[0].table?.rowIds || []).filter(id => !currentTabIds.has(id));
+                    const currentIds = d.items.map(i => i.id);
+
+                    // 更新itemIds并清除自动排序
+                    data.views[0].itemIds = [...otherIds, ...currentIds];
+                    delete data.views[0].sorts;
+                } else if (params.type === 'tags') {
                     const playlistCol4 = col(data, FIELDS.playlist);
                     if (playlistCol4?.key?.options) playlistCol4.key.options = d.tags.filter(t => t !== '目录').map(tagName => playlistCol4.key.options.find(opt => opt.name === tagName)).filter(Boolean);
                 }

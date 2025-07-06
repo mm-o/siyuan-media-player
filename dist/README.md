@@ -21,6 +21,17 @@
 
 ## 🚀 Recent Updates
 
+**Version 0.3.7 (2025.7.6):**
+
+### 🐛 Bug Fixes
+- **📊 Playlist Database Optimization**: Fixed database field specification issues, single/multi-select options now have correct color identification, auto-create gallery view
+- **🔄 Drag-and-Drop Sorting Fix**: Fixed issue where playlist couldn't load after drag-and-drop sorting, ensuring data integrity in multi-tag environments
+
+### 🔧 Development Refactoring
+- **⚡ Extreme Code Simplification**: Optimized playlist component core logic, improved code conciseness and execution efficiency
+
+---
+
 **Version 0.3.6 (2025.7.5):**
 
 ### 🆕 New Features

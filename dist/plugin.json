@@ -2,7 +2,7 @@
   "name": "siyuan-media-player",
   "author": "mm-o",
   "url": "https://github.com/mm-o/siyuan-media-player",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "minAppVersion": "3.0.12",
   "backends": [
     "windows",
