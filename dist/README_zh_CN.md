@@ -13,8 +13,8 @@
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">👏 鸣谢</a>
         </div>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #eef2ff, #e0e7ff); border: 1px solid #c7d2fe; border-radius: 8px; box-shadow: 0 4px 12px rgba(99,102,241,0.15);">
-        <h2 style="color: #6366f1; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 核心功能</h2>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(14,165,233,0.15);">
+        <h2 style="color: #0ea5e9; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 核心功能</h2>
         <ul style="margin: 0; padding-left: 1.2em;">
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>多平台播放</strong> - 本地媒体、B站视频、OpenList、WebDAV云存储统一播放</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>时间戳跳转</strong> - 精确时间戳链接，一键跳转到指定播放位置</li>
@@ -22,11 +22,12 @@
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，完整的学习笔记生态</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入B站收藏夹、本地文件夹、OpenList、WebDAV云存储到播放列表</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
         </ul>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: #fff9f2; border-left: 4px solid #ffc107; border-radius: 8px;">
-        <h2 style="color: #ff9f00; margin: 0 0 1em;">🧧 打赏、鼓励、催更</h2>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fef3f2, #fee2e2); border: 1px solid #fca5a5; border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.15);">
+        <h2 style="color: #dc2626; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🧧 打赏、鼓励、催更</h2>
         <p style="margin: 0.5em 0;">如果思源媒体播放器对你有帮助，欢迎给作者点个赞或打赏一杯咖啡，这将鼓励作者持续优化和开发更多实用功能：</p>
         <div style="margin: 1em 0; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
             <div style="text-align: center;">
@@ -43,501 +44,471 @@
             </div>
         </div>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: #f0f8ff; border-left: 4px solid #4a90e2; border-radius: 8px;">
-        <h2 style="color: #2c5aa0; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
+        <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
-<h3 style="margin: 0 0 1em 0; color: #2c5aa0; font-size: 1.2em;">📦 v0.3.7 (2025.7.6)</h3>
-
-<h4 style="margin: 1em 0 0.5em 0; color: #4a90e2; font-size: 1em;">🐛 缺陷修复</h4>
-- **📊 播放列表数据库优化**: 修复数据库字段规范性问题，单选多选项具有正确颜色标识，自动创建画廊视图
-- **🔄 拖拽排序修复**: 修复拖拽排序后播放列表无法加载的问题，确保多标签环境下数据完整性
-
-<h4 style="margin: 1em 0 0.5em 0; color: #4a90e2; font-size: 1em;">🔧 开发重构</h4>
-- **⚡ 代码极限精简**: 优化播放列表组件核心逻辑，提升代码简洁性和执行效率
-
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7版本更新 (2025.7.6)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📊 播放列表数据库优化</strong>: 修复数据库字段规范性问题，单选多选项具有正确颜色标识，自动创建画廊视图</li>
+<li><strong>🔄 拖拽排序修复</strong>: 修复拖拽排序后播放列表无法加载的问题，确保多标签环境下数据完整性</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 开发重构</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>⚡ 代码极限精简</strong>: 优化播放列表组件核心逻辑，提升代码简洁性和执行效率</li>
+</ul>
+</li>
+</ul>
 <details style="margin-top: 1.5em;">
 <summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
 <div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
 
-**0.3.6版本更新 (2025.7.5)：**
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.6版本更新 (2025.7.5)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>☁️ WebDAV云存储支持</strong>: 新增WebDAV云存储集成，包含设置面板配置、标签菜单浏览选项、直接流式播放、时间戳链接和循环片段支持</li>
+<li><strong>🎛️ 顶部快捷菜单</strong>: 增加顶部紫色小电视图标，快速访问设置</li>
+<li><strong>🎨 专用图标</strong>: 为OpenList和WebDAV服务添加专用SVG图标</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ 功能改进</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🖼️ 图片本地化</strong>: 自动转换封面图和艺术家头像为本地资源，提升加载速度和离线显示支持</li>
+<li><strong>📔 媒体笔记增强</strong>: 新创建的文档自动在右侧标签页打开</li>
+<li><strong>🔄 循环功能增强</strong>: 增加单项循环和列表循环设置的互斥功能</li>
+<li><strong>📝 术语优化</strong>: 将"循环次数"更新为"片段循环次数"，"循环后暂停"更新为"片段循环后暂停"</li>
+<li><strong>📁 思源空间相对路径</strong>: 思源空间媒体现在使用相对路径生成时间戳和循环片段链接，与思源空间菜单项路径格式保持一致，提升可移植性和工作空间独立性</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔗 B站时间戳链接</strong>: 修复时间戳链接生成使用播放地址而非标准链接的问题</li>
+<li><strong>📤 导出功能</strong>: 修复字幕、弹幕、AI总结导出功能问题</li>
+<li><strong>📔 媒体笔记</strong>: 修复文档创建失败问题</li>
+<li><strong>📸 截图功能</strong>: 修复截图不包含时间戳选项失效的问题</li>
+<li><strong>🏷️ 播放列表标签菜单</strong>: 修复右键菜单重命名功能点击后菜单不隐藏的问题</li>
+<li><strong>🔄 循环功能</strong>: 修复B站视频单项循环不工作、列表循环加载下一个媒体后暂停的问题，增强B站分P视频系列支持</li>
+<li><strong>🎨 样式作用域</strong>: 修复SCSS选择器影响思源笔记滚动条的问题</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 技术改进</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li>统一核心模块代码结构，提升稳定性和性能</li>
+<li>实现静音自动播放绕过策略，确保播放列表循环可靠性</li>
+<li>统一所有媒体类型的循环机制</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.5版本更新 (2025.7.2)</strong>
+<div style="margin: 0.5em 0; padding: 0.8em; background: #fef3f2; border-left: 4px solid #f87171; border-radius: 4px;">
+<strong style="color: #dc2626;">⚠️ 重要提醒：由于大幅重构，本次更新导致播放列表和设置配置不兼容！</strong><br>
+📋 请在更新前做好数据迁移备份，配置文件位于：<code>data\storage\petal\siyuan-media-player\config.json</code><br>
+🔄 更新后需要重新配置播放列表和相关设置
+</div>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>📋 播放列表重构</strong>: 优化播放列表组件结构和性能，提升大量媒体时的响应速度</li>
+<li style="margin: 0.2em 0;"><strong>⚙️ 设置组件重构</strong>: 移除复杂样式，简化为直观的开关项界面，统一组件处理逻辑，大幅提升配置效率，增加数据库avid和笔记本ID的实时显示，移除保存和重置按钮，实现实时保存和单项重置</li>
+<li style="margin: 0.2em 0;"><strong>📚 数据库配置同步</strong>: 播放列表配置自动同步到数据库，确保数据一致性</li>
+<li style="margin: 0.2em 0;"><strong>🎯 拖拽功能增强</strong>: 支持拖拽媒体项进行排序和跨标签移动，支持拖拽播放列表标签重新排序，删除传统排序按钮，统一使用拖拽操作</li>
+<li style="margin: 0.2em 0;"><strong>📷 截图功能修复</strong>: 修复截图带时间戳功能，确保截图与时间戳正确关联</li>
+<li style="margin: 0.2em 0;"><strong>🏷️ 视觉标签优化</strong>: 增加播放列表项来源和类型的可视化标签，界面更直观美观</li>
+<li style="margin: 0.2em 0;"><strong>👨‍💼 账号样式优化</strong>: 改进B站账号显示样式，提升用户体验</li>
+<li style="margin: 0.2em 0;"><strong>💬 思源空间增强</strong>: 完整浏览思源笔记工作空间文件系统，支持浏览和播放所有文件夹中的媒体文件</li>
+<li style="margin: 0.2em 0;"><strong>🔗 媒体笔记URL修复</strong>: 修复B站媒体笔记中URL使用播放地址而非标准链接的问题</li>
+<li style="margin: 0.2em 0;"><strong>🧹 功能精简</strong>: 移除内置脚本加载功能，建议使用思源笔记内置JS脚本功能</li>
+<li style="margin: 0.2em 0;"><strong>🔄 网盘重构</strong>: 将AList云盘功能重构为OpenList，统一云存储接口，提升兼容性和稳定性</li>
+<li style="margin: 0.2em 0;"><strong>⚡ 代码优化</strong>: 极限精简核心代码，清理冗余逻辑，减少插件体积</li>
+<li style="margin: 0.2em 0;"><strong>🎯 专注核心</strong>: 专注于媒体播放和笔记集成功能，提升稳定性和性能</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.4版本更新 (2025.5.26)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>🎛️ 按钮布局</strong>: 优化功能按钮位置，提升使用体验</li>
+<li style="margin: 0.2em 0;"><strong>🔄 图标更新</strong>: 修改dock栏图标，提高可识别性</li>
+<li style="margin: 0.2em 0;"><strong>🔍 链接逻辑</strong>: 重构媒体链接检查逻辑，支持本地媒体链接</li>
+<li style="margin: 0.2em 0;"><strong>🛠️ 问题修复</strong>: 修复本地媒体时间戳链接无法正常工作的问题</li>
+<li style="margin: 0.2em 0;"><strong>✨ 细节优化</strong>: 多项细节改进和功能优化</li>
+</ul>
 
-### 🆕 新增功能
-- **☁️ WebDAV云存储支持**: 新增WebDAV云存储集成
-  - 设置面板中的WebDAV服务器配置
-  - 标签菜单中的"浏览WebDAV云盘"选项
-  - 支持WebDAV服务器直接流式播放
-  - WebDAV媒体的时间戳链接和循环片段支持
-- **🎛️ 顶部快捷菜单**: 增加顶部紫色小电视图标，快速访问设置
-- **🎨 专用图标**: 为OpenList和WebDAV服务添加专用SVG图标
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.3版本更新 (2025.5.18)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>🚀 界面大改</strong>: 移除顶部图标，通过dock栏按钮打开播放器</li>
+<li style="margin: 0.2em 0;"><strong>🎛️ 按钮布局</strong>: 将功能按钮移动到顶部，可以通过开关隐藏</li>
+<li style="margin: 0.2em 0;"><strong>🔂 循环增强</strong>: 增加单项循环和列表循环功能</li>
+<li style="margin: 0.2em 0;"><strong>⏸️ 暂停控制</strong>: 增加循环后暂停功能</li>
+<li style="margin: 0.2em 0;"><strong>💬 弹幕列表</strong>: 增加弹幕列表，可以便捷导出弹幕内容</li>
+<li style="margin: 0.2em 0;"><strong>👤 账号优化</strong>: 优化账号显示方式</li>
+<li style="margin: 0.2em 0;"><strong>🔄 排序功能</strong>: 新增播放列表排序功能，支持按默认、名称、时间和类型排序</li>
+<li style="margin: 0.2em 0;"><strong>📜 脚本加载</strong>: 支持加载自定义JavaScript脚本，可通过设置界面管理脚本状态（初步）</li>
+</ul>
 
-### ✨ 功能改进
-- **🖼️ 图片本地化**: 自动转换封面图和艺术家头像为本地资源
-  - 提升加载速度和离线显示支持
-- **📔 媒体笔记增强**: 新创建的文档自动在右侧标签页打开
-- **🔄 循环功能增强**: 增加单项循环和列表循环设置的互斥功能
-- **📝 术语优化**: 将"循环次数"更新为"片段循环次数"，"循环后暂停"更新为"片段循环后暂停"
-- **📁 思源空间相对路径**: 思源空间媒体现在使用相对路径生成时间戳和循环片段链接
-  - 与思源空间菜单项路径格式保持一致
-  - 提升可移植性和工作空间独立性
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.2版本更新 (2025.5.11)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>🎨 界面统一</strong>: 优化UI，统一助手、播放列表、设置面板风格</li>
+<li style="margin: 0.2em 0;"><strong>☁️ 网盘支持</strong>: 增加AList网盘支持，扩展媒体来源</li>
+<li style="margin: 0.2em 0;"><strong>📂 文件选择</strong>: 支持本地文件直接选择文件导入</li>
+<li style="margin: 0.2em 0;"><strong>📋 菜单优化</strong>: 优化标签菜单，移除复杂的标签+右键逻辑</li>
+<li style="margin: 0.2em 0;"><strong>↔️ 面板调整</strong>: 支持面板拖拽放大缩小，灵活调整界面</li>
+<li style="margin: 0.2em 0;"><strong>⏸️ 循环设置</strong>: 增加循环播放后暂停设置选项</li>
+<li style="margin: 0.2em 0;"><strong>📝 插入方式</strong>: 扩展插入文档的方式，提供更多选择</li>
+<li style="margin: 0.2em 0;"><strong>🔗 链接增强</strong>: 扩展链接格式，支持一次插入时间戳和截图</li>
+<li style="margin: 0.2em 0;"><strong>📔 媒体笔记</strong>: 增加创建媒体笔记功能，提供自定义模版，支持设置快捷键，可选择笔记本创建或在当前文档中插入</li>
+<li style="margin: 0.2em 0;"><strong>🎛️ 格式统一</strong>: 统一自定义格式，增加恢复默认格式功能</li>
+<li style="margin: 0.2em 0;"><strong>🔄 打开方式</strong>: 支持自定义播放器标签页打开方式（新标签、右侧标签、底部标签、新窗口）</li>
+<li style="margin: 0.2em 0;"><strong>💻 开发增强</strong>: 完善开发者API，提供更丰富的接口和事件支持</li>
+<li style="margin: 0.2em 0;"><strong>✨ 更多优化</strong>: 众多细节优化，等待你的探索</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.1版本更新</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>💬 B站字幕控制</strong>：支持通过字幕按钮在播放器界面显示或隐藏B站视频字幕</li>
+<li style="margin: 0.2em 0;"><strong>📜 字幕自动滚动</strong>：媒体助手字幕列表现在会跟随播放进度自动滚动</li>
+<li style="margin: 0.2em 0;"><strong>🎨 界面优化</strong>：改进媒体助手UI界面，提升用户体验</li>
+<li style="margin: 0.2em 0;"><strong>🛠️ 问题修复</strong>：解决了文件路径中特殊字符导致的添加错误</li>
+<li style="margin: 0.2em 0;"><strong>📸 截图功能优化</strong>：改进截图功能，支持直接复制图片到剪贴板</li>
+<li style="margin: 0.2em 0;"><strong>🔄 字幕处理统一</strong>：统一字幕处理逻辑，提升播放器性能</li>
+</ul>
 
-### 🐛 缺陷修复
-- **🔗 B站时间戳链接**: 修复时间戳链接生成使用播放地址而非标准链接的问题
-- **📤 导出功能**: 修复字幕、弹幕、AI总结导出功能问题
-- **📔 媒体笔记**: 修复文档创建失败问题
-- **📸 截图功能**: 修复截图不包含时间戳选项失效的问题
-- **🏷️ 播放列表标签菜单**: 修复右键菜单重命名功能点击后菜单不隐藏的问题
-- **🔄 循环功能**:
-  - 修复B站视频单项循环不工作的问题
-  - 修复列表循环加载下一个媒体后暂停的问题
-  - 增强B站分P视频系列支持
-- **🎨 样式作用域**: 修复SCSS选择器影响思源笔记滚动条的问题
-
-### 🔧 技术改进
-- 统一核心模块代码结构，提升稳定性和性能
-- 实现静音自动播放绕过策略，确保播放列表循环可靠性
-- 统一所有媒体类型的循环机制
-
-**0.3.5版本更新 (2025.7.2)：**
-
-> ⚠️ **重要提醒：由于大幅重构，本次更新导致播放列表和设置配置不兼容！**  
-> 📋 **请在更新前做好数据迁移备份，配置文件位于：`data\storage\petal\siyuan-media-player\config.json`**  
-> 🔄 **更新后需要重新配置播放列表和相关设置**
-
-- **📋 播放列表重构**: 优化播放列表组件结构和性能，提升大量媒体时的响应速度
-- **⚙️ 设置组件重构**:
-  - 移除复杂样式，简化为直观的开关项界面
-  - 统一组件处理逻辑，大幅提升配置效率
-  - 增加数据库avid和笔记本ID的实时显示
-  - 移除保存和重置按钮，实现实时保存和单项重置
-- **📚 数据库配置同步**: 播放列表配置自动同步到数据库，确保数据一致性
-- **🎯 拖拽功能增强**:
-  - 支持拖拽媒体项进行排序和跨标签移动
-  - 支持拖拽播放列表标签重新排序
-  - 删除传统排序按钮，统一使用拖拽操作
-- **📷 截图功能修复**: 修复截图带时间戳功能，确保截图与时间戳正确关联
-- **🏷️ 视觉标签优化**: 增加播放列表项来源和类型的可视化标签，界面更直观美观
-- **👨‍💼 账号样式优化**: 改进B站账号显示样式，提升用户体验
-- **💬 思源空间增强**: 完整浏览思源笔记工作空间文件系统，支持浏览和播放所有文件夹中的媒体文件
-- **🔗 媒体笔记URL修复**: 修复B站媒体笔记中URL使用播放地址而非标准链接的问题
-- **🧹 功能精简**: 移除内置脚本加载功能，建议使用思源笔记内置JS脚本功能
-- **🔄 网盘重构**: 将AList云盘功能重构为OpenList，统一云存储接口，提升兼容性和稳定性
-- **⚡ 代码优化**: 极限精简核心代码，清理冗余逻辑，减少插件体积
-- **🎯 专注核心**: 专注于媒体播放和笔记集成功能，提升稳定性和性能
-
-**0.3.4版本更新 (2025.5.26)：**
-- **🎛️ 按钮布局**: 优化功能按钮位置，提升使用体验
-- **🔄 图标更新**: 修改dock栏图标，提高可识别性
-- **🔍 链接逻辑**: 重构媒体链接检查逻辑，支持本地媒体链接
-- **🛠️ 问题修复**: 修复本地媒体时间戳链接无法正常工作的问题
-- **✨ 细节优化**: 多项细节改进和功能优化
-
-**0.3.3版本更新 (2025.5.18)：**
-- **🚀 界面大改**: 移除顶部图标，通过dock栏按钮打开播放器
-- **🎛️ 按钮布局**: 将功能按钮移动到顶部，可以通过开关隐藏
-- **🔂 循环增强**: 增加单项循环和列表循环功能
-- **⏸️ 暂停控制**: 增加循环后暂停功能
-- **💬 弹幕列表**: 增加弹幕列表，可以便捷导出弹幕内容
-- **👤 账号优化**: 优化账号显示方式
-- **🔄 排序功能**: 新增播放列表排序功能，支持按默认、名称、时间和类型排序
-- **📜 脚本加载**: 支持加载自定义JavaScript脚本，可通过设置界面管理脚本状态（初步）
-
-**0.3.2版本更新 (2025.5.11)：**
-- **🎨 界面统一**: 优化UI，统一助手、播放列表、设置面板风格
-- **☁️ 网盘支持**: 增加AList网盘支持，扩展媒体来源
-- **📂 文件选择**: 支持本地文件直接选择文件导入
-- **📋 菜单优化**: 优化标签菜单，移除复杂的标签+右键逻辑
-- **↔️ 面板调整**: 支持面板拖拽放大缩小，灵活调整界面
-- **⏸️ 循环设置**: 增加循环播放后暂停设置选项
-- **📝 插入方式**: 扩展插入文档的方式，提供更多选择
-- **🔗 链接增强**: 扩展链接格式，支持一次插入时间戳和截图
-- **📔 媒体笔记**: 增加创建媒体笔记功能，提供自定义模版，支持设置快捷键，可选择笔记本创建或在当前文档中插入
-- **🎛️ 格式统一**: 统一自定义格式，增加恢复默认格式功能
-- **🔄 打开方式**: 支持自定义播放器标签页打开方式（新标签、右侧标签、底部标签、新窗口）
-- **💻 开发增强**: 完善开发者API，提供更丰富的接口和事件支持
-- **✨ 更多优化**: 众多细节优化，等待你的探索
-
-**0.3.1版本更新：**
-- **💬 B站字幕控制**：支持通过字幕按钮在播放器界面显示或隐藏B站视频字幕
-- **📜 字幕自动滚动**：媒体助手字幕列表现在会跟随播放进度自动滚动
-- **🎨 界面优化**：改进媒体助手UI界面，提升用户体验
-- **🛠️ 问题修复**：解决了文件路径中特殊字符导致的添加错误
-- **📸 截图功能优化**：改进截图功能，支持直接复制图片到剪贴板
-- **🔄 字幕处理统一**：统一字幕处理逻辑，提升播放器性能
-
-**0.3.0版本更新：**
-- **🎯 B站弹幕支持**：添加B站视频弹幕显示功能
-- **✨ Pro功能引入**：新增可选的Pro版功能
-- **🔖 B站收藏夹增强**：直接选择添加到播放列表
-- **🧠 媒体助手功能**：字幕浏览和视频摘要功能
-- **💬 字幕支持**：支持本地媒体和B站视频字幕
-- **📑 视频摘要**：AI生成视频内容概要（目前仅支持B站视频）
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.0版本更新</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>🎯 B站弹幕支持</strong>：添加B站视频弹幕显示功能</li>
+<li style="margin: 0.2em 0;"><strong>✨ Pro功能引入</strong>：新增可选的Pro版功能</li>
+<li style="margin: 0.2em 0;"><strong>🔖 B站收藏夹增强</strong>：直接选择添加到播放列表</li>
+<li style="margin: 0.2em 0;"><strong>🧠 媒体助手功能</strong>：字幕浏览和视频摘要功能</li>
+<li style="margin: 0.2em 0;"><strong>💬 字幕支持</strong>：支持本地媒体和B站视频字幕</li>
+<li style="margin: 0.2em 0;"><strong>📑 视频摘要</strong>：AI生成视频内容概要（目前仅支持B站视频）</li>
+</ul>
 
 </div>
 </details>
-
+</div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fefbff, #f3e8ff); border: 1px solid #c4b5fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
+        <h2 style="color: #7c3aed; margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 使用指南</h2>
+        <ul style="margin: 0; padding-left: 1.2em;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">🗄️ <strong>绑定数据库</strong> - 配置播放列表数据存储</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. 打开思源媒体播放器设置面板<br>
+                2. 在"播放列表"部分找到"数据库设置"<br>
+                3. 点击"选择数据库"按钮，选择用于存储播放列表的数据库<br>
+                4. 如果没有数据库，系统将自动创建一个专用的媒体播放器数据库<br>
+                5. 绑定成功后，所有播放列表数据将同步到指定数据库<br>
+                6. 支持自动创建画廊视图，方便直观管理媒体列表
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>添加B站账号</strong> - 登录B站访问个人资源</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. 在设置面板中找到"B站账号"部分<br>
+                2. 点击"登录B站账号"按钮<br>
+                3. 扫描显示的二维码（使用B站手机APP）<br>
+                4. 登录成功后可访问个人收藏夹和订阅内容<br>
+                5. 支持多账号切换，方便管理不同账号的资源
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>配置OpenList服务</strong> - 连接云存储服务器</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. 在设置面板中找到"OpenList配置"部分<br>
+                2. 填写OpenList服务器地址（如：http://localhost:5244）<br>
+                3. 输入用户名和密码（如需要）<br>
+                4. 点击"测试连接"验证配置是否正确<br>
+                5. 配置成功后可直接浏览和播放OpenList中的媒体文件
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>配置WebDAV云存储</strong> - 连接WebDAV服务</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 在设置面板中找到"WebDAV配置"部分<br>
+                2. 填写WebDAV服务器地址<br>
+                3. 输入用户名和密码<br>
+                4. 选择认证方式（基础认证或摘要认证）<br>
+                5. 点击"测试连接"确认配置正确<br>
+                6. 支持坚果云、NextCloud等主流WebDAV服务
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📁 <strong>添加本地媒体</strong> - 单项添加本地文件</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 点击播放列表顶部的"添加媒体"按钮<br>
+                2. 选择"添加本地文件"<br>
+                3. 在文件选择器中选择单个媒体文件<br>
+                4. 媒体将自动添加到当前播放列表<br>
+                5. 系统会自动检测同名字幕文件
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📂 <strong>批量添加本地媒体</strong> - 多选或文件夹导入</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <strong>多选批量：</strong><br>
+                1. 点击"添加媒体" > "添加本地文件"<br>
+                2. 按住Ctrl键（Windows）或Cmd键（Mac）多选文件<br>
+                3. 或者按Ctrl+A选择文件夹内所有媒体文件<br>
+                4. 点击确认，所有选中的媒体将批量添加到播放列表<br><br>
+                <strong>文件夹导入：</strong><br>
+                1. 点击"添加媒体" > "批量导入文件夹"<br>
+                2. 选择包含媒体文件的文件夹<br>
+                3. 选择是否包含子文件夹<br>
+                4. 选择要导入的文件类型（视频、音频或全部）<br>
+                5. 系统将自动扫描并批量导入所有符合条件的媒体文件
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏠 <strong>添加思源空间媒体</strong> - 浏览工作空间文件</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 点击"添加媒体" > "浏览思源空间"<br>
+                2. 在文件浏览器中导航到包含媒体的文件夹<br>
+                3. 选择要添加的媒体文件（支持多选）<br>
+                4. 点击确认添加到播放列表<br>
+                5. 思源空间的媒体使用相对路径，便于工作空间迁移
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>添加OpenList媒体</strong> - 云存储流式播放</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 确保已配置OpenList服务器连接<br>
+                2. 点击"添加媒体" > "浏览OpenList"<br>
+                3. 在OpenList目录中导航到目标文件夹<br>
+                4. 选择要添加的媒体文件（支持多选和批量）<br>
+                5. 媒体将通过流式播放，无需下载到本地
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>添加WebDAV媒体</strong> - 云盘直接播放</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 确保已配置WebDAV云存储连接<br>
+                2. 点击"添加媒体" > "浏览WebDAV云盘"<br>
+                3. 在云盘目录中找到目标媒体文件<br>
+                4. 选择文件并添加到播放列表<br>
+                5. 支持直接从云端流式播放，节省本地存储空间
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>批量导入B站收藏夹</strong> - 一键导入收藏视频</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 确保已登录B站账号<br>
+                2. 点击"添加媒体" > "导入B站收藏夹"<br>
+                3. 选择要导入的收藏夹<br>
+                4. 选择导入范围（全部或指定数量）<br>
+                5. 系统将批量导入收藏夹中的所有视频
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>标签管理</strong> - 创建和管理播放列表标签</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 在播放列表顶部点击"+"按钮创建新标签<br>
+                2. 输入标签名称并确认<br>
+                3. <strong>重命名标签</strong>：右键点击标签 > 选择"重命名"<br>
+                4. <strong>删除标签</strong>：右键点击标签 > 选择"删除"（需确认操作）<br>
+                5. <strong>标签颜色</strong>：支持为不同标签设置不同颜色标识
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>拖拽操作</strong> - 媒体移动和排序</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <strong>拖拽移动媒体：</strong><br>
+                1. <strong>在标签间移动</strong>：将媒体项从一个标签拖拽到另一个标签<br>
+                2. <strong>批量移动</strong>：选中多个媒体项后一起拖拽移动<br>
+                3. <strong>复制移动</strong>：按住Ctrl键拖拽实现复制到目标标签<br>
+                4. 拖拽过程中会显示可放置区域的高亮提示<br><br>
+                <strong>拖拽排序：</strong><br>
+                1. <strong>媒体排序</strong>：在同一标签内拖拽媒体项调整播放顺序<br>
+                2. <strong>标签排序</strong>：拖拽标签头部调整标签的显示顺序<br>
+                3. <strong>置顶功能</strong>：可将重要媒体拖拽到列表顶部并设置置顶<br>
+                4. 排序后的顺序会自动保存到数据库
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>笔记集成</strong> - 时间戳、循环片段和媒体笔记</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <strong>创建时间戳和循环片段：</strong><br>
+                1. 播放视频到需要标记的位置<br>
+                2. 点击时间戳按钮创建时间戳链接<br>
+                3. <strong>创建循环片段</strong>：<br>
+                   - 点击循环片段按钮设置起点<br>
+                   - 播放到结束位置再次点击设置终点<br>
+                   - 可设置循环次数和循环后是否暂停<br>
+                4. 生成的链接会根据设置插入到指定位置或复制到剪贴板<br><br>
+                <strong>创建媒体笔记：</strong><br>
+                1. 播放要记录笔记的媒体<br>
+                2. 点击控制栏中的"媒体笔记"按钮（或使用快捷键）<br>
+                3. 系统根据自定义模板创建笔记，包含媒体信息、时间戳、缩略图等<br>
+                4. 笔记可插入当前文档或创建到指定笔记本
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📸 <strong>截图和导出功能</strong> - 媒体内容导出</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. <strong>视频截图</strong>：点击截图按钮捕获当前画面<br>
+                2. <strong>字幕导出</strong>：将字幕列表导出到笔记<br>
+                3. <strong>弹幕导出</strong>：将弹幕内容批量导出<br>
+                4. <strong>AI总结导出</strong>：导出媒体助手生成的AI分析内容<br>
+                5. 支持带时间戳或不带时间戳的导出选项
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🧠 <strong>媒体助手（Pro版）</strong> - AI智能分析功能</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 在播放视频时点击"媒体助手"按钮<br>
+                2. <strong>字幕列表</strong>：浏览、搜索字幕内容，点击跳转<br>
+                3. <strong>视频摘要</strong>：查看AI生成的内容概要<br>
+                4. <strong>弹幕列表</strong>：浏览弹幕时间线，点击跳转到对应时间<br>
+                5. <strong>一键导出</strong>：将助手内容导出到笔记
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>快捷键设置</strong> - 配置自定义快捷键</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 打开思源设置 > 快捷键<br>
+                2. 搜索"媒体播放器"或"siyuan-media-player"<br>
+                3. 为以下功能设置快捷键：<br>
+                   - <strong>⏱️ 创建时间戳</strong>：快速生成当前时间链接<br>
+                   - <strong>🔄 创建循环片段</strong>：设置循环播放区间<br>
+                   - <strong>📸 截图</strong>：捕获视频画面<br>
+                   - <strong>📔 创建媒体笔记</strong>：快速创建笔记<br>
+                   - <strong>🧠 媒体助手</strong>：打开/关闭助手面板<br>
+                4. <strong>播放器内置快捷键</strong>：<br>
+                   - 空格：播放/暂停<br>
+                   - 左右箭头：快退/快进<br>
+                   - 上下箭头：音量调节
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">🎵 <strong>播放控制</strong> - 基本播放和循环功能</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <strong>基本播放操作：</strong><br>
+                1. <strong>播放/暂停</strong>：点击播放按钮或按空格键<br>
+                2. <strong>进度控制</strong>：拖拽进度条或使用左右箭头键<br>
+                3. <strong>音量调节</strong>：使用音量滑块或上下箭头键<br>
+                4. <strong>播放速度</strong>：在设置中调整播放速度<br>
+                5. <strong>全屏播放</strong>：点击全屏按钮或双击播放区域<br><br>
+                <strong>循环播放功能：</strong><br>
+                1. <strong>单项循环</strong>：重复播放当前媒体<br>
+                2. <strong>列表循环</strong>：播放完列表后重新开始<br>
+                3. <strong>片段循环</strong>：设置特定时间段重复播放<br>
+                4. <strong>循环次数设置</strong>：在设置中配置循环次数<br>
+                5. <strong>循环后暂停</strong>：可设置循环结束后自动暂停
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>自定义链接格式</strong> - 个性化时间戳链接</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                在设置中，您可以自定义时间戳链接的显示格式。例如：<br>
+                <code>- [😄标题 时间 字幕](链接)</code> // 带有表情符号的链接<br>
+                <code>> 🕒 时间 | 标题 | 字幕</code> // 引用格式的链接
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>自定义媒体笔记模板</strong> - 个性化笔记格式</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                您可以在设置中创建自己的媒体笔记模板，支持各种变量：<br>
+                <strong>可用变量</strong>：媒体标题、当前时间戳、艺术家名称、媒体URL、媒体时长、媒体缩略图、媒体类型、媒体ID、当前日期、当前日期和时间
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>列表排序功能</strong> - 多种排序方式</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                播放列表支持多种排序方式：<br>
+                • <strong>默认排序</strong>：按添加顺序排列<br>
+                • <strong>按名称排序</strong>：按媒体标题字母顺序排列<br>
+                • <strong>按时间排序</strong>：按添加时间排列，最新添加的在前面<br>
+                • <strong>按类型排序</strong>：按媒体类型分组排列<br>
+                排序时会保持置顶项目的位置，只对非置顶项目进行排序。
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">↔️ <strong>面板调整</strong> - 灵活的界面布局</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                • 您可以通过拖动面板边缘来调整播放器面板大小<br>
+                • 将鼠标悬停在面板边缘附近，直到光标变为调整大小光标<br>
+                • 点击并拖动以调整面板大小<br>
+                • 此功能适用于播放列表面板、设置面板和媒体助手面板<br>
+                • 面板大小会在会话之间保持记忆
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>高效管理技巧</strong> - 播放列表和批量处理</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <strong>多播放列表管理：</strong><br>
+                • 创建主题相关的播放列表，如"学习资料"、"娱乐视频"等<br>
+                • 使用置顶功能将常用列表固定在顶部<br>
+                • 定期整理和清理不再需要的媒体内容<br><br>
+                <strong>批量处理技巧：</strong><br>
+                • 使用本地文件夹导入功能一次添加多个视频<br>
+                • 使用B站收藏夹导入快速添加系列视频<br>
+                • 通过视图模式切换，在不同场景下高效浏览和管理媒体
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #7c3aed; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+                <details>
+                <summary style="color: #7c3aed; cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>快捷键设置</strong> - 配置自定义快捷键</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. 打开思源设置 > 快捷键<br>
+                2. 搜索"媒体播放器"或"siyuan-media-player"<br>
+                3. 为以下功能设置快捷键：<br>
+                   - <strong>⏱️ 创建时间戳</strong>：快速生成当前时间链接<br>
+                   - <strong>🔄 创建循环片段</strong>：设置循环播放区间<br>
+                   - <strong>📸 截图</strong>：捕获视频画面<br>
+                   - <strong>📔 创建媒体笔记</strong>：快速创建笔记<br>
+                   - <strong>🧠 媒体助手</strong>：打开/关闭助手面板<br>
+                4. <strong>播放器内置快捷键</strong>：<br>
+                   - 空格：播放/暂停<br>
+                   - 左右箭头：快退/快进<br>
+                   - 上下箭头：音量调节
+                </div>
+                </details>
+            </li>
+        </ul>
     </div>
 </div>
-
-## � 功能概述
-
-思源媒体播放器是一款功能强大的多媒体播放插件，帮助您在思源笔记中便捷地播放、管理和引用各类媒体资源。
-
-### 🎥 视频播放
-
-- **📁 本地视频支持**：播放本地视频文件，支持多种常见视频格式
-- **🅱️ B站视频支持**：直接播放哔哩哔哩视频，无需离开思源笔记
-- **💬 自动字幕识别**：自动检测并加载匹配的字幕文件
-- **💭 弹幕支持**：显示B站视频弹幕，提供原生观看体验
-- **🎛️ 多种播放控制**：时间跳转、音量调节、播放速度、全屏等功能
-
-### 📋 播放列表管理
-
-- **📚 多列表管理**：创建和管理多个播放列表，便于分类组织媒体
-- **👁️ 视图模式切换**：支持详细视图、简洁视图、网格视图和封面视图
-- **📥 批量导入**：一键导入B站收藏夹或本地文件夹到播放列表
-
-### � 笔记集成功能
-
-- **⏱️ 时间戳链接**：生成指向视频特定时间点的链接，插入到笔记中
-- **🔄 循环片段**：创建循环播放特定片段的链接，便于重复学习
-- **📸 视频截图**：捕获视频画面并直接插入到笔记中
-- **📔 媒体笔记**：创建综合性媒体笔记，支持自定义模板
-- **🖊️ 灵活插入选项**：提供多种插入方式（光标位置、块前/后、文档头/尾或剪贴板）
-
-### ✨ 高级功能（Pro版）
-
-- **🧠 媒体助手**：
-  - 📜 字幕列表：便捷浏览和搜索视频字幕内容
-  - 📊 视频摘要：AI生成的视频内容概要，快速了解视频要点
-  - 📤 一键导出：将字幕和摘要内容导出到笔记中
-- **🔖 标签拓展**：
-  - � 本地文件夹：直接浏览和管理本地媒体文件
-  - � B站收藏夹：无缝集成B站收藏内容
-  - � 更多功能开发中...
-
-## 📖 使用指南
-
-<details>
-<summary><b>点击展开使用指南</b></summary>
-
-### 🎬 基础操作
-
-<details>
-<summary><b>播放本地视频</b></summary>
-
-1. 点击播放器窗口的"添加媒体"按钮
-2. 选择本地视频文件
-3. 播放器会自动检测并加载同名字幕文件（如果存在）
-4. 使用播放器控制栏控制播放
-</details>
-
-<details>
-<summary><b>播放B站视频</b></summary>
-
-1. 复制B站视频链接（支持标准链接和短链接）
-2. 在播放器中点击"添加媒体"按钮
-3. 粘贴链接并确认
-4. 播放器会自动加载视频、字幕和弹幕
-</details>
-
-<details>
-<summary><b>使用OpenList云盘</b></summary>
-
-1. 在设置面板中配置OpenList服务器连接
-2. 点击"添加媒体"并选择"添加OpenList云盘"
-3. 浏览OpenList目录结构查找媒体文件
-4. 选择要添加到播放列表的媒体
-5. 播放器将直接从OpenList服务器流式播放内容
-</details>
-
-<details>
-<summary><b>导入B站收藏夹</b></summary>
-
-1. 登录B站账号（在设置面板中）
-2. 在播放列表面板中选择"添加B站收藏夹"
-3. 选择要导入的收藏夹
-4. 确认导入，视频将批量添加到当前播放列表
-</details>
-
-<details>
-<summary><b>管理B站账号</b></summary>
-
-1. 在设置面板中找到B站账号部分
-2. 点击登录按钮显示二维码
-3. 使用B站手机APP扫描二维码登录
-4. 登录后可访问和导入您的个人收藏夹
-</details>
-
-### 📝 笔记集成
-
-<details>
-<summary><b>创建时间戳和循环片段</b></summary>
-
-1. 播放视频到需要标记的位置
-2. 点击时间戳按钮创建时间戳，或点击循环片段按钮设置起点
-3. 如创建循环片段，继续播放到结束位置再次点击循环片段按钮
-4. 生成的链接会自动复制到剪贴板或插入到光标位置（根据设置）
-</details>
-
-<details>
-<summary><b>创建媒体笔记</b></summary>
-
-1. 播放您想要记录笔记的视频或音频
-2. 点击控制栏中的"媒体笔记"按钮（或使用自定义快捷键）
-3. 系统将根据您自定义的模板创建新笔记
-4. 笔记中包含媒体信息，如标题、当前时间戳和缩略图
-5. 根据设置，笔记将：
-   - 插入到当前文档中（使用您设置的插入方式）
-   - 或创建在您指定的笔记本中（可在设置中选择目标笔记本）
-6. 您可以在设置中自定义笔记模板以适应您的工作流程
-7. 可为媒体笔记功能指定快捷键，提高使用效率
-</details>
-
-### 🧠 高级功能
-
-<details>
-<summary><b>使用媒体助手（Pro版）</b></summary>
-
-1. 在播放视频时点击控制栏中的媒体助手按钮
-2. 在助手面板中浏览字幕列表或查看视频摘要
-3. 点击字幕条目可跳转到对应时间点
-4. 使用导出按钮将内容导出到笔记中
-</details>
-
-### ⌨️ 快捷键
-
-<details>
-<summary><b>播放器内置快捷键</b></summary>
-
-- **空格键**：切换播放/暂停
-- **方向键左/右**：视频快退/快进
-- **方向键上/下**：增加/降低音量
-</details>
-
-<details>
-<summary><b>自定义快捷键</b></summary>
-
-您可以在思源笔记的设置中自定义以下功能的快捷键：
-
-1. 打开思源设置 > 快捷键
-2. 搜索"媒体播放器"或"siyuan-media-player"
-3. 为以下功能设置自定义快捷键：
-   - **⏱️ 创建时间戳**：生成当前播放时间的链接
-   - **🔄 创建循环片段**：设置循环播放的起点和终点
-   - **📸 截图**：捕获当前视频画面
-   - **📔 创建媒体笔记**：为当前媒体创建笔记
-   - **🧠 打开/关闭媒体助手**：显示或隐藏字幕和摘要面板（Pro版）
-</details>
-</details>
-
-## ⚙️ 设置选项
-
-<details>
-<summary><b>点击展开设置选项</b></summary>
-
-### 🛠️ 常规设置
-
-- **🔊 音量**：设置默认播放音量
-- **⏩ 播放速度**：设置默认播放速度
-- **🔁 循环次数**：设置片段循环播放的次数
-- **⏸️ 循环后暂停**：设置是否在循环播放结束后自动暂停
-- **💬 显示字幕**：是否默认显示字幕
-- **💭 启用弹幕**：是否默认显示弹幕
-
-### 🎛️ 播放器设置
-
-- **📺 播放器选择**：选择使用内置播放器、PotPlayer或浏览器
-- **🔄 打开方式**：选择播放器标签页的打开方式：
-  - **默认**：在新标签页中打开
-  - **右侧**：在右侧标签页中打开
-  - **底部**：在底部标签页中打开
-  - **窗口**：在新窗口中打开
-- **📌 插入方式**：选择内容插入方式：
-  - **插入光标处**：在当前光标位置添加内容
-  - **追加到块末尾**：将内容添加到当前块的末尾
-  - **添加到块开头**：将内容添加到当前块的开头
-  - **更新当前块**：替换当前块的内容
-  - **插入到文档顶部**：将内容添加到文档的顶部
-  - **插入到文档底部**：将内容添加到文档的底部
-  - **复制到剪贴板**：仅复制到剪贴板而不插入文档
-- **🔗 链接格式**：自定义生成的链接格式，支持添加表情符号和截图
-- **📝 媒体笔记模板**：自定义创建媒体笔记的模板
-- **📓 目标笔记本**：选择创建媒体笔记的目标笔记本
-</details>
-
-## ❓ 常见问题
-
-<details>
-<summary><b>视频无法播放</b></summary>
-
-- 检查网络连接是否正常
-- 对于B站视频，尝试刷新或重新添加链接
-- 确认视频格式是否受支持
-</details>
-
-<details>
-<summary><b>字幕不显示</b></summary>
-
-- 确认字幕文件与视频文件同名且在同一目录下
-- 检查字幕文件格式是否为.srt、.vtt或.ass
-- 在设置中确认"显示字幕"选项已启用
-</details>
-
-<details>
-<summary><b>弹幕不显示</b></summary>
-
-- 确认"启用弹幕"选项已启用
-- 只有B站视频支持弹幕功能
-- 部分视频可能没有弹幕数据
-</details>
-
-<details>
-<summary><b>导入收藏夹失败</b></summary>
-
-- 确认已登录B站账号
-- 检查网络连接
-- 尝试重新登录账号
-</details>
-
-## 💡 高级技巧
-
-<details>
-<summary><b>点击展开高级技巧</b></summary>
-
-### 🔗 自定义链接格式
-
-在设置中，您可以自定义时间戳链接的显示格式。例如：
-
-```
-- [😄标题 时间 字幕](链接)  // 带有表情符号的链接
-> 🕒 时间 | 标题 | 字幕     // 引用格式的链接
-```
-
-### 📝 自定义媒体笔记模板
-
-您可以在设置中创建自己的媒体笔记模板，支持各种变量：
-
-```
-# 📽️ 标题的媒体笔记
-- 📅 日 期：日期
-- ⏱️ 时 长：时长
-- 🎨 艺 术 家：艺术家
-- 🔖 类 型：类型
-- 🔗 链 接：[链接](链接)
-- ![封面](封面)
-- 📝 笔记内容：
-```
-
-可用的变量包括：
-- 媒体标题、当前时间戳、艺术家名称、媒体URL、媒体时长、媒体缩略图、媒体类型、媒体ID、当前日期、当前日期和时间
-
-### 🔄 列表排序功能
-
-播放列表支持多种排序方式，点击播放列表顶部的排序按钮可切换不同排序模式：
-
-- **默认排序**：按添加顺序排列
-- **按名称排序**：按媒体标题字母顺序排列
-- **按时间排序**：按添加时间排列，最新添加的在前面
-- **按类型排序**：按媒体类型分组排列
-
-排序时会保持置顶项目的位置，只对非置顶项目进行排序。
-
-### ↔️ 面板调整
-
-- 您可以通过拖动面板边缘来调整播放器面板大小
-- 将鼠标悬停在面板边缘附近，直到光标变为调整大小光标
-- 点击并拖动以调整面板大小
-- 此功能适用于播放列表面板、设置面板和媒体助手面板
-- 面板大小会在会话之间保持记忆
-
-### 📚 多播放列表管理
-
-- 创建主题相关的播放列表，如"学习资料"、"娱乐视频"等
-- 使用置顶功能将常用列表固定在顶部
-- 定期整理和清理不再需要的媒体内容
-
-### 📥 批量处理技巧
-
-- 使用本地文件夹导入功能一次添加多个视频
-- 使用B站收藏夹导入快速添加系列视频
-- 通过视图模式切换，在不同场景下高效浏览和管理媒体
-</details>
-
-## 💻 开发者API
-
-<details>
-<summary><b>点击展开开发者API</b></summary>
-
-思源媒体播放器提供了丰富的API，供其他插件调用，实现更多自定义功能。
-
-### 基本使用
-
-```javascript
-// 获取插件实例
-const mp = window.siyuan.plugins.find(p => p.name === 'siyuan-media-player');
-
-// 直接播放媒体
-mp.api.playMedia('https://example.com/video.mp4', {
-  title: '标题',        // 可选
-  startTime: 30,       // 可选，开始秒数
-  endTime: 60,         // 可选，结束秒数
-  isLoop: true         // 可选，循环播放
-});
-
-// 添加到播放列表
-mp.api.playMedia('https://example.com/music.mp3', {
-  addToPlaylist: true,
-  autoPlay: true       // 默认true
-});
-```
-
-### 事件机制
-
-```javascript
-// 事件方式调用
-window.dispatchEvent(new CustomEvent('directMediaPlay', { 
-  detail: {id: `c-${Date.now()}`, title: '标题', url: '地址', type: 'video'}
-}));
-
-window.dispatchEvent(new CustomEvent('addMediaToPlaylist', { 
-  detail: {url: '地址', autoPlay: true}
-}));
-
-// 注册事件监听
-window.addEventListener('mediaPlayerStateChange', (e) => {
-  const { playing, currentTime, duration } = e.detail;
-  console.log(`播放状态: ${playing ? '播放中' : '已暂停'}, 时间: ${currentTime}/${duration}`);
-});
-
-window.addEventListener('mediaPlayerReady', (e) => {
-  console.log('媒体播放器已就绪', e.detail);
-});
-```
-
-### 扩展API
-
-```javascript
-// 高级控制
-mp.api.getPlayer().then(player => {
-  // 获取当前播放器实例
-  console.log('当前媒体:', player.getCurrentMedia());
-  
-  // 控制播放
-  player.pause();
-  player.play();
-  player.seek(120); // 跳转到2分钟位置
-  
-  // 设置音量和速度
-  player.setVolume(0.8);
-  player.setPlaybackRate(1.5);
-});
-
-// 播放列表管理
-mp.api.getPlaylists().then(playlists => {
-  console.log('所有播放列表:', playlists);
-});
-
-mp.api.getCurrentPlaylist().then(playlist => {
-  console.log('当前播放列表:', playlist);
-});
-```
