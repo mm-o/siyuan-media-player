@@ -1,517 +1,378 @@
-# 🎬 SiYuan Media Player
-
-## 📚 Quick Navigation
-
-📖 [Help Documentation](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh) | 💬 [Feedback & Discussion](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-JcVadDDYzoViQNxltupcIrJxnSg) | 📋 [Changelog](https://vcne5rvqxi9z.feishu.cn/wiki/FEDdw8o7ti1IPpkJLjXcNX7En6d) | 👏 [Acknowledgments](https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh#share-PKecdG4eboPDjAxo4Apc0vuTnJb)
-
-> For detailed information about the latest features and improvements, please refer to the [Changelog](https://vcne5rvqxi9z.feishu.cn/wiki/FEDdw8o7ti1IPpkJLjXcNX7En6d).
-
-## 🧧 Support, Encouragement & Feature Requests
-
-<div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-  <div style="text-align: center; margin: 10px;">
-    <img src="https://github.com/mm-o/siyuan-media-player/blob/main/public/assets/images/alipay.jpg" alt="Alipay QR Code" width="300" />
-    <p>Alipay</p>
+<div class="sy__outline" style="max-width: 800px; margin: 0 auto;">
+    <div style="text-align: center; padding: 2em; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px;">
+        <h1 style="color: white; margin: 0; font-size: 2.2em;">🎬 SiYuan Media Player</h1>
+        <div style="color: rgba(255,255,255,0.9); margin-top: 0.5em; font-size: 1.1em;">Professional SiYuan Note media playback plugin with multi-platform playback, intelligent note management, and efficient learning tools</div>
+        <div style="margin-top: 1.5em; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+            <a href="https://github.com/mm-o/siyuan-media-player/blob/main/CHANGELOG.md"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">🗓 Changelog</a>
+               <a href="https://github.com/mm-o/siyuan-media-player/issues"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">💬 Issue Feedback</a>
+            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/HOKAw3KTiigaVukvcencOUh7nEb"
+               style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">👏 Acknowledgments</a>
+        </div>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(14,165,233,0.15);">
+        <h2 style="color: #0ea5e9; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Core Features</h2>
+        <ul style="margin: 0; padding-left: 1.2em;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>Multi-platform Playback</strong> - Unified playback for local media, Bilibili videos, OpenList, and WebDAV cloud storage</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>Timestamp Navigation</strong> - Precise timestamp links for one-click navigation to specific playback positions</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>Loop Segments</strong> - Custom loop playback segments for repeated learning of key content</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export for complete learning note ecosystem</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>Media Assistant</strong> - Subtitle lists, danmaku lists, and AI media summaries for intelligent analysis</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>Playlist Management</strong> - Database-driven management with tag classification, drag-and-drop sorting, and multi-view display</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of Bilibili favorites, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>Settings Panel</strong> - One-stop management for account configuration, player settings, and general options</li>
+        </ul>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fef3f2, #fee2e2); border: 1px solid #fca5a5; border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.15);">
+        <h2 style="color: #dc2626; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🧧 Support, Encourage & Feature Requests</h2>
+        <p style="margin: 0.5em 0;">If SiYuan Media Player has been helpful to you, please consider giving the author a like or buying a cup of coffee. This will encourage the author to continue optimizing and developing more useful features:</p>
+        <div style="margin: 1em 0; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+            <div style="text-align: center;">
+                <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg"
+                     alt="Alipay QR Code"
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="margin: 0.5em 0; color: #666;">Alipay</p>
+            </div>
+            <div style="text-align: center;">
+                <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg"
+                     alt="WeChat QR Code"
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="margin: 0.5em 0; color: #666;">WeChat</p>
+            </div>
+        </div>
   </div>
-  <div style="text-align: center; margin: 10px;">
-    <img src="https://github.com/mm-o/siyuan-media-player/blob/main/public/assets/images/wechat.jpg" alt="WeChat QR Code" width="300" />
-    <p>WeChat</p>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
+        <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
+
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7 Update (2025.7.8)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📊 Playlist Database Optimization</strong>: Fixed database field specification issues, single/multi-select options now have correct color identification, auto-create gallery view</li>
+<li><strong>🔄 Drag-and-Drop Sorting Fix</strong>: Fixed issue where playlist couldn't load after drag-and-drop sorting, ensuring data integrity in multi-tag environments</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Development Refactoring</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>⚡ Documentation Rewrite</strong>: Optimized documentation styling, added database configuration, account configuration methods</li>
+</ul>
+</li>
+</ul>
+<details style="margin-top: 1.5em;">
+<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 View Update History</summary>
+<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
+
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.6 Update (2025.7.5)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>☁️ WebDAV Cloud Storage Support</strong>: Added WebDAV cloud storage integration including settings panel configuration, tag menu browsing options, direct streaming playback, timestamp links and loop segments support</li>
+<li><strong>🎛️ Top Quick Menu</strong>: Added purple TV icon in top bar for quick settings access</li>
+<li><strong>🎨 Dedicated Icons</strong>: Added dedicated SVG icons for OpenList and WebDAV services</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ Feature Improvements</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🖼️ Image Localization</strong>: Automatically convert cover images and artist avatars to local resources, improving loading speed and offline display support</li>
+<li><strong>📔 Media Notes Enhancement</strong>: Newly created documents automatically open in right-side tabs</li>
+<li><strong>🔄 Loop Function Enhancement</strong>: Added mutual exclusion between single loop and playlist loop settings</li>
+<li><strong>📝 Terminology Optimization</strong>: Updated "Loop Count" to "Segment Loop Count", "Pause After Loop" to "Pause After Segment Loop"</li>
+<li><strong>📁 SiYuan Workspace Relative Path</strong>: SiYuan workspace media now uses relative paths for timestamp and loop segment links, consistent with SiYuan workspace menu item path format, improving portability and workspace independence</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔗 Bilibili Timestamp Links</strong>: Fixed timestamp link generation using playback URLs instead of standard links</li>
+<li><strong>📤 Export Functions</strong>: Fixed subtitle, danmaku, and AI summary export functionality</li>
+<li><strong>📔 Media Notes</strong>: Fixed document creation failure issue</li>
+<li><strong>📸 Screenshot Function</strong>: Fixed screenshot with timestamp option not working</li>
+<li><strong>🏷️ Playlist Tag Menu</strong>: Fixed right-click menu rename function not hiding menu after click</li>
+<li><strong>🔄 Loop Functions</strong>: Fixed single loop not working for Bilibili videos, playlist loop loading next media but remaining paused, enhanced Bilibili multi-part video series support</li>
+<li><strong>🎨 Style Scope</strong>: Fixed SCSS selector affecting SiYuan's scrollbar</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Technical Improvements</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li>Unified core module code structure for improved stability and performance</li>
+<li>Implemented muted autoplay bypass strategy for reliable playlist loop</li>
+<li>Unified loop mechanism across all media types</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.5 Update (2025.7.2)</strong>
+<div style="margin: 0.5em 0; padding: 0.8em; background: #fef3f2; border-left: 4px solid #f87171; border-radius: 4px;">
+<strong style="color: #dc2626;">⚠️ Important Notice: Due to major refactoring, this update causes incompatibility with playlist and settings configurations!</strong><br>
+📋 Please backup your data before updating. Config file location: <code>data\storage\petal\siyuan-media-player\config.json</code><br>
+🔄 You will need to reconfigure playlists and related settings after updating
 </div>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.2em 0;"><strong>📋 Playlist Refactoring</strong>: Optimized playlist component structure and performance for better responsiveness with large media collections</li>
+<li style="margin: 0.2em 0;"><strong>⚙️ Settings Component Refactoring</strong>: Removed complex styles, simplified to intuitive toggle switch interface, unified component processing logic, significantly improved configuration efficiency, added real-time display of database avid and notebook ID, removed save and reset buttons, implemented real-time saving with individual reset</li>
+<li style="margin: 0.2em 0;"><strong>📚 Database Configuration Sync</strong>: Playlist configurations automatically sync to database, ensuring data consistency</li>
+<li style="margin: 0.2em 0;"><strong>🎯 Drag & Drop Enhancement</strong>: Support drag & drop media items for sorting and cross-tab movement, support drag & drop playlist tabs for reordering, removed traditional sort buttons, unified with drag & drop operations</li>
+<li style="margin: 0.2em 0;"><strong>📷 Screenshot Function Fix</strong>: Fixed screenshot with timestamp feature, ensuring proper screenshot-timestamp association</li>
+<li style="margin: 0.2em 0;"><strong>🏷️ Visual Tag Optimization</strong>: Added visual source and type tags for playlist items, making interface more intuitive and beautiful</li>
+<li style="margin: 0.2em 0;"><strong>👨‍💼 Account Style Optimization</strong>: Improved Bilibili account display styling for better user experience</li>
+<li style="margin: 0.2em 0;"><strong>💬 SiYuan Workspace Enhancement</strong>: Complete browsing of SiYuan Note workspace file system, supporting browsing and playing media files from all folders</li>
+<li style="margin: 0.2em 0;"><strong>🔗 Media Notes URL Fix</strong>: Fixed issue where Bilibili media notes used playback URLs instead of standard links</li>
+<li style="margin: 0.2em 0;"><strong>🧹 Feature Streamlining</strong>: Removed built-in script loading functionality, recommend using SiYuan's built-in JS script feature</li>
+<li style="margin: 0.2em 0;"><strong>🔄 Cloud Storage Refactoring</strong>: Refactored AList cloud storage functionality to OpenList, providing unified cloud storage interface with improved compatibility and stability</li>
+<li style="margin: 0.2em 0;"><strong>⚡ Code Optimization</strong>: Extremely simplified core code, cleaned up redundant logic, reduced plugin size</li>
+<li style="margin: 0.2em 0;"><strong>🎯 Core Focus</strong>: Focus on media playback and note integration features, improving stability and performance</li>
+</ul>
+
 </div>
-
-## 🚀 Recent Updates
-
-**Version 0.3.7 (2025.7.6):**
-
-### 🐛 Bug Fixes
-- **📊 Playlist Database Optimization**: Fixed database field specification issues, single/multi-select options now have correct color identification, auto-create gallery view
-- **🔄 Drag-and-Drop Sorting Fix**: Fixed issue where playlist couldn't load after drag-and-drop sorting, ensuring data integrity in multi-tag environments
-
-### 🔧 Development Refactoring
-- **⚡ Extreme Code Simplification**: Optimized playlist component core logic, improved code conciseness and execution efficiency
-
----
-
-**Version 0.3.6 (2025.7.5):**
-
-### 🆕 New Features
-- **☁️ WebDAV Cloud Storage Support**: Added WebDAV cloud storage integration
-  - WebDAV server configuration in settings panel
-  - "Browse WebDAV Cloud" menu item in tag menu
-  - Direct streaming playback from WebDAV servers
-  - Timestamp links and loop segments support for WebDAV media
-- **🎛️ Top Quick Menu**: Added purple TV icon in top bar for quick settings access
-- **🎨 Dedicated Icons**: Added dedicated SVG icons for OpenList and WebDAV services
-
-### ✨ Improvements
-- **🖼️ Image Localization**: Automatically convert cover images and artist avatars to local resources
-  - Improved loading speed and offline display support
-- **📔 Media Notes Enhancement**: Newly created documents automatically open in right-side tabs
-- **🔄 Loop Function Enhancement**: Added mutual exclusion between single loop and playlist loop settings
-- **📝 Terminology Update**: Updated "Loop Count" to "Segment Loop Count" and "Pause After Loop" to "Pause After Segment Loop"
-- **📁 SiYuan Assets Relative Path**: SiYuan assets media now generate timestamp and loop segment links using relative paths
-  - Consistent with SiYuan assets menu items path format
-  - Improved portability and workspace independence
-
-### 🐛 Bug Fixes
-- **🔗 Bilibili Timestamp Links**: Fixed timestamp link generation using playback URLs instead of standard links
-- **📤 Export Functions**: Fixed subtitle, danmaku, and AI summary export functionality
-- **📔 Media Notes**: Fixed document creation failure issue
-- **📸 Screenshot Function**: Fixed screenshot with timestamp option not working
-- **🏷️ Playlist Tab Menu**: Fixed right-click menu rename function not hiding menu after click
-- **🔄 Loop Functions**:
-  - Fixed single loop not working for Bilibili videos
-  - Fixed playlist loop loading next media but remaining paused
-  - Enhanced Bilibili multi-part video series support
-- **🎨 Style Scope**: Fixed SCSS selector affecting SiYuan's scrollbar
-
-### 🔧 Technical Improvements
-- Unified core module code structure for improved stability and performance
-- Implemented muted autoplay bypass strategy for reliable playlist loop
-- Unified loop mechanism across all media types
-
-**Version 0.3.5 (2025.7.2):**
-
-> ⚠️ **Important Notice: Due to major refactoring, this update causes incompatibility with playlist and settings configurations!**  
-> 📋 **Please backup your data before updating. Config file location: `data\storage\petal\siyuan-media-player\config.json`**  
-> 🔄 **You will need to reconfigure playlists and related settings after updating**
-
-- **📋 Playlist Refactoring**: Optimized playlist component structure and performance for better responsiveness with large media collections
-- **⚙️ Settings Component Refactoring**:
-  - Removed complex styles, simplified to intuitive toggle switch interface
-  - Unified component processing logic, significantly improved configuration efficiency
-  - Added real-time display of database avid and notebook ID
-  - Removed save and reset buttons, implemented real-time saving with individual reset
-- **💾 Database Configuration Sync**: Playlist configurations automatically sync to database, ensuring data consistency
-- **🎯 Drag & Drop Enhancement**:
-  - Support drag & drop media items for sorting and cross-tab movement
-  - Support drag & drop playlist tabs for reordering
-  - Removed traditional sort buttons, unified with drag & drop operations
-- **📷 Screenshot Function Fix**: Fixed screenshot with timestamp feature, ensuring proper screenshot-timestamp association
-- **🏷️ Visual Tag Optimization**: Added visual source and type tags for playlist items, making interface more intuitive and beautiful
-- **👨‍💼 Account Style Optimization**: Improved Bilibili account display styling for better user experience
-- **📁 SiYuan Workspace Enhancement**: Complete browsing of SiYuan Note workspace file system, supporting browsing and playing media files from all folders
-- **🔗 Media Notes URL Fix**: Fixed issue where Bilibili media notes used playback URLs instead of standard links
-- **🧹 Feature Streamlining**: Removed built-in script loading functionality, recommend using SiYuan's built-in JS script feature
-- **🔄 Cloud Storage Refactoring**: Refactored AList cloud storage functionality to OpenList, providing unified cloud storage interface with improved compatibility and stability
-- **⚡ Code Optimization**: Extremely simplified core code, cleaned up redundant logic, reduced plugin size
-- **🎯 Core Focus**: Focus on media playback and note integration features, improving stability and performance
-
-**Version 0.3.4 (2025.5.26):**
-- **🎛️ Button Layout**: Optimized function button positions for better usability
-- **🔄 Icon Update**: Modified dock bar icon for improved visibility
-- **🔍 Media Link Logic**: Refactored media link checking logic to support local media links
-- **🛠️ Bug Fixes**: Fixed issue with local media timestamp links not working properly
-- **✨ Various Improvements**: Multiple detail enhancements and optimizations
-
-**Version 0.3.3 (2025.5.18):**
-- **🚀 UI Overhaul**: Removed top icons, now accessible through dock bar button
-- **🎛️ Button Layout**: Moved function buttons to the top with toggle visibility option
-- **🔂 Loop Features**: Added single item loop and playlist loop functionality
-- **⏸️ Pause Control**: Added pause after loop completion feature
-- **💬 Danmaku List**: Added danmaku list for easy export of bullet comments
-- **👤 Account Display**: Optimized account display
-- **🔄 Sorting Function**: Added playlist sorting functionality with support for default, name, time, and type sorting
-- **📜 Script Loading**: Support for loading custom JavaScript scripts with script status management through settings panel (preliminary)
-
-**Version 0.3.2 (2025.5.11):**
-- **🎨 UI Optimization**: Unified styling for assistant, playlist, and settings panels
-- **☁️ OpenList Support**: Added AList cloud storage support for more media sources
-- **📂 File Selection**: Enhanced local file import with direct file selection
-- **📋 Menu Simplification**: Streamlined tab menu, removing complex tab+right-click logic
-- **↔️ Resizable Panels**: Added support for resizing panels through drag and drop
-- **⏸️ Pause After Loop**: New setting to pause playback after loop completion
-- **📝 Insertion Methods**: Extended document insertion options with multiple modes
-- **🔗 Link Format Extension**: Support for inserting timestamps with screenshots in one action
-- **📔 Media Notes**: Added media notes creation with customizable templates, shortcut key support, and options to create in selected notebook or insert into current document
-- **🎛️ Format Standardization**: Unified custom formats with reset to default options
-- **🔄 Tab Opening Modes**: Customizable player tab opening methods (new tab, right tab, bottom tab, new window)
-- **💻 Developer Enhancement**: Improved developer API with more comprehensive interfaces and event support
-- **✨ More Improvements**: Many more optimizations to discover
-
-<details>
-<summary>View History Updates</summary>
-
-**Version 0.3.1:**
-- **💬 Bilibili Subtitle Control**: Support showing/hiding Bilibili video subtitles via the subtitle button
-- **📜 Auto-scrolling Subtitles**: Media assistant subtitle list now automatically scrolls with playback progress
-- **🎨 UI Optimization**: Improved media assistant interface for better user experience
-- **🛠️ Bug Fixes**: Resolved issues with special characters in file paths
-- **📸 Screenshot Enhancement**: Optimized screenshot feature with direct clipboard support
-- **🔄 Subtitle Processing**: Unified subtitle handling logic for improved player performance
-
-**Version 0.3.0:**
-- **🎯 Bilibili Danmaku Support**: Added support for Bilibili video bullet comments
-- **✨ Pro Features**: Introduced optional Pro features
-- **🔖 Enhanced Bilibili Favorites**: Direct selection for adding to playlist
-- **🧠 Media Assistant**: Subtitle browsing and video summary features
-- **💬 Subtitle Support**: Support for both local media and Bilibili videos
-- **📑 Video Summary**: AI-generated video content overview (Bilibili videos only for now)
 </details>
-
-## 🎯 Feature Overview
-
-SiYuan Media Player is a powerful multimedia playback plugin that helps you conveniently play, manage, and reference various media resources within SiYuan notes.
-
-### 🎥 Video Playback
-
-- **📁 Local Video Support**: Play local video files with support for various common video formats
-- **🅱️ Bilibili Video Support**: Play Bilibili videos directly without leaving SiYuan notes
-- **💬 Automatic Subtitle Detection**: Automatically detect and load matching subtitle files
-- **💭 Danmaku Support**: Display Bilibili video danmaku (bullet comments) for an authentic viewing experience
-- **🎛️ Multiple Playback Controls**: Time navigation, volume adjustment, playback speed, fullscreen and more
-
-### 📋 Playlist Management
-
-- **📚 Multiple Playlist Management**: Create and manage multiple playlists for organizing media by category
-- **👁️ View Mode Switching**: Support for detailed view, compact view, grid view, and cover view
-- **📥 Batch Import**: One-click import of Bilibili favorites or local folders to playlists
-
-### 📝 Note Integration Features
-
-- **⏱️ Timestamp Links**: Generate links pointing to specific timestamps in videos, inserted into notes
-- **🔄 Loop Segments**: Create links that loop specific segments of videos, useful for repeated learning
-- **📸 Video Screenshots**: Capture video frames and insert them directly into notes
-- **📔 Media Notes**: Create comprehensive media notes with customizable templates
-- **🖊️ Flexible Insertion Options**: Choose from multiple insertion methods (cursor position, block append/prepend, document top/bottom, or clipboard)
-
-### ✨ Advanced Features (Pro Version)
-
-- **🧠 Media Assistant**:
-  - 📜 Subtitle List: Easily browse and search video subtitle content
-  - 📊 Video Summary: AI-generated video content summaries for quick understanding of key points
-  - 📤 One-click Export: Export subtitle and summary content to notes
-- **🔖 Tag Extensions**:
-  - 📂 Local Folders: Directly browse and manage local media files
-  - 🌟 Bilibili Favorites: Seamless integration of Bilibili favorite content
-  - 🚀 More features in development...
-
-## 📖 How to Use
-
+</div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fefbff, #f3e8ff); border: 1px solid #c4b5fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
+        <h2 style="color: #7c3aed; margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 User Guide</h2>
+        <ul style="margin: 0; padding-left: 1.2em;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Click to expand How to Use</b></summary>
-
-### 🎬 Basic Operations
-
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🗄️ <strong>Bind Database</strong> - Configure playlist data storage</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. Select a database block, click the database icon or right-click > Copy > Copy ID<br>
+                2. Open SiYuan Media Player settings panel<br>
+                3. Find "Playlist Database" in the "General" tab<br>
+                4. Paste the database block ID copied in step 1 to bind the database<br>
+                5. After successful binding, all playlist data will sync to the specified database<br>
+                6. Supports auto-creation of gallery view for intuitive media list management
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Playing Local Videos</b></summary>
-
-1. Click the "Add Media" button in the player window
-2. Select a local video file
-3. The player will automatically detect and load same-named subtitle files (if available)
-4. Use the player control bar to control playback
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>Add Bilibili Account</strong> - Login to Bilibili to access personal resources</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. Find the "Bilibili Account" section in the settings panel<br>
+                2. Click the "Login to Bilibili Account" button<br>
+                3. Scan the displayed QR code (using Bilibili mobile app)<br>
+                4. After successful login, you can watch Bilibili videos and batch add favorites
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Playing Bilibili Videos</b></summary>
-
-1. Copy the Bilibili video link (supports standard links and short links)
-2. Click the "Add Media" button in the player
-3. Paste the link and confirm
-4. The player will automatically load the video, subtitles, and danmaku
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Configure OpenList Service</strong> - Connect to cloud storage server</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                1. Find the "OpenList Configuration" section in the settings panel<br>
+                2. Fill in the OpenList server address (e.g., http://localhost:5244)<br>
+                3. Enter username and password<br>
+                4. After successful configuration, you can directly browse and play media files from OpenList
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Using OpenList Cloud Storage</b></summary>
-
-1. Configure your OpenList server connection in the settings panel
-2. Click "Add Media" and select "Add OpenList Cloud"
-3. Browse the OpenList directory structure to find media files
-4. Select the media you want to add to the playlist
-5. The player will stream content directly from your OpenList server
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>Configure WebDAV Cloud Storage</strong> - Connect to WebDAV service</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Find the "WebDAV Configuration" section in the settings panel<br>
+                2. Fill in the WebDAV server address<br>
+                3. Enter username and password<br>
+                4. Supports mainstream WebDAV services like Jianguoyun (坚果云), NextCloud<br>
+                5. After successful configuration, you can directly browse and play media files from WebDAV
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Importing Bilibili Favorites</b></summary>
-
-1. Log in to your Bilibili account (in the settings panel)
-2. Select "Add Bilibili Favorites" in the playlist panel
-3. Choose the favorite folder to import
-4. Confirm the import, videos will be batch added to the current playlist
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📁 <strong>Add Local Media</strong> - Support multiple selection</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Click the "Add" button at the bottom of the playlist<br>
+                2. Select the media files you want to add in the file manager<br>
+                3. Click "Open" to add them to the playlist<br>
+                4. Supports single and multiple selection<br>
+                5. System automatically detects subtitle files with the same name
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Managing Bilibili Account</b></summary>
-
-1. Find the Bilibili account section in the settings panel
-2. Click the login button to display a QR code
-3. Scan the QR code using the Bilibili mobile app to log in
-4. After logging in, you can access and import your personal favorite folders
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📂 <strong>Add Local Folder</strong> - Batch import local files</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Click the "+" on the playlist tab to open the menu<br>
+                2. Click "Add Local Folder"<br>
+                3. Select the folder you want to add in the file browser<br>
+                4. Click the "Select Folder" button<br>
+                5. System will automatically scan and batch import all qualified media files
+                </div>
 </details>
-
-### 📝 Note Integration
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Creating Timestamps and Loop Segments</b></summary>
-
-1. Play the video to the position you want to mark
-2. Click the timestamp button to create a timestamp, or click the loop segment button to set a start point
-3. If creating a loop segment, continue playing to the end position and click the loop segment button again
-4. The generated link will be automatically copied to the clipboard or inserted at the cursor position (based on settings)
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏠 <strong>Add SiYuan Workspace Media</strong> - Browse workspace files</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Click the "+" on the playlist tab to open the menu<br>
+                2. Click "Add SiYuan Workspace" to add SiYuan workspace to the playlist<br>
+                3. SiYuan workspace media uses relative paths for easy workspace migration
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Creating Media Notes</b></summary>
-
-1. Play the video or audio you want to take notes on
-2. Click the "Media Notes" button in the control bar (or use a custom shortcut key)
-3. A new note will be created based on your customized template
-4. The note includes media information like title, current timestamp, and thumbnail
-5. Based on your settings, the note will either:
-   - Be inserted into the current document (using your preferred insertion method)
-   - Or be created in your specified notebook (target notebook can be selected in settings)
-6. You can customize the note template in settings to suit your workflow
-7. You can assign a shortcut key to the media notes function for improved efficiency
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Add OpenList Media</strong> - Cloud storage streaming playback</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Ensure OpenList server connection is configured<br>
+                2. Click the "+" on the playlist tab to open the menu<br>
+                3. Click "Add OpenList Cloud"<br>
+                4. Media will stream directly without downloading to local storage
+                </div>
 </details>
-
-### 🧠 Advanced Features
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Using Media Assistant (Pro Version)</b></summary>
-
-1. Click the Media Assistant button in the control bar while playing a video
-2. Browse the subtitle list or view the video summary in the assistant panel
-3. Click on subtitle entries to jump to the corresponding timestamp
-4. Use the export button to export content to your notes
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>Add WebDAV Media</strong> - Direct cloud playback</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Ensure WebDAV cloud storage connection is configured<br>
+                2. Click the "+" on the playlist tab to open the menu<br>
+                3. Click "Add WebDAV Cloud"<br>
+                4. Media will stream directly without downloading to local storage
+                </div>
 </details>
-
-### ⌨️ Keyboard Shortcuts
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Built-in Player Shortcuts</b></summary>
-
-- **Space**: Toggle play/pause
-- **Arrow Left/Right**: Rewind/Fast forward
-- **Arrow Up/Down**: Increase/Decrease volume
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>Batch Import Bilibili Favorites</strong> - One-click import favorite videos</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Ensure Bilibili account is logged in<br>
+                2. Click the "+" on the playlist tab to open the menu<br>
+                3. Click "Add Bilibili Favorites"<br>
+                3. Select the favorites folder to import<br>
+                4. System will batch import all videos from the favorites folder
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Custom Shortcuts</b></summary>
-
-You can customize keyboard shortcuts for the following features in SiYuan settings:
-
-1. Open SiYuan Settings > Shortcuts
-2. Search for "Media Player" or "siyuan-media-player"
-3. Set custom shortcuts for these functions:
-   - **⏱️ Create Timestamp**: Generate a link for the current playback time
-   - **🔄 Create Loop Segment**: Set start and end points for loop playback
-   - **📸 Take Screenshot**: Capture the current video frame
-   - **📔 Create Media Notes**: Create media notes for the current media
-   - **🧠 Toggle Media Assistant**: Show or hide the subtitles and summary panel (Pro version)
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>Tag Management</strong> - Create and manage playlist tags</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Click the "+" button at the top of the playlist to create a new tag<br>
+                2. Enter tag name and confirm<br>
+                3. <strong>Rename tag</strong>: Right-click the tag > Select "Rename"<br>
+                4. <strong>Delete tag</strong>: Right-click the tag > Select "Delete" to remove tag and media under it<br>
+                5. <strong>Clear tag</strong>: Right-click the tag > Select "Clear" to clear media under the tag
+                </div>
 </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Drag & Drop Operations</strong> - Media movement and sorting</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <strong>Drag media items:</strong><br>
+                1. <strong>Move between tags</strong>: Drag media items from one tag to another<br>
+                <strong>Drag sorting:</strong><br>
+                1. <strong>Media sorting</strong>: Drag media items within the same tag to adjust playback order<br>
+                2. <strong>Tag sorting</strong>: Drag tag headers to adjust tag display order<br>
+                3. Sort order is automatically saved to database
+                </div>
 </details>
-
-## ⚙️ Setting Options
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Click to expand Setting Options</b></summary>
-
-### 🛠️ General Settings
-
-- **🔊 Volume**: Set default playback volume
-- **⏩ Playback Speed**: Set default playback speed
-- **🔁 Loop Count**: Set the number of times to loop a segment
-- **⏸️ Pause After Loop**: Whether to automatically pause playback after loop completion
-- **💬 Show Subtitles**: Whether to display subtitles by default
-- **💭 Enable Danmaku**: Whether to display danmaku by default
-
-### 🎛️ Player Settings
-
-- **📺 Player Selection**: Choose to use the built-in player, PotPlayer, or browser
-- **🔄 Open Mode**: Choose how to open the player tab:
-  - **Default**: Open in a new tab
-  - **Right**: Open in a right side tab
-  - **Bottom**: Open in a bottom tab
-  - **Window**: Open in a new window
-- **📌 Insertion Method**: Choose how to insert content:
-  - **Insert at cursor**: Add content at the current cursor position
-  - **Append to block**: Add content to the end of the current block
-  - **Prepend to block**: Add content to the beginning of the current block
-  - **Update current block**: Replace current block content
-  - **Insert at document start**: Add content to the top of document
-  - **Insert at document end**: Add content to the bottom of document
-  - **Copy to clipboard**: Simply copy to clipboard without insertion
-- **🔗 Link Format**: Customize the generated link format, with support for adding emojis and screenshots
-- **📝 Media Notes Template**: Customize the template for creating media notes
-- **📓 Target Notebook**: Select the notebook where media notes will be created
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Note Integration</strong> - Screenshots, timestamps, loop segments and media notes</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <strong>Create screenshots (with timestamp):</strong><br>
+                1. Play video to the position you want to screenshot<br>
+                2. Click the screenshot button to create screenshot<br>
+                3. Screenshot will include timestamp based on settings<br><br>
+                <strong>Create timestamps and loop segments:</strong><br>
+                1. Play video to the position you want to mark<br>
+                2. Click timestamp button to create timestamp link<br>
+                3. <strong>Create loop segment</strong>:<br>
+                   - Click loop segment button to set start point<br>
+                   - Play to end position and click again to set end point<br>
+                   - Can set loop count and whether to pause after loop<br>
+                4. Generated links will be inserted at specified location or copied to clipboard based on settings<br><br>
+                <strong>Create media notes:</strong><br>
+                1. Play the media you want to take notes on<br>
+                2. Click the "Media Notes" button in the control bar (or use shortcut key)<br>
+                3. System creates notes based on custom template, including media info, timestamp, thumbnail, etc.<br>
+                4. Notes can be inserted into current document or created in specified notebook
+                </div>
 </details>
-
-## ❓ Common Issues
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Video Won't Play</b></summary>
-
-- Check if your network connection is working properly
-- For Bilibili videos, try refreshing or re-adding the link
-- Confirm if the video format is supported
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🧠 <strong>Media Assistant (Pro Version)</strong> - Subtitles, danmaku, summaries</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Click the "Media Assistant" button while playing video<br>
+                2. <strong>Subtitle list</strong>: Browse and search subtitle content, click to jump<br>
+                3. <strong>Video summary</strong>: View AI-generated content overview<br>
+                4. <strong>Danmaku list</strong>: Browse video danmaku list, needs to be enabled in settings<br>
+                5. <strong>One-click export</strong>: Export assistant content to notes
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-<summary><b>Subtitles Not Showing</b></summary>
-
-- Confirm that the subtitle file has the same name as the video file and is in the same directory
-- Check if the subtitle file format is .srt, .vtt, or .ass
-- Verify that the "Show Subtitles" option is enabled in settings
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>Shortcut Settings</strong> - Configure custom shortcuts</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Open SiYuan Settings > Shortcuts<br>
+                2. Search for "Media Player" or "siyuan-media-player"<br>
+                3. Set shortcuts for the following functions:<br>
+                   - <strong>⏱️ Add Timestamp</strong>: Quickly generate current time link<br>
+                   - <strong>🔄 Loop Segment</strong>: Set loop playback interval<br>
+                   - <strong>📸 Screenshot</strong>: Capture video frame<br>
+                   - <strong>📔 Media Notes</strong>: Quickly create notes<br>
+                   - <strong>🧠 Open Media Player Panel</strong>: Open/close dock panel<br>
+                4. <strong>Built-in player shortcuts</strong>:<br>
+                   - Space: Play/pause<br>
+                   - Left/right arrows: Rewind/fast forward<br>
+                   - Up/down arrows: Volume adjustment
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Danmaku Not Showing</b></summary>
-
-- Confirm that the "Enable Danmaku" option is enabled
-- Only Bilibili videos support the danmaku feature
-- Some videos may not have danmaku data
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🎵 <strong>Playback Control</strong> - Basic playback and loop functions</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <strong>Basic playback operations:</strong><br>
+                1. <strong>Play/pause</strong>: Click play button or press space<br>
+                2. <strong>Progress control</strong>: Drag progress bar or use left/right arrow keys<br>
+                3. <strong>Volume adjustment</strong>: Use volume slider or up/down arrow keys<br>
+                4. <strong>Playback speed</strong>: Adjust playback speed in settings<br>
+                5. <strong>Fullscreen</strong>: Click fullscreen button or double-click play area<br><br>
+                <strong>Loop playback functions:</strong><br>
+                1. <strong>Single loop</strong>: Repeat current media<br>
+                2. <strong>Playlist loop</strong>: Restart from beginning after finishing playlist<br>
+                3. <strong>Segment loop</strong>: Set specific time segment for repeated playback<br>
+                4. <strong>Loop count setting</strong>: Configure loop count in settings<br>
+                5. <strong>Pause after loop</strong>: Can set to automatically pause after loop ends
+                </div>
 </details>
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Failed to Import Favorites</b></summary>
-
-- Confirm you are logged into your Bilibili account
-- Check your network connection
-- Try logging in to your account again
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Custom Link Format</strong> - Personalized timestamp links</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                In settings, you can customize the display format of timestamp links. For example:<br>
+                <code>- [😄Title Time Subtitle](Link)</code> // Link with emoji<br>
+                <code>> 🕒 Time | Title | Subtitle</code> // Quote-formatted link
+                </div>
 </details>
-
-## 💡 Advanced Tips
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Click to expand Advanced Tips</b></summary>
-
-### 🔗 Custom Link Format
-
-In settings, you can customize the display format of timestamp links. For example:
-
-```
-- [😄Title Time Subtitle](Link)  // Link with emoji
-> 🕒 Time | Title | Subtitle     // Quote-formatted link
-```
-
-### 📚 Multiple Playlist Management
-
-- Create theme-related playlists, such as "Study Materials," "Entertainment Videos," etc.
-- Use the pin feature to keep frequently used lists at the top
-- Regularly organize and clean up media content that is no longer needed
-
-### 📥 Batch Processing Tips
-
-- Use the local folder import feature to add multiple videos at once
-- Use Bilibili favorites import to quickly add series videos
-- Switch between view modes to efficiently browse and manage media in different scenarios
-
-### 📝 Custom Media Notes Template
-
-You can create your own media notes template in settings with various variables:
-
-```
-# 📽️ Title Media Notes
-- 📅 Date: Date
-- ⏱️ Duration: Duration
-- 🎨 Artist: Artist
-- 🔖 Type: Type
-- 🔗 Link: [Link](Link)
-- ![Cover](Cover)
-- 📝 Notes:
-```
-
-Available variables include:
-- Media title, current timestamp, artist name, media URL, media duration, media thumbnail, media type, media ID, current date, current date and time
-
-### ↔️ Panel Resizing
-
-- You can resize the player panels by dragging their edges
-- Hover near the edge of a panel until the cursor changes to a resize cursor
-- Click and drag to adjust the panel size
-- This works for the playlist panel, settings panel, and media assistant panel
-- Panel sizes are remembered between sessions
-
-### 🔄 Playlist Sorting
-
-The playlist supports various sorting methods. Click the sort button at the top of the playlist to cycle through different sorting modes:
-
-- **Default Order**: Sort by the order items were added
-- **Sort by Name**: Sort alphabetically by media title
-- **Sort by Time**: Sort by addition time, with newest items first
-- **Sort by Type**: Group and sort by media type
-
-The sorting function preserves pinned items at the top and only sorts unpinned items.
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Custom Media Notes Template</strong> - Personalized note format</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                You can create your own media notes template in settings with various variables:<br>
+                <strong>Available variables</strong>: Media title, current timestamp, artist name, media URL, media duration, media thumbnail, media type, media ID, current date, current date and time
+                </div>
 </details>
-
-## 💻 Developer API
-
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-<summary><b>Click to expand Developer API</b></summary>
-
-SiYuan Media Player provides a comprehensive API for other plugins or scripts to interact with, enabling more customized functionality.
-
-### Basic Usage
-
-```javascript
-// Get plugin instance
-const mp = window.siyuan.plugins.find(p => p.name === 'siyuan-media-player');
-
-// Direct play media
-mp.api.playMedia('https://example.com/video.mp4', {
-  title: 'Title',      // Optional
-  startTime: 30,       // Optional, start seconds
-  endTime: 60,         // Optional, end seconds
-  isLoop: true         // Optional, loop playback
-});
-
-// Add to playlist
-mp.api.playMedia('https://example.com/music.mp3', {
-  addToPlaylist: true,
-  autoPlay: true       // Default true
-});
-```
-
-### Event Mechanism
-
-```javascript
-// Call via events
-window.dispatchEvent(new CustomEvent('directMediaPlay', { 
-  detail: {id: `c-${Date.now()}`, title: 'Title', url: 'URL', type: 'video'}
-}));
-
-window.dispatchEvent(new CustomEvent('addMediaToPlaylist', { 
-  detail: {url: 'URL', autoPlay: true}
-}));
-
-// Register event listeners
-window.addEventListener('mediaPlayerStateChange', (e) => {
-  const { playing, currentTime, duration } = e.detail;
-  console.log(`Player state: ${playing ? 'playing' : 'paused'}, time: ${currentTime}/${duration}`);
-});
-
-window.addEventListener('mediaPlayerReady', (e) => {
-  console.log('Media player is ready', e.detail);
-});
-```
-
-### Extended API
-
-```javascript
-// Advanced control
-mp.api.getPlayer().then(player => {
-  // Get current player instance
-  console.log('Current media:', player.getCurrentMedia());
-  
-  // Control playback
-  player.pause();
-  player.play();
-  player.seek(120); // Jump to 2 minutes position
-  
-  // Set volume and speed
-  player.setVolume(0.8);
-  player.setPlaybackRate(1.5);
-});
-
-// Playlist management
-mp.api.getPlaylists().then(playlists => {
-  console.log('All playlists:', playlists);
-});
-
-mp.api.getCurrentPlaylist().then(playlist => {
-  console.log('Current playlist:', playlist);
-});
-```
-
-For more API details, please check the [Developer Documentation](https://github.com/mm-o/siyuan-media-player/wiki/Developer-API).
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">↔️ <strong>Panel Adjustment</strong> - Flexible interface layout</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                • You can resize the player panels by dragging the panel edges<br>
+                • Hover near the panel edge until the cursor changes to resize cursor<br>
+                • Click and drag to adjust panel size<br>
+                • This feature applies to playlist panel, settings panel, and media assistant panel<br>
+                </div>
 </details>
+            </li>
+        </ul>
+    </div>
+</div>
