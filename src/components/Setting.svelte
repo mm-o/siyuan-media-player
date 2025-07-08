@@ -1,7 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { showMessage } from "siyuan";
+    import { showMessage, getFrontend } from "siyuan";
     import type { ISettingItem, SettingType } from "../core/types";
+    
+    const isMobile = () => getFrontend().endsWith('mobile'); // 运行环境判断
     import { notebook } from "../core/document";
 
     import { QRCodeManager } from "../core/bilibili";
@@ -177,6 +179,7 @@
             { key: "openMode", value: state.openMode, type: "select" as SettingType, tab: "player",
               title: i18n.setting.items.openMode?.title || "打开方式",
               description: i18n.setting.items.openMode?.description,
+              displayCondition: () => !isMobile(), // 移动端隐藏打开方式选项
               options: [
                 { label: i18n.setting.items.openMode?.options?.default || "新标签", value: "default" },
                 { label: i18n.setting.items.openMode?.options?.right || "右侧新标签", value: "right" },
@@ -203,7 +206,7 @@
             { key: "speed", value: state.speed, type: "slider" as SettingType, tab: "player",
               title: i18n.setting.items.speed.title,
               description: i18n.setting.items.speed.description,
-              slider: { min: 25, max: 200, step: 25 } },
+              slider: { min: 50, max: 500, step: 50 } },
             { key: "showSubtitles", value: state.showSubtitles, type: "checkbox" as SettingType, tab: "player",
               title: i18n.setting.items.showSubtitles?.title || "显示字幕",
               description: i18n.setting.items.showSubtitles?.description },

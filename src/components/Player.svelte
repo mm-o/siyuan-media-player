@@ -22,14 +22,15 @@
     let subtitleVisible = false;
     let subtitleTimer: number;
     let loopStartTime: number | null = null;
-    
     // 默认配置
     const DEFAULT_CONFIG = { volume: 70, speed: 100, loopCount: 3 };
-    
+    // 设置播放速度选项
+    Artplayer.PLAYBACK_RATE = [0.5, 1, 1.5, 2, 2.5, 3, 4, 5];
+
     // ===== 核心功能：播放器 =====
     function initPlayer(url = '', options = {}): any {
         cleanup();
-        
+
         const safeConfig = { ...DEFAULT_CONFIG, ...config };
         const player = new Artplayer({
             container: playerContainer,
@@ -97,8 +98,8 @@
                     onSwitch: item => {
                         subtitleVisible = !item.switch;
                         if (config) config.showSubtitles = subtitleVisible;
-                        player.notice.show = subtitleVisible ? 
-                            (i18n.player?.subtitle?.enabled || '已启用字幕') : 
+                        player.notice.show = subtitleVisible ?
+                            (i18n.player?.subtitle?.enabled || '已启用字幕') :
                             (i18n.player?.subtitle?.disabled || '已禁用字幕');
                         return subtitleVisible;
                     }
@@ -168,14 +169,10 @@
             subtitleVisible = safeConfig.showSubtitles !== undefined ? safeConfig.showSubtitles : true;
             startSubtitleTracking(player);
 
-            // 显示就绪提示
-            if (currentItem?.title) {
-                player.notice.show = `${currentItem.title} ${i18n.player?.ready || "准备就绪"}`;
-            }
+
 
             // 自动播放（静音绕过策略）
             player.muted = true;
-            player.play().then(() => player.muted = false).catch(() => {});
         });
         
         // 错误处理
@@ -190,6 +187,17 @@
                 setTimeout(() => player && !player.isDestroyed && (player.currentTime = 0, player.muted = true, player.play().then(() => player.muted = false).catch(() => {})), 200);
             } else if (safeConfig.loopPlaylist) {
                 window.dispatchEvent(new CustomEvent('mediaEnded', { detail: { loopPlaylist: true } }));
+            }
+        });
+
+        // 播放速度快捷键
+        player.on('keydown', e => {
+            if (e.ctrlKey && e.code === 'ArrowUp') {
+                player.playbackRate = Math.min(player.playbackRate + 0.5, 5);
+                player.notice.show = `播放速度: ${player.playbackRate}x`;
+            } else if (e.ctrlKey && e.code === 'ArrowDown') {
+                player.playbackRate = Math.max(player.playbackRate - 0.5, 0.5);
+                player.notice.show = `播放速度: ${player.playbackRate}x`;
             }
         });
     }
@@ -285,7 +293,7 @@
             window.dispatchEvent(new CustomEvent('siyuanMediaPlayerUpdate', {
                 detail: { currentItem: options }
             }));
-            
+
             // 处理B站DASH媒体源
             const actualUrl = options.biliDash ? createBiliMPD(options.biliDash) || url : url;
             const playerConfig = options.biliDash ? {
@@ -293,27 +301,27 @@
                 customType: { mpd: playMpd },
                 headers: options.headers
             } : {};
-            
+
             // 加载弹幕
             if (config?.enableDanmaku) {
                 try {
-                    const danmakuUrl = options.cid 
+                    const danmakuUrl = options.cid
                         ? await DanmakuManager.loadBiliDanmakuUrl(options.cid, config)
                         : await loadLocalDanmaku(url);
-                    
+
                     if (danmakuUrl) {
                         playerConfig.plugins = [DanmakuManager.createDanmakuPlugin(danmakuUrl)];
                     }
                 } catch (e) {}
             }
-            
+
             // 初始化播放器
             art = initPlayer(actualUrl, playerConfig);
             await new Promise(resolve => {
                 art.on('ready', () => resolve(null));
                 if (art.isReady) resolve(null);
             });
-            
+
             // 设置播放位置和循环
             if (options.startTime !== undefined) {
                 if (options.endTime !== undefined) {
@@ -323,6 +331,9 @@
                     art.notice.show = `${i18n.player?.jumpTo || "跳转至"} ${options.startTime.toFixed(1)}s`;
                 }
             }
+
+            // 画中画模式自动启用
+            if (config?.openMode === 'window') art.on('ready', () => art.pip = true);
             
         } catch (error) {
             console.error("[Player] 播放失败", error);

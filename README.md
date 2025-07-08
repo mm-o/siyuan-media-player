@@ -320,7 +320,9 @@
                 4. <strong>Built-in player shortcuts</strong>:<br>
                    - Space: Play/pause<br>
                    - Left/right arrows: Rewind/fast forward<br>
-                   - Up/down arrows: Volume adjustment
+                   - Up/down arrows: Volume adjustment<br>
+                   - <strong>Ctrl+↑</strong>: Increase playback speed (+0.5x, max 5x)<br>
+                   - <strong>Ctrl+↓</strong>: Decrease playback speed (-0.5x, min 0.5x)
                 </div>
 </details>
             </li>
@@ -332,8 +334,9 @@
                 1. <strong>Play/pause</strong>: Click play button or press space<br>
                 2. <strong>Progress control</strong>: Drag progress bar or use left/right arrow keys<br>
                 3. <strong>Volume adjustment</strong>: Use volume slider or up/down arrow keys<br>
-                4. <strong>Playback speed</strong>: Adjust playback speed in settings<br>
-                5. <strong>Fullscreen</strong>: Click fullscreen button or double-click play area<br><br>
+                4. <strong>Playback speed</strong>: Adjust playback speed in settings or use Ctrl+↑/↓ shortcuts<br>
+                5. <strong>Picture-in-Picture</strong>: Enable in player settings or select "Picture-in-Picture" open mode<br>
+                6. <strong>Fullscreen</strong>: Click fullscreen button or double-click play area<br><br>
                 <strong>Loop playback functions:</strong><br>
                 1. <strong>Single loop</strong>: Repeat current media<br>
                 2. <strong>Playlist loop</strong>: Restart from beginning after finishing playlist<br>

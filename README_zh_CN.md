@@ -320,7 +320,9 @@
                 4. <strong>播放器内置快捷键</strong>：<br>
                    - 空格：播放/暂停<br>
                    - 左右箭头：快退/快进<br>
-                   - 上下箭头：音量调节
+                   - 上下箭头：音量调节<br>
+                   - <strong>Ctrl+↑</strong>：增加播放速度（+0.5x，最高5x）<br>
+                   - <strong>Ctrl+↓</strong>：减少播放速度（-0.5x，最低0.5x）
                 </div>
                 </details>
             </li>
@@ -332,8 +334,9 @@
                 1. <strong>播放/暂停</strong>：点击播放按钮或按空格键<br>
                 2. <strong>进度控制</strong>：拖拽进度条或使用左右箭头键<br>
                 3. <strong>音量调节</strong>：使用音量滑块或上下箭头键<br>
-                4. <strong>播放速度</strong>：在设置中调整播放速度<br>
-                5. <strong>全屏播放</strong>：点击全屏按钮或双击播放区域<br><br>
+                4. <strong>播放速度</strong>：在设置中调整播放速度，或使用Ctrl+↑/↓快捷键<br>
+                5. <strong>画中画模式</strong>：在播放器设置中开启，或选择"画中画"打开方式<br>
+                6. <strong>全屏播放</strong>：点击全屏按钮或双击播放区域<br><br>
                 <strong>循环播放功能：</strong><br>
                 1. <strong>单项循环</strong>：重复播放当前媒体<br>
                 2. <strong>列表循环</strong>：播放完列表后重新开始<br>
