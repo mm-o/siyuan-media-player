@@ -33,7 +33,6 @@ export default class MediaPlayerPlugin extends Plugin {
         await this.initAPI();
         this.registerEvents();
         this.addUI();
-        this.addMediaStatusBar();
         setTimeout(() => document.querySelector('.dock__item[aria-label*="媒体播放器"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true })), 100);
     }
 
@@ -141,19 +140,6 @@ export default class MediaPlayerPlugin extends Plugin {
         });
 
         this.addHotkeys();
-    }
-
-    /** 添加状态栏媒体控制 */
-    private addMediaStatusBar() {
-        const el = document.createElement("div");
-        el.className = "toolbar__item";
-        el.style.cssText = "display:flex;align-items:center;gap:4px;max-width:200px;";
-        el.innerHTML = `<span style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">无媒体</span>
-<svg style="width:14px;height:14px;cursor:pointer;" onclick="window.siyuanMediaPlayer?.components?.get('playlist')?.playPrev?.()"><use xlink:href="#iconLeft"></use></svg>
-<svg style="width:14px;height:14px;cursor:pointer;" onclick="(p=>p?.art?.paused?p.art.play():p?.art?.pause())(window.siyuanMediaPlayer?.components?.get('player'))"><use xlink:href="#iconPlay"></use></svg>
-<svg style="width:14px;height:14px;cursor:pointer;" onclick="window.siyuanMediaPlayer?.components?.get('playlist')?.playNext?.()"><use xlink:href="#iconRight"></use></svg>`;
-        window.addEventListener('siyuanMediaPlayerUpdate', (e: CustomEvent) => el.firstChild.textContent = e.detail.currentItem?.title || '无媒体');
-        super.addStatusBar({ element: el });
     }
 
     /** 添加侧边栏和顶栏UI */
@@ -341,6 +327,4 @@ export default class MediaPlayerPlugin extends Plugin {
             }
         }));
     }
-
-
 }

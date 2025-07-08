@@ -169,10 +169,14 @@
             subtitleVisible = safeConfig.showSubtitles !== undefined ? safeConfig.showSubtitles : true;
             startSubtitleTracking(player);
 
-
+        // 显示就绪提示
+            if (currentItem?.title) {
+                player.notice.show = `${currentItem.title} ${i18n.player?.ready || "准备就绪"}`;
+            }
 
             // 自动播放（静音绕过策略）
             player.muted = true;
+            player.play().then(() => player.muted = false).catch(() => {});
         });
         
         // 错误处理
