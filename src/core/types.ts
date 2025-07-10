@@ -141,8 +141,12 @@ export interface Config {
         linkFormat: string;
         /** 截图包含时间戳 */
         screenshotWithTimestamp?: boolean;
+        /** 是否启用数据库功能 */
+        enableDatabase?: boolean;
         /** 播放列表数据库 */
         playlistDb?: { id: string; avId?: string };
+        /** 播放列表视图状态 */
+        playlistView?: { mode: string; tab: string; expanded: string[] };
             /** OpenList配置 */
     openlistConfig?: {
             server: string;    // 服务器地址

@@ -20,6 +20,10 @@
         type: { type: 'select', options: [['视频', '4'], ['音频', '5']] }, created: { type: 'date' }
     };
 
+    // ==================== 字段映射工具 ====================
+    const mapField = (key: string, keyMap: any) => keyMap[FIELDS[key]] || Object.values(keyMap).find(k => k.name?.includes(FIELDS[key]) || FIELDS[key]?.includes(k.name));
+    const extractValue = (value: any, key: string) => key === 'type' ? (value?.mSelect?.[0]?.content === '音频' ? 'audio' : 'video') : (value?.text?.content || value?.url?.content || value?.mSelect?.[0]?.content || value?.mAsset?.[0]?.content || value?.date?.content || '');
+
     // ==================== 核心工具 ====================
     const id = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
     const safe = (fn: Function) => async (...args: any[]) => { try { return await fn(...args); } catch (e: any) { showMessage(e?.message || "操作失败"); } };
@@ -28,16 +32,22 @@
 
     // ==================== 统一状态 ====================
     let state = {
-        tab: '目录', view: 'detailed' as typeof VIEWS[number], input: '', dbId: '',
+        tab: '目录', view: 'detailed' as typeof VIEWS[number], input: '', dbId: '', enabled: false,
         tags: ['目录', '默认'], items: [] as MediaItem[],
         folder: { type: '', path: '', connected: false },
         edit: '', add: false, exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any,
         drag: { item: -1, tag: '', target: '' }
     };
 
-    // ==================== 数据库服务 ====================
+    // ==================== 视图状态保存 ====================
+    const saveView = async () => { const c = await cfg(); c.settings.playlistView = { mode: state.view, tab: state.tab, expanded: [...state.exp] }; await plugin.saveData('config.json', c, 2); };
+    const loadView = async () => { const v = (await cfg()).settings?.playlistView; if (v) { state.view = v.mode || 'detailed'; state.tab = v.tab || '目录'; state.exp = new Set(v.expanded || []); } };
+
+    // ==================== 数据存储 ====================
     const api = async (path: string, data: any = {}) => fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json());
-    const getAvId = async (blockId: string) => (await api('/api/query/sql', { stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'` })).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || (() => { throw new Error('请在设置-通用中输入数据库块Id用于配置播放列表数据库'); })();
+    const getAvId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) throw new Error('请输入有效的数据库ID'); const fs = window.require('fs'), avPath = `${window.siyuan.config.system.workspaceDir}/data/storage/av/${id}.json`; if (fs.existsSync(avPath)) return id; const avId = (await api('/api/query/sql', { stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` })).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1]; if (!avId) throw new Error('数据库配置无效'); return avId; };
+    const loadLocal = async () => { try { return await plugin.loadData('playlist.json') || { tags: ['默认'], items: {} }; } catch { return { tags: ['默认'], items: {} }; } };
+    const saveLocal = async (data) => { await plugin.saveData('playlist.json', data, 2); };
 
     const db = {
         getKeys: async (avId: string) => (await api('/api/av/getAttributeViewKeysByAvID', { avID: avId })).data || [],
@@ -47,12 +57,10 @@
         addRow: async (avId: string, values: any[]) => api('/api/av/appendAttributeViewDetachedBlocksWithValues', { avID: avId, blocksValues: [values] }),
         updateField: async (avId: string, rowId: string, keyId: string, value: any) => api('/api/av/setAttributeViewBlockAttr', { avID: avId, rowID: rowId, keyID: keyId, value }),
         removeRows: async (avId: string, rowIds: string[]) => api('/api/av/removeAttributeViewBlocks', { avID: avId, srcIDs: rowIds }),
-
         transaction: async (operations: any[], undoOperations: any[] = []) => api('/api/transactions', {
             transactions: [{ doOperations: operations, undoOperations }],
             session: crypto.randomUUID(), app: "qd1f", reqId: Date.now()
         }),
-
         deleteTagOption: async (avId: string, keyId: string, optionName: string, allOptions: any[]) => {
             if (!allOptions.some(opt => opt.name === optionName)) throw new Error('标签选项不存在');
             return db.transaction([
@@ -60,7 +68,6 @@
                 { action: "doUpdateUpdated", id: avId.replace(/-[^-]+$/, '-2vkgxt0'), data: new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) }
             ], [{ action: "updateAttrViewColOptions", id: keyId, avID: avId, data: allOptions }]);
         },
-
         renameTagOption: async (avId: string, keyId: string, oldName: string, newName: string, allOptions: any[]) => {
             const oldOption = allOptions.find(opt => opt.name === oldName);
             if (!oldOption) throw new Error('原标签选项不存在');
@@ -71,15 +78,12 @@
                 { action: "doUpdateUpdated", id: avId.replace(/-[^-]+$/, '-2vkgxt0'), data: new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) }
             ], [{ action: "updateAttrViewColOption", id: keyId, avID: avId, data: { ...data, oldName: newName, newName: oldName } }]);
         },
-
         sortItem: async (avId: string, rowId: string, previousRowId: string) => db.transaction([
             { action: "sortAttrViewRow", avID: avId, blockID: avId.replace(/-[^-]+$/, '-2vkgxt0'), id: rowId, previousID: previousRowId }
         ], [{ action: "sortAttrViewRow", avID: avId, blockID: avId.replace(/-[^-]+$/, '-2vkgxt0'), id: rowId, previousID: '' }]),
-
         sortTags: async (avId: string, keyId: string, sortedOptions: any[]) => db.transaction([
             { action: "updateAttrViewColOptions", id: keyId, avID: avId, data: sortedOptions }
         ], [{ action: "updateAttrViewColOptions", id: keyId, avID: avId, data: sortedOptions }]),
-
         updateFieldName: async (avId: string, keyId: string, newName: string, oldName: string, keyType: string) => db.transaction([
             { action: "updateAttrViewCol", id: keyId, avID: avId, name: newName, type: keyType }
         ], [{ action: "updateAttrViewCol", id: keyId, avID: avId, name: oldName, type: keyType }])
@@ -109,23 +113,34 @@
         }[key] || (() => ({ ...baseValue, text: { content: v } }));
     };
 
-    // ==================== 数据库操作 ====================
-    const dbOp = async (action: string, params: any = {}) => {
+    // ==================== 本地文件操作 ====================
+    const localOp = async (action: string, params: any = {}) => {
+        const data = await loadLocal();
+        if (action === 'load') { state.tags = ['目录', ...data.tags]; state.items = state.tab === '目录' ? data.tags.map(t => ({ id: `dir-${t}`, title: t, type: 'folder', url: '#', source: 'directory', targetTabId: t, is_dir: true, thumbnail: Media.getThumbnail({ type: 'folder' }) })) : data.items[state.tab] || []; return; }
+        const { media, playlist = '默认', title, tagName, title: moveTitle, newPlaylist, tagName: ensureTag } = params;
+        if (action === 'add') { if (!data.items[playlist]) { data.items[playlist] = []; data.tags.push(playlist); } data.items[playlist].push({ ...media, id: `local-${Date.now()}`, source: media.source || (media.bvid || media.url?.includes('bilibili.com') ? 'bilibili' : media.url?.startsWith('file://') ? 'local' : 'standard') }); }
+        else if (action === 'del') { if (tagName && data.items[tagName]) { delete data.items[tagName]; data.tags = data.tags.filter(t => t !== tagName); } else if (title && data.items[state.tab]) data.items[state.tab] = data.items[state.tab].filter(item => item.title !== title); }
+        else if (action === 'move') { if (!data.items[newPlaylist]) { data.items[newPlaylist] = []; data.tags.push(newPlaylist); } Object.keys(data.items).forEach(tag => { const item = data.items[tag].find(i => i.title === moveTitle); if (item) { data.items[tag] = data.items[tag].filter(i => i.title !== moveTitle); data.items[newPlaylist].push(item); } }); }
+        else if (action === 'ensure' && !data.tags.includes(ensureTag)) { data.tags.push(ensureTag); data.items[ensureTag] = []; }
+        if (action !== 'load') await saveLocal(data);
+    };
+
+    // ==================== 数据操作 ====================
+    const dataOp = async (action: string, params: any = {}) => {
+        if (!state.enabled) return await localOp(action, params);
         const avId = await getAvId(state.dbId);
 
         switch (action) {
             case 'init':
                 const keys = await db.getKeys(avId), existing = keys.map(k => k.name);
                 await Promise.all(keys.filter(k => k.type === 'select' && !Object.values(FIELDS).includes(k.name) && k.name !== '标题' && k.name !== '主键').map(field => db.removeKey(avId, field.id)));
-
                 const primaryKey = (await db.getKeys(avId)).find(k => k.name === '主键' || k.name === '标题');
                 if (primaryKey && (primaryKey.name === '主键' || primaryKey.name === '标题')) {
                     await db.updateFieldName(avId, primaryKey.id, '媒体标题', primaryKey.name, primaryKey.type);
                 }
-
                 const updatedPrimaryKey = (await db.getKeys(avId)).find(k => k.name === '媒体标题');
                 let previousKeyID = updatedPrimaryKey?.id || '';
-                for (const key of ['url', 'playlist', 'source', 'type', 'thumbnail', 'artistIcon', 'created']) {
+                for (const key of ['url', 'duration', 'playlist', 'source', 'type', 'artist', 'thumbnail', 'artistIcon', 'created']) {
                     const name = FIELDS[key];
                     if (!existing.includes(name)) {
                         const fieldDef = FIELD_DEFS[key] || { type: 'text' }, keyID = id();
@@ -138,20 +153,25 @@
 
             case 'load':
                 const loadData = await db.render(avId), loadKeys = await db.getKeys(avId), loadKeyMap = Object.fromEntries(loadKeys.map(k => [k.name, k]));
-                const loadPlaylistKey = loadKeyMap[FIELDS.playlist], tags = [...(loadPlaylistKey?.options?.map(opt => opt.name) || []), '默认'].filter((t, i, a) => a.indexOf(t) === i);
+                const loadPlaylistKey = mapField('playlist', loadKeyMap), tags = [...(loadPlaylistKey?.options?.map(opt => opt.name) || []), '默认'].filter((t, i, a) => a.indexOf(t) === i);
                 state.tags = ['目录', ...tags.filter(t => t !== '目录')];
                 if (state.tab === '目录') {
                     state.items = tags.filter(t => t !== '目录').map(t => ({ id: `dir-${t}`, title: t, type: 'folder', url: '#', source: 'directory', targetTabId: t, is_dir: true, thumbnail: Media.getThumbnail({ type: 'folder' }) }));
                 } else {
-                    const rows = loadData.view?.rows || [], primaryKeyId = loadKeyMap['主键']?.id || loadKeyMap['标题']?.id || loadKeyMap['媒体标题']?.id;
-                    state.items = rows.filter(row => row.cells?.find(c => c.value?.keyID === loadPlaylistKey?.id)?.value?.mSelect?.some?.(tag => tag.content === state.tab)).map(row => {
-                        const item: any = { id: row.id }, titleCell = row.cells?.find(c => c.value?.keyID === primaryKeyId);
-                        item.title = titleCell?.value?.block?.content || '未知标题';
-                        Object.entries(FIELDS).forEach(([key, name]) => {
-                            const cell = row.cells?.find(c => c.value?.keyID === loadKeyMap[name]?.id), value = cell?.value;
-                            item[key] = key === 'type' ? (value?.mSelect?.[0]?.content === '音频' ? 'audio' : 'video') : (value?.text?.content || value?.url?.content || value?.mSelect?.[0]?.content || value?.mAsset?.[0]?.content || value?.date?.content || '');
+                    const rows = loadData.view?.rows || [], cards = loadData.view?.cards || [], primaryKeyId = loadKeyMap['主键']?.id || loadKeyMap['标题']?.id || loadKeyMap['媒体标题']?.id;
+                    const dataItems = rows.length ? rows : cards;
+                    state.items = dataItems.filter(item => {
+                        const values = item.cells || item.values || [];
+                        return values.find(c => c.value?.keyID === loadPlaylistKey?.id)?.value?.mSelect?.some?.(tag => tag.content === state.tab);
+                    }).map(item => {
+                        const values = item.cells || item.values || [], result: any = { id: item.id };
+                        const titleValue = values.find(c => c.value?.keyID === primaryKeyId);
+                        result.title = titleValue?.value?.block?.content || '未知标题';
+                        Object.entries(FIELDS).forEach(([key]) => {
+                            const field = mapField(key, loadKeyMap), cell = field ? values.find(c => c.value?.keyID === field.id) : null;
+                            result[key] = cell ? extractValue(cell.value, key) : '';
                         });
-                        return item;
+                        return result;
                     });
                 }
                 return;
@@ -159,7 +179,8 @@
             case 'add':
                 const { media, playlist = '默认', checkDup = true } = params;
                 if (checkDup && media.url) {
-                    const dbData = await db.render(avId), urlKey = (await db.getKeys(avId)).find(k => k.name === FIELDS.url);
+                    const dbData = await db.render(avId), dupKeys = await db.getKeys(avId), dupKeyMap = Object.fromEntries(dupKeys.map(k => [k.name, k]));
+                    const urlKey = mapField('url', dupKeyMap);
                     if (dbData.view?.rows?.find(row => row.cells?.find(c => c.value?.keyID === urlKey?.id)?.value?.url?.content === media.url)) { showMessage('媒体已存在'); return; }
                 }
                 const { imageToLocalAsset } = await import('../core/document');
@@ -168,8 +189,8 @@
                 const addKeys = await db.getKeys(avId), addKeyMap = Object.fromEntries(addKeys.map(k => [k.name, k])), values = [];
                 const addPrimaryKey = addKeyMap['主键'] || addKeyMap['标题'] || addKeyMap['媒体标题'];
                 if (addPrimaryKey && media.title) values.push({ keyID: addPrimaryKey.id, id: id(), blockID: '', type: 'block', block: { id: id(), content: media.title, created: Date.now(), updated: Date.now() }, isDetached: true });
-                Object.entries(FIELDS).forEach(([key, name]) => {
-                    const keyData = addKeyMap[name];
+                Object.entries(FIELDS).forEach(([key]) => {
+                    const keyData = mapField(key, addKeyMap);
                     if (!keyData) return;
                     let v = media[key];
                     if (key === 'source') v = media.source === 'openlist' ? 'OpenList' : media.source === 'webdav' ? 'WebDAV' : (media.url?.includes('bilibili.com') || media.bvid) ? 'B站' : (media.source === 'local' || media.url?.startsWith('file://')) ? '本地' : '普通';
@@ -186,8 +207,8 @@
                 const { title, tagName } = params, delData = await db.render(avId), delKeyMap = Object.fromEntries((await db.getKeys(avId)).map(k => [k.name, k]));
                 let rowIds: string[] = [];
                 if (tagName) {
-                    const playlistKeyId = delKeyMap[FIELDS.playlist]?.id;
-                    rowIds = delData.view?.rows?.filter(row => row.cells?.find(c => c.value?.keyID === playlistKeyId)?.value?.mSelect?.some?.(tag => tag.content === tagName)).map(row => row.id) || [];
+                    const playlistKey = mapField('playlist', delKeyMap);
+                    rowIds = delData.view?.rows?.filter(row => row.cells?.find(c => c.value?.keyID === playlistKey?.id)?.value?.mSelect?.some?.(tag => tag.content === tagName)).map(row => row.id) || [];
                 } else if (title) {
                     const titleKeyId = delKeyMap['主键']?.id || delKeyMap['标题']?.id || delKeyMap['媒体标题']?.id;
                     const row = delData.view?.rows?.find(row => row.cells?.find(c => c.value?.keyID === titleKeyId)?.value?.block?.content === title);
@@ -197,24 +218,21 @@
                 break;
 
             case 'move':
-                const { title: moveTitle, newPlaylist } = params;
-                const moveDbData = await db.render(avId);
+                const { title: moveTitle, newPlaylist } = params, moveDbData = await db.render(avId);
                 const moveKeyMap = Object.fromEntries((await db.getKeys(avId)).map(k => [k.name, k]));
                 const titleKeyId = moveKeyMap['主键']?.id || moveKeyMap['标题']?.id || moveKeyMap['媒体标题']?.id;
-                const row = moveDbData.view?.rows?.find(row =>
-                    row.cells?.find(c => c.value?.keyID === titleKeyId)?.value?.block?.content === moveTitle
-                );
+                const row = moveDbData.view?.rows?.find(row => row.cells?.find(c => c.value?.keyID === titleKeyId)?.value?.block?.content === moveTitle);
                 if (!row) throw new Error('未找到记录');
-
                 await dbOp('ensure', { tagName: newPlaylist });
-                const color = moveKeyMap[FIELDS.playlist]?.options?.find(o => o.name === newPlaylist)?.color || '';
-                await db.updateField(avId, row.id, moveKeyMap[FIELDS.playlist]?.id, { mSelect: [{ content: newPlaylist, color }] });
+                const playlistKey = mapField('playlist', moveKeyMap);
+                const color = playlistKey?.options?.find(o => o.name === newPlaylist)?.color || '';
+                await db.updateField(avId, row.id, playlistKey?.id, { mSelect: [{ content: newPlaylist, color }] });
                 showMessage(`已移动到"${newPlaylist}"`);
                 break;
 
             case 'ensure':
-                const { tagName: ensureTag } = params;
-                const ensurePlaylistKey = (await db.getKeys(avId)).find(k => k.name === FIELDS.playlist);
+                const { tagName: ensureTag } = params, ensureKeys = await db.getKeys(avId), ensureKeyMap = Object.fromEntries(ensureKeys.map(k => [k.name, k]));
+                const ensurePlaylistKey = mapField('playlist', ensureKeyMap);
                 if (ensurePlaylistKey && !ensurePlaylistKey.options?.some(opt => opt.name === ensureTag)) {
                     const temp = createValue('playlist', [ensureTag], ensurePlaylistKey)();
                     await db.addRow(avId, [temp]);
@@ -226,7 +244,8 @@
             case 'deleteTag':
                 const { tagName: deleteTagName } = params;
                 if (deleteTagName === '默认') { showMessage('不能删除默认标签'); return; }
-                const deleteKeys = await db.getKeys(avId), deletePlaylistKey = deleteKeys.find(k => k.name === FIELDS.playlist);
+                const deleteKeys = await db.getKeys(avId), deleteKeyMap = Object.fromEntries(deleteKeys.map(k => [k.name, k]));
+                const deletePlaylistKey = mapField('playlist', deleteKeyMap);
                 if (!deletePlaylistKey?.options) { showMessage('标签字段不存在'); return; }
                 if (!deletePlaylistKey.options.some(opt => opt.name === deleteTagName)) { showMessage('标签选项不存在'); return; }
                 const deleteTagData = await db.render(avId), mediaRowsWithTag = deleteTagData.view?.rows?.filter(row => row.cells?.find(c => c.value?.keyID === deletePlaylistKey.id)?.value?.mSelect?.some?.(tag => tag.content === deleteTagName)) || [];
@@ -243,7 +262,8 @@
                 const { oldName, newName } = params;
                 if (oldName === '默认') { showMessage('不能重命名默认标签'); return; }
                 if (!newName?.trim()) { showMessage('新标签名不能为空'); return; }
-                const renameKeys = await db.getKeys(avId), renamePlaylistKey = renameKeys.find(k => k.name === FIELDS.playlist);
+                const renameKeys = await db.getKeys(avId), renameKeyMap = Object.fromEntries(renameKeys.map(k => [k.name, k]));
+                const renamePlaylistKey = mapField('playlist', renameKeyMap);
                 if (!renamePlaylistKey?.options) { showMessage('标签字段不存在'); return; }
                 await db.renameTagOption(avId, renamePlaylistKey.id, oldName, newName.trim(), renamePlaylistKey.options);
                 showMessage(`已将标签"${oldName}"重命名为"${newName}"`);
@@ -252,40 +272,31 @@
             case 'reorder':
                 const { type, draggedItem } = params;
                 if (type === 'items' && draggedItem) {
-                    const reorderData = await db.render(avId);
-                    const reorderKeyMap = Object.fromEntries((await db.getKeys(avId)).map(k => [k.name, k]));
+                    const reorderData = await db.render(avId), reorderKeyMap = Object.fromEntries((await db.getKeys(avId)).map(k => [k.name, k]));
                     const titleKeyId = reorderKeyMap['主键']?.id || reorderKeyMap['标题']?.id || reorderKeyMap['媒体标题']?.id;
-                    const playlistKeyId = reorderKeyMap[FIELDS.playlist]?.id;
-
+                    const playlistKey = mapField('playlist', reorderKeyMap);
                     const draggedRow = reorderData.view?.rows?.find(row => {
                         const titleCell = row.cells?.find(c => c.value?.keyID === titleKeyId);
-                        const playlistCell = row.cells?.find(c => c.value?.keyID === playlistKeyId);
-                        return titleCell?.value?.block?.content === draggedItem.title &&
-                               playlistCell?.value?.mSelect?.some?.(tag => tag.content === state.tab);
+                        const playlistCell = row.cells?.find(c => c.value?.keyID === playlistKey?.id);
+                        return titleCell?.value?.block?.content === draggedItem.title && playlistCell?.value?.mSelect?.some?.(tag => tag.content === state.tab);
                     });
-
                     if (!draggedRow) break;
-
                     const currentIndex = state.items.findIndex(item => item.title === draggedItem.title);
                     let previousRowId = '';
-
                     if (currentIndex > 0) {
                         const previousItem = state.items[currentIndex - 1];
                         const previousRow = reorderData.view?.rows?.find(row => {
                             const titleCell = row.cells?.find(c => c.value?.keyID === titleKeyId);
-                            const playlistCell = row.cells?.find(c => c.value?.keyID === playlistKeyId);
-                            return titleCell?.value?.block?.content === previousItem.title &&
-                                   playlistCell?.value?.mSelect?.some?.(tag => tag.content === state.tab);
+                            const playlistCell = row.cells?.find(c => c.value?.keyID === playlistKey?.id);
+                            return titleCell?.value?.block?.content === previousItem.title && playlistCell?.value?.mSelect?.some?.(tag => tag.content === state.tab);
                         });
                         previousRowId = previousRow?.id || '';
                     }
-
                     await db.sortItem(avId, draggedRow.id, previousRowId);
                 } else if (type === 'tags') {
-                    const tagKeys = await db.getKeys(avId);
-                    const playlistKey = tagKeys.find(k => k.name === FIELDS.playlist);
+                    const tagKeys = await db.getKeys(avId), tagKeyMap = Object.fromEntries(tagKeys.map(k => [k.name, k]));
+                    const playlistKey = mapField('playlist', tagKeyMap);
                     if (!playlistKey?.options) break;
-
                     const sortedOptions = [], systemTags = ['默认', '目录'];
                     systemTags.forEach(tag => { const opt = playlistKey.options.find(o => o.name === tag); if (opt) sortedOptions.push(opt); });
                     state.tags.forEach(tag => { if (!systemTags.includes(tag)) { const opt = playlistKey.options.find(o => o.name === tag); if (opt) sortedOptions.push(opt); } });
@@ -295,30 +306,31 @@
                 break;
         }
 
-        if (['load', 'add', 'del', 'move', 'ensure', 'deleteTag', 'renameTag', 'reorder'].includes(action)) await dbOp('load');
+        if (['load', 'add', 'del', 'move', 'ensure', 'deleteTag', 'renameTag', 'reorder'].includes(action)) await dataOp('load');
     };
 
     // ==================== 核心业务 ====================
     const init = async () => {
         const config = await cfg();
-        state.dbId = config.settings?.playlistDb?.id;
-        if (!state.dbId) throw new Error('请在设置-通用中输入数据库块Id用于配置播放列表数据库');
-        await dbOp('init');
+        state.enabled = !!config.settings?.enableDatabase;
+        await loadView();
+        if (state.enabled) { state.dbId = config.settings?.playlistDb?.id; if (!state.dbId) throw new Error('请在设置-通用中输入数据库块Id用于配置播放列表数据库'); await dataOp('init'); }
         await load();
     };
 
-    const load = () => dbOp('load');
+    const load = () => dataOp('load');
     const add = async (url: string, playlist = '默认', checkDup = true) => {
         const result = await Media.getMediaInfo(url);
         if (!result.success || !result.mediaItem) throw new Error(result.error || '无法解析媒体链接');
-        await dbOp('add', { media: result.mediaItem, playlist, checkDup });
+        await dataOp('add', { media: result.mediaItem, playlist, checkDup });
         window.dispatchEvent(new CustomEvent('refreshPlaylist'));
     };
-    const del = (title?: string, tagName?: string) => dbOp('del', { title, tagName });
-    const move = (title: string, newPlaylist: string) => dbOp('move', { title, newPlaylist });
-    const ensure = (tagName: string) => dbOp('ensure', { tagName });
-    const deleteTag = (tagName: string) => dbOp('deleteTag', { tagName });
-    const renameTag = (oldName: string, newName: string) => dbOp('renameTag', { oldName, newName });
+    const del = (title?: string, tagName?: string) => dataOp('del', { title, tagName });
+    const move = (title: string, newPlaylist: string) => dataOp('move', { title, newPlaylist });
+    const ensure = (tagName: string) => dataOp('ensure', { tagName });
+    const deleteTag = (tagName: string) => dataOp('deleteTag', { tagName });
+    const renameTag = (oldName: string, newName: string) => dataOp('renameTag', { oldName, newName });
+
 
     // ==================== 文件浏览 ====================
     const browse = async (type: string, path = '') => {
@@ -335,12 +347,9 @@
             const fs = window.require('fs'), pathLib = window.require('path');
             const fullPath = type === 'siyuan' ? pathLib.join(window.siyuan.config.system.workspaceDir, 'data', path) : path;
             const items: any[] = [];
-
             try {
                 fs.readdirSync(fullPath).forEach((file: string) => {
-                    const filePath = pathLib.join(fullPath, file);
-                    const stats = fs.statSync(filePath);
-
+                    const filePath = pathLib.join(fullPath, file), stats = fs.statSync(filePath);
                     if (stats.isDirectory()) {
                         items.push({ id: `${type}-folder-${Date.now()}-${Math.random().toString(36).slice(2,5)}`, title: file, type: 'folder', url: '#', source: type, sourcePath: type === 'siyuan' ? pathLib.relative(pathLib.join(window.siyuan.config.system.workspaceDir, 'data'), filePath).replace(/\\/g, '/') : filePath, is_dir: true });
                     } else if (EXT.MEDIA.some(ext => file.toLowerCase().endsWith(ext))) {
@@ -349,7 +358,6 @@
                     }
                 });
             } catch (error) { showMessage('扫描文件夹失败'); }
-
             state.folder = { type, path: path || '', connected: true };
             if ((type === 'siyuan' && state.tab === '思源空间') || type === 'folder') state.items = items;
         }
@@ -364,13 +372,12 @@
     $: isGrid = state.view.includes('grid');
     $: isCompact = state.view === 'compact';
 
+    const srcs = { 'bilibili': 'B站', 'local': '本地', 'standard': '普通', 'openlist': 'OpenList', 'webdav': 'WebDAV', 'directory': '标签', 'siyuan': '思源' };
+    const tags = (item: MediaItem) => `<span class="meta-tag source" data-source="${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : srcs[item.source] || item.source}">${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : srcs[item.source] || item.source}</span><span class="meta-tag type" data-type="${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}">${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>`;
     const map = (m: any, k: string) => m[k] || k;
     const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default };
-    const srcs = { 'B站': i18n?.playList?.sources?.bilibili, '本地': i18n?.playList?.sources?.local, '普通': i18n?.playList?.sources?.general, 'OpenList': i18n?.playList?.sources?.openlist, 'WebDAV': i18n?.playList?.sources?.webdav || 'WebDAV' };
-
-    const tags = (item: MediaItem) => `<span class="meta-tag source" data-source="${item.source}">${item.source === 'directory' ? '标签' : item.source === 'siyuan' ? '思源' : map(srcs, item.source)}</span><span class="meta-tag type" data-type="${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}">${item.type === 'audio' ? '音频' : item.type === 'folder' ? '文件夹' : '视频'}</span>`;
-    const nextView = () => (state.view = VIEWS[(VIEWS.indexOf(state.view) + 1) % 4]);
-    const setTab = async (tag: string) => { if (tag === state.tab) return; state.tab = tag; await load(); if (tag === 'OpenList' && !state.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === 'WebDAV' && !state.items.length) await connect('webdav', 'WebDAV', '/'); else if (tag === '思源空间' && !state.items.length) await browse('siyuan', ''); else if (!['OpenList', 'WebDAV', '思源空间'].includes(tag)) state.folder = { type: '', path: '', connected: false }; };
+    const nextView = () => { state.view = VIEWS[(VIEWS.indexOf(state.view) + 1) % 4]; saveView(); };
+    const setTab = async (tag: string) => { if (tag === state.tab) return; state.tab = tag; await load(); saveView(); if (tag === 'OpenList' && !state.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === 'WebDAV' && !state.items.length) await connect('webdav', 'WebDAV', '/'); else if (tag === '思源空间' && !state.items.length) await browse('siyuan', ''); else if (!['OpenList', 'WebDAV', '思源空间'].includes(tag)) state.folder = { type: '', path: '', connected: false }; };
     const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && (state.folder.type !== 'openlist' || !state.folder.connected) && !await OpenListManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.openlistConnectionRequired || "请先配置OpenList连接"); return; } if (type === 'webdav' && (state.folder.type !== 'webdav' || !state.folder.connected) && !await WebDAVManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.webdavConnectionRequired || "请先配置WebDAV连接"); return; } if (type === 'openlist') state.folder = { connected: true, type: 'openlist', path: '' }; if (type === 'webdav') state.folder = { connected: true, type: 'webdav', path: '' }; if (!state.tags.includes(tag)) { await ensure(tag); await load(); } state.tab = tag; await browse(type, path); };
 
     // ==================== 媒体交互 ====================
@@ -380,7 +387,7 @@
         if (item.is_dir) return play(item);
         const bvid = item.bvid || item.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
         if (bvid && !state.parts[item.id]) state.parts[item.id] = await BilibiliParser.getVideoParts({ bvid }) || [];
-        if (state.parts[item.id]?.length > 1) state.exp = new Set(state.exp.has(item.id) ? [...state.exp].filter(id => id !== item.id) : [...state.exp, item.id]);
+        if (state.parts[item.id]?.length > 1) { state.exp = new Set(state.exp.has(item.id) ? [...state.exp].filter(id => id !== item.id) : [...state.exp, item.id]); saveView(); }
     });
 
     const play = safe(async (item: MediaItem, startTime?: number, endTime?: number) => {
@@ -389,9 +396,7 @@
         if (item.source === 'openlist' && item.sourcePath && !item.is_dir) return dispatch('play', await OpenListManager.createMediaItemFromPath(item.sourcePath));
         if (item.source === 'webdav' && item.sourcePath && !item.is_dir) return dispatch('play', await WebDAVManager.createMediaItemFromPath(item.sourcePath));
 
-        const config = await cfg();
-        const opts = { ...item, type: item.type || 'video', startTime, endTime };
-
+        const config = await cfg(), opts = { ...item, type: item.type || 'video', startTime, endTime };
         const bvid = item.bvid || item.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
         if ((item.source === 'B站' || item.type === 'bilibili') && bvid) {
             if (!config.settings?.bilibiliLogin?.mid) return showMessage('需要登录B站才能播放视频');
@@ -402,7 +407,6 @@
                 if (stream.dash) Object.assign(opts, {url: stream.dash.video?.[0]?.baseUrl || '', originalUrl: item.originalUrl || item.url, headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash});
             }
         }
-
         currentItem = item;
         dispatch('play', opts);
     });
@@ -415,9 +419,9 @@
             await move(state.items[state.drag.item].title, state.drag.target);
         } else if (state.drag.item > -1) {
             const draggedItem = state.items[state.drag.item];
-            await dbOp('reorder', { type: 'items', draggedItem });
+            await dataOp('reorder', { type: 'items', draggedItem });
         } else if (state.drag.tag) {
-            await dbOp('reorder', { type: 'tags' });
+            await dataOp('reorder', { type: 'tags' });
         }
         state.drag = { item: -1, tag: '', target: '' };
     };
@@ -488,7 +492,7 @@
     };
 
     // ==================== 生命周期 ====================
-    onMount(() => { safe(init)(); const handleDataUpdate = () => load(); const handleConfigUpdate = (ev: CustomEvent) => { if (ev.detail?.settings?.playlistDb?.id) safe(init)(); }; window.addEventListener('playlist-data-updated', handleDataUpdate); window.addEventListener('configUpdated', handleConfigUpdate); return () => { window.removeEventListener('playlist-data-updated', handleDataUpdate); window.removeEventListener('configUpdated', handleConfigUpdate); }; });
+    onMount(() => { safe(init)(); const handleDataUpdate = () => load(); const handleConfigUpdate = (ev: CustomEvent) => { if (ev.detail?.settings?.enableDatabase !== undefined || ev.detail?.settings?.playlistDb?.id) safe(init)(); }; window.addEventListener('playlist-data-updated', handleDataUpdate); window.addEventListener('configUpdated', handleConfigUpdate); return () => { window.removeEventListener('playlist-data-updated', handleDataUpdate); window.removeEventListener('configUpdated', handleConfigUpdate); }; });
 
     export { play };
 </script>
@@ -608,7 +612,7 @@
                 {/each}
             </div>
         {:else}
-            <div class="playlist-empty">{state.dbId ? '当前标签暂无媒体项目' : '请先在设置中配置播放列表数据库'}</div>
+            <div class="playlist-empty">{!state.enabled ? '请先在设置中启用数据库功能' : !state.dbId ? '请在设置中配置播放列表数据库' : '当前标签暂无媒体项目'}</div>
         {/if}
     </div>
     

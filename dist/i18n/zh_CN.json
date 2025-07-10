@@ -296,7 +296,8 @@
             "mediaLinkPlaceholder": "输入链接或直接点击添加本地文件...",
             "addButton": "添加",
             "emptyStateNoDatabase": "请先在设置中配置播放列表数据库",
-            "emptyStateNoItems": "当前标签暂无媒体项目"
+            "emptyStateNoItems": "当前标签暂无媒体项目",
+            "databaseIdDescription": "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）"
         },
         "labels": {
             "tag": "标签",

@@ -25,7 +25,7 @@
     // 默认配置
     const DEFAULT_CONFIG = { volume: 70, speed: 100, loopCount: 3 };
     // 设置播放速度选项
-    Artplayer.PLAYBACK_RATE = [0.5, 1, 1.5, 2, 2.5, 3, 4, 5];
+    Artplayer.PLAYBACK_RATE = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
 
     // ===== 核心功能：播放器 =====
     function initPlayer(url = '', options = {}): any {

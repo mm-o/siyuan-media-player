@@ -242,11 +242,11 @@ $transition: 0.3s ease;
   // 颜色映射
   &[data-source="B站"] { --tag-color: #fb7185; }
   &[data-source="本地"] { --tag-color: #22c55e; }
-  &[data-source="openlist"] { --tag-color: #f97316; }
-  &[data-source="webdav"] { --tag-color: #10b981; }
+  &[data-source="OpenList"] { --tag-color: #f97316; }
+  &[data-source="WebDAV"] { --tag-color: #10b981; }
   &[data-source="普通"] { --tag-color: #3b82f6; }
-  &[data-source="directory"] { --tag-color: #8b5cf6; }
-  &[data-source="siyuan"] { --tag-color: #06b6d4; }
+  &[data-source="标签"] { --tag-color: #8b5cf6; }
+  &[data-source="思源"] { --tag-color: #06b6d4; }
   &[data-type="视频"] { --tag-color: #9333ea; }
   &[data-type="音频"] { --tag-color: #06b6d4; }
   &[data-type="文件夹"] { --tag-color: #eab308; }

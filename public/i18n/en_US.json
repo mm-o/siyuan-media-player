@@ -293,7 +293,8 @@
             "mediaLinkPlaceholder": "Enter link or click to add local files...",
             "addButton": "Add",
             "emptyStateNoDatabase": "Please configure playlist database in settings first",
-            "emptyStateNoItems": "No media items in current tab"
+            "emptyStateNoItems": "No media items in current tab",
+            "databaseIdDescription": "Enter database ID (supports database block ID or database ID/avid, format: 14 digits-7 characters)"
         },
         "labels": {
             "tag": "Tag",

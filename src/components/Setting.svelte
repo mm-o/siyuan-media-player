@@ -20,8 +20,8 @@
     const saveConfig = async (cfg) => { await plugin.saveData('config.json', cfg, 2); window.dispatchEvent(new CustomEvent('configUpdated', { detail: cfg })); };
 
     // 数据库操作 - 极简版
-    const getAvIdByBlockId = async (blockId: string) => (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${blockId}'` }) }).then(r => r.json())).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || '';
-    const initDb = async (blockId: string) => { try { const avId = await getAvIdByBlockId(blockId); if (avId) { const data = JSON.parse(window.require('fs').readFileSync(`${window.siyuan.config.system.workspaceDir}/data/storage/av/${avId}.json`, 'utf-8')); return true; } } catch {} return false; };
+    const processDbId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) return { id, avId: '' }; const fs = window.require('fs'), avPath = `${window.siyuan.config.system.workspaceDir}/data/storage/av/${id}.json`; return fs.existsSync(avPath) ? { id, avId: id } : { id, avId: (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` }) }).then(r => r.json())).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || '' }; };
+    const initDb = async (id: string) => { try { const { avId } = await processDbId(id); return avId && JSON.parse(window.require('fs').readFileSync(`${window.siyuan.config.system.workspaceDir}/data/storage/av/${avId}.json`, 'utf-8')); } catch { return false; } };
     
     // 默认值定义
     const DEFAULTS = {
@@ -44,7 +44,9 @@
         loopSingle: false,
         insertMode: "updateBlock",
         targetNotebook: { id: '', name: '' },
+        enableDatabase: false,
         playlistDb: { id: '', avId: '' },
+        playlistView: { mode: 'detailed', tab: '目录', expanded: [] },
         screenshotWithTimestamp: false,
         linkFormat: "- [😄标题 艺术家 字幕 时间](链接)",
         mediaNotesTemplate: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容："
@@ -248,13 +250,17 @@
               description: state.targetNotebook?.id ? `ID: ${state.targetNotebook.id}` : "选择创建媒体笔记的目标笔记本",
               onChange: (v) => state.targetNotebook = { id: v, name: notebooks.find(n => n.id === v)?.name || "" },
               options: notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
+            { key: "enableDatabase", value: state.enableDatabase, type: "checkbox" as SettingType, tab: "general",
+              title: "绑定数据库",
+              description: "启用播放列表数据库功能，用于保存和管理媒体项目" },
             { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
+              displayCondition: () => state.enableDatabase,
               title: "播放列表数据库",
-              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : "输入数据库块ID",
+              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : (i18n.playList?.ui?.databaseIdDescription || "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）"),
               onChange: async (v) => {
-                const avId = v ? await getAvIdByBlockId(v).catch(() => '') : '';
-                state.playlistDb = { id: v, avId };
-                if (avId) await initDb(v).catch(() => {});
+                const result = v ? await processDbId(v) : { id: '', avId: '' };
+                state.playlistDb = result;
+                if (result.avId) await initDb(v).catch(() => {});
                 settingItems = createSettings(state);
               },
               rows: 1 },
