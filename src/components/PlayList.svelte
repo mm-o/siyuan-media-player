@@ -92,25 +92,25 @@
 
     // ==================== 数据处理 ====================
     const ensureFieldOptions = async (avId: string, keyID: string, options: string[][]) => {
-        try {
-            for (const [name, color] of options) await db.addRow(avId, [{ keyID, id: id(), blockID: '', type: 'mSelect', mSelect: [{ content: name, color }] }]);
-            const rows = (await db.render(avId)).view?.rows?.slice(-options.length) || [];
-            if (rows.length) await db.removeRows(avId, rows.map(r => r.id));
-        } catch {}
+        const before = (await db.render(avId)).view?.rows?.length || 0;
+        for (const [name, color] of options) await db.addRow(avId, [{ keyID, id: id(), blockID: '', type: 'mSelect', mSelect: [{ content: name, color }] }]);
+        const after = (await db.render(avId)).view?.rows || [];
+        if (after.length > before) await db.removeRows(avId, after.slice(before).map(r => r.id));
     };
 
     const createValue = (key: string, value: any, keyData?: any) => {
-        const v = String(value), getColor = (name: string) => keyData?.options?.find(o => o.name === name)?.color || '1';
-        const baseValue = { keyID: keyData?.id, id: id(), blockID: '', type: keyData?.type || 'text' };
-        return {
-            url: () => ({ ...baseValue, type: 'url', url: { content: v } }),
-            playlist: () => ({ ...baseValue, type: 'mSelect', mSelect: Array.isArray(value) ? value.map(i => ({ content: String(i), color: getColor(String(i)) })) : [{ content: v, color: getColor(v) }] }),
-            source: () => ({ ...baseValue, type: 'select', mSelect: [{ content: v, color: getColor(v) }] }),
-            type: () => ({ ...baseValue, type: 'select', mSelect: [{ content: v, color: getColor(v) }] }),
-            artistIcon: () => ({ ...baseValue, type: 'mAsset', mAsset: [{ type: 'image', name: '', content: v }] }),
-            thumbnail: () => ({ ...baseValue, type: 'mAsset', mAsset: [{ type: 'image', name: '', content: v }] }),
-            created: () => ({ ...baseValue, type: 'date', date: { content: value, isNotEmpty: true, hasEndDate: false, isNotTime: false } })
-        }[key] || (() => ({ ...baseValue, text: { content: v } }));
+        const v = String(value), base = { keyID: keyData?.id, id: id(), blockID: '', type: keyData?.type || 'text' };
+        const color = (name: string) => keyData?.options?.find(o => o.name === name)?.color || '1';
+        const creators = {
+            url: () => ({ ...base, type: 'url', url: { content: v } }),
+            playlist: () => ({ ...base, type: 'mSelect', mSelect: Array.isArray(value) ? value.map(i => ({ content: String(i), color: color(String(i)) })) : [{ content: v, color: color(v) }] }),
+            source: () => ({ ...base, type: 'select', mSelect: [{ content: v, color: color(v) }] }),
+            type: () => ({ ...base, type: 'select', mSelect: [{ content: v, color: color(v) }] }),
+            artistIcon: () => ({ ...base, type: 'mAsset', mAsset: [{ type: 'image', name: '', content: v }] }),
+            thumbnail: () => ({ ...base, type: 'mAsset', mAsset: [{ type: 'image', name: '', content: v }] }),
+            created: () => ({ ...base, type: 'date', date: { content: value, isNotEmpty: true, hasEndDate: false, isNotTime: false } })
+        };
+        return creators[key] || (() => ({ ...base, text: { content: v } }));
     };
 
     // ==================== 本地文件操作 ====================
@@ -231,13 +231,17 @@
                 break;
 
             case 'ensure':
-                const { tagName: ensureTag } = params, ensureKeys = await db.getKeys(avId), ensureKeyMap = Object.fromEntries(ensureKeys.map(k => [k.name, k]));
+                const { tagName: ensureTag, description: ensureDesc } = params, ensureKeys = await db.getKeys(avId), ensureKeyMap = Object.fromEntries(ensureKeys.map(k => [k.name, k]));
                 const ensurePlaylistKey = mapField('playlist', ensureKeyMap);
                 if (ensurePlaylistKey && !ensurePlaylistKey.options?.some(opt => opt.name === ensureTag)) {
-                    const temp = createValue('playlist', [ensureTag], ensurePlaylistKey)();
-                    await db.addRow(avId, [temp]);
-                    const lastRow = (await db.render(avId)).view?.rows?.slice(-1)[0];
-                    if (lastRow) await db.removeRows(avId, [lastRow.id]);
+                    const before = (await db.render(avId)).view?.rows?.length || 0;
+                    await db.addRow(avId, [createValue('playlist', [ensureTag], ensurePlaylistKey)()]);
+                    const after = (await db.render(avId)).view?.rows || [];
+                    if (after.length > before) await db.removeRows(avId, after.slice(before).map(r => r.id));
+                    if (ensureDesc) await db.transaction([
+                        { action: "updateAttrViewColOption", id: ensurePlaylistKey.id, avID: avId, data: { newColor: "1", oldName: ensureTag, newName: ensureTag, newDesc: ensureDesc } },
+                        { action: "doUpdateUpdated", id: avId.replace(/-[^-]+$/, '-2vkgxt0'), data: new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) }
+                    ], [{ action: "updateAttrViewColOption", id: ensurePlaylistKey.id, avID: avId, data: { newColor: "1", oldName: ensureTag, newName: ensureTag, newDesc: "" } }]);
                 }
                 break;
 
@@ -327,7 +331,6 @@
     };
     const del = (title?: string, tagName?: string) => dataOp('del', { title, tagName });
     const move = (title: string, newPlaylist: string) => dataOp('move', { title, newPlaylist });
-    const ensure = (tagName: string) => dataOp('ensure', { tagName });
     const deleteTag = (tagName: string) => dataOp('deleteTag', { tagName });
     const renameTag = (oldName: string, newName: string) => dataOp('renameTag', { oldName, newName });
 
@@ -378,7 +381,7 @@
     const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default };
     const nextView = () => { state.view = VIEWS[(VIEWS.indexOf(state.view) + 1) % 4]; saveView(); };
     const setTab = async (tag: string) => { if (tag === state.tab) return; state.tab = tag; await load(); saveView(); if (tag === 'OpenList' && !state.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === 'WebDAV' && !state.items.length) await connect('webdav', 'WebDAV', '/'); else if (tag === '思源空间' && !state.items.length) await browse('siyuan', ''); else if (!['OpenList', 'WebDAV', '思源空间'].includes(tag)) state.folder = { type: '', path: '', connected: false }; };
-    const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && (state.folder.type !== 'openlist' || !state.folder.connected) && !await OpenListManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.openlistConnectionRequired || "请先配置OpenList连接"); return; } if (type === 'webdav' && (state.folder.type !== 'webdav' || !state.folder.connected) && !await WebDAVManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.webdavConnectionRequired || "请先配置WebDAV连接"); return; } if (type === 'openlist') state.folder = { connected: true, type: 'openlist', path: '' }; if (type === 'webdav') state.folder = { connected: true, type: 'webdav', path: '' }; if (!state.tags.includes(tag)) { await ensure(tag); await load(); } state.tab = tag; await browse(type, path); };
+    const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && (state.folder.type !== 'openlist' || !state.folder.connected) && !await OpenListManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.openlistConnectionRequired || "请先配置OpenList连接"); return; } if (type === 'webdav' && (state.folder.type !== 'webdav' || !state.folder.connected) && !await WebDAVManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.webdavConnectionRequired || "请先配置WebDAV连接"); return; } if (type === 'openlist') state.folder = { connected: true, type: 'openlist', path: '' }; if (type === 'webdav') state.folder = { connected: true, type: 'webdav', path: '' }; if (!state.tags.includes(tag)) { await dataOp('ensure', { tagName: tag }); await load(); } state.tab = tag; await browse(type, path); };
 
     // ==================== 媒体交互 ====================
     const click = safe(async (item: MediaItem) => {
@@ -430,41 +433,79 @@
     const checkPro = (fn: Function) => async () => (await cfg())?.settings?.pro?.enabled ? fn() : showMessage("此功能需要Pro版本");
     const menus = {
         media: (item: any) => [["iconPlay", "播放", () => play(item)], ...(state.tags.filter(t => t !== state.tab && t !== '目录').length ? [["iconMove", "移动到", state.tags.filter(t => t !== state.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
-        tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => { state.edit = tag; setTimeout(() => state.refs.edit?.focus(), 0); }]]), ["iconClear", "清空", () => del(undefined, state.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
+        tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => { state.edit = tag; setTimeout(() => state.refs.edit?.focus(), 0); }], ["iconRefresh", "刷新", () => refreshTag(tag)]]), ["iconClear", "清空", () => del(undefined, state.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
         add: (_, e: MouseEvent) => [["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { state.add = true; setTimeout(() => state.refs.new?.focus(), 50); }], ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()], ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))], ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))]]
     };
     const menu = (e: MouseEvent, type: keyof typeof menus, target?: any) => { const m = new Menu(`${type}Menu`); menus[type](target, e).forEach(([icon, label, action]) => m.addItem(Array.isArray(action) ? { icon, label, submenu: action.map(([l, a]) => ({ label: l, click: a })) } : { icon, label, click: action })); m.open({ x: e.clientX, y: e.clientY }); };
 
     const addFolder = async () => {
-        if (!window.navigator.userAgent.includes('Electron')) { showMessage('此功能仅在桌面版可用'); return; }
+        if (!window.navigator.userAgent.includes('Electron')) return showMessage('此功能仅在桌面版可用');
         const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
         if (!filePaths?.[0]) return;
-        const folderPath = filePaths[0], folderName = folderPath.split(/[\\/]/).pop();
-        await ensure(folderName);
+        const [folderPath, folderName] = [filePaths[0], filePaths[0].split(/[\\/]/).pop()];
+        await dataOp('ensure', { tagName: folderName, description: folderPath });
         await browse('folder', folderPath);
         const mediaFiles = state.items.filter(item => !item.is_dir);
-        for (const item of mediaFiles) { try { await add(item.url, folderName, false); } catch {} }
+        for (const item of mediaFiles) try { await add(item.url, folderName, false); } catch {}
         showMessage(`已添加${mediaFiles.length}个媒体文件到"${folderName}"`);
     };
 
     const addBili = async (e: MouseEvent) => {
         const config = await cfg();
-        if (!config?.settings?.bilibiliLogin?.mid) { showMessage('请先登录B站账号'); return; }
+        if (!config?.settings?.bilibiliLogin?.mid) return showMessage('请先登录B站账号');
         const folders = await BilibiliParser.getUserFavoriteFolders(config);
-        if (!folders?.length) { showMessage('未找到收藏夹'); return; }
+        if (!folders?.length) return showMessage('未找到收藏夹');
         const menu = new Menu("biliFavs");
-        folders.forEach(f => { menu.addItem({ icon: "iconHeart", label: `${f.title} (${f.media_count})`, click: async () => { const { title, items } = await BilibiliParser.getFavoritesList(f.id.toString(), config); const tagName = f.title; await ensure(tagName); for (const item of items || []) { try { await add(`https://www.bilibili.com/video/${item.bvid}`, tagName, false); } catch {} } showMessage(`已添加${items?.length || 0}个B站视频到"${tagName}"`); } }); });
+        folders.forEach(f => menu.addItem({ icon: "iconHeart", label: `${f.title} (${f.media_count})`, click: async () => {
+            const { items } = await BilibiliParser.getFavoritesList(f.id.toString(), config);
+            await dataOp('ensure', { tagName: f.title, description: f.id.toString() });
+            for (const item of items || []) try { await add(`https://www.bilibili.com/video/${item.bvid}`, f.title, false); } catch {}
+            showMessage(`已添加${items?.length || 0}个B站视频到"${f.title}"`);
+        }}));
         menu.open({ x: e.clientX, y: e.clientY });
     };
 
     // ==================== 其他功能 ====================
+    const refreshTag = async (tagName: string) => {
+        if (!state.enabled) return showMessage('请先启用数据库功能');
+        const avId = await getAvId(state.dbId), keys = await db.getKeys(avId), keyMap = Object.fromEntries(keys.map(k => [k.name, k]));
+        const option = mapField('playlist', keyMap)?.options?.find(opt => opt.name === tagName);
+        if (!option?.desc) return showMessage('该标签无刷新信息');
+
+        const [currentData, playlistKey, urlKey] = [await db.render(avId), mapField('playlist', keyMap), mapField('url', keyMap)];
+        const currentItems = currentData.view?.rows?.filter(row =>
+            row.cells?.find(c => c.value?.keyID === playlistKey?.id)?.value?.mSelect?.some?.(tag => tag.content === tagName)
+        ).map(row => ({ id: row.id, url: row.cells?.find(c => c.value?.keyID === urlKey?.id)?.value?.url?.content || '' })) || [];
+
+        const desc = option.desc;
+        let newItems = [];
+
+        if (desc.match(/^\d+$/)) {
+            const config = await cfg();
+            if (!config?.settings?.bilibiliLogin?.mid) return showMessage('请先登录B站账号');
+            newItems = ((await BilibiliParser.getFavoritesList(desc, config)).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
+        } else if (desc.includes('/') || desc.includes('\\')) {
+            if (!window.navigator.userAgent.includes('Electron')) return showMessage('此功能仅在桌面版可用');
+            await browse('folder', desc);
+            newItems = state.items.filter(item => !item.is_dir).map(item => item.url);
+        } else return showMessage('无法识别的刷新类型');
+
+        const [currentUrls, newUrls] = [new Set(currentItems.map(item => item.url)), new Set(newItems)];
+        const [toDelete, toAdd] = [currentItems.filter(item => !newUrls.has(item.url)), newItems.filter(url => !currentUrls.has(url))];
+
+        if (toDelete.length) await db.removeRows(avId, toDelete.map(item => item.id));
+        for (const url of toAdd) try { await add(url, tagName, false); } catch {}
+
+        showMessage(`已刷新"${tagName}"：删除${toDelete.length}项，新增${toAdd.length}项`);
+    };
+
     const delTag = async (tagName: string) => {
         if (tagName === '默认') { showMessage('不能删除系统标签'); return; }
         await deleteTag(tagName);
         if (state.tab === tagName) state.tab = '默认';
     };
 
-    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? state.edit = '' : state.add = false); type === 'tag' ? (renameTag(old!, value), state.edit = '') : (ensure(value).then(() => { state.add = false; })); };
+    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? state.edit = '' : state.add = false); type === 'tag' ? (renameTag(old!, value), state.edit = '') : (dataOp('ensure', { tagName: value }).then(() => { state.add = false; })); };
 
     export const playNext = safe(async () => {
         if (!state.items.length || !currentItem) return false;

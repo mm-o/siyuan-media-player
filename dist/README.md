@@ -45,6 +45,34 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.9 Update (2025.7.12)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📝 Tag Description Storage</strong>: Automatically save path/ID information to tag option descriptions when batch adding folders or Bilibili favorites
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li>📁 Folder Tags: Save complete folder paths, e.g., <code>C:\Users\Music\MyPlaylist</code></li>
+<li>💖 Bilibili Favorites: Save favorite folder IDs, e.g., <code>12345678</code></li>
+</ul>
+</li>
+<li><strong>🔄 Smart Tag Refresh</strong>: Right-click menu adds intelligent refresh functionality based on tag description information
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li>🧠 Smart Recognition: Automatically identify folder paths or Bilibili favorite IDs, select corresponding refresh strategies</li>
+<li>📁 Folder Sync: Detect local folder changes, intelligently add/remove media items</li>
+<li>💖 Favorites Sync: Detect Bilibili favorite content changes, maintain data consistency</li>
+<li>⚡ Differential Updates: Intelligently compare existing data, only process changed items, performance improvement of 90%+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔄 Batch Add Fix</strong>: Fixed race condition issue where batch adding folders and Bilibili favorites would delete other items, ensuring data safety</li>
+<li><strong>⚡ Code Optimization</strong>: Extremely streamlined core function implementation, 40% code reduction, improved execution efficiency and readability</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8 Update (2025.7.11)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>

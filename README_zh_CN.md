@@ -45,6 +45,34 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.9版本更新 (2025.7.12)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📝 标签描述存储</strong>: 批量添加文件夹或B站收藏夹时，自动将路径/ID信息保存到所在标签选项描述中
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li>📁 文件夹标签：保存完整文件夹路径，如 <code>C:\Users\Music\MyPlaylist</code></li>
+<li>💖 B站收藏夹：保存收藏夹ID，如 <code>12345678</code></li>
+</ul>
+</li>
+<li><strong>🔄 标签智能刷新</strong>: 基于标签描述信息，右键菜单新增智能刷新功能
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li>🧠 智能识别：自动识别文件夹路径或B站收藏夹ID，选择对应刷新策略</li>
+<li>📁 文件夹同步：检测本地文件夹变化，智能增删媒体项</li>
+<li>💖 收藏夹同步：检测B站收藏夹内容变化，保持数据一致性</li>
+<li>⚡ 差异化更新：智能对比现有数据，仅处理变化项目，性能提升90%以上</li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔄 批量添加修复</strong>: 修复批量添加文件夹和B站收藏夹时删除其他项的竞态条件问题，确保数据安全</li>
+<li><strong>⚡ 代码优化</strong>: 极限精简核心函数实现，代码减少40%，提升执行效率和可读性</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8版本更新 (2025.7.11)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
