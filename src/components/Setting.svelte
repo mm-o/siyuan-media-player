@@ -232,6 +232,23 @@
               onChange: (v) => (state.loopSingle = v, v && (state.loopPlaylist = false)) },
             
             // 通用设置
+            { key: "enableDatabase", value: state.enableDatabase, type: "checkbox" as SettingType, tab: "general",
+              title: "绑定数据库",description: "启用播放列表数据库功能，用于保存和管理媒体项目" },
+            { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
+              displayCondition: () => state.enableDatabase,title: "播放列表数据库",
+              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : (i18n.playList?.ui?.databaseIdDescription || "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）"),
+              onChange: async (v) => {
+                const result = v ? await processDbId(v) : { id: '', avId: '' };
+                state.playlistDb = result;
+                if (result.avId) await initDb(v).catch(() => {});
+                settingItems = createSettings(state);
+              },
+              rows: 1 },
+            { key: "targetNotebook", value: state.targetNotebook?.id || "", type: "select" as SettingType, tab: "general",
+              title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
+              description: state.targetNotebook?.id ? `ID: ${state.targetNotebook.id}` : "选择创建媒体笔记的目标笔记本",
+              onChange: (v) => state.targetNotebook = { id: v, name: notebooks.find(n => n.id === v)?.name || "" },
+              options: notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
             { key: "insertMode", value: state.insertMode, type: "select" as SettingType, tab: "general",
               title: i18n.setting.items.insertMode?.title || "插入方式",
               description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
@@ -245,25 +262,6 @@
                 { label: i18n.setting.items.insertMode?.appendDoc || "插入到文档底部", value: "appendDoc" },
                 { label: i18n.setting.items.insertMode?.clipboard || "复制到剪贴板", value: "clipboard" }
               ] },
-            { key: "targetNotebook", value: state.targetNotebook?.id || "", type: "select" as SettingType, tab: "general",
-              title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
-              description: state.targetNotebook?.id ? `ID: ${state.targetNotebook.id}` : "选择创建媒体笔记的目标笔记本",
-              onChange: (v) => state.targetNotebook = { id: v, name: notebooks.find(n => n.id === v)?.name || "" },
-              options: notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
-            { key: "enableDatabase", value: state.enableDatabase, type: "checkbox" as SettingType, tab: "general",
-              title: "绑定数据库",
-              description: "启用播放列表数据库功能，用于保存和管理媒体项目" },
-            { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
-              displayCondition: () => state.enableDatabase,
-              title: "播放列表数据库",
-              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : (i18n.playList?.ui?.databaseIdDescription || "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）"),
-              onChange: async (v) => {
-                const result = v ? await processDbId(v) : { id: '', avId: '' };
-                state.playlistDb = result;
-                if (result.avId) await initDb(v).catch(() => {});
-                settingItems = createSettings(state);
-              },
-              rows: 1 },
             { key: "screenshotWithTimestamp", value: state.screenshotWithTimestamp, type: "checkbox" as SettingType, tab: "general",
               title: i18n.setting.items?.screenshotWithTimestamp?.title || "截图包含时间戳",
               description: i18n.setting.items?.screenshotWithTimestamp?.description || "启用后，截图功能也会添加时间戳链接" },

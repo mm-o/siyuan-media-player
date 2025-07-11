@@ -45,6 +45,28 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8版本更新 (2025.7.11)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>⌨️ 播放速度快捷键</strong>: 新增Ctrl+↑/↓快捷键控制播放速度，操作更便捷</li>
+<li><strong>⚡ 倍速提升</strong>: 播放速度上限从2倍提升至5倍速，满足快速浏览需求</li>
+<li><strong>🗂️ 数据库智能绑定</strong>: 支持数据库ID和数据库块ID双重输入方式，自动识别转换</li>
+<li><strong>🔗 数据库绑定模式</strong>: 新增数据库绑定开关，启用时需要手动绑定数据库，禁用时自动生成本地数据库配置文件，提供灵活的配置方式</li>
+<li><strong>💾 播放列表状态记忆</strong>: 自动保存视图模式和标签页状态，重启后无缝恢复</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 开发重构</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📊 播放列表API重构</strong>: 移除文件系统操作，全面采用思源笔记API，提升稳定性和性能</li>
+<li><strong>🛠️ 数据库映射优化</strong>: 放宽字段映射条件，支持多字段或缺失字段的灵活处理，增强容错性</li>
+</ul>
+</li>
+</ul>
+<details style="margin-top: 1.5em;">
+<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
+<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
+
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7版本更新 (2025.7.8)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
@@ -59,10 +81,7 @@
 </ul>
 </li>
 </ul>
-<details style="margin-top: 1.5em;">
-<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
-<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
-
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.6版本更新 (2025.7.5)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>

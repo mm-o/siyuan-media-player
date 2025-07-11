@@ -45,6 +45,28 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8 Update (2025.7.11)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>⌨️ Playback Speed Shortcuts</strong>: Added Ctrl+↑/↓ shortcuts for playback speed control, making operations more convenient</li>
+<li><strong>⚡ Speed Boost</strong>: Increased playback speed upper limit from 2x to 5x for fast browsing needs</li>
+<li><strong>🗂️ Database Smart Binding</strong>: Support both database ID and database block ID input methods with automatic recognition and conversion</li>
+<li><strong>🔗 Database Binding Mode</strong>: Added database binding switch, when enabled requires manual database binding, when disabled automatically generates local database configuration files, providing flexible configuration options</li>
+<li><strong>💾 Playlist State Memory</strong>: Automatically save view mode and tab state, seamless recovery after restart</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Development Refactoring</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📊 Playlist API Refactoring</strong>: Removed file system operations, fully adopted SiYuan API for improved stability and performance</li>
+<li><strong>🛠️ Database Mapping Optimization</strong>: Relaxed field mapping conditions, supporting flexible handling of multi-field or missing fields with enhanced fault tolerance</li>
+</ul>
+</li>
+</ul>
+<details style="margin-top: 1.5em;">
+<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 View Update History</summary>
+<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
+
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7 Update (2025.7.8)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
@@ -59,10 +81,7 @@
 </ul>
 </li>
 </ul>
-<details style="margin-top: 1.5em;">
-<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 View Update History</summary>
-<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
-
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.6 Update (2025.7.5)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
