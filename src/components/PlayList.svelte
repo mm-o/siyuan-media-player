@@ -218,15 +218,15 @@
                 break;
 
             case 'move':
-                const { title: moveTitle, newPlaylist } = params, moveDbData = await db.render(avId);
-                const moveKeyMap = Object.fromEntries((await db.getKeys(avId)).map(k => [k.name, k]));
-                const titleKeyId = moveKeyMap['主键']?.id || moveKeyMap['标题']?.id || moveKeyMap['媒体标题']?.id;
-                const row = moveDbData.view?.rows?.find(row => row.cells?.find(c => c.value?.keyID === titleKeyId)?.value?.block?.content === moveTitle);
+                const { title: moveTitle, newPlaylist } = params, data = await db.render(avId), keyMap = Object.fromEntries((await db.getKeys(avId)).map(k => [k.name, k]));
+                const row = data.view?.rows?.find(r => r.cells?.find(c => c.value?.keyID === (keyMap['主键']?.id || keyMap['标题']?.id || keyMap['媒体标题']?.id))?.value?.block?.content === moveTitle);
                 if (!row) throw new Error('未找到记录');
-                await dbOp('ensure', { tagName: newPlaylist });
-                const playlistKey = mapField('playlist', moveKeyMap);
-                const color = playlistKey?.options?.find(o => o.name === newPlaylist)?.color || '';
-                await db.updateField(avId, row.id, playlistKey?.id, { mSelect: [{ content: newPlaylist, color }] });
+                await dataOp('ensure', { tagName: newPlaylist });
+                const pk = mapField('playlist', keyMap), cell = row.cells?.find(c => c.value?.keyID === pk?.id);
+                if (!cell) throw new Error('未找到播放列表字段');
+                const cid = cell.value?.id || cell.id, color = pk?.options?.find(o => o.name === newPlaylist)?.color || '1';
+                const cellOp = (mSelect) => ({ action: "updateAttrViewCell", id: cid, keyID: pk?.id, avID: avId, rowID: row.id, data: { type: "mSelect", id: cid, mSelect } });
+                await db.transaction([cellOp([{ content: newPlaylist, color }]), { action: "doUpdateUpdated", id: avId.replace(/-[^-]+$/, '-2vkgxt0'), data: new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14) }], [cellOp(cell.value?.mSelect || [])]);
                 showMessage(`已移动到"${newPlaylist}"`);
                 break;
 

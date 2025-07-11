@@ -52,6 +52,11 @@ const applyTemplate = (template: string, replacements: ReplacePattern): string =
 
 // 获取媒体项的链接URL - 统一URL获取逻辑
 const getMediaUrl = (item: MediaItem): string => {
+    // B站分P视频特殊处理
+    if (item.bvid && item.id?.includes('-p')) {
+        const page = item.id.match(/-p(\d+)/)?.[1];
+        return `https://www.bilibili.com/video/${item.bvid}${page && page !== '1' ? `?p=${page}` : ''}`;
+    }
     // 优先使用原始URL（WebDAV、B站等）
     if (item.originalUrl) return item.originalUrl;
     return item.url;

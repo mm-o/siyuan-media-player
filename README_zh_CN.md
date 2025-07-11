@@ -56,6 +56,21 @@
 <li><strong>💾 播放列表状态记忆</strong>: 自动保存视图模式和标签页状态，重启后无缝恢复</li>
 </ul>
 </li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🎬 B站分P视频修复</strong>: 修复B站分P视频生成时间戳/循环片段链接缺少分P参数问题</li>
+<li><strong>🎮 外部播放器修复</strong>: 修复PotPlayer和浏览器打开方式失效问题，外部播放器不再无意义打开tab</li>
+<li><strong>🔗 OpenList链接识别</strong>: 修复OpenList时间戳/循环片段链接识别问题，支持三种URL格式：
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><code>/#/</code> 格式：<code>http://localhost:5244/#/mv/ve/001.mp4?t=2.4</code></li>
+<li><code>/p/</code> 格式：<code>http://localhost:5244/p/mv/ve/001.mp4?t=2.4</code></li>
+<li>直接路径：<code>http://localhost:5244/mv/ve/001.mp4?t=2.4</code></li>
+</ul>
+</li>
+<li><strong>⚡ 设置即时生效</strong>: 修复设置播放器类型后链接点击不能及时生效问题</li>
+<li><strong>📺 B站功能恢复</strong>: 修复B站字幕和视频总结无法获取问题</li>
+</ul>
+</li>
 <li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 开发重构</strong>
 <ul style="margin: 0.2em 0; padding-left: 1em;">
 <li><strong>📊 播放列表API重构</strong>: 移除文件系统操作，全面采用思源笔记API，提升稳定性和性能</li>

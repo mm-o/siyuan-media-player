@@ -56,6 +56,21 @@
 <li><strong>💾 Playlist State Memory</strong>: Automatically save view mode and tab state, seamless recovery after restart</li>
 </ul>
 </li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🎬 Bilibili Multi-Part Video Fix</strong>: Fixed missing part parameters in timestamp/loop segment links for Bilibili multi-part videos</li>
+<li><strong>🎮 External Player Fix</strong>: Fixed PotPlayer and browser opening method failure, external players no longer unnecessarily open tabs</li>
+<li><strong>🔗 OpenList Link Recognition</strong>: Fixed OpenList timestamp/loop segment link recognition, supporting three URL formats:
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><code>/#/</code> format: <code>http://localhost:5244/#/mv/ve/001.mp4?t=2.4</code></li>
+<li><code>/p/</code> format: <code>http://localhost:5244/p/mv/ve/001.mp4?t=2.4</code></li>
+<li>Direct path: <code>http://localhost:5244/mv/ve/001.mp4?t=2.4</code></li>
+</ul>
+</li>
+<li><strong>⚡ Settings Instant Effect</strong>: Fixed issue where player type settings didn't take effect immediately for link clicks</li>
+<li><strong>📺 Bilibili Function Recovery</strong>: Fixed issue where Bilibili subtitles and video summaries couldn't be retrieved</li>
+</ul>
+</li>
 <li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Development Refactoring</strong>
 <ul style="margin: 0.2em 0; padding-left: 1em;">
 <li><strong>📊 Playlist API Refactoring</strong>: Removed file system operations, fully adopted SiYuan API for improved stability and performance</li>

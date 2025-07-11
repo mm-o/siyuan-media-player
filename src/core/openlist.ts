@@ -184,36 +184,15 @@ export class OpenListManager {
      * 从URL解析OpenList路径
      */
     static parsePathFromUrl(url: string): string | null {
+        if (!url || !media.isSupported(url)) return null;
+
         try {
-            if (!url) return null;
-            
-            // 检查是否包含支持的扩展名
-            if (!media.isSupported(url)) return null;
-            
-            // 如果配置了OpenList服务器，优先通过服务器地址判断
-            if (this.config?.server) {
-                const serverDomain = this.config.server.replace(/^https?:\/\//, '').replace(/\/$/, '');
-                if (url.includes(serverDomain)) {
-                    // 处理完整URL或相对路径
-                    const pathPart = url.startsWith('http') 
-                        ? url.replace(this.config.server, '').split(/[?#]/)[0]
-                        : url.split(/[?#]/)[0];
-                    
-                    return pathPart.startsWith('/') ? pathPart : `/${pathPart}`;
-                }
+            if (url.includes('/#/')) {
+                return `/${decodeURIComponent(url.split('/#/')[1]?.split('?')[0] || '')}`;
             }
-            
-            // 通用解析：判断是否为典型OpenList URL格式
-            if (url.match(/https?:\/\/.*?:\d+\/[^?#]+\.\w+/i)) {
-                try {
-                    const urlObj = new URL(url);
-                    if (urlObj.port && urlObj.pathname.length > 1) {
-                        return urlObj.pathname;
-                    }
-                } catch {}
-            }
-            
-            return null;
+
+            const urlObj = new URL(url);
+            return urlObj.port ? decodeURIComponent(urlObj.pathname) : null;
         } catch {
             return null;
         }
@@ -233,6 +212,7 @@ export class OpenListManager {
             id: `openlist-direct-${Date.now()}`,
             title: fileName,
             url: fileLink,
+            originalUrl: `${this.config!.server}${path}`, // 保存原始链接用于时间戳
             type: isAudio ? 'audio' : 'video',
             source: 'openlist',
             sourcePath: path,
@@ -247,28 +227,16 @@ export class OpenListManager {
      * 处理OpenList媒体链接 - 从链接直接播放媒体
      */
     static async handleOpenListMediaLink(url: string, timeParams: { startTime?: number, endTime?: number } = {}): Promise<{success: boolean; mediaItem?: MediaItem; error?: string}> {
-        if (!this.config?.token) {
-            return {success: false, error: "未连接到OpenList服务器"};
-        }
-        
-        // 尝试获取路径
-        let openlistPath = this.parsePathFromUrl(url);
-        if (!openlistPath && this.config.server && url.startsWith(this.config.server)) {
-            openlistPath = url.substring(this.config.server.length).split('?')[0];
-        }
-        
-        if (!openlistPath) {
-            return {success: false, error: "无法从链接解析OpenList路径"};
-        }
-        
+        if (!this.config?.token) return {success: false, error: "未连接到OpenList服务器"};
+
+        const openlistPath = this.parsePathFromUrl(url);
+        if (!openlistPath) return {success: false, error: "无法从链接解析OpenList路径"};
+
         try {
             const mediaItem = await this.createMediaItemFromPath(openlistPath, timeParams);
             return {success: true, mediaItem};
         } catch (error) {
-            return {
-                success: false, 
-                error: error instanceof Error ? error.message : String(error)
-            };
+            return {success: false, error: error instanceof Error ? error.message : String(error)};
         }
     }
 
@@ -298,6 +266,7 @@ export class OpenListManager {
                     id: `openlist-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
                     title: file.name,
                     url: `${this.config!.server}${filePath}`,
+                    originalUrl: `${this.config!.server}${filePath}`, // 保存原始链接用于时间戳
                     thumbnail: file.thumb || (media.isAudioFile(file.name) ? '/plugins/siyuan-media-player/assets/images/audio.png' : '/plugins/siyuan-media-player/assets/images/video.png'),
                     type: media.isAudioFile(file.name) ? 'audio' : 'video',
                     source: 'openlist',

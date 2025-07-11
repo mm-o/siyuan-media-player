@@ -437,6 +437,15 @@
             "topBarButtons": {
                 "title": "顶部工具栏按钮",
                 "description": "选择要在顶部工具栏显示的按钮"
+            },
+            "enableDatabase": {
+                "title": "绑定数据库",
+                "description": "启用播放列表数据库功能，用于保存和管理媒体项目"
+            },
+            "playlistDb": {
+                "title": "播放列表数据库",
+                "description": "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）",
+                "avIdDescription": "属性视图ID: ${avId}"
             }
         },
         "bilibili": {

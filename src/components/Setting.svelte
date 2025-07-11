@@ -233,10 +233,14 @@
             
             // 通用设置
             { key: "enableDatabase", value: state.enableDatabase, type: "checkbox" as SettingType, tab: "general",
-              title: "绑定数据库",description: "启用播放列表数据库功能，用于保存和管理媒体项目" },
+              title: i18n.setting?.items?.enableDatabase?.title || "绑定数据库",
+              description: i18n.setting?.items?.enableDatabase?.description || "启用播放列表数据库功能，用于保存和管理媒体项目" },
             { key: "playlistDb", value: state.playlistDb?.id || "", type: "textarea" as SettingType, tab: "general",
-              displayCondition: () => state.enableDatabase,title: "播放列表数据库",
-              description: state.playlistDb?.avId ? `属性视图ID: ${state.playlistDb.avId}` : (i18n.playList?.ui?.databaseIdDescription || "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）"),
+              displayCondition: () => state.enableDatabase,
+              title: i18n.setting?.items?.playlistDb?.title || "播放列表数据库",
+              description: state.playlistDb?.avId
+                ? (i18n.setting?.items?.playlistDb?.avIdDescription?.replace('${avId}', state.playlistDb.avId) || `属性视图ID: ${state.playlistDb.avId}`)
+                : (i18n.setting?.items?.playlistDb?.description || "输入数据库ID（支持数据库块ID或数据库ID/avid，格式：14位数字-7位字符）"),
               onChange: async (v) => {
                 const result = v ? await processDbId(v) : { id: '', avId: '' };
                 state.playlistDb = result;

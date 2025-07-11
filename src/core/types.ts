@@ -81,6 +81,7 @@ export interface MediaItem {
     url: string;           // 媒体URL
     originalUrl?: string;  // 原始URL(用于时间戳链接，WebDAV等)
     bvid?: string;         // B站BV号
+    cid?: string;          // B站CID
     thumbnail?: string;    // 缩略图
     artist?: string;       // 艺术家/UP主名
     artistIcon?: string;   // 艺术家/UP主头像

@@ -434,6 +434,15 @@
             "topBarButtons": {
                 "title": "Top Bar Buttons",
                 "description": "Choose buttons to display in the top toolbar"
+            },
+            "enableDatabase": {
+                "title": "Bind Database",
+                "description": "Enable playlist database functionality for saving and managing media items"
+            },
+            "playlistDb": {
+                "title": "Playlist Database",
+                "description": "Enter database ID (supports database block ID or database ID/avid, format: 14 digits-7 characters)",
+                "avIdDescription": "Attribute View ID: ${avId}"
             }
         },
         "bilibili": {

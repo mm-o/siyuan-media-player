@@ -52,21 +52,22 @@ export default class MediaPlayerPlugin extends Plugin {
     private async initAPI() {
         const { createLinkClickHandler } = await import('./core/player');
 
+        const player = () => this.components.get('player');
         this.playerAPI = {
-            getCurrentTime: () => this.components.get('player')?.getCurrentTime?.() || 0,
-            seekTo: (time: number) => this.components.get('player')?.seekTo?.(time),
-            getCurrentMedia: () => this.components.get('player')?.getCurrentMedia?.() || null,
+            getCurrentTime: () => player()?.getCurrentTime?.() || 0,
+            seekTo: (time: number) => player()?.seekTo?.(time),
+            getCurrentMedia: () => player()?.getCurrentMedia?.() || null,
+            play: (url: string, options: any) => player()?.play?.(url, options),
             createTimestampLink: async (withScreenshot: boolean, startTime: number, endTime?: number, subtitle?: string) => {
                 const { link } = await import('./core/document');
                 const currentItem = this.playerAPI.getCurrentMedia();
-                if (!currentItem) return '';
-                return await link(currentItem, await this.getConfig(), startTime, endTime, subtitle);
+                return currentItem ? await link(currentItem, await this.getConfig(), startTime, endTime, subtitle) : '';
             }
         };
 
         this.linkClickHandler = createLinkClickHandler(
             this.playerAPI,
-            await this.getConfig(),
+            () => this.getConfig(),
             () => this.openTab(),
             (item: any, startTime?: number, endTime?: number) => this.components.get('playlist')?.play?.(item, startTime, endTime)
         );
@@ -88,8 +89,10 @@ export default class MediaPlayerPlugin extends Plugin {
             'updatePlayerConfig': (e: CustomEvent) => {
                 this.playerAPI?.updateConfig?.(e.detail);
             },
-            'playMediaItem': (e: CustomEvent) => {
-                if (this.playerAPI?.play) this.playerAPI.play(e.detail.url, e.detail);
+            'playMediaItem': async (e: CustomEvent) => {
+                const { play } = await import('./core/player');
+                await play(e.detail, this.playerAPI, await this.getConfig(), (item) =>
+                    window.dispatchEvent(new CustomEvent('siyuanMediaPlayerUpdate', { detail: { currentItem: item } })));
             },
             'mediaPlayerTabChange': async (e: CustomEvent) => {
                 const tabId = e.detail?.tabId;
@@ -226,9 +229,11 @@ export default class MediaPlayerPlugin extends Plugin {
         this.components.set(tabId, instance);
 
         if (tabId === 'playlist') {
-            instance.$on?.('play', (event: CustomEvent<any>) => {
-                this.openTab();
-                setTimeout(() => window.dispatchEvent(new CustomEvent('playMediaItem', { detail: event.detail })), 300);
+            instance.$on?.('play', async (event: CustomEvent<any>) => {
+                const config = await this.getConfig();
+                const isBuiltIn = config.settings.playerType === 'built-in';
+                if (isBuiltIn) { this.openTab(); setTimeout(() => window.dispatchEvent(new CustomEvent('playMediaItem', { detail: event.detail })), 300); }
+                else window.dispatchEvent(new CustomEvent('playMediaItem', { detail: event.detail }));
             });
         } else if (tabId === 'settings') {
             instance.$on?.('changed', (event: CustomEvent<any>) => {

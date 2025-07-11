@@ -49,7 +49,7 @@ export class Media {
             return { url: bv ? `https://www.bilibili.com/video/${bv}${page ? `?p=${page}` : ''}` : cleanUrl, type: 'bilibili', source: 'bilibili', bv, page, startTime, endTime };
         }
 
-        if (url.includes('/#/')) return { url: cleanUrl, type, source: 'openlist', path: url.split('/#/')[1]?.split('?')[0], startTime, endTime };
+        if (url.match(/https?:\/\/[^\/]+:\d+/)) try { const path = url.includes('/#/') ? `/${url.split('/#/')[1]?.split('?')[0] || ''}` : new URL(cleanUrl).pathname; return { url: cleanUrl, type, source: 'openlist', path: decodeURIComponent(path), startTime, endTime }; } catch {}
         if (url.startsWith('file://')) return { url: cleanUrl, type, source: 'local', path: url.substring(7), startTime, endTime };
         if (!url.includes('://') && !url.startsWith('/') && window.siyuan?.config?.system?.workspaceDir) return { url: `file://${window.siyuan.config.system.workspaceDir}/data/${cleanUrl}`, type, source: 'local', path: `${window.siyuan.config.system.workspaceDir}/data/${cleanUrl}`, startTime, endTime };
 
@@ -72,7 +72,7 @@ export class Media {
                     return stream.dash?.video?.[0]?.baseUrl || parsed.url;
                 }
             }
-            if (parsed.source === 'openlist' && parsed.path) return await OpenListManager.getFileLink(parsed.path);
+            if (parsed.source === 'openlist' && parsed.path) { return await OpenListManager.getFileLink(parsed.path.replace(/^\/p\//, '/')); }
             if (parsed.source === 'webdav') return await WebDAVManager.getFileLink(new URL(parsed.url).pathname);
         } catch (e) { console.warn(`${parsed.source}流获取失败:`, e); }
 
@@ -128,9 +128,11 @@ export class Media {
             duration: data.duration || '',
             artist: data.artist || '',
             artistIcon: data.artistIcon || '',
+            artistId: data.artistId,
             startTime: data.startTime,
             endTime: data.endTime,
-            bvid: data.bv || data.bvid
+            bvid: data.bv || data.bvid,
+            cid: data.cid
         };
     }
 
@@ -251,17 +253,16 @@ export async function play(options: any, player: any, config: any, setItem: (ite
         const item = Media.create(options);
         setItem(item);
 
-        // 外部播放器
         if (config.settings.playerType !== PlayerType.BUILT_IN) {
-            const err = await openPlayer(options.url, config.settings.playerType, config.settings.playerPath);
+            const originalUrl = options.originalUrl || options.url;
+            const playUrl = options.startTime ? Media.withTime(originalUrl, options.startTime, options.endTime) : originalUrl;
+            const err = await openPlayer(playUrl, config.settings.playerType, config.settings.playerPath);
             if (err) showMessage(err);
-            return;
+        } else {
+            const parsed = Media.parse(options.url);
+            const playUrl = await Media.getPlayUrl(parsed, config);
+            await player.play(playUrl, { ...item, type: item.type || options.type || 'video', title: item.title || options.title || '未知', startTime: options.startTime, endTime: options.endTime });
         }
-
-        // 内置播放器
-        const parsed = Media.parse(options.url);
-        const playUrl = await Media.getPlayUrl(parsed, config);
-        await player.play(playUrl, { type: options.type || 'video', title: options.title || '未知', startTime: options.startTime, endTime: options.endTime });
     } catch (e) {
         error(String(e), 'play');
     }
@@ -285,7 +286,7 @@ export function registerGlobalPlayer(currentItem: any, player: any): void {
 }
 
 // 创建链接点击处理器 - 统一链接处理
-export function createLinkClickHandler(playerAPI: any, config: any, openTab: () => void, playlistPlay?: any): (e: MouseEvent) => Promise<void> {
+export function createLinkClickHandler(playerAPI: any, getConfig: () => Promise<any>, openTab: () => void, playlistPlay?: any): (e: MouseEvent) => Promise<void> {
     return async (e: MouseEvent) => {
         const target = e.target as HTMLElement;
         const url = target.getAttribute('data-href');
@@ -296,6 +297,7 @@ export function createLinkClickHandler(playerAPI: any, config: any, openTab: () 
         e.stopPropagation();
 
         try {
+            const config = await getConfig();
             const type = e.ctrlKey ? PlayerType.BROWSER : config.settings.playerType;
 
             // 外部播放器
