@@ -35,7 +35,7 @@
         tab: '目录', view: 'detailed' as typeof VIEWS[number], input: '', dbId: '', enabled: false,
         tags: ['目录', '默认'], items: [] as MediaItem[],
         folder: { type: '', path: '', connected: false },
-        edit: '', add: false, exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any,
+        edit: '', add: '', exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any,
         drag: { item: -1, tag: '', target: '' }
     };
 
@@ -200,7 +200,6 @@
                     if (v !== undefined && v !== null && v !== '') { const value = createValue(key, v, keyData)(); if (value) values.push(value); }
                 });
                 await db.addRow(avId, values);
-                showMessage('添加成功');
                 break;
 
             case 'del':
@@ -405,9 +404,8 @@
             if (!config.settings?.bilibiliLogin?.mid) return showMessage('需要登录B站才能播放视频');
             const cid = item.cid || (await BilibiliParser.getVideoParts({ bvid }))?.[0]?.cid;
             if (cid) {
-                Object.assign(opts, { bvid, cid });
-                const stream = await BilibiliParser.getProcessedVideoStream(bvid, cid, 0, config);
-                if (stream.dash) Object.assign(opts, {url: stream.dash.video?.[0]?.baseUrl || '', originalUrl: item.originalUrl || item.url, headers: stream.headers, type: 'bilibili-dash', biliDash: stream.dash});
+                const blobUrl = await BilibiliParser.getProcessedVideoStream(bvid, cid, 0, config);
+                Object.assign(opts, { url: blobUrl, originalUrl: item.originalUrl || item.url, type: 'video', bvid, cid });
             }
         }
         currentItem = item;
@@ -434,9 +432,13 @@
     const menus = {
         media: (item: any) => [["iconPlay", "播放", () => play(item)], ...(state.tags.filter(t => t !== state.tab && t !== '目录').length ? [["iconMove", "移动到", state.tags.filter(t => t !== state.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
         tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => { state.edit = tag; setTimeout(() => state.refs.edit?.focus(), 0); }], ["iconRefresh", "刷新", () => refreshTag(tag)]]), ["iconClear", "清空", () => del(undefined, state.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
-        add: (_, e: MouseEvent) => [["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { state.add = true; setTimeout(() => state.refs.new?.focus(), 50); }], ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()], ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))], ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))]]
+        add: (_, e: MouseEvent) => [["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { state.add = 'tag'; setTimeout(() => state.refs.new?.focus(), 50); }], ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()], ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))], ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))], ["iconTags", i18n.playList?.menu?.addBilibiliSeason || "添加B站合集", checkPro(() => { state.add = 'season'; setTimeout(() => state.refs.new?.focus(), 50); })]]
     };
     const menu = (e: MouseEvent, type: keyof typeof menus, target?: any) => { const m = new Menu(`${type}Menu`); menus[type](target, e).forEach(([icon, label, action]) => m.addItem(Array.isArray(action) ? { icon, label, submenu: action.map(([l, a]) => ({ label: l, click: a })) } : { icon, label, click: action })); m.open({ x: e.clientX, y: e.clientY }); };
+
+    const batchAdd = async (items: any[], tagName: string, urlFn = (item: any) => item.url || `https://www.bilibili.com/video/${item.bvid}`) => {
+        for (const item of items) try { await add(urlFn(item), tagName, false); } catch {}
+    };
 
     const addFolder = async () => {
         if (!window.navigator.userAgent.includes('Electron')) return showMessage('此功能仅在桌面版可用');
@@ -445,9 +447,7 @@
         const [folderPath, folderName] = [filePaths[0], filePaths[0].split(/[\\/]/).pop()];
         await dataOp('ensure', { tagName: folderName, description: folderPath });
         await browse('folder', folderPath);
-        const mediaFiles = state.items.filter(item => !item.is_dir);
-        for (const item of mediaFiles) try { await add(item.url, folderName, false); } catch {}
-        showMessage(`已添加${mediaFiles.length}个媒体文件到"${folderName}"`);
+        await batchAdd(state.items.filter(item => !item.is_dir), folderName);
     };
 
     const addBili = async (e: MouseEvent) => {
@@ -459,10 +459,19 @@
         folders.forEach(f => menu.addItem({ icon: "iconHeart", label: `${f.title} (${f.media_count})`, click: async () => {
             const { items } = await BilibiliParser.getFavoritesList(f.id.toString(), config);
             await dataOp('ensure', { tagName: f.title, description: f.id.toString() });
-            for (const item of items || []) try { await add(`https://www.bilibili.com/video/${item.bvid}`, f.title, false); } catch {}
-            showMessage(`已添加${items?.length || 0}个B站视频到"${f.title}"`);
+            await batchAdd(items || [], f.title);
         }}));
         menu.open({ x: e.clientX, y: e.clientY });
+    };
+
+    const addSeason = async (url: string) => {
+        const config = await cfg();
+        if (!config?.settings?.bilibiliLogin?.mid) return showMessage(i18n.playList?.error?.needBiliLoginForSeason || '请先登录B站账号');
+        const info = await BilibiliParser.getVideoInfo(url) as any;
+        if (!info?.seasonId) return showMessage(i18n.playList?.error?.notInSeason || '该视频不属于任何合集');
+        const { items } = await BilibiliParser.getSeasonArchives(info.artistId, info.seasonId, config);
+        await dataOp('ensure', { tagName: info.seasonTitle || '未命名合集', description: `${info.artistId}:${info.seasonId}` });
+        await batchAdd(items || [], info.seasonTitle || '未命名合集');
     };
 
     // ==================== 其他功能 ====================
@@ -484,19 +493,22 @@
             const config = await cfg();
             if (!config?.settings?.bilibiliLogin?.mid) return showMessage('请先登录B站账号');
             newItems = ((await BilibiliParser.getFavoritesList(desc, config)).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
+        } else if (desc.includes(':')) {
+            const [mid, seasonId] = desc.split(':');
+            newItems = ((await BilibiliParser.getSeasonArchives(mid, seasonId, await cfg())).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
         } else if (desc.includes('/') || desc.includes('\\')) {
             if (!window.navigator.userAgent.includes('Electron')) return showMessage('此功能仅在桌面版可用');
             await browse('folder', desc);
             newItems = state.items.filter(item => !item.is_dir).map(item => item.url);
-        } else return showMessage('无法识别的刷新类型');
+        } else return showMessage(i18n.playList?.error?.refreshTypeFailed || '无法识别的刷新类型');
 
         const [currentUrls, newUrls] = [new Set(currentItems.map(item => item.url)), new Set(newItems)];
         const [toDelete, toAdd] = [currentItems.filter(item => !newUrls.has(item.url)), newItems.filter(url => !currentUrls.has(url))];
 
         if (toDelete.length) await db.removeRows(avId, toDelete.map(item => item.id));
-        for (const url of toAdd) try { await add(url, tagName, false); } catch {}
-
-        showMessage(`已刷新"${tagName}"：删除${toDelete.length}项，新增${toAdd.length}项`);
+        let addCount = 0;
+        for (const url of toAdd) try { await add(url, tagName, false); addCount++; } catch {}
+        showMessage(i18n.playList?.message?.refreshTag?.replace('${name}', tagName).replace('${deleteCount}', toDelete.length).replace('${addCount}', addCount) || `已刷新"${tagName}"：删除${toDelete.length}项，新增${addCount}项`);
     };
 
     const delTag = async (tagName: string) => {
@@ -505,7 +517,7 @@
         if (state.tab === tagName) state.tab = '默认';
     };
 
-    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? state.edit = '' : state.add = false); type === 'tag' ? (renameTag(old!, value), state.edit = '') : (dataOp('ensure', { tagName: value }).then(() => { state.add = false; })); };
+    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? state.edit = '' : state.add = ''); if (type === 'tag') { renameTag(old!, value); state.edit = ''; } else if (state.add === 'tag') { state.add = ''; dataOp('ensure', { tagName: value }); } else if (state.add === 'season') { state.add = ''; addSeason(value); } };
 
     export const playNext = safe(async () => {
         if (!state.items.length || !currentItem) return false;
@@ -529,7 +541,7 @@
 
     const handleAdd = async () => {
         if (state.input.trim()) { try { await add(state.input.trim(), state.tab); state.input = ''; } catch {} }
-        else { if (!window.navigator.userAgent.includes('Electron')) { showMessage("需要桌面版支持"); return; } const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] }); if (filePaths?.length) { for (const filePath of filePaths) { try { await add(`file://${filePath.replace(/\\/g, '/')}`, state.tab); } catch {} } } }
+        else { if (!window.navigator.userAgent.includes('Electron')) { showMessage("需要桌面版支持"); return; } const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] }); if (filePaths?.length > 1) await batchAdd(filePaths.map(p => ({ url: `file://${p.replace(/\\/g, '/')}` })), state.tab); else if (filePaths?.length) try { await add(`file://${filePaths[0].replace(/\\/g, '/')}`, state.tab); } catch {} }
     };
 
     // ==================== 生命周期 ====================
@@ -575,7 +587,7 @@
             {/if}
         {/each}
         {#if state.add}
-            <input bind:this={state.refs.new} type="text" class="tab-input" style="width:100px" placeholder="新标签名" on:blur={e => input(e, 'add')} on:keydown={e => input(e, 'add')}>
+            <input bind:this={state.refs.new} type="text" class="tab-input" style="width:{state.add === 'season' ? '200px' : '100px'}" placeholder={state.add === 'season' ? (i18n.playList?.placeholder?.bilibiliSeason || 'B站合集视频链接') : (i18n.playList?.placeholder?.newTab || '新标签名')} on:blur={e => input(e, 'add')} on:keydown={e => input(e, 'add')}>
         {:else}
             <button class="tab tab-add" on:click|preventDefault|stopPropagation={e => menu(e, 'add')}>+</button>
         {/if}

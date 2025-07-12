@@ -190,7 +190,8 @@
             "mediaLink": "Enter media link or click add button...",
             "newTab": "New tab",
             "folderPath": "Enter folder path...",
-            "bilibiliFavorites": "Enter bilibili favorites link..."
+            "bilibiliFavorites": "Enter bilibili favorites link...",
+            "bilibiliSeason": "Bilibili collection video link"
         },
         "folder": {
             "defaultName": "Local Folder"
@@ -210,6 +211,7 @@
             "addOpenList": "Add OpenList Cloud",
             "addWebDAV": "Add WebDAV Cloud",
             "addBilibiliFavorites": "Add Bilibili Favorites",
+            "addBilibiliSeason": "Add Bilibili Collection",
             "addSiyuanAssets": "Add SiYuan Assets",
             "open": "Open",
             "addToTab": "Add to Tab",
@@ -228,7 +230,9 @@
             "folderRefreshedEmpty": "Folder refreshed, no new media files found",
             "itemMoved": "Moved to ${name}",
             "siyuanAssetsAdded": "Added ${count} media files from SiYuan assets",
-            "siyuanAssetsRefreshed": "SiYuan assets refreshed, added ${count} media files"
+            "siyuanAssetsRefreshed": "SiYuan assets refreshed, added ${count} media files",
+            "seasonAdded": "Added ${count} items to \"${name}\"",
+            "refreshTag": "Refreshed \"${name}\": deleted ${deleteCount} items, added ${addCount} items"
         },
         "error": {
             "emptyUrl": "Please enter a media link",
@@ -248,7 +252,11 @@
             "emptyFavorites": "No videos in this favorites folder",
             "selectMediaFilesFailed": "Failed to select media files",
             "refreshFolderFailed": "Failed to refresh folder",
-            "siyuanAssetsFailed": "Failed to get SiYuan assets"
+            "siyuanAssetsFailed": "Failed to get SiYuan assets",
+            "needBiliLoginForSeason": "Please login to Bilibili account first",
+            "notInSeason": "This video does not belong to any collection",
+            "getSeasonFailed": "Failed to get collection info: ",
+            "refreshTypeFailed": "Unrecognized refresh type"
         },
         "log": {
             "parseLink": "Parsing link:",

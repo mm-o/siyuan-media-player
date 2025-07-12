@@ -16,7 +16,8 @@ export const BILI_API = {
     VIDEO_AI_SUMMARY: "https://api.bilibili.com/x/web-interface/view/conclusion/get",
     FAVORITE_LIST: "https://api.bilibili.com/x/v3/fav/resource/list",
     FAVORITE_IDS: "https://api.bilibili.com/x/v3/fav/resource/ids",
-    FAVORITE_FOLDER_LIST: "https://api.bilibili.com/x/v3/fav/folder/created/list-all"
+    FAVORITE_FOLDER_LIST: "https://api.bilibili.com/x/v3/fav/folder/created/list-all",
+    SEASONS_ARCHIVES_LIST: "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
 };
 
 // ===== 2. 工具函数 =====
@@ -88,29 +89,22 @@ export class BilibiliParser {
             const { p, ...params } = videoId;
             const info = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_INFO}?${new URLSearchParams(params)}`);
             if (info.code !== 0) return null;
-            
+
             const pages = await this.getVideoParts(params);
             const pageIndex = pages.length > 0 ? Math.min(Math.max(1, p || 1), pages.length) - 1 : 0;
             const cid = pages.length > 0 ? pages[pageIndex].cid : info.data.cid;
-            
+
             if (pages.length > 1 && pageIndex > 0) {
                 info.data.title = `${info.data.title} - P${pageIndex + 1}${pages[pageIndex].part ? ': ' + pages[pageIndex].part : ''}`;
             }
 
             return {
-                id: `bili-${info.data.bvid}-${cid}`,
-                type: 'bilibili',
-                url,
-                title: info.data.title,
-                artist: info.data.owner?.name,
-                artistIcon: info.data.owner?.face,
-                artistId: info.data.owner?.mid?.toString(),
-                duration: Media.fmt(info.data.duration),
-                thumbnail: info.data.pic,
-                aid: String(info.data.aid),
-                bvid: info.data.bvid,
-                cid: String(cid)
-            };
+                id: `bili-${info.data.bvid}-${cid}`, type: 'bilibili', url, title: info.data.title,
+                artist: info.data.owner?.name, artistIcon: info.data.owner?.face, artistId: info.data.owner?.mid?.toString(),
+                duration: Media.fmt(info.data.duration), thumbnail: info.data.pic, aid: String(info.data.aid),
+                bvid: info.data.bvid, cid: String(cid),
+                ...(info.data.ugc_season && { seasonId: String(info.data.ugc_season.id), seasonTitle: info.data.ugc_season.title })
+            } as any;
         } catch (error) {
             console.error('获取视频信息失败:', error);
             return null;
@@ -149,15 +143,12 @@ export class BilibiliParser {
         return response;
     }
 
-    static async getProcessedVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<any> {
+    static async getProcessedVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<string> {
         const streamData = await this.getVideoStream(bvid, cid, qn, config);
         if (!streamData.data.dash?.video?.length) {
             throw new Error('未找到可用的视频流');
         }
-        return {
-            dash: streamData.data.dash,
-            headers: getBiliHeaders(config, bvid)
-        };
+        return createBiliBlobUrl(streamData.data.dash);
     }
 
     static async getFavoritesList(mediaId: string, config: any): Promise<{title: string, items: {bvid: string}[]}> {
@@ -177,15 +168,20 @@ export class BilibiliParser {
         if (!config.settings?.bilibiliLogin?.mid) {
             throw new Error('未登录或无法获取用户信息');
         }
-        
+
         const response = await biliRequest<BiliApiResponse>(
             `${BILI_API.FAVORITE_FOLDER_LIST}?up_mid=${config.settings.bilibiliLogin.mid}`,
             getBiliHeaders(config)
         );
-        
+
         return response.code === 0 && Array.isArray(response.data?.list)
             ? response.data.list.map(({id, title, media_count}) => ({id, title, media_count}))
             : [];
+    }
+
+    static async getSeasonArchives(mid: string, seasonId: string, config: any): Promise<{title: string, items: {bvid: string}[]}> {
+        const response = await biliRequest<BiliApiResponse>(`${BILI_API.SEASONS_ARCHIVES_LIST}?mid=${mid}&season_id=${seasonId}&page_num=1&page_size=100`, getBiliHeaders(config));
+        return { title: response.data?.meta?.name || '未命名合集', items: response.data?.archives?.map((item: any) => ({bvid: item.bvid})) || [] };
     }
 
     static async getVideoAiSummary(bvid: string, cid: string, upMid: string | undefined, config: any): Promise<any> {
@@ -206,18 +202,18 @@ export class BilibiliParser {
     }
 }
 
-// ===== 5. MPD生成 =====
-export const createBiliMPD = (dash: any): string => {
+// ===== 5. Blob URL生成 =====
+const createBiliBlobUrl = (dash: any): string => {
     if (!dash?.video?.length || !dash?.audio?.length) return '';
-    
+
     try {
         const video = dash.video.find((v: any) => v.id >= 64) || dash.video[0];
         const audio = dash.audio[0];
-        
+
         if (!video || !audio) return '';
-        
+
         const duration = Math.floor(dash.duration || 3600);
-        return `data:application/dash+xml;charset=utf-8,${encodeURIComponent(`<?xml version="1.0" encoding="UTF-8"?>
+        const mpd = `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT${duration}S">
  <Period>
   <AdaptationSet mimeType="video/mp4" contentType="video">
@@ -233,11 +229,17 @@ export const createBiliMPD = (dash: any): string => {
    </Representation>
   </AdaptationSet>
  </Period>
-</MPD>`)}`;
+</MPD>`;
+
+        const blob = new Blob([mpd], { type: 'application/dash+xml' });
+        return URL.createObjectURL(blob);
     } catch {
         return '';
     }
 };
+
+// 保持向后兼容
+export const createBiliMPD = (dash: any): string => createBiliBlobUrl(dash);
 
 // ===== 6. 登录管理 =====
 export class QRCodeManager {

@@ -190,7 +190,8 @@
             "mediaLink": "输入链接或直接点击添加...",
             "newTab": "新标签",
             "folderPath": "输入文件夹路径...",
-            "bilibiliFavorites": "输入B站收藏夹链接..."
+            "bilibiliFavorites": "输入B站收藏夹链接...",
+            "bilibiliSeason": "B站合集视频链接"
         },
         "folder": {
             "defaultName": "本地文件夹"
@@ -210,6 +211,7 @@
             "addOpenList": "添加OpenList云盘",
             "addWebDAV": "添加WebDAV云盘",
             "addBilibiliFavorites": "添加B站收藏夹",
+            "addBilibiliSeason": "添加B站合集",
             "addSiyuanAssets": "添加思源空间",
             "open": "打开",
             "addToTab": "添加到标签页",
@@ -228,7 +230,9 @@
             "folderRefreshedEmpty": "已刷新文件夹，未发现新媒体文件",
             "itemMoved": "已移动到 ${name}",
             "siyuanAssetsAdded": "已添加思源空间中的 ${count} 个媒体文件",
-            "siyuanAssetsRefreshed": "已刷新思源空间，添加了 ${count} 个媒体文件"
+            "siyuanAssetsRefreshed": "已刷新思源空间，添加了 ${count} 个媒体文件",
+            "seasonAdded": "已添加${count}个项目到\"${name}\"",
+            "refreshTag": "已刷新\"${name}\"：删除${deleteCount}项，新增${addCount}项"
         },
         "error": {
             "emptyUrl": "请输入媒体链接",
@@ -251,7 +255,11 @@
             "emptyFavFolders": "未找到收藏夹",
             "getFavFoldersFailed": "获取收藏夹列表失败",
             "refreshFolderFailed": "刷新文件夹失败",
-            "siyuanAssetsFailed": "获取思源空间媒体失败"
+            "siyuanAssetsFailed": "获取思源空间媒体失败",
+            "needBiliLoginForSeason": "请先登录B站账号",
+            "notInSeason": "该视频不属于任何合集",
+            "getSeasonFailed": "获取合集信息失败: ",
+            "refreshTypeFailed": "无法识别的刷新类型"
         },
         "log": {
             "parseLink": "开始解析链接:",

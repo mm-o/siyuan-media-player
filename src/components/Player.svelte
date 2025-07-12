@@ -5,7 +5,7 @@
     import type { PlayOptions, MediaItem } from '../core/types';
     import { SubtitleManager } from '../core/subtitle';
     import { DanmakuManager } from '../core/danmaku';
-    import { createBiliMPD } from '../core/bilibili';
+
     
     // ===== 属性和状态 =====
     export let config: any = {};
@@ -298,12 +298,11 @@
                 detail: { currentItem: options }
             }));
 
-            // 处理B站DASH媒体源
-            const actualUrl = options.biliDash ? createBiliMPD(options.biliDash) || url : url;
-            const playerConfig = options.biliDash ? {
+            // 统一播放URL处理
+            const actualUrl = url;
+            const playerConfig = url.startsWith('blob:') ? {
                 type: 'mpd',
-                customType: { mpd: playMpd },
-                headers: options.headers
+                customType: { mpd: playMpd }
             } : {};
 
             // 加载弹幕

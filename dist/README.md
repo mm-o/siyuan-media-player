@@ -20,7 +20,7 @@
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export for complete learning note ecosystem</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>Media Assistant</strong> - Subtitle lists, danmaku lists, and AI media summaries for intelligent analysis</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>Playlist Management</strong> - Database-driven management with tag classification, drag-and-drop sorting, and multi-view display</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of Bilibili favorites, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of Bilibili favorites, Bilibili collections, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>Settings Panel</strong> - One-stop management for account configuration, player settings, and general options</li>
         </ul>
     </div>
@@ -45,6 +45,32 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.0 Update (2025.7.12)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📚 Bilibili Collections Support</strong>: New batch import feature for Bilibili collections, get entire collection with any video link
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🏷️ Smart Recognition</strong>: Automatically detect if video belongs to a collection, extract collection ID and uploader info</li>
+<li><strong>🔄 Smart Refresh</strong>: Support one-click refresh for collection tags</li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">🔧 Performance Optimization</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>💬 Message Simplification</strong>: Optimized batch import notifications with unified showMessage handling</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔊 Bilibili Video Audio Fix</strong>: Fixed issue where Bilibili videos had video but no audio, unified DASH stream processing</li>
+<li><strong>⚡ Playback Parameter Unification</strong>: Refactored Bilibili video playback process, directly generate blob playback addresses</li>
+<li><strong>🔇 Warning Message Optimization</strong>: Eliminated irrelevant OpenList error warnings when playing Bilibili/WebDAV videos</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.9 Update (2025.7.12)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
@@ -308,6 +334,18 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>Batch Import Bilibili Collections</strong> - One-click import collection videos</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Ensure Bilibili account is logged in<br>
+                2. Click the "+" on the playlist tab to open the menu<br>
+                3. Click "Add Bilibili Collection"<br>
+                4. Enter any video link from the collection<br>
+                5. Press Enter to confirm, system will automatically get the entire collection and batch import all videos
+                </div>
+</details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+<details>
                 <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>Tag Management</strong> - Create and manage playlist tags</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
                 1. Click the "+" button at the top of the playlist to create a new tag<br>
@@ -317,6 +355,20 @@
                 5. <strong>Clear tag</strong>: Right-click the tag > Select "Clear" to clear media under the tag
                 </div>
 </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Smart Refresh</strong> - Auto sync folders, Bilibili favorites, Bilibili collections</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Right-click the tag you want to refresh<br>
+                2. Select "Refresh Tag"<br>
+                3. System will automatically execute corresponding refresh strategy based on tag type:<br>
+                • <strong>Folder tags</strong>: Detect local folder changes, intelligently add/remove media items<br>
+                • <strong>Bilibili favorites</strong>: Detect favorites content changes, maintain data consistency<br>
+                • <strong>Bilibili collections</strong>: Detect collection content changes, auto sync latest videos<br>
+                4. Intelligently compare existing data, only process changed items for significant performance improvement
+                </div>
+                </details>
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
                 <details>
@@ -424,17 +476,6 @@
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
                 You can create your own media notes template in settings with various variables:<br>
                 <strong>Available variables</strong>: Media title, current timestamp, artist name, media URL, media duration, media thumbnail, media type, media ID, current date, current date and time
-                </div>
-</details>
-            </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
-<details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">↔️ <strong>Panel Adjustment</strong> - Flexible interface layout</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
-                • You can resize the player panels by dragging the panel edges<br>
-                • Hover near the panel edge until the cursor changes to resize cursor<br>
-                • Click and drag to adjust panel size<br>
-                • This feature applies to playlist panel, settings panel, and media assistant panel<br>
                 </div>
 </details>
             </li>

@@ -20,7 +20,7 @@
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，完整的学习笔记生态</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入B站收藏夹、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入B站收藏夹、B站合集、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
         </ul>
     </div>
@@ -45,6 +45,32 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.0版本更新 (2025.7.12)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📚 B站合集支持</strong>: 新增B站合集批量添加功能，通过任意合集视频链接一键获取整个合集
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🏷️ 智能识别</strong>：自动检测视频是否属于合集，提取合集ID和UP主信息</li>
+<li><strong>🔄 智能刷新</strong>：支持合集标签的一键刷新更新</li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">🔧 性能优化</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>💬 提示信息精简</strong>: 优化批量添加提示，统一showMessage处理逻辑</li>
+</ul>
+</li>
+<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔊 B站视频音频修复</strong>: 修复B站视频播放时只有画面无声音的问题，统一DASH流处理逻辑</li>
+<li><strong>⚡ 播放参数统一</strong>: 重构B站视频播放流程，直接生成blob播放地址，简化代码逻辑</li>
+<li><strong>🔇 警告信息优化</strong>: 消除播放B站/WebDAV视频时的无关OpenList错误警告，提升用户体验</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.9版本更新 (2025.7.12)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
@@ -72,7 +98,11 @@
 </ul>
 </li>
 </ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
+
+<details style="margin-top: 1.5em;">
+<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
+<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
+
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8版本更新 (2025.7.11)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
@@ -106,10 +136,7 @@
 </ul>
 </li>
 </ul>
-<details style="margin-top: 1.5em;">
-<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
-<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
-
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7版本更新 (2025.7.8)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
@@ -308,6 +335,18 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
                 <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>批量导入B站合集</strong> - 一键导入合集视频</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 确保已登录B站账号<br>
+                2. 点击播放列表标签"+"弹出菜单<br>
+                3. 点击"添加B站合集"<br>
+                4. 输入合集中任意视频的链接<br>
+                5. 按回车确认，系统将自动获取整个合集并批量导入所有视频
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
                 <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>标签管理</strong> - 创建和管理播放列表标签</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
                 1. 在播放列表顶部点击"+"按钮创建新标签<br>
@@ -315,6 +354,20 @@
                 3. <strong>重命名标签</strong>：右键点击标签 > 选择"重命名"<br>
                 4. <strong>删除标签</strong>：右键点击标签 > 选择"删除"即可删除标签及标签下媒体<br>
                 5. <strong>清空标签</strong>：右键点击标签 > 选择"清空"即可清空标签下媒体
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>智能刷新</strong> - 自动同步文件夹、B站收藏夹、B站合集</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 右键点击需要刷新的标签<br>
+                2. 选择"刷新标签"<br>
+                3. 系统将根据标签类型自动执行相应的刷新策略：<br>
+                • <strong>文件夹标签</strong>：检测本地文件夹变化，智能增删媒体项<br>
+                • <strong>B站收藏夹</strong>：检测收藏夹内容变化，保持数据一致性<br>
+                • <strong>B站合集</strong>：检测合集内容变化，自动同步最新视频<br>
+                4. 智能对比现有数据，仅处理变化项目，性能提升显著
                 </div>
                 </details>
             </li>
@@ -424,19 +477,6 @@
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
                 您可以在设置中创建自己的媒体笔记模板，支持各种变量：<br>
                 <strong>可用变量</strong>：媒体标题、当前时间戳、艺术家名称、媒体URL、媒体时长、媒体缩略图、媒体类型、媒体ID、当前日期、当前日期和时间
-                </div>
-                </details>
-            </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
-                <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">↔️ <strong>面板调整</strong> - 灵活的界面布局</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
-                • 您可以通过拖动面板边缘来调整播放器面板大小<br>
-                • 将鼠标悬停在面板边缘附近，直到光标变为调整大小光标<br>
-                • 点击并拖动以调整面板大小<br>
-                • 此功能适用于播放列表面板、设置面板和媒体助手面板<br>
-                </div>
-                </details>
                 </div>
                 </details>
             </li>

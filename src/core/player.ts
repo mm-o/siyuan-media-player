@@ -64,18 +64,18 @@ export class Media {
 
     // 获取播放URL - 统一播放URL获取
     static async getPlayUrl(parsed: any, config?: any): Promise<string> {
-        try {
-            if (parsed.source === 'bilibili' && parsed.bv) {
+        if (parsed.source === 'bilibili' && parsed.bv) {
+            try {
                 const info = await BilibiliParser.getVideoInfo(`https://www.bilibili.com/video/${parsed.bv}`) as any;
-                if (info?.cid) {
-                    const stream = await BilibiliParser.getProcessedVideoStream(parsed.bv, info.cid, 0, config);
-                    return stream.dash?.video?.[0]?.baseUrl || parsed.url;
-                }
-            }
-            if (parsed.source === 'openlist' && parsed.path) { return await OpenListManager.getFileLink(parsed.path.replace(/^\/p\//, '/')); }
-            if (parsed.source === 'webdav') return await WebDAVManager.getFileLink(new URL(parsed.url).pathname);
-        } catch (e) { console.warn(`${parsed.source}流获取失败:`, e); }
-
+                if (info?.cid) return await BilibiliParser.getProcessedVideoStream(parsed.bv, info.cid, 0, config);
+            } catch (e) { console.warn(`B站流获取失败:`, e); }
+        }
+        if (parsed.source === 'openlist' && parsed.path) {
+            try { return await OpenListManager.getFileLink(parsed.path.replace(/^\/p\//, '/')); } catch {}
+        }
+        if (parsed.source === 'webdav') {
+            try { return await WebDAVManager.getFileLink(new URL(parsed.url).pathname); } catch {}
+        }
         return parsed.url;
     }
 
@@ -260,6 +260,7 @@ export async function play(options: any, player: any, config: any, setItem: (ite
             if (err) showMessage(err);
         } else {
             const parsed = Media.parse(options.url);
+
             const playUrl = await Media.getPlayUrl(parsed, config);
             await player.play(playUrl, { ...item, type: item.type || options.type || 'video', title: item.title || options.title || '未知', startTime: options.startTime, endTime: options.endTime });
         }
