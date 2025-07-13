@@ -8,6 +8,8 @@ import PlayList from "./components/PlayList.svelte";
 import Setting from "./components/Setting.svelte";
 // @ts-ignore
 import Assistant from "./components/Assistant.svelte";
+// @ts-ignore
+import Notes from "./components/Notes.svelte";
 
 import type { ComponentInstance } from './core/types';
 
@@ -192,7 +194,7 @@ export default class MediaPlayerPlugin extends Plugin {
 
     /** 显示标签页内容，创建组件实例 */
     private async showTabContent(tabId: string, container: HTMLElement) {
-        const components = { playlist: PlayList, assistant: Assistant, settings: Setting };
+        const components = { playlist: PlayList, assistant: Assistant, notes: Notes, settings: Setting };
 
         container.querySelectorAll('[data-tab-id]').forEach(
             el => el.classList.toggle('fn__none', el.getAttribute('data-tab-id') !== tabId)
@@ -210,7 +212,7 @@ export default class MediaPlayerPlugin extends Plugin {
         const component = components[tabId];
         if (!component) return;
 
-        const baseProps = { config: await this.getConfig(), i18n: this.i18n, allTabs: ['playlist', 'assistant', 'settings'], activeTabId: tabId, api: this.playerAPI, plugin: this };
+        const baseProps = { config: await this.getConfig(), i18n: this.i18n, allTabs: ['playlist', 'assistant', 'notes', 'settings'], activeTabId: tabId, api: this.playerAPI, plugin: this };
         const specificProps = {
             playlist: { currentItem: this.playerAPI?.getCurrentMedia?.() },
             settings: { group: 'media-player' },
@@ -222,7 +224,8 @@ export default class MediaPlayerPlugin extends Plugin {
                     doc.insert(content, await this.getConfig(), this.i18n);
                 },
                 createTimestampLinkCallback: this.playerAPI.createTimestampLink
-            }
+            },
+            notes: {}
         };
 
         const instance = new component({ target: el, props: { ...baseProps, ...specificProps[tabId] } });

@@ -559,6 +559,27 @@
         "exportFailed": "导出失败",
         "exportSuccess": "导出成功"
     },
+    "notes": {
+        "title": "笔记",
+        "addFromClipboard": "从剪贴板添加",
+        "addFromInput": "添加",
+        "inputPlaceholder": "输入文档ID或块ID...",
+        "emptyState": "暂无笔记标签，点击添加按钮开始",
+        "invalidId": "无效的ID格式",
+        "blockNotFound": "找不到对应的文档或块",
+        "duplicateId": "该ID已存在",
+        "deleteConfirm": "确定要删除这个笔记标签吗？",
+        "loading": "加载中...",
+        "error": "加载失败",
+        "untitled": "无标题",
+        "document": "文档",
+        "block": "块",
+        "deleteTab": "删除标签",
+        "renameTab": "重命名标签",
+        "openInSiYuan": "在思源中打开",
+        "copyId": "复制ID",
+        "refreshContent": "刷新内容"
+    },
     "docs": {
         "title": "文档",
         "help": "帮助文档",

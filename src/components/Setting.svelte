@@ -2,6 +2,8 @@
     import { onMount } from "svelte";
     import { showMessage, getFrontend } from "siyuan";
     import type { ISettingItem, SettingType } from "../core/types";
+    // @ts-ignore
+    import PanelNav from './PanelNav.svelte';
     
     const isMobile = () => getFrontend().endsWith('mobile'); // 运行环境判断
     import { notebook } from "../core/document";
@@ -76,11 +78,7 @@
         `${d.icon.startsWith('#') ? `<svg class="acc-icon"><use xlink:href="${d.icon}"></use></svg>` : `<img src="${d.icon}" class="acc-icon">`}
         <div class="acc-info"><b>${d.name}</b> <span style="color:${d.statusColor}">${d.status}</span><br><small>${d.info1}</small><br><small class="acc-muted">${d.info2}</small></div>` : d;
     
-    // 面板切换处理
-    function changePanelTab(tabId) {
-        if (tabId === activeTabId) return;
-        window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', { detail: { tabId } }));
-    }
+
     
     // 创建默认设置项
     function createSettings(state): ISettingItem[] {
@@ -315,14 +313,12 @@
 </script>
 
 <div class="settings common-panel" data-name={group}>
-    <div class="playlist-header">
-        <div class="panel-nav">
-            <h3 class:active={activeTabId === 'playlist'} on:click={() => changePanelTab('playlist')}>{i18n.playList?.title || "列表"}</h3>
-            <h3 class:active={activeTabId === 'assistant'} on:click={() => changePanelTab('assistant')}>{i18n.assistant?.title || "助手"}</h3>
-            <h3 class:active={activeTabId === 'settings'} on:click={() => changePanelTab('settings')}>{i18n.setting?.title || "设置"}</h3>
-        </div>
-        <span class="playlist-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
-    </div>
+    <!-- 统一导航 -->
+    <PanelNav {activeTabId} {i18n}>
+        <svelte:fragment slot="controls">
+            <span class="playlist-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
+        </svelte:fragment>
+    </PanelNav>
 
     <div class="playlist-tabs">
         {#each tabs as tab}

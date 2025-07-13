@@ -290,10 +290,10 @@ export function registerGlobalPlayer(currentItem: any, player: any): void {
 export function createLinkClickHandler(playerAPI: any, getConfig: () => Promise<any>, openTab: () => void, playlistPlay?: any): (e: MouseEvent) => Promise<void> {
     return async (e: MouseEvent) => {
         const target = e.target as HTMLElement;
-        const url = target.getAttribute('data-href');
-
-        if (!target.matches('span[data-type="a"]') || !url || (!isBilibili(url) && !isMedia(url))) return;
-
+        // 获取链接URL
+        const linkEl = target.matches('span[data-type="a"]') ? target : target.closest('a[href], span[data-type="a"], span[data-type="url"]');
+        const url = linkEl?.getAttribute('href') || linkEl?.getAttribute('data-href');
+        if (!url || (!isBilibili(url) && !isMedia(url))) return;
         e.preventDefault();
         e.stopPropagation();
 

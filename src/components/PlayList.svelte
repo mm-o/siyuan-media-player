@@ -1,6 +1,8 @@
 <script lang="ts">
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage, Menu } from "siyuan";
+    // @ts-ignore
+    import PanelNav from "./PanelNav.svelte";
     import type { MediaItem } from '../core/types';
     import { Media, EXT } from '../core/player';
     import { OpenListManager } from '../core/openlist';
@@ -551,20 +553,15 @@
 </script>
 
 <div class="playlist {className}" class:hidden>
-    <!-- 头部 -->
-    <div class="playlist-header">
-        <div class="panel-nav">
-            {#each [['playlist', i18n.playList?.title || "列表"], ['assistant', i18n.assistant?.title || "助手"], ['settings', i18n.setting?.title || "设置"]] as [id, title]}
-                <h3 class:active={activeTabId === id} on:click={() => id !== activeTabId && window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', { detail: { tabId: id } }))}>{title}</h3>
-            {/each}
-        </div>
-        <div class="header-controls">
+    <!-- 统一导航 -->
+    <PanelNav {activeTabId} {i18n}>
+        <svelte:fragment slot="controls">
             <span class="playlist-count">{state.items.length} 项</span>
             <button class="view-mode-btn" on:click={nextView} title="视图">
                 <svg viewBox="0 0 24 24" width="16" height="16"><path d={ICONS[VIEWS.indexOf(state.view) % 3]}/></svg>
             </button>
-        </div>
-    </div>
+        </svelte:fragment>
+    </PanelNav>
     
     <!-- 标签 -->
     <div class="playlist-tabs">

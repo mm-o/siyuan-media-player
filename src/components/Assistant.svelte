@@ -4,6 +4,8 @@
     import { BilibiliParser } from '../core/bilibili';
     import { onDestroy, onMount } from 'svelte';
     import { showMessage } from 'siyuan';
+    // @ts-ignore
+    import PanelNav from './PanelNav.svelte';
 
     // 组件属性
     export let className = '', hidden = false, i18n: any = {}, currentMedia: any = null, player: any = null;
@@ -63,13 +65,7 @@
         isLoadingDanmakus = false;
     }
 
-    // 面板切换处理
-    function changePanelTab(tabId) {
-        if (tabId === activeTabId) return;
-        window.dispatchEvent(new CustomEvent('mediaPlayerTabChange', {
-            detail: { tabId }
-        }));
-    }
+
 
     // 生命周期
     onMount(() => {
@@ -222,23 +218,12 @@
 </script>
 
 <div class="playlist assistant {className}" class:hidden={hidden}>
-    <div class="playlist-header">
-        <div class="panel-nav">
-            <h3 class:active={activeTabId === 'playlist'} on:click={() => changePanelTab('playlist')}>
-                {i18n.playList?.title || "列表"}
-            </h3>
-            <h3 class:active={activeTabId === 'assistant'} on:click={() => changePanelTab('assistant')}>
-                {i18n.assistant?.title || "助手"}
-            </h3>
-            <h3 class:active={activeTabId === 'settings'} on:click={() => changePanelTab('settings')}>
-                {i18n.setting?.title || "设置"}
-            </h3>
-
-        </div>
-        <div class="header-controls">
+    <!-- 统一导航 -->
+    <PanelNav {activeTabId} {i18n}>
+        <svelte:fragment slot="controls">
             <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || '总结'))}</span>
-        </div>
-    </div>
+        </svelte:fragment>
+    </PanelNav>
     
     <div class="playlist-tabs">
         <button class="tab" class:active={activeTab === 'subtitles'} on:click={() => activeTab = 'subtitles'}>
