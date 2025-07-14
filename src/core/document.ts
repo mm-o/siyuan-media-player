@@ -162,6 +162,26 @@ export const notebook = {
             items[index].value = validId;
             return {items: [...items], selectedId: validId};
         } catch { return {items, selectedId}; }
+    },
+
+    // 文档搜索 - 极简版
+    searchAndUpdate: async (searchKey: string, state: any, saveConfig: Function): Promise<{success: boolean, docs?: any[]}> => {
+        if (!searchKey.trim()) return {success: false};
+        try {
+            const results = await api.searchDocs(searchKey.trim());
+            if (results?.length) {
+                const doc = results[0];
+                Object.assign(state, {
+                    notebook: { id: doc.box, name: '' },
+                    parentDoc: { id: doc.path?.split('/').pop()?.replace('.sy', '') || doc.id, path: doc.path?.replace('.sy', '') || '', name: doc.hPath || '无标题' }
+                });
+                const cfg = await saveConfig.getConfig();
+                cfg.settings = state;
+                await saveConfig.saveConfig(cfg);
+                return {success: true, docs: results};
+            }
+        } catch {}
+        return {success: false};
     }
 }; 
 
@@ -169,52 +189,30 @@ export const notebook = {
 
 // ===== 媒体笔记 =====
 export const mediaNotes = {
-    // 创建媒体笔记
+    // 创建媒体笔记 - 极简版
     create: async (mediaItem: MediaItem, config: any, player: any, i18n?: any, app?: any): Promise<void> => {
         try {
-            const content = applyTemplate(config.settings.mediaNotesTemplate ||
-                "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：", {
-                '标题|{{title}}': mediaItem.title || '未命名媒体',
-                '时间|{{time}}': Media.fmt(player.getCurrentTime()),
-                '艺术家|{{artist}}': mediaItem.artist || '',
-                '链接|{{url}}': getMediaUrl(mediaItem),
-                '时长|{{duration}}': mediaItem.duration || '',
-                '封面|{{thumbnail}}': mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '',
-                '类型|{{type}}': mediaItem.type || 'video',
-                'ID|{{id}}': mediaItem.id || '',
-                '日期|{{date}}': new Date().toLocaleDateString(),
-                '时间戳|{{timestamp}}': new Date().toISOString().replace('T', ' ').slice(0, 19)
+            const content = applyTemplate(config.settings.mediaNotesTemplate || "# 标题的媒体笔记\n- 日期\n- 时长：时长\n- 艺术家：艺术家\n- 类型：类型\n- 链接：[链接](链接)\n- ![封面](封面)\n- 笔记内容：", {
+                '标题|{{title}}': mediaItem.title || '未命名媒体', '时间|{{time}}': Media.fmt(player.getCurrentTime()), '艺术家|{{artist}}': mediaItem.artist || '', '链接|{{url}}': getMediaUrl(mediaItem),
+                '时长|{{duration}}': mediaItem.duration || '', '封面|{{thumbnail}}': mediaItem.thumbnail ? await imageToLocalAsset(mediaItem.thumbnail) : '', '类型|{{type}}': mediaItem.type || 'video',
+                'ID|{{id}}': mediaItem.id || '', '日期|{{date}}': new Date().toLocaleDateString(), '时间戳|{{timestamp}}': new Date().toISOString().replace('T', ' ').slice(0, 19)
             });
 
             try {
                 await api.insertBlock("markdown", content, undefined, undefined, await doc.getBlockID(i18n));
             } catch {
-                const targetNotebook = config.settings.targetNotebook?.id || notebook.getPreferredId();
+                const { notebook, parentDoc } = config.settings;
+                const targetNotebook = notebook?.id || notebook.getPreferredId();
                 if (!targetNotebook) throw new Error("请在设置中配置目标笔记本");
 
-                const result = await (await fetch('/api/filetree/createDocWithMd', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        notebook: targetNotebook,
-                        path: `/${mediaItem.title || '媒体笔记'}`,
-                        markdown: content
-                    })
-                })).json();
-
-                if (result.code === 0) {
-                    openTab({ app, doc: { id: result.data }, position: 'right' });
-                } else {
-                    throw new Error(result.msg || "创建文档失败");
-                }
+                const fileName = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+                const path = parentDoc?.path ? `${parentDoc.path}/${fileName}.sy` : `/${fileName}.sy`;
+                const result = await api.createDoc(targetNotebook, path, mediaItem.title || '媒体笔记', content);
+                if (result?.id) openTab({ app, doc: { id: result.id }, position: 'right' }); else throw new Error("创建文档失败");
             }
         } catch (error) {
-            console.error("创建媒体笔记失败:", error);
             showMessage(i18n?.mediaPlayerTab?.mediaNotes?.createFailed || "创建媒体笔记失败");
-            try {
-                await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${Media.fmt(player?.getCurrentTime?.() || 0)}`);
-                showMessage(i18n?.mediaPlayerTab?.mediaNotes?.copiedToClipboard || "已复制到剪贴板");
-            } catch {}
+            try { await navigator.clipboard.writeText(`# ${mediaItem.title || '媒体笔记'}\n- 时间：${Media.fmt(player?.getCurrentTime?.() || 0)}`); showMessage(i18n?.mediaPlayerTab?.mediaNotes?.copiedToClipboard || "已复制到剪贴板"); } catch {}
         }
     }
 };

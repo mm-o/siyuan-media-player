@@ -17,10 +17,12 @@
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>Multi-platform Playback</strong> - Unified playback for local media, Bilibili videos, OpenList, and WebDAV cloud storage</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>Timestamp Navigation</strong> - Precise timestamp links for one-click navigation to specific playback positions</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>Loop Segments</strong> - Custom loop playback segments for repeated learning of key content</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export for complete learning note ecosystem</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export with sub-document creation and smart search configuration for complete learning note ecosystem</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>Media Assistant</strong> - Subtitle lists, danmaku lists, and AI media summaries for intelligent analysis</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>Playlist Management</strong> - Database-driven management with tag classification, drag-and-drop sorting, and multi-view display</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of Bilibili favorites, Bilibili collections, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">📝 <strong>Notes Panel</strong> - Independent document and block content viewing and editing with ID input, smart tags, and context menu operations</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">🔗 <strong>Smart Link Recognition</strong> - Direct playback of database URL field media links, Ctrl+click to force browser opening</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>Settings Panel</strong> - One-stop management for account configuration, player settings, and general options</li>
         </ul>
     </div>
@@ -45,6 +47,32 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.1 Update (2025.7.14)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔗 Database URL Link Recognition</strong>: Support for clicking media links in database URL fields to directly open the player without browser redirection</li>
+<li><strong>⌨️ Ctrl+Click Force Browser</strong>: Hold Ctrl key while clicking media links to force browser opening, bypassing plugin handling</li>
+<li><strong>📝 Notes Panel Feature</strong>: New independent notes panel providing convenient document and block content editing functionality
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📋 ID Input Support</strong>: Support for inputting document ID or block ID with automatic format validation and content retrieval</li>
+<li><strong>🏷️ Smart Tags</strong>: Automatically truncate to first 4 characters as tag name when adding</li>
+<li><strong>🖱️ Context Menu</strong>: Provide rename, open in SiYuan, copy ID, delete tag and other complete operations</li>
+<li><strong>📄 Complete Rendering</strong>: Use Protyle component for complete document content rendering with scroll and interaction support</li>
+<li><strong>💾 State Persistence</strong>: Automatically save tab configuration and restore previous note tags after restart</li>
+</ul>
+</li>
+<li><strong>📔 Media Notes Enhancement</strong>: Media notes creation now supports creating sub-documents under specified documents, providing more flexible note organization
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔍 Smart Search Configuration</strong>: Support inputting document name or notebook name in settings to search and quickly locate target position</li>
+<li><strong>📂 Sub-document Creation</strong>: Support automatically creating sub-documents under selected parent documents, maintaining hierarchical note structure</li>
+<li><strong>⚙️ Convenient Settings</strong>: Quick addition of commonly used document and notebook configurations through search functionality, simplifying the setup process</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.0 Update (2025.7.12)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
@@ -403,9 +431,27 @@
                 1. Play the media you want to take notes on<br>
                 2. Click the "Media Notes" button in the control bar (or use shortcut key)<br>
                 3. System creates notes based on custom template, including media info, timestamp, thumbnail, etc.<br>
-                4. Notes can be inserted into current document or created in specified notebook
+                4. Notes can be inserted into current document, created in specified notebook, or created as sub-documents under specified documents<br>
+                5. <strong>Smart Search Configuration</strong>: Input document name or notebook name in settings to search and quickly locate target position<br>
+                6. <strong>Sub-document Creation</strong>: After selecting parent document, system will automatically create sub-documents underneath, maintaining hierarchical note structure
                 </div>
 </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Notes Panel</strong> - Document and block content viewing and editing</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. Click the "Notes" tab at the top of the SiYuan Media Player panel<br>
+                2. <strong>Add note tabs</strong>: Click the "+" button and enter document ID or block ID<br>
+                3. <strong>View content</strong>: Click tabs to view corresponding document or block content<br>
+                4. <strong>Context menu operations</strong>: Right-click tabs for the following operations:<br>
+                   - <strong>Rename</strong>: Modify tag display name (maximum 4 characters)<br>
+                   - <strong>Open in SiYuan</strong>: Jump directly to the corresponding position in SiYuan<br>
+                   - <strong>Copy ID</strong>: Copy document or block ID to clipboard<br>
+                   - <strong>Delete tab</strong>: Remove unwanted note tabs<br>
+                5. <strong>Complete editing</strong>: Support direct editing of document content in the panel, consistent with SiYuan editor functionality
+                </div>
+                </details>
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
@@ -471,13 +517,17 @@
 </details>
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
-<details>
+                <details>
                 <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Custom Media Notes Template</strong> - Personalized note format</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
                 You can create your own media notes template in settings with various variables:<br>
-                <strong>Available variables</strong>: Media title, current timestamp, artist name, media URL, media duration, media thumbnail, media type, media ID, current date, current date and time
+                <strong>Available variables</strong>: Media title, current timestamp, artist name, media URL, media duration, media thumbnail, media type, media ID, current date, current date and time<br><br>
+                <strong>Target Configuration</strong>:<br>
+                • <strong>Smart Search</strong>: Input keywords to search documents and notebooks, quickly locate target position<br>
+                • <strong>Sub-document Creation</strong>: After selecting parent document, media notes will be created as sub-documents, maintaining hierarchical structure<br>
+                • <strong>Convenient Settings</strong>: Common configurations can be saved, simplifying subsequent creation process
                 </div>
-</details>
+                </details>
             </li>
         </ul>
     </div>

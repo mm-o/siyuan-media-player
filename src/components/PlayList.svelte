@@ -2,7 +2,7 @@
     import { createEventDispatcher, onMount } from "svelte";
     import { showMessage, Menu } from "siyuan";
     // @ts-ignore
-    import PanelNav from "./PanelNav.svelte";
+    import Tabs from "./Tabs.svelte";
     import type { MediaItem } from '../core/types';
     import { Media, EXT } from '../core/player';
     import { OpenListManager } from '../core/openlist';
@@ -554,14 +554,14 @@
 
 <div class="playlist {className}" class:hidden>
     <!-- 统一导航 -->
-    <PanelNav {activeTabId} {i18n}>
+    <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
             <span class="playlist-count">{state.items.length} 项</span>
             <button class="view-mode-btn" on:click={nextView} title="视图">
                 <svg viewBox="0 0 24 24" width="16" height="16"><path d={ICONS[VIEWS.indexOf(state.view) % 3]}/></svg>
             </button>
         </svelte:fragment>
-    </PanelNav>
+    </Tabs>
     
     <!-- 标签 -->
     <div class="playlist-tabs">

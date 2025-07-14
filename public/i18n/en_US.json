@@ -408,6 +408,10 @@
                 "title": "Target Notebook",
                 "description": "Select the target notebook for creating media notes"
             },
+            "targetDocument": {
+                "title": "Target Document",
+                "description": "Enter keywords to search for target document"
+            },
             "screenshotWithTimestamp": {
                 "title": "Screenshot with Timestamp",
                 "description": "When enabled, screenshots will also include timestamp links"
@@ -558,24 +562,16 @@
     },
     "notes": {
         "title": "Notes",
-        "addFromClipboard": "Add from Clipboard",
-        "addFromInput": "Add",
         "inputPlaceholder": "Enter document ID or block ID...",
         "emptyState": "No note tabs yet, click add button to start",
         "invalidId": "Invalid ID format",
         "blockNotFound": "Document or block not found",
-        "duplicateId": "This ID already exists",
-        "deleteConfirm": "Are you sure you want to delete this note tab?",
-        "loading": "Loading...",
-        "error": "Load failed",
+        "error": "Add failed",
         "untitled": "Untitled",
-        "document": "Document",
-        "block": "Block",
         "deleteTab": "Delete Tab",
-        "renameTab": "Rename Tab",
+        "renameTab": "Rename",
         "openInSiYuan": "Open in SiYuan",
-        "copyId": "Copy ID",
-        "refreshContent": "Refresh Content"
+        "copyId": "Copy ID"
     },
     "docs": {
         "title": "Documentation",

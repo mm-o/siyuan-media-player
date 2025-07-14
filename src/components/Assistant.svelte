@@ -5,12 +5,11 @@
     import { onDestroy, onMount } from 'svelte';
     import { showMessage } from 'siyuan';
     // @ts-ignore
-    import PanelNav from './PanelNav.svelte';
+    import Tabs from './Tabs.svelte';
 
     // 组件属性
     export let className = '', hidden = false, i18n: any = {}, currentMedia: any = null, player: any = null;
     export let insertContentCallback, createTimestampLinkCallback;
-    export let allTabs = [];
     export let activeTabId = 'assistant';
     export let plugin: any;
     
@@ -219,11 +218,11 @@
 
 <div class="playlist assistant {className}" class:hidden={hidden}>
     <!-- 统一导航 -->
-    <PanelNav {activeTabId} {i18n}>
+    <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
             <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || '总结'))}</span>
         </svelte:fragment>
-    </PanelNav>
+    </Tabs>
     
     <div class="playlist-tabs">
         <button class="tab" class:active={activeTab === 'subtitles'} on:click={() => activeTab = 'subtitles'}>

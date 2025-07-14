@@ -2,14 +2,14 @@
     import { onMount } from 'svelte';
     import { showMessage, openTab, Protyle, Menu } from 'siyuan';
     // @ts-ignore
-    import PanelNav from './PanelNav.svelte';
+    import Tabs from './Tabs.svelte';
 
     // 组件属性
     export let className = '', hidden = false, i18n: any = {}, plugin: any;
-    export const config: any = {}, allTabs = [], activeTabId = 'notes';
+    export const config: any = {}, activeTabId = 'notes';
 
     // 组件状态
-    let notesTabs = [], activeNoteTab = '', isAdding = false, isProcessing = false;
+    let notesTabs = [], activeTab = '', isAdding = false, isProcessing = false;
     let addInputRef: HTMLInputElement, editingTab = '', editInputRef: HTMLInputElement;
 
     // 配置管理
@@ -17,16 +17,16 @@
         try {
             const cfg = await plugin.loadData('config.json') || {};
             const notes = { notesTabs: [], activeNoteTab: '', ...(cfg.notes || {}) };
-            [notesTabs, activeNoteTab] = [notes.notesTabs, notes.activeNoteTab || (notes.notesTabs.length > 0 ? notes.notesTabs[0].id : '')];
+            [notesTabs, activeTab] = [notes.notesTabs, notes.activeNoteTab || (notes.notesTabs.length > 0 ? notes.notesTabs[0].id : '')];
         } catch (e) {
-            [notesTabs, activeNoteTab] = [[], ''];
+            [notesTabs, activeTab] = [[], ''];
         }
     };
 
     const saveNotesConfig = async () => {
         try {
             const cfg = await plugin.loadData('config.json') || {};
-            cfg.notes = { notesTabs, activeNoteTab };
+            cfg.notes = { notesTabs, activeNoteTab: activeTab };
             await plugin.saveData('config.json', cfg, 2);
             window.dispatchEvent(new CustomEvent('configUpdated', { detail: cfg }));
         } catch (e) {}
@@ -93,7 +93,7 @@
             if (!blockInfo) return showMessage(i18n.notes?.blockNotFound || '找不到对应的文档或块');
             const newTab = { id: Date.now().toString(), name: blockInfo.title.slice(0, 4), blockId, createTime: Date.now(), isDocument: blockInfo.isDocument };
             notesTabs = [...notesTabs, newTab];
-            activeNoteTab = newTab.id;
+            activeTab = newTab.id;
             await saveNotesConfig();
         } catch (error) {
             showMessage(i18n.notes?.error || '添加失败');
@@ -102,13 +102,13 @@
 
     const deleteTab = async (tabId: string) => {
         notesTabs = notesTabs.filter(tab => tab.id !== tabId);
-        if (activeNoteTab === tabId) activeNoteTab = notesTabs.length > 0 ? notesTabs[0].id : '';
+        if (activeTab === tabId) activeTab = notesTabs.length > 0 ? notesTabs[0].id : '';
         await saveNotesConfig();
     };
 
     const switchTab = (tabId: string) => {
-        if (activeNoteTab === tabId) return;
-        [activeNoteTab] = [tabId];
+        if (activeTab === tabId) return;
+        [activeTab] = [tabId];
         saveNotesConfig();
     };
 
@@ -126,7 +126,7 @@
     const menu = (e: MouseEvent, tab: any) => {
         const m = new Menu('tabMenu');
         [
-            ["iconEdit", i18n.notes?.renameTab || "重命名", () => (editingTab = tab.id, setTimeout(() => editInputRef?.focus(), 0))],
+            ["iconEdit", i18n.notes?.renameTab || "重命名", () => (m.close(), editingTab = tab.id, setTimeout(() => editInputRef?.focus(), 0))],
             ["iconFocus", i18n.notes?.openInSiYuan || "在思源中打开", () => openInSiYuan(tab.blockId)],
             ["iconCopy", i18n.notes?.copyId || "复制ID", () => copyToClipboard(tab.blockId)],
             ["iconTrashcan", i18n.notes?.deleteTab || "删除标签", () => deleteTab(tab.id)]
@@ -149,11 +149,11 @@
 </script>
 
 <div class="playlist {className}" class:hidden>
-    <PanelNav {activeTabId} {i18n}>
+    <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
             <span class="playlist-count">{notesTabs.length} 项</span>
         </svelte:fragment>
-    </PanelNav>
+    </Tabs>
 
     <div class="playlist-tabs">
         {#each notesTabs as tab (tab.id)}
@@ -169,7 +169,7 @@
             {:else}
                 <button
                     class="tab"
-                    class:active={activeNoteTab === tab.id}
+                    class:active={activeTab === tab.id}
                     on:click={() => switchTab(tab.id)}
                     on:contextmenu|preventDefault={e => menu(e, tab)}
                     title={tab.name}
@@ -200,7 +200,7 @@
         {:else}
             {#each notesTabs as tab (tab.id)}
                 <div
-                    style="display: {activeNoteTab === tab.id ? 'block' : 'none'}; height: 100%;"
+                    style="display: {activeTab === tab.id ? 'block' : 'none'}; height: 100%;"
                     class="panel-content"
                     use:initProtyle={tab}
                 ></div>

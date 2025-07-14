@@ -3,7 +3,7 @@
     import { showMessage, getFrontend } from "siyuan";
     import type { ISettingItem, SettingType } from "../core/types";
     // @ts-ignore
-    import PanelNav from './PanelNav.svelte';
+    import Tabs from './Tabs.svelte';
     
     const isMobile = () => getFrontend().endsWith('mobile'); // 运行环境判断
     import { notebook } from "../core/document";
@@ -13,7 +13,6 @@
     export let group: string;
     export let config: any;
     export let i18n: any;
-    export let allTabs = ['playList', 'assistant', 'settings'];
     export let activeTabId = 'settings';
     export let plugin: any;
     
@@ -45,7 +44,8 @@
         loopPlaylist: false,
         loopSingle: false,
         insertMode: "updateBlock",
-        targetNotebook: { id: '', name: '' },
+        notebook: { id: '', name: '' },
+        parentDoc: { id: '', name: '', path: '' },
         enableDatabase: false,
         playlistDb: { id: '', avId: '' },
         playlistView: { mode: 'detailed', tab: '目录', expanded: [] },
@@ -59,6 +59,7 @@
     let state: any = {};
     let settingItems: ISettingItem[] = [];
     let notebooks = [];
+    let notebookOptions = [];
     let qrCodeManager: QRCodeManager | null = null;
     let qrcode = { data: '', key: '' };
     
@@ -70,7 +71,7 @@
     ];
     
     // 通用账号描述生成器
-    const accDesc = (icon, name, status, statusColor, info1, info2) => 
+    const accDesc = (icon, name, status, statusColor, info1, info2) =>
         ({ icon, name, status, statusColor, info1, info2 });
     
     // 极简描述渲染
@@ -246,11 +247,44 @@
                 settingItems = createSettings(state);
               },
               rows: 1 },
-            { key: "targetNotebook", value: state.targetNotebook?.id || "", type: "select" as SettingType, tab: "general",
-              title: i18n.setting.items?.targetNotebook?.title || "目标笔记本", 
-              description: state.targetNotebook?.id ? `ID: ${state.targetNotebook.id}` : "选择创建媒体笔记的目标笔记本",
-              onChange: (v) => state.targetNotebook = { id: v, name: notebooks.find(n => n.id === v)?.name || "" },
-              options: notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
+            { key: "targetDocumentSearch", value: "", type: "text" as SettingType, tab: "general",
+              title: i18n.setting.items?.targetDocument?.title || "目标文档",
+              description: "输入关键字后按回车搜索文档",
+              onKeydown: async (e) => {
+                if (e.key === 'Enter') {
+                  const result = await notebook.searchAndUpdate(e.target.value, state, { getConfig, saveConfig });
+                  if (result.success && result.docs) {
+                    // 更新下拉选项：笔记本 + 搜索到的文档
+                    notebookOptions = [
+                      ...notebooks.map(nb => ({ label: nb.name, value: nb.id })),
+                      ...result.docs.map(doc => ({
+                        label: doc.hPath || doc.content || '无标题',
+                        value: doc.path?.substring(doc.path.lastIndexOf('/') + 1).replace('.sy', '') || doc.id || doc.root_id,
+                        notebook: doc.box,
+                        path: doc.path?.substring(0, doc.path.lastIndexOf('.sy')) || ''
+                      }))
+                    ];
+                    settingItems = createSettings(state);
+                  }
+                }
+              } },
+            { key: "targetNotebook", value: state.parentDoc?.id || state.notebook?.id || "", type: "select" as SettingType, tab: "general",
+              title: i18n.setting.items?.targetNotebook?.title || "目标笔记本",
+              description: state.parentDoc?.id
+                ? `目标文档：${state.parentDoc.name}`
+                : (state.notebook?.id ? `目标笔记本：${state.notebook.name}` : "选择创建媒体笔记的目标笔记本"),
+              onChange: (v) => {
+                const notebook = notebooks.find(nb => nb.id === v);
+                const docOption = notebookOptions.find(opt => opt.value === v);
+                if (notebook) {
+                  state.notebook = { id: v, name: notebook.name };
+                  state.parentDoc = { id: '', name: '', path: '' };
+                } else if (docOption) {
+                  state.parentDoc = { id: v, name: docOption.label, path: docOption.path || '' };
+                  state.notebook = { id: docOption.notebook || '', name: '' };
+                }
+              },
+              options: notebookOptions.length > 0 ? notebookOptions : notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
             { key: "insertMode", value: state.insertMode, type: "select" as SettingType, tab: "general",
               title: i18n.setting.items.insertMode?.title || "插入方式",
               description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
@@ -286,6 +320,10 @@
         const cfg = await getConfig();
         state = { ...DEFAULTS, ...(cfg.settings || {}) };
         try { notebooks = await notebook.getList?.() || []; } catch {}
+        notebookOptions = [
+            ...notebooks.map(nb => ({ label: nb.name, value: nb.id })),
+            ...(state.parentDoc?.id ? [{ label: state.parentDoc.name, value: state.parentDoc.id, path: state.parentDoc.path }] : [])
+        ];
         settingItems = createSettings(state);
     }
 
@@ -314,11 +352,11 @@
 
 <div class="settings common-panel" data-name={group}>
     <!-- 统一导航 -->
-    <PanelNav {activeTabId} {i18n}>
+    <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
             <span class="playlist-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
         </svelte:fragment>
-    </PanelNav>
+    </Tabs>
 
     <div class="playlist-tabs">
         {#each tabs as tab}
@@ -348,9 +386,19 @@
                                 on:input={(e) => handleChange(e, item)}>
                             <span class="slider-value">{item.key === 'speed' ? Number(state[item.key]) / 100 + 'x' : state[item.key]}</span>
                         </div>
+                    {:else if item.type === 'text'}
+                        <input
+                            type="text"
+                            class="b3-text-field fn__block"
+                            value={String(item.value)}
+                            on:input={(e) => handleChange(e, item)}
+                            on:keydown={(e) => item.onKeydown && item.onKeydown(e)}>
+                        <span class="clear-icon" on:click={() => resetItem(item.key)}>
+                            <svg class="icon"><use xlink:href="#iconRefresh"></use></svg>
+                        </span>
                     {:else if item.type === 'textarea'}
-                        <textarea 
-                            class="b3-text-field fn__block" 
+                        <textarea
+                            class="b3-text-field fn__block"
                             rows={item.rows || 4}
                             value={String(item.value)}
                             on:input={(e) => handleChange(e, item)}></textarea>

@@ -164,11 +164,23 @@ export async function setNotebookConf(notebook: NotebookId, conf: NotebookConf):
 
 
 // **************************************** File Tree ****************************************
-export async function createDocWithMd(notebook: NotebookId, path: string, markdown: string): Promise<DocumentId> {
+export async function createDoc(notebook: NotebookId, path: string, title: string, md?: string): Promise<{id: DocumentId}> {
+    let data = {
+        notebook: notebook,
+        path: path,
+        title: title,
+        md: md || ""
+    };
+    let url = '/api/filetree/createDoc';
+    return request(url, data);
+}
+
+export async function createDocWithMd(notebook: NotebookId, path: string, markdown: string, parentID?: DocumentId): Promise<DocumentId> {
     let data = {
         notebook: notebook,
         path: path,
         markdown: markdown,
+        ...(parentID && { parentID })
     };
     let url = '/api/filetree/createDocWithMd';
     return request(url, data);
@@ -232,6 +244,15 @@ export async function getIDsByHPath(notebook: NotebookId, path: string): Promise
         path: path
     };
     let url = '/api/filetree/getIDsByHPath';
+    return request(url, data);
+}
+
+export async function searchDocs(k: string, flashcard: boolean = false): Promise<any[]> {
+    let data = {
+        k: k,
+        flashcard: flashcard
+    };
+    let url = '/api/filetree/searchDocs';
     return request(url, data);
 }
 

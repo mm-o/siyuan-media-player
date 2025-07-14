@@ -196,9 +196,7 @@ export default class MediaPlayerPlugin extends Plugin {
     private async showTabContent(tabId: string, container: HTMLElement) {
         const components = { playlist: PlayList, assistant: Assistant, notes: Notes, settings: Setting };
 
-        container.querySelectorAll('[data-tab-id]').forEach(
-            el => el.classList.toggle('fn__none', el.getAttribute('data-tab-id') !== tabId)
-        );
+        container.querySelectorAll('[data-tab-id]').forEach(el => el.classList.toggle('fn__none', el.getAttribute('data-tab-id') !== tabId));
 
         if (this.components.has(tabId)) {
             window.dispatchEvent(new CustomEvent('mediaPlayerTabActivate', { detail: { tabId } }));
@@ -212,7 +210,7 @@ export default class MediaPlayerPlugin extends Plugin {
         const component = components[tabId];
         if (!component) return;
 
-        const baseProps = { config: await this.getConfig(), i18n: this.i18n, allTabs: ['playlist', 'assistant', 'notes', 'settings'], activeTabId: tabId, api: this.playerAPI, plugin: this };
+        const baseProps = { config: await this.getConfig(), i18n: this.i18n, activeTabId: tabId, api: this.playerAPI, plugin: this };
         const specificProps = {
             playlist: { currentItem: this.playerAPI?.getCurrentMedia?.() },
             settings: { group: 'media-player' },

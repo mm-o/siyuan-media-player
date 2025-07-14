@@ -371,7 +371,7 @@ $transition: 0.3s ease;
 }
 
 // 文本区域
-.setting-item-textarea .clear-icon {
+.setting-item-textarea .clear-icon, .setting-item-text .clear-icon {
   position: absolute; right: 8px; top: 8px; cursor: pointer; opacity: 0.5;
   .icon { width: 16px; height: 16px; } &:hover { opacity: 0.8; }
 }

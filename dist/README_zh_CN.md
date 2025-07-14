@@ -17,10 +17,12 @@
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>多平台播放</strong> - 本地媒体、B站视频、OpenList、WebDAV云存储统一播放</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>时间戳跳转</strong> - 精确时间戳链接，一键跳转到指定播放位置</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>循环片段</strong> - 自定义循环播放片段，重点内容反复学习</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，完整的学习笔记生态</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，支持子文档创建和智能搜索配置，完整的学习笔记生态</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入B站收藏夹、B站合集、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">📝 <strong>笔记面板</strong> - 独立的文档和块内容查看编辑，支持ID输入、智能标签、右键菜单操作</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">🔗 <strong>智能链接识别</strong> - 数据库URL字段媒体链接直接播放，Ctrl+点击强制浏览器打开</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
         </ul>
     </div>
@@ -45,6 +47,31 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.1版本更新 (2025.7.14)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔗 数据库URL链接识别</strong>: 支持数据库中URL字段的媒体链接点击直接打开播放器，无需跳转浏览器</li>
+<li><strong>⌨️ Ctrl+点击强制浏览器</strong>: 按住Ctrl键点击媒体链接可强制使用浏览器打开，绕过插件处理</li>
+<li><strong>📝 笔记面板功能</strong>: 新增独立的笔记面板，提供便捷的文档和块内容编辑功能
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>📋 ID输入支持</strong>：支持输入文档ID或块ID，自动验证格式并获取内容</li>
+<li><strong>🏷️ 智能标签</strong>：添加时自动截取前4个字符作为标签名称</li>
+<li><strong>🖱️ 右键菜单</strong>：提供重命名、在思源中打开、复制ID、删除标签等完整操作</li>
+<li><strong>📄 完整渲染</strong>：使用Protyle组件完整渲染文档内容，支持滚动和交互</li>
+<li><strong>💾 状态保存</strong>：自动保存标签页配置，重启后恢复之前的笔记标签</li>
+</ul>
+</li>
+<li><strong>📔 媒体笔记增强</strong>: 创建媒体笔记支持在指定文档下创建子文档，提供更灵活的笔记组织方式
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔍 智能搜索配置</strong>：设置中支持输入文档名称或笔记本名称进行搜索，快速定位目标位置</li>
+<li><strong>📂 子文档创建</strong>：支持在选定的父文档下自动创建子文档，保持笔记结构的层次性和组织性</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.0版本更新 (2025.7.12)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
@@ -404,7 +431,25 @@
                 1. 播放要记录笔记的媒体<br>
                 2. 点击控制栏中的"媒体笔记"按钮（或使用快捷键）<br>
                 3. 系统根据自定义模板创建笔记，包含媒体信息、时间戳、缩略图等<br>
-                4. 笔记可插入当前文档或创建到指定笔记本
+                4. 笔记可插入当前文档、创建到指定笔记本或在指定文档下创建子文档<br>
+                5. <strong>智能搜索配置</strong>：在设置中输入文档名称或笔记本名称进行搜索，快速定位目标位置<br>
+                6. <strong>子文档创建</strong>：选择父文档后，系统将在其下自动创建子文档，保持笔记结构的层次性
+                </div>
+                </details>
+            </li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+                <details>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>笔记面板</strong> - 文档和块内容查看编辑</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                1. 点击思源媒体播放器面板顶部的"笔记"标签<br>
+                2. <strong>添加笔记标签</strong>：点击"+"按钮，输入文档ID或块ID<br>
+                3. <strong>查看内容</strong>：点击标签查看对应的文档或块内容<br>
+                4. <strong>右键操作</strong>：右键点击标签可进行以下操作：<br>
+                   - <strong>重命名</strong>：修改标签显示名称（最多4个字符）<br>
+                   - <strong>在思源中打开</strong>：直接跳转到思源中的对应位置<br>
+                   - <strong>复制ID</strong>：复制文档或块ID到剪贴板<br>
+                   - <strong>删除标签</strong>：移除不需要的笔记标签<br>
+                5. <strong>完整编辑</strong>：支持在面板中直接编辑文档内容，与思源编辑器功能一致
                 </div>
                 </details>
             </li>
@@ -476,7 +521,11 @@
                 <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>自定义媒体笔记模板</strong> - 个性化笔记格式</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
                 您可以在设置中创建自己的媒体笔记模板，支持各种变量：<br>
-                <strong>可用变量</strong>：媒体标题、当前时间戳、艺术家名称、媒体URL、媒体时长、媒体缩略图、媒体类型、媒体ID、当前日期、当前日期和时间
+                <strong>可用变量</strong>：媒体标题、当前时间戳、艺术家名称、媒体URL、媒体时长、媒体缩略图、媒体类型、媒体ID、当前日期、当前日期和时间<br><br>
+                <strong>目标配置</strong>：<br>
+                • <strong>智能搜索</strong>：输入关键字搜索文档和笔记本，快速定位目标位置<br>
+                • <strong>子文档创建</strong>：选择父文档后，媒体笔记将作为子文档创建，保持层次结构<br>
+                • <strong>便捷设置</strong>：常用配置可保存，简化后续创建流程
                 </div>
                 </details>
             </li>
