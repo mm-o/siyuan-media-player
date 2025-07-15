@@ -224,7 +224,7 @@ export async function openPlayer(url: string, type: PlayerType, path?: string): 
         const playUrl = parsed.startTime ? Media.withTime(parsed.url, parsed.startTime) : parsed.url;
 
         if (type === PlayerType.BROWSER) {
-            window.navigator.userAgent.includes('Electron') ? require('electron').shell.openExternal(playUrl) : window.open(playUrl, '_blank');
+            window.navigator.userAgent.includes('Electron') && typeof require === 'function' ? require('electron').shell.openExternal(playUrl) : window.open(playUrl, '_blank');
             return;
         }
 
@@ -235,7 +235,7 @@ export async function openPlayer(url: string, type: PlayerType, path?: string): 
         const fileUrl = parsed.url.startsWith('file://') ? parsed.url.substring(8).replace(/\//g, '\\') : parsed.url;
         const command = `"${cleanPath}" "${fileUrl}"${timeParam}`;
 
-        if (window.navigator.userAgent.includes('Electron')) {
+        if (window.navigator.userAgent.includes('Electron') && typeof require === 'function') {
             require('child_process').exec(command);
         } else {
             await fetch('/api/system/execCommand', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ command }) });

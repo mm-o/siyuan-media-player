@@ -127,7 +127,7 @@ export default class MediaPlayerPlugin extends Plugin {
                             }
                             break;
                         case 'mediaNotes':
-                            await mediaNotes.create(currentItem, config, this.playerAPI, this.i18n, this.app);
+                            await mediaNotes.create(currentItem, config, this.playerAPI, this.i18n, this);
                             break;
                     }
                 } catch (error) {
