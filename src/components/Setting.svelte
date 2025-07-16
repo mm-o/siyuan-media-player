@@ -21,8 +21,8 @@
     const saveConfig = async (cfg) => { await plugin.saveData('config.json', cfg, 2); window.dispatchEvent(new CustomEvent('configUpdated', { detail: cfg })); };
 
     // 数据库操作 - 极简版
-    const processDbId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) return { id, avId: '' }; const fs = window.require('fs'), avPath = `${window.siyuan.config.system.workspaceDir}/data/storage/av/${id}.json`; return fs.existsSync(avPath) ? { id, avId: id } : { id, avId: (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` }) }).then(r => r.json())).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1] || '' }; };
-    const initDb = async (id: string) => { try { const { avId } = await processDbId(id); return avId && JSON.parse(window.require('fs').readFileSync(`${window.siyuan.config.system.workspaceDir}/data/storage/av/${avId}.json`, 'utf-8')); } catch { return false; } };
+    const processDbId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) return { id, avId: '' }; const avId = (await fetch('/api/query/sql', { method: 'POST', body: JSON.stringify({ stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` }) }).then(r => r.json()).catch(() => ({ data: [] }))).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1]; return { id, avId: avId || id }; };
+    const initDb = async (id: string) => { try { const { avId } = await processDbId(id); return !!(await fetch('/api/av/getAttributeView', { method: 'POST', body: JSON.stringify({ id: avId }) }).then(r => r.json()).catch(() => ({ code: -1 }))).code === 0; } catch { return false; } };
     
     // 默认值定义
     const DEFAULTS = {
@@ -51,7 +51,7 @@
         playlistView: { mode: 'detailed', tab: '目录', expanded: [] },
         screenshotWithTimestamp: false,
         linkFormat: "- [😄标题 艺术家 字幕 时间](链接)",
-        mediaNotesTemplate: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n- 🔗 链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容："
+        mediaNotesTemplate: "# 📽️ 标题的媒体笔记\n- 📅 日 期：日期\n- ⏱️ 时 长：时长\n- 🎨 艺 术 家：艺术家\n- 🔖 类 型：类型\n-  链 接：[链接](链接)\n- ![封面](封面)\n- 📝 笔记内容："
     };
     
     // 状态和数据
@@ -248,43 +248,27 @@
               },
               rows: 1 },
             { key: "targetDocumentSearch", value: "", type: "text" as SettingType, tab: "general",
-              title: i18n.setting.items?.targetDocument?.title || "目标文档",
-              description: "输入关键字后按回车搜索文档",
+              title: i18n.setting.items?.mediaNoteLocation?.search?.title || "媒体笔记创建位置",
+              description: i18n.setting.items?.mediaNoteLocation?.search?.description || "输入关键字后按回车搜索文档",
               onKeydown: async (e) => {
                 if (e.key === 'Enter') {
                   const result = await notebook.searchAndUpdate(e.target.value, state, { getConfig, saveConfig });
                   if (result.success && result.docs) {
-                    // 更新下拉选项：笔记本 + 搜索到的文档
-                    notebookOptions = [
-                      ...notebooks.map(nb => ({ label: nb.name, value: nb.id })),
-                      ...result.docs.map(doc => ({
-                        label: doc.hPath || doc.content || '无标题',
-                        value: doc.path?.substring(doc.path.lastIndexOf('/') + 1).replace('.sy', '') || doc.id || doc.root_id,
-                        notebook: doc.box,
-                        path: doc.path?.substring(0, doc.path.lastIndexOf('.sy')) || ''
-                      }))
-                    ];
+                    notebookOptions = [...notebooks.map(nb => ({ label: nb.name, value: nb.id })), ...result.docs.map(doc => ({ label: doc.hPath || '无标题', value: doc.path?.split('/').pop()?.replace('.sy', '') || doc.id, notebook: doc.box, path: doc.path?.replace('.sy', '') || '' }))];
                     settingItems = createSettings(state);
                   }
                 }
               } },
             { key: "targetNotebook", value: state.parentDoc?.id || state.notebook?.id || "", type: "select" as SettingType, tab: "general",
-              title: i18n.setting.items?.targetNotebook?.title || "目标笔记本",
-              description: state.parentDoc?.id
-                ? `目标文档：${state.parentDoc.name}`
-                : (state.notebook?.id ? `目标笔记本：${state.notebook.name}` : "选择创建媒体笔记的目标笔记本"),
+              title: i18n.setting.items?.mediaNoteLocation?.target?.title || "媒体笔记目标笔记本/文档",
+              description: state.parentDoc?.id ? `目标文档：${state.parentDoc.name}` : (state.notebook?.id ? `目标笔记本：${state.notebook.name}` : (i18n.setting.items?.mediaNoteLocation?.target?.description || "选择创建媒体笔记的目标笔记本")),
               onChange: (v) => {
                 const notebook = notebooks.find(nb => nb.id === v);
                 const docOption = notebookOptions.find(opt => opt.value === v);
-                if (notebook) {
-                  state.notebook = { id: v, name: notebook.name };
-                  state.parentDoc = { id: '', name: '', path: '' };
-                } else if (docOption) {
-                  state.parentDoc = { id: v, name: docOption.label, path: docOption.path || '' };
-                  state.notebook = { id: docOption.notebook || '', name: '' };
-                }
+                if (notebook) { state.notebook = { id: v, name: notebook.name }; state.parentDoc = { id: '', name: '', path: '' }; }
+                else if (docOption) { state.parentDoc = { id: v, name: docOption.label, path: docOption.path || '' }; state.notebook = { id: docOption.notebook || '', name: '' }; }
               },
-              options: notebookOptions.length > 0 ? notebookOptions : notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
+              options: notebookOptions.length ? notebookOptions : notebooks.map(nb => ({ label: nb.name, value: nb.id })) },
             { key: "insertMode", value: state.insertMode, type: "select" as SettingType, tab: "general",
               title: i18n.setting.items.insertMode?.title || "插入方式",
               description: i18n.setting.items.insertMode?.description || "选择时间戳和笔记的插入方式",
@@ -421,9 +405,9 @@
                             <span class="checkbox-custom"></span>
                         </label>
                     {:else if item.type === 'select'}
-                        <select class="select-wrapper" value={item.value} on:change={(e) => handleChange(e, item)}>
+                        <select class="select-wrapper" style="max-width: 200px; width: 200px;" value={item.value} on:change={(e) => handleChange(e, item)}>
                             {#each item.options || [] as option}
-                                <option value={option.value}>{option.label}</option>
+                                <option value={option.value} title={option.label}>{option.label.length > 30 ? option.label.slice(0, 30) + '...' : option.label}</option>
                             {/each}
                         </select>
                     {/if}

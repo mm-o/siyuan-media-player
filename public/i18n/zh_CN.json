@@ -339,6 +339,16 @@
             "general": "通用"
         },
         "items": {
+            "mediaNoteLocation": {
+                "search": {
+                    "title": "媒体笔记创建位置",
+                    "description": "输入关键字后按回车搜索文档"
+                },
+                "target": {
+                    "title": "媒体笔记目标笔记本/文档",
+                    "description": "选择创建媒体笔记的目标笔记本"
+                }
+            },
             "volume": {
                 "title": "音量",
                 "description": "默认音量大小"
@@ -407,14 +417,7 @@
                 "title": "媒体笔记模板",
                 "description": "设置媒体笔记的模板格式，支持使用 时间 标题 艺术家 链接 时长 封面 类型 ID 日期 时间戳 等变量"
             },
-            "targetNotebook": {
-                "title": "目标笔记本",
-                "description": "选择创建媒体笔记的目标笔记本"
-            },
-            "targetDocument": {
-                "title": "目标文档",
-                "description": "输入关键字搜索目标文档"
-            },
+
             "screenshotWithTimestamp": {
                 "title": "截图包含时间戳",
                 "description": "启用后，截图功能也会添加时间戳链接"

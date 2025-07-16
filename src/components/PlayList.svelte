@@ -47,7 +47,7 @@
 
     // ==================== 数据存储 ====================
     const api = async (path: string, data: any = {}) => fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json());
-    const getAvId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) throw new Error('请输入有效的数据库ID'); const fs = window.require('fs'), avPath = `${window.siyuan.config.system.workspaceDir}/data/storage/av/${id}.json`; if (fs.existsSync(avPath)) return id; const avId = (await api('/api/query/sql', { stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` })).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1]; if (!avId) throw new Error('数据库配置无效'); return avId; };
+    const getAvId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) throw new Error('请输入有效的数据库ID'); const avId = (await api('/api/query/sql', { stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` }).catch(() => ({ data: [] }))).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1]; return avId || id; };
     const loadLocal = async () => { try { return await plugin.loadData('playlist.json') || { tags: ['默认'], items: {} }; } catch { return { tags: ['默认'], items: {} }; } };
     const saveLocal = async (data) => { await plugin.saveData('playlist.json', data, 2); };
 
@@ -347,7 +347,7 @@
             state.folder = { type: 'webdav', path: path || '/', connected: true };
             if (state.tab === 'WebDAV') state.items = Array.isArray(items) ? items : [];
         } else {
-            if (!window.navigator.userAgent.includes('Electron')) throw new Error('此功能仅在桌面版可用');
+            if (!window.navigator.userAgent.includes('Electron') || typeof window.require !== 'function') throw new Error('此功能仅在桌面版可用');
             const fs = window.require('fs'), pathLib = window.require('path');
             const fullPath = type === 'siyuan' ? pathLib.join(window.siyuan.config.system.workspaceDir, 'data', path) : path;
             const items: any[] = [];
@@ -443,7 +443,7 @@
     };
 
     const addFolder = async () => {
-        if (!window.navigator.userAgent.includes('Electron')) return showMessage('此功能仅在桌面版可用');
+        if (!window.navigator.userAgent.includes('Electron') || typeof window.require !== 'function') return showMessage('此功能仅在桌面版可用');
         const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] });
         if (!filePaths?.[0]) return;
         const [folderPath, folderName] = [filePaths[0], filePaths[0].split(/[\\/]/).pop()];
@@ -543,7 +543,7 @@
 
     const handleAdd = async () => {
         if (state.input.trim()) { try { await add(state.input.trim(), state.tab); state.input = ''; } catch {} }
-        else { if (!window.navigator.userAgent.includes('Electron')) { showMessage("需要桌面版支持"); return; } const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] }); if (filePaths?.length > 1) await batchAdd(filePaths.map(p => ({ url: `file://${p.replace(/\\/g, '/')}` })), state.tab); else if (filePaths?.length) try { await add(`file://${filePaths[0].replace(/\\/g, '/')}`, state.tab); } catch {} }
+        else { if (!window.navigator.userAgent.includes('Electron') || typeof window.require !== 'function') { showMessage("需要桌面版支持"); return; } const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] }); if (filePaths?.length > 1) await batchAdd(filePaths.map(p => ({ url: `file://${p.replace(/\\/g, '/')}` })), state.tab); else if (filePaths?.length) try { await add(`file://${filePaths[0].replace(/\\/g, '/')}`, state.tab); } catch {} }
     };
 
     // ==================== 生命周期 ====================

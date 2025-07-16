@@ -47,6 +47,20 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.2版本更新 (2025.7.15)</strong>
+<ul style="margin: 0.5em 0; padding-left: 1.2em;">
+<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ 功能优化</strong>
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🎯 媒体笔记设置优化</strong>: 重构目标笔记本/文档设置项逻辑，简化配置流程，提升用户体验</li>
+<li><strong>📝 智能笔记面板集成</strong>: 创建媒体笔记时自动添加到笔记面板，实现一键创建、自动管理的无缝体验
+<ul style="margin: 0.2em 0; padding-left: 1em;">
+<li><strong>🔄 自动同步</strong>：媒体笔记创建后立即出现在笔记面板中，无需手动添加</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
 <strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.1版本更新 (2025.7.14)</strong>
 <ul style="margin: 0.5em 0; padding-left: 1.2em;">
 <li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>

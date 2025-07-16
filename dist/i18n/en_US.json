@@ -336,6 +336,16 @@
             "general": "General"
         },
         "items": {
+            "mediaNoteLocation": {
+                "search": {
+                    "title": "Media Note Creation Location",
+                    "description": "Enter keywords and press Enter to search documents"
+                },
+                "target": {
+                    "title": "Media Note Target Notebook/Document",
+                    "description": "Select target notebook for creating media notes"
+                }
+            },
             "volume": {
                 "title": "Volume",
                 "description": "Default volume level"
@@ -404,14 +414,7 @@
                 "title": "Media Notes Template",
                 "description": "Set the template format for media notes. You can use variables like time, title, artist, url, duration, thumbnail, type, ID, date, timestamp, etc."
             },
-            "targetNotebook": {
-                "title": "Target Notebook",
-                "description": "Select the target notebook for creating media notes"
-            },
-            "targetDocument": {
-                "title": "Target Document",
-                "description": "Enter keywords to search for target document"
-            },
+
             "screenshotWithTimestamp": {
                 "title": "Screenshot with Timestamp",
                 "description": "When enabled, screenshots will also include timestamp links"
