@@ -148,14 +148,14 @@
     onMount(loadNotesConfig);
 </script>
 
-<div class="playlist {className}" class:hidden>
+<div class="panel {className}" class:hidden>
     <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
-            <span class="playlist-count">{notesTabs.length} 项</span>
+            <span class="panel-count">{notesTabs.length} 项</span>
         </svelte:fragment>
     </Tabs>
 
-    <div class="playlist-tabs">
+    <div class="panel-tabs">
         {#each notesTabs as tab (tab.id)}
             {#if editingTab === tab.id}
                 <input

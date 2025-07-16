@@ -154,30 +154,30 @@ $transition: 0.3s ease;
 }
 
 // 通用面板样式
-.playlist, .settings, .assistant {
+.panel {
   @extend %panel-base;
   
   // 头部区域
-  .playlist-header, .panel-header, .settings-header {
+  .panel-header {
     height: size(header); padding: 0 16px; border-bottom: 1px solid color(surface-lighter); @include flex(row, space-between, center);
-    
+
     .panel-nav { @include flex(row, flex-start, center, 8px);
       h3 { margin: 0; font-size: 12px; cursor: pointer; transition: all 0.2s; color: color(on-surface); opacity: 0.65;
         &.active { font-size: 16px; color: color(primary); opacity: 1; }
         &:hover:not(.active) { color: color(primary); opacity: 0.85; }
       }
     }
-    
-    .header-controls, .playlist-count { font-size: 12px; color: color(on-surface); opacity: 0.86; }
+
+    .header-controls, .panel-count { font-size: 12px; color: color(on-surface); opacity: 0.86; }
     .header-controls { @include flex(row, flex-start, center, 8px);
-      .view-mode-btn { @extend %button-base; padding: 4px; color: color(on-surface); opacity: 0.7; @include flex(row, center, center); transition: opacity 0.2s; &:hover { opacity: 1; } 
+      .view-mode-btn { @extend %button-base; padding: 4px; color: color(on-surface); opacity: 0.7; @include flex(row, center, center); transition: opacity 0.2s; &:hover { opacity: 1; }
         svg { fill: currentColor; }
       }
     }
   }
   
   // 标签区域
-  .playlist-tabs, .panel-tabs {
+  .panel-tabs {
     min-height: size(tabs); padding: size(spacing); @include flex(row, flex-start, center, size(spacing)); border-bottom: 1px solid color(border); background: color(surface); flex-wrap: wrap; overflow: visible;
     .tab { @extend %button-base; padding: 4px 12px; @include bordered; color: color(on-surface); white-space: nowrap; font-size: 14px; line-height: 20px;
       &:hover:not(.active) { border-color: color(primary); color: color(primary); }
@@ -186,39 +186,39 @@ $transition: 0.3s ease;
   }
   
   // 内容区域
-  .playlist-content, .panel-content, .setting-panel, .subtitle-list {
+  .panel-content {
     @extend %section-container; padding-bottom: 60px;
-    
+
     // 空状态
-    .playlist-empty, .panel-empty {
-      height: 100%; @include flex(row, center, center); 
+    .panel-empty {
+      height: 100%; @include flex(row, center, center);
       color: color(on-surface); opacity: 0.5;
     }
-    
+
     // 列表视图
-    .playlist-items, .panel-items {
+    .panel-items {
       @include flex(column, flex-start, stretch, 8px);
     }
-    
+
     // 网格视图
-    &.grid-view .playlist-items, &.grid-view .panel-items {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; align-items: start;      
+    &.grid-view .panel-items {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; align-items: start;
       &.grid-single { grid-template-columns: 100%; }
-      .playlist-item { padding: 0; margin: 0; height: auto; }
+      .panel-item { padding: 0; margin: 0; height: auto; }
     }
   }
   
   // 底部区域
-  .playlist-footer, .panel-footer, .assistant-footer {
+  .panel-footer {
     position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); @include flex(row, center, center, 8px); z-index: 10;
-    
+
     .add-btn, .action-btn {
       @include flex(row, center, center); height: 28px; padding: 0 16px; border: none; border-radius: 24px; white-space: nowrap; font-size: 14px; background: color(primary); color: color(on-primary); transition: all 0.2s;
       .icon { width: 14px; height: 14px; margin-right: 4px; fill: currentColor; }
       &:hover { filter: brightness(0.9); transform: translateY(-2px); }
       &.simple-btn:hover { transform: none; }
     }
-    
+
     .input-wrapper { position: relative; .clear-icon { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); } }
   }
   
@@ -259,7 +259,7 @@ $transition: 0.3s ease;
 /* -----------------------------------------
  * 列表项组件 & 视图样式
  * ----------------------------------------- */
-.playlist-item {
+.panel-item {
   @include flex(column, flex-start, stretch, 8px); padding: 12px; @extend %item-base;
   
   // 通用元素

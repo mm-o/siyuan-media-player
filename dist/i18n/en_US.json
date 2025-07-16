@@ -1,5 +1,8 @@
 {
     "name": "SiYuan Media Player",
+    "openMediaPlayer": "Open Media Player",
+    "openImageViewer": "Open Image Viewer",
+    "openImageGallery": "Document Image Gallery",
     "common": {
         "cancel": "Cancel",
         "save": "Save",
@@ -333,6 +336,7 @@
         "tabs": {
             "account": "Account",
             "player": "Player",
+            "imageViewer": "Image Viewer",
             "general": "General"
         },
         "items": {
@@ -511,6 +515,38 @@
             "server": "WebDAV server address",
             "username": "WebDAV account username",
             "password": "WebDAV account password"
+        },
+        "imageViewerInline": {
+            "title": "Inline Mode",
+            "description": "Display image viewer in tab instead of modal mode"
+        },
+        "imageViewerToolbar": {
+            "title": "Show Toolbar",
+            "description": "Show zoom, rotate and other operation toolbar"
+        },
+        "imageViewerNavbar": {
+            "title": "Show Navigation Bar",
+            "description": "Show thumbnail navigation in gallery mode"
+        },
+        "imageViewerKeyboard": {
+            "title": "Keyboard Shortcuts",
+            "description": "Enable keyboard shortcuts (arrow keys, +/- zoom, etc.)"
+        },
+        "imageViewerZoomOnWheel": {
+            "title": "Mouse Wheel Zoom",
+            "description": "Use mouse wheel to zoom images"
+        },
+        "imageViewerSlideOnTouch": {
+            "title": "Touch Slide Switch",
+            "description": "Slide to switch images on touch screen"
+        },
+        "imageViewerLoop": {
+            "title": "Loop Browsing",
+            "description": "Loop through images in gallery mode"
+        },
+        "imageViewerZoomRatio": {
+            "title": "Zoom Step",
+            "description": "Zoom step percentage for each zoom operation"
         }
     },
     "screenshot": {

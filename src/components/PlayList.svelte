@@ -552,11 +552,11 @@
     export { play };
 </script>
 
-<div class="playlist {className}" class:hidden>
+<div class="panel {className}" class:hidden>
     <!-- 统一导航 -->
     <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
-            <span class="playlist-count">{state.items.length} 项</span>
+            <span class="panel-count">{state.items.length} 项</span>
             <button class="view-mode-btn" on:click={nextView} title="视图">
                 <svg viewBox="0 0 24 24" width="16" height="16"><path d={ICONS[VIEWS.indexOf(state.view) % 3]}/></svg>
             </button>
@@ -564,7 +564,7 @@
     </Tabs>
     
     <!-- 标签 -->
-    <div class="playlist-tabs">
+    <div class="panel-tabs">
         {#each state.tags as tag, index (tag)}
             {#if state.edit === tag}
                 <input bind:this={state.refs.edit} type="text" class="tab-input" value={tag} on:blur={e => input(e, 'tag', tag)} on:keydown={e => input(e, 'tag', tag)}>
@@ -602,11 +602,11 @@
     {/if}
     
     <!-- 内容 -->
-    <div class="playlist-content" class:grid-view={isGrid}>
+    <div class="panel-content" class:grid-view={isGrid}>
         {#if items.length}
-            <div class="playlist-items" class:grid-single={state.view === 'grid-single'}>
+            <div class="panel-items" class:grid-single={state.view === 'grid-single'}>
                 {#each items as item, index (item.id)}
-                   <div class="playlist-item"
+                   <div class="panel-item"
                         class:playing={playing(item)}
                         class:selected={selected(item)}
                         class:compact={isCompact}
@@ -662,13 +662,13 @@
                 {/each}
             </div>
         {:else}
-            <div class="playlist-empty">{!state.enabled ? '请先在设置中启用数据库功能' : !state.dbId ? '请在设置中配置播放列表数据库' : '当前标签暂无媒体项目'}</div>
+            <div class="panel-empty">{!state.enabled ? '请先在设置中启用数据库功能' : !state.dbId ? '请在设置中配置播放列表数据库' : '当前标签暂无媒体项目'}</div>
         {/if}
     </div>
-    
+
     <!-- 输入 -->
-    <div class="playlist-footer">
-        <input type="text" class="tab-input playlist-input" placeholder="输入链接或直接点击添加本地文件..." bind:value={state.input} on:keydown={e => e.key === 'Enter' && handleAdd()} style="padding-right: {state.input ? '25px' : '8px'}">
+    <div class="panel-footer">
+        <input type="text" class="tab-input panel-input" placeholder="输入链接或直接点击添加本地文件..." bind:value={state.input} on:keydown={e => e.key === 'Enter' && handleAdd()} style="padding-right: {state.input ? '25px' : '8px'}">
         {#if state.input}<span style="position:absolute;right:80px;cursor:pointer;color:#666" on:click={() => state.input = ''}>×</span>{/if}
         <button class="add-btn" on:click={handleAdd}>添加</button>
     </div>

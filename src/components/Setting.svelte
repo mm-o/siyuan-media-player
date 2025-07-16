@@ -334,21 +334,21 @@
     onMount(refreshSettings);
 </script>
 
-<div class="settings common-panel" data-name={group}>
+<div class="panel common-panel" data-name={group}>
     <!-- 统一导航 -->
     <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
-            <span class="playlist-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
+            <span class="panel-count">{tabs.find(tab => tab.id === activeTab)?.name || i18n.setting.description}</span>
         </svelte:fragment>
     </Tabs>
 
-    <div class="playlist-tabs">
+    <div class="panel-tabs">
         {#each tabs as tab}
             <button class="tab" class:active={activeTab === tab.id} on:click={() => activeTab = tab.id}>{tab.name}</button>
         {/each}
     </div>
 
-    <div class="setting-panel">
+    <div class="panel-content">
         {#each settingItems as item (item.key)}
             {#if item.tab === activeTab && (!item.displayCondition || item.displayCondition(state))}
             <div class="setting-item setting-item-{item.type}" data-key={item.key}>

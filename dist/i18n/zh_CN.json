@@ -1,5 +1,8 @@
 {
     "name": "思源媒体播放器",
+    "openMediaPlayer": "打开媒体播放器",
+    "openImageViewer": "打开图片查看器",
+    "openImageGallery": "文档图片画廊",
     "common": {
         "cancel": "取消",
         "save": "保存",
@@ -336,6 +339,7 @@
         "tabs": {
             "account": "账号",
             "player": "播放器",
+            "imageViewer": "图片查看器",
             "general": "通用"
         },
         "items": {
@@ -514,6 +518,38 @@
             "server": "WebDAV服务器地址",
             "username": "WebDAV账号用户名",
             "password": "WebDAV账号密码"
+        },
+        "imageViewerInline": {
+            "title": "内联模式",
+            "description": "在标签页中显示图片查看器，而不是弹窗模式"
+        },
+        "imageViewerToolbar": {
+            "title": "显示工具栏",
+            "description": "显示缩放、旋转等操作工具栏"
+        },
+        "imageViewerNavbar": {
+            "title": "显示导航栏",
+            "description": "在画廊模式中显示图片缩略图导航"
+        },
+        "imageViewerKeyboard": {
+            "title": "键盘快捷键",
+            "description": "启用键盘快捷键操作（方向键、+/-缩放等）"
+        },
+        "imageViewerZoomOnWheel": {
+            "title": "鼠标滚轮缩放",
+            "description": "使用鼠标滚轮缩放图片"
+        },
+        "imageViewerSlideOnTouch": {
+            "title": "触摸滑动切换",
+            "description": "在触摸屏上滑动切换图片"
+        },
+        "imageViewerLoop": {
+            "title": "循环浏览",
+            "description": "在画廊模式中循环浏览图片"
+        },
+        "imageViewerZoomRatio": {
+            "title": "缩放步长",
+            "description": "每次缩放的步长百分比"
         }
     },
     "screenshot": {

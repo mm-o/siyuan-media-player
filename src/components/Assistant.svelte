@@ -216,15 +216,15 @@
     onDestroy(stopTracking);
 </script>
 
-<div class="playlist assistant {className}" class:hidden={hidden}>
+<div class="panel assistant {className}" class:hidden={hidden}>
     <!-- 统一导航 -->
     <Tabs {activeTabId} {i18n}>
         <svelte:fragment slot="controls">
-            <span class="playlist-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || '总结'))}</span>
+            <span class="panel-count">{hasItems ? `${items.length}${i18n?.assistant?.itemCount || "条"}` : (i18n?.assistant?.noItems || "无")}{activeTab === 'subtitles' ? (i18n?.assistant?.tabs?.subtitles || '字幕') : (activeTab === 'danmakus' ? (i18n?.assistant?.tabs?.danmakus || '弹幕') : (i18n?.assistant?.tabs?.summary || '总结'))}</span>
         </svelte:fragment>
     </Tabs>
     
-    <div class="playlist-tabs">
+    <div class="panel-tabs">
         <button class="tab" class:active={activeTab === 'subtitles'} on:click={() => activeTab = 'subtitles'}>
             {i18n?.assistant?.tabs?.subtitles || "字幕列表"}
         </button>
@@ -236,9 +236,9 @@
         </button>
     </div>
     
-    <div class="playlist-content">
+    <div class="panel-content">
         {#if (activeTab === 'summary' && isLoadingSummary) || (activeTab === 'subtitles' && isLoadingSubtitles) || (activeTab === 'danmakus' && isLoadingDanmakus)}
-            <div class="playlist-empty">
+            <div class="panel-empty">
                 {activeTab === 'summary' 
                     ? (i18n?.assistant?.summary?.loading || "正在加载AI总结...") 
                     : (activeTab === 'danmakus'
@@ -263,12 +263,12 @@
                 {/each}
             </div>
         {:else}
-            <div class="playlist-empty">{emptyText}</div>
+            <div class="panel-empty">{emptyText}</div>
         {/if}
     </div>
-    
+
     {#if hasItems}
-        <div class="playlist-footer assistant-footer">
+        <div class="panel-footer">
             <button class="add-btn" on:click={exportAll}>
                 <svg class="icon"><use xlink:href="#iconDownload"></use></svg>
                 <span>{exportBtnText}</span>

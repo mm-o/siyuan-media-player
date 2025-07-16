@@ -77,6 +77,7 @@
     "artplayer-plugin-danmuku": "^5.1.6",
     "artplayer-plugin-dash-control": "^1.0.0",
     "md5": "^2.3.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "viewerjs": "^1.11.7"
   }
 }

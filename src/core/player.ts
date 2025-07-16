@@ -132,7 +132,8 @@ export class Media {
             startTime: data.startTime,
             endTime: data.endTime,
             bvid: data.bv || data.bvid,
-            cid: data.cid
+            cid: data.cid,
+            source: data.source // 添加source字段
         };
     }
 
