@@ -47,215 +47,60 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.2版本更新 (2025.7.15)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ 功能优化</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🎯 媒体笔记设置优化</strong>: 重构目标笔记本/文档设置项逻辑，简化配置流程，提升用户体验</li>
-<li><strong>📝 智能笔记面板集成</strong>: 创建媒体笔记时自动添加到笔记面板，实现一键创建、自动管理的无缝体验
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔄 自动同步</strong>：媒体笔记创建后立即出现在笔记面板中，无需手动添加</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.1版本更新 (2025.7.14)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔗 数据库URL链接识别</strong>: 支持数据库中URL字段的媒体链接点击直接打开播放器，无需跳转浏览器</li>
-<li><strong>⌨️ Ctrl+点击强制浏览器</strong>: 按住Ctrl键点击媒体链接可强制使用浏览器打开，绕过插件处理</li>
-<li><strong>📝 笔记面板功能</strong>: 新增独立的笔记面板，提供便捷的文档和块内容编辑功能
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📋 ID输入支持</strong>：支持输入文档ID或块ID，自动验证格式并获取内容</li>
-<li><strong>🏷️ 智能标签</strong>：添加时自动截取前4个字符作为标签名称</li>
-<li><strong>🖱️ 右键菜单</strong>：提供重命名、在思源中打开、复制ID、删除标签等完整操作</li>
-<li><strong>📄 完整渲染</strong>：使用Protyle组件完整渲染文档内容，支持滚动和交互</li>
-<li><strong>💾 状态保存</strong>：自动保存标签页配置，重启后恢复之前的笔记标签</li>
-</ul>
-</li>
-<li><strong>📔 媒体笔记增强</strong>: 创建媒体笔记支持在指定文档下创建子文档，提供更灵活的笔记组织方式
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔍 智能搜索配置</strong>：设置中支持输入文档名称或笔记本名称进行搜索，快速定位目标位置</li>
-<li><strong>📂 子文档创建</strong>：支持在选定的父文档下自动创建子文档，保持笔记结构的层次性和组织性</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.0版本更新 (2025.7.12)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📚 B站合集支持</strong>: 新增B站合集批量添加功能，通过任意合集视频链接一键获取整个合集
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🏷️ 智能识别</strong>：自动检测视频是否属于合集，提取合集ID和UP主信息</li>
-<li><strong>🔄 智能刷新</strong>：支持合集标签的一键刷新更新</li>
-</ul>
-</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">🔧 性能优化</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>💬 提示信息精简</strong>: 优化批量添加提示，统一showMessage处理逻辑</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔊 B站视频音频修复</strong>: 修复B站视频播放时只有画面无声音的问题，统一DASH流处理逻辑</li>
-<li><strong>⚡ 播放参数统一</strong>: 重构B站视频播放流程，直接生成blob播放地址，简化代码逻辑</li>
-<li><strong>🔇 警告信息优化</strong>: 消除播放B站/WebDAV视频时的无关OpenList错误警告，提升用户体验</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.9版本更新 (2025.7.12)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📝 标签描述存储</strong>: 批量添加文件夹或B站收藏夹时，自动将路径/ID信息保存到所在标签选项描述中
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li>📁 文件夹标签：保存完整文件夹路径，如 <code>C:\Users\Music\MyPlaylist</code></li>
-<li>💖 B站收藏夹：保存收藏夹ID，如 <code>12345678</code></li>
-</ul>
-</li>
-<li><strong>🔄 标签智能刷新</strong>: 基于标签描述信息，右键菜单新增智能刷新功能
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li>🧠 智能识别：自动识别文件夹路径或B站收藏夹ID，选择对应刷新策略</li>
-<li>📁 文件夹同步：检测本地文件夹变化，智能增删媒体项</li>
-<li>💖 收藏夹同步：检测B站收藏夹内容变化，保持数据一致性</li>
-<li>⚡ 差异化更新：智能对比现有数据，仅处理变化项目，性能提升90%以上</li>
-</ul>
-</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔄 批量添加修复</strong>: 修复批量添加文件夹和B站收藏夹时删除其他项的竞态条件问题，确保数据安全</li>
-<li><strong>⚡ 代码优化</strong>: 极限精简核心函数实现，代码减少40%，提升执行效率和可读性</li>
-</ul>
-</li>
-</ul>
+### 📅 v0.4.3版本更新 (2025.7.17)
+- 🆕 **新增功能**
+  - 🏷️ **媒体块自定义属性系统**: 为插件生成的所有媒体相关块添加标准化自定义属性，实现智能识别和高效管理
+    - 📊 **统一标识体系**: 所有媒体功能生成的块都将自动添加特定的自定义属性，便于后续识别、查询和管理，为构建个人媒体学习系统和内容管理工作流提供强大基础
+    - ⏰ **时间戳块增强**: 生成的时间戳链接块自动添加 `custom-media="timestamp"` 属性标识，并通过 `custom-timestamp="02:03"` 精确记录时间点，支持批量管理和快速定位重要时刻
+    - 🔄 **循环片段智能标记**: 循环片段块使用 `custom-media="loop"` 进行标识，同时通过 `custom-loop-start="01:30"` 和 `custom-loop-end="02:45"` 精确记录循环区间，支持复杂的片段管理和学习重点标记
+    - 📸 **截图块自动识别**: 截图功能生成的图片块添加 `custom-media="screenshot"` 属性，实现截图内容的快速筛选、分类整理和视觉化管理
+    - 📷 **截图+时间戳组合卡片**: 截图带时间戳功能生成的复合块使用 `custom-media="mediacard"` 标识，配合 `custom-timestamp="02:03"` 关联时间信息，形成完整的媒体记忆卡片体系
+    - 📔 **媒体笔记完整档案**: 媒体笔记文档添加 `custom-type="MediaNote"` 类型标识，通过 `custom-mediaurl="媒体URL"` 记录源媒体链接，使用 `custom-website="bilibili/openlist/webdav/local"` 标记来源网站，构建完整的学习档案系统
+    - 🔍 **SQL查询支持**: 基于自定义属性实现精确的媒体块检索，支持复杂的数据分析和内容管理需求
+    - 🎯 **应用场景扩展**: 支持构建个人媒体学习系统、内容管理工作流、媒体资源分析、学习进度追踪等高级应用，为用户提供更强大的媒体内容组织和利用能力
+- 🐛 **缺陷修复**
+  - 🎯 **dock栏图标修复**: 修复dock栏图标调整位置导致空白问题，确保图标正常显示
+- 🔧 **开发重构**
+  - 📋 **面板命名统一**: 统一各功能面板命名规范，提升代码一致性
+  - 🎨 **样式布局优化**: 统一样式布局设计，改善用户界面体验
 
-<details style="margin-top: 1.5em;">
-<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 查看历史更新</summary>
-<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
+<details>
+<summary><strong>📋 查看历史更新</strong></summary>
 
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8版本更新 (2025.7.11)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>⌨️ 播放速度快捷键</strong>: 新增Ctrl+↑/↓快捷键控制播放速度，操作更便捷</li>
-<li><strong>⚡ 倍速提升</strong>: 播放速度上限从2倍提升至5倍速，满足快速浏览需求</li>
-<li><strong>🗂️ 数据库智能绑定</strong>: 支持数据库ID和数据库块ID双重输入方式，自动识别转换</li>
-<li><strong>🔗 数据库绑定模式</strong>: 新增数据库绑定开关，启用时需要手动绑定数据库，禁用时自动生成本地数据库配置文件，提供灵活的配置方式</li>
-<li><strong>💾 播放列表状态记忆</strong>: 自动保存视图模式和标签页状态，重启后无缝恢复</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🎬 B站分P视频修复</strong>: 修复B站分P视频生成时间戳/循环片段链接缺少分P参数问题</li>
-<li><strong>🎮 外部播放器修复</strong>: 修复PotPlayer和浏览器打开方式失效问题，外部播放器不再无意义打开tab</li>
-<li><strong>🔗 OpenList链接识别</strong>: 修复OpenList时间戳/循环片段链接识别问题，支持三种URL格式：
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><code>/#/</code> 格式：<code>http://localhost:5244/#/mv/ve/001.mp4?t=2.4</code></li>
-<li><code>/p/</code> 格式：<code>http://localhost:5244/p/mv/ve/001.mp4?t=2.4</code></li>
-<li>直接路径：<code>http://localhost:5244/mv/ve/001.mp4?t=2.4</code></li>
-</ul>
-</li>
-<li><strong>⚡ 设置即时生效</strong>: 修复设置播放器类型后链接点击不能及时生效问题</li>
-<li><strong>📺 B站功能恢复</strong>: 修复B站字幕和视频总结无法获取问题</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 开发重构</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📊 播放列表API重构</strong>: 移除文件系统操作，全面采用思源笔记API，提升稳定性和性能</li>
-<li><strong>🛠️ 数据库映射优化</strong>: 放宽字段映射条件，支持多字段或缺失字段的灵活处理，增强容错性</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7版本更新 (2025.7.8)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📊 播放列表数据库优化</strong>: 修复数据库字段规范性问题，单选多选项具有正确颜色标识，自动创建画廊视图</li>
-<li><strong>🔄 拖拽排序修复</strong>: 修复拖拽排序后播放列表无法加载的问题，确保多标签环境下数据完整性</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 开发重构</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>⚡ 重写说明文档</strong>: 优化说明文档样式，增加数据库配置、账号配置等方法</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.6版本更新 (2025.7.5)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 新增功能</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>☁️ WebDAV云存储支持</strong>: 新增WebDAV云存储集成，包含设置面板配置、标签菜单浏览选项、直接流式播放、时间戳链接和循环片段支持</li>
-<li><strong>🎛️ 顶部快捷菜单</strong>: 增加顶部紫色小电视图标，快速访问设置</li>
-<li><strong>🎨 专用图标</strong>: 为OpenList和WebDAV服务添加专用SVG图标</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ 功能改进</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🖼️ 图片本地化</strong>: 自动转换封面图和艺术家头像为本地资源，提升加载速度和离线显示支持</li>
-<li><strong>📔 媒体笔记增强</strong>: 新创建的文档自动在右侧标签页打开</li>
-<li><strong>🔄 循环功能增强</strong>: 增加单项循环和列表循环设置的互斥功能</li>
-<li><strong>📝 术语优化</strong>: 将"循环次数"更新为"片段循环次数"，"循环后暂停"更新为"片段循环后暂停"</li>
-<li><strong>📁 思源空间相对路径</strong>: 思源空间媒体现在使用相对路径生成时间戳和循环片段链接，与思源空间菜单项路径格式保持一致，提升可移植性和工作空间独立性</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 缺陷修复</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔗 B站时间戳链接</strong>: 修复时间戳链接生成使用播放地址而非标准链接的问题</li>
-<li><strong>📤 导出功能</strong>: 修复字幕、弹幕、AI总结导出功能问题</li>
-<li><strong>📔 媒体笔记</strong>: 修复文档创建失败问题</li>
-<li><strong>📸 截图功能</strong>: 修复截图不包含时间戳选项失效的问题</li>
-<li><strong>🏷️ 播放列表标签菜单</strong>: 修复右键菜单重命名功能点击后菜单不隐藏的问题</li>
-<li><strong>🔄 循环功能</strong>: 修复B站视频单项循环不工作、列表循环加载下一个媒体后暂停的问题，增强B站分P视频系列支持</li>
-<li><strong>🎨 样式作用域</strong>: 修复SCSS选择器影响思源笔记滚动条的问题</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 技术改进</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li>统一核心模块代码结构，提升稳定性和性能</li>
-<li>实现静音自动播放绕过策略，确保播放列表循环可靠性</li>
-<li>统一所有媒体类型的循环机制</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 0.3.5版本更新 (2025.7.2)</strong>
-<div style="margin: 0.5em 0; padding: 0.8em; background: #fef3f2; border-left: 4px solid #f87171; border-radius: 4px;">
-<strong style="color: #dc2626;">⚠️ 重要提醒：由于大幅重构，本次更新导致播放列表和设置配置不兼容！</strong><br>
-📋 请在更新前做好数据迁移备份，配置文件位于：<code>data\storage\petal\siyuan-media-player\config.json</code><br>
-🔄 更新后需要重新配置播放列表和相关设置
-</div>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.2em 0;"><strong>📋 播放列表重构</strong>: 优化播放列表组件结构和性能，提升大量媒体时的响应速度</li>
-<li style="margin: 0.2em 0;"><strong>⚙️ 设置组件重构</strong>: 移除复杂样式，简化为直观的开关项界面，统一组件处理逻辑，大幅提升配置效率，增加数据库avid和笔记本ID的实时显示，移除保存和重置按钮，实现实时保存和单项重置</li>
-<li style="margin: 0.2em 0;"><strong>📚 数据库配置同步</strong>: 播放列表配置自动同步到数据库，确保数据一致性</li>
-<li style="margin: 0.2em 0;"><strong>🎯 拖拽功能增强</strong>: 支持拖拽媒体项进行排序和跨标签移动，支持拖拽播放列表标签重新排序，删除传统排序按钮，统一使用拖拽操作</li>
-<li style="margin: 0.2em 0;"><strong>📷 截图功能修复</strong>: 修复截图带时间戳功能，确保截图与时间戳正确关联</li>
-<li style="margin: 0.2em 0;"><strong>🏷️ 视觉标签优化</strong>: 增加播放列表项来源和类型的可视化标签，界面更直观美观</li>
-<li style="margin: 0.2em 0;"><strong>👨‍💼 账号样式优化</strong>: 改进B站账号显示样式，提升用户体验</li>
-<li style="margin: 0.2em 0;"><strong>💬 思源空间增强</strong>: 完整浏览思源笔记工作空间文件系统，支持浏览和播放所有文件夹中的媒体文件</li>
-<li style="margin: 0.2em 0;"><strong>🔗 媒体笔记URL修复</strong>: 修复B站媒体笔记中URL使用播放地址而非标准链接的问题</li>
-<li style="margin: 0.2em 0;"><strong>🧹 功能精简</strong>: 移除内置脚本加载功能，建议使用思源笔记内置JS脚本功能</li>
-<li style="margin: 0.2em 0;"><strong>🔄 网盘重构</strong>: 将AList云盘功能重构为OpenList，统一云存储接口，提升兼容性和稳定性</li>
-<li style="margin: 0.2em 0;"><strong>⚡ 代码优化</strong>: 极限精简核心代码，清理冗余逻辑，减少插件体积</li>
-<li style="margin: 0.2em 0;"><strong>🎯 专注核心</strong>: 专注于媒体播放和笔记集成功能，提升稳定性和性能</li>
-</ul>
+### 📅 v0.4.2版本更新 (2025.7.15)
+- ✨ **功能优化**
+  - 🎯 **媒体笔记设置优化**: 重构目标笔记本/文档设置项逻辑，简化配置流程，提升用户体验
+  - 📝 **智能笔记面板集成**: 创建媒体笔记时自动添加到笔记面板，实现一键创建、自动管理的无缝体验
+    - 🔄 **自动同步**：媒体笔记创建后立即出现在笔记面板中，无需手动添加
+---
+### 📅 v0.4.1版本更新 (2025.7.14)
+- 🆕 **新增功能**
+  - 🔗 **数据库URL链接识别**: 支持数据库中URL字段的媒体链接点击直接打开播放器，无需跳转浏览器
+  - ⌨️ **Ctrl+点击强制浏览器**: 按住Ctrl键点击媒体链接可强制使用浏览器打开，绕过插件处理
+  - 📝 **笔记面板功能**: 新增独立的笔记面板，提供便捷的文档和块内容编辑功能
+    - 📋 **ID输入支持**：支持输入文档ID或块ID，自动验证格式并获取内容
+    - 🏷️ **智能标签**：添加时自动截取前4个字符作为标签名称
+    - 🖱️ **右键菜单**：提供重命名、在思源中打开、复制ID、删除标签等完整操作
+    - 📄 **完整渲染**：使用Protyle组件完整渲染文档内容，支持滚动和交互
+    - 💾 **状态保存**：自动保存标签页配置，重启后恢复之前的笔记标签
+  - 📔 **媒体笔记增强**: 创建媒体笔记支持在指定文档下创建子文档，提供更灵活的笔记组织方式
+    - 🔍 **智能搜索配置**：设置中支持输入文档名称或笔记本名称进行搜索，快速定位目标位置
+    - 📂 **子文档创建**：支持在选定的父文档下自动创建子文档，保持笔记结构的层次性和组织性
+---
+### 📅 v0.4.0版本更新 (2025.7.12)
+- 🆕 **新增功能**
+  - 📚 **B站合集支持**: 新增B站合集批量添加功能，通过任意合集视频链接一键获取整个合集
+    - 🏷️ **智能识别**：自动检测视频是否属于合集，提取合集ID和UP主信息
+    - 🔄 **智能刷新**：支持合集标签的一键刷新更新
+- 🔧 **性能优化**
+  - 💬 **提示信息精简**: 优化批量添加提示，统一showMessage处理逻辑
+- 🐛 **缺陷修复**
+  - 🔊 **B站视频音频修复**: 修复B站视频播放时只有画面无声音的问题，统一DASH流处理逻辑
+  - ⚡ **播放参数统一**: 重构B站视频播放流程，直接生成blob播放地址，简化代码逻辑
+  - 🔇 **警告信息优化**: 消除播放B站/WebDAV视频时的无关OpenList错误警告，提升用户体验
 
-</div>
 </details>
-</div>
+    </div>
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fefbff, #f3e8ff); border: 1px solid #c4b5fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
         <h2 style="color: #7c3aed; margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 使用指南</h2>
         <ul style="margin: 0; padding-left: 1.2em;">

@@ -1,3 +1,37 @@
+### 📅 v0.4.3版本更新 (2025.7.17)
+- 🆕 新增功能
+  - 🏷️ 媒体块自定义属性系统: 为插件生成的所有媒体相关块添加标准化自定义属性，实现智能识别和高效管理
+    - 📊 **统一标识体系**: 所有媒体功能生成的块都将自动添加特定的自定义属性，便于后续识别、查询和管理，为构建个人媒体学习系统和内容管理工作流提供强大基础
+    - ⏰ **时间戳块增强**: 生成的时间戳链接块自动添加 `custom-media="timestamp"` 属性标识，并通过 `custom-timestamp="02:03"` 精确记录时间点，支持批量管理和快速定位重要时刻
+    - 🔄 **循环片段智能标记**: 循环片段块使用 `custom-media="loop"` 进行标识，同时通过 `custom-loop-start="01:30"` 和 `custom-loop-end="02:45"` 精确记录循环区间，支持复杂的片段管理和学习重点标记
+    - 📸 **截图块自动识别**: 截图功能生成的图片块添加 `custom-media="screenshot"` 属性，实现截图内容的快速筛选、分类整理和视觉化管理
+    - 📷 **截图+时间戳组合卡片**: 截图带时间戳功能生成的复合块使用 `custom-media="mediacard"` 标识，配合 `custom-timestamp="02:03"` 关联时间信息，形成完整的媒体记忆卡片体系
+    - 📔 **媒体笔记完整档案**: 媒体笔记文档添加 `custom-type="MediaNote"` 类型标识，通过 `custom-mediaurl="媒体URL"` 记录源媒体链接，使用 `custom-website="bilibili/openlist/webdav/local"` 标记来源网站，构建完整的学习档案系统
+    - 🔍 **SQL查询支持**: 基于自定义属性实现精确的媒体块检索，支持复杂的数据分析和内容管理需求
+      ```sql
+      -- 查询所有时间戳块，快速定位媒体标记点
+      SELECT * FROM blocks WHERE id IN (
+          SELECT block_id FROM attributes WHERE name = 'custom-media' AND value = 'timestamp'
+      );
+
+      -- 查询所有媒体笔记，构建媒体学习档案
+      SELECT * FROM blocks WHERE id IN (
+          SELECT block_id FROM attributes WHERE name = 'custom-type' AND value = 'MediaNote'
+      );
+
+      -- 查询特定来源的媒体笔记，如B站学习内容统计
+      SELECT * FROM blocks WHERE id IN (
+          SELECT block_id FROM attributes WHERE name = 'custom-website' AND value = 'bilibili'
+      );
+      ```
+    - 🎯 **应用场景扩展**: 支持构建个人媒体学习系统、内容管理工作流、媒体资源分析、学习进度追踪等高级应用，为用户提供更强大的媒体内容组织和利用能力
+
+- 🐛 缺陷修复
+  - 🎯 dock栏图标修复: 修复dock栏图标调整位置导致空白问题，确保图标正常显示
+- 🔧 开发重构
+  - 📋 面板命名统一: 统一各功能面板命名规范，提升代码一致性
+  - 🎨 样式布局优化: 统一样式布局设计，改善用户界面体验
+
 ### 📅 v0.4.2版本更新 (2025.7.15)
 - ✨ 功能优化
   - 🎯 媒体笔记设置优化: 重构目标笔记本/文档设置项逻辑，简化配置流程，提升用户体验
