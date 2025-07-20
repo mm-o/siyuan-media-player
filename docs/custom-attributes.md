@@ -20,16 +20,7 @@
 
 ### 5. 媒体笔记
 - **属性**: `custom-type="MediaNote"`
-- **附加属性**: `custom-mediaurl="媒体URL"`, `custom-website="bilibili"`
-
-## 网站来源识别
-
-直接使用 `MediaItem.source` 字段：
-
-- **bilibili** - B站视频
-- **openlist** - OpenList服务器
-- **webdav** - WebDAV服务器
-- **local** - 本地文件（默认）
+- **附加属性**: `custom-mediaurl="媒体URL"`, `custom-website="bilibili、openlist、webdav、local"`
 
 ## 查询示例
 

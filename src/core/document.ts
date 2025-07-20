@@ -11,12 +11,15 @@ type ReplacePattern = Record<string, string>;
 // ===== 文档操作 =====
 export const doc = {
     getBlockID: async (i18n?: any): Promise<string> => {
-        const selection = window.getSelection();
-        if (!selection?.focusNode) throw new Error(i18n?.mediaPlayerTab?.block?.cursorNotFound || "未找到光标");
-        let el = selection.focusNode as HTMLElement;
-        while (el && !el.dataset?.nodeId) el = el.parentElement as HTMLElement;
-        if (!el?.dataset.nodeId) throw new Error(i18n?.mediaPlayerTab?.block?.targetBlockNotFound || "未找到目标块");
-        return el.dataset.nodeId;
+        try {
+            const selection = window.getSelection();
+            if (selection?.focusNode) {
+                let el = selection.focusNode as HTMLElement;
+                while (el && !el.dataset?.nodeId) el = el.parentElement as HTMLElement;
+                if (el?.dataset.nodeId) return el.dataset.nodeId;
+            }
+        } catch {}
+        return (window as any).__activeDocumentId || (() => { throw new Error(i18n?.mediaPlayerTab?.block?.cursorNotFound || "未找到光标"); })();
     },
     
     getDocID: async (blockId?: string, i18n?: any): Promise<string> => {
@@ -35,8 +38,10 @@ export const doc = {
         }
 
         try {
-            const blockId = await doc.getBlockID(i18n), targetId = mode.includes('Doc') ? await doc.getDocID(blockId, i18n) : blockId;
-            const method = mode.replace('Block', '').replace('Doc', ''), result = await api[`${method}Block`]("markdown", content, ...(method === 'insert' ? [undefined, undefined, targetId] : [targetId]));
+            const blockId = await doc.getBlockID(i18n);
+            const result = blockId === (window as any).__activeDocumentId
+                ? await api.appendBlock("markdown", content, blockId)
+                : await api[`${mode.replace('Block', '').replace('Doc', '')}Block`]("markdown", content, ...(mode === 'insertBlock' ? [undefined, undefined, mode.includes('Doc') ? await doc.getDocID(blockId, i18n) : blockId] : [mode.includes('Doc') ? await doc.getDocID(blockId, i18n) : blockId]));
             return result?.[0]?.doOperations?.[0]?.id || null;
         } catch {
             return (navigator.clipboard.writeText(content), showMessage(i18n?.mediaPlayerTab?.block?.insertFailed || "操作失败，已复制"), null);
@@ -82,17 +87,45 @@ export const link = async (item: MediaItem, config: any, time: number, endTime?:
         return `- [${subtitle ? `${Media.fmt(time)} ${subtitle}` : Media.fmt(time)}](${item.url})`;
     }
 };
+// ===== 刷新机制 =====
+const refresh = () => window.dispatchEvent(new CustomEvent('refreshNotesFilter'));
 
 // ===== 自定义属性设置 =====
-const setAttrs = async (blockId: string, type: string, extra?: Record<string, string>) =>
-    blockId && api.setBlockAttrs(blockId, { 'custom-media': type, ...extra }).catch(() => {});
+const setAttrs = async (blockId: string, type: string, item: MediaItem, time?: number, endTime?: number, screenshot?: string) => {
+    if (!blockId) return;
+    const baseUrl = getMediaUrl(item);
+    const website = item.source || 'local';
+    const attrs: Record<string, string> = { 'custom-media': type, 'custom-url': baseUrl };
+
+    if (type === 'timestamp') {
+        attrs['custom-url'] = withTime(baseUrl, time);
+        attrs['custom-timestamp'] = Media.fmt(time);
+        attrs['custom-thumbnail'] = item.thumbnail ? await imageToLocalAsset(item.thumbnail) : '';
+    } else if (type === 'loop') {
+        attrs['custom-url'] = withTime(baseUrl, time, endTime);
+        attrs['custom-loop'] = `${time?.toFixed(1) || ''}-${endTime?.toFixed(1) || ''}`;
+        attrs['custom-thumbnail'] = item.thumbnail ? await imageToLocalAsset(item.thumbnail) : '';
+    } else if (type === 'screenshot') {
+        attrs['custom-url'] = withTime(baseUrl, time);
+        attrs['custom-screenshot'] = screenshot || '';
+    } else if (type === 'mediacard') {
+        attrs['custom-url'] = withTime(baseUrl, time);
+        attrs['custom-timestamp'] = Media.fmt(time);
+        attrs['custom-screenshot'] = screenshot || '';
+        attrs['custom-website'] = website;
+    } else if (type === 'medianote') {
+        attrs['custom-thumbnail'] = item.thumbnail ? await imageToLocalAsset(item.thumbnail) : '';
+    }
+
+    api.setBlockAttrs(blockId, attrs).then(refresh).catch(() => {});
+};
 
 // ===== 播放器工具 =====
 export const player = {
     timestamp: async (player: any, item: MediaItem, config: any, i18n?: any) => {
         if (!player || !item) return showMessage(i18n?.controlBar?.timestamp?.hint || "请先播放媒体");
         const time = player.getCurrentTime(), result = await link(item, config, time);
-        result && setAttrs(await doc.insert(result, config, i18n), 'timestamp', { 'custom-timestamp': Media.fmt(time) });
+        result && setAttrs(await doc.insert(result, config, i18n), 'timestamp', item, time);
     },
 
     loop: async (player: any, item: MediaItem, config: any, i18n?: any, loopStart: number | null = null) => {
@@ -100,7 +133,7 @@ export const player = {
         const now = player.getCurrentTime();
         if (loopStart === null) return now;
         const result = await link(item, config, loopStart, now);
-        result && setAttrs(await doc.insert(result, config, i18n), 'loop', { 'custom-loop-start': Media.fmt(loopStart), 'custom-loop-end': Media.fmt(now) });
+        result && setAttrs(await doc.insert(result, config, i18n), 'loop', item, loopStart, now);
         return null;
     },
 
@@ -109,12 +142,12 @@ export const player = {
         try {
             const imageUrl = await imageToLocalAsset(await player.getScreenshotDataURL());
             if (!imageUrl) throw new Error("截图上传失败");
-            const time = player.getCurrentTime(), withTime = config?.settings?.screenshotWithTimestamp, timeStr = Media.fmt(time);
+            const time = player.getCurrentTime(), withTime = config?.settings?.screenshotWithTimestamp;
             if (withTime) {
                 const blockId = await doc.insert(`${await link(item, config, time)}\n\n  ![截图](${imageUrl})`, config, i18n);
-                blockId && (setAttrs(blockId, 'mediacard', { 'custom-timestamp': timeStr }),
-                api.getChildBlocks(blockId).then(blocks => (blocks?.[0] && setAttrs(blocks[0].id, 'timestamp', { 'custom-timestamp': timeStr }), blocks?.[1] && setAttrs(blocks[1].id, 'screenshot'))));
-            } else setAttrs(await doc.insert(`![截图](${imageUrl})`, config, i18n), 'screenshot');
+                blockId && (setAttrs(blockId, 'mediacard', item, time, undefined, imageUrl),
+                api.getChildBlocks(blockId).then(blocks => (blocks?.[0] && setAttrs(blocks[0].id, 'timestamp', item, time), blocks?.[1] && setAttrs(blocks[1].id, 'screenshot', item, time, undefined, imageUrl))));
+            } else setAttrs(await doc.insert(`![截图](${imageUrl})`, config, i18n), 'screenshot', item, time, undefined, imageUrl);
         } catch { showMessage(i18n?.mediaPlayerTab?.screenshot?.errorHint || "截图保存失败"); }
     }
 };
@@ -177,9 +210,6 @@ export const mediaNotes = {
             'ID|{{id}}': item.id || '', '日期|{{date}}': new Date().toLocaleDateString(), '时间戳|{{timestamp}}': new Date().toISOString().replace('T', ' ').slice(0, 19)
         });
 
-        // 获取网站来源
-        const getWebsite = (item: MediaItem) => item.source || 'local';
-
         let docId: string | null = null;
         try {
             docId = await doc.getBlockID(i18n);
@@ -195,7 +225,10 @@ export const mediaNotes = {
         }
 
         // 设置媒体笔记自定义属性
-        docId && api.setBlockAttrs(docId, { 'custom-type': 'MediaNote', 'custom-mediaurl': getMediaUrl(item), 'custom-website': getWebsite(item) }).catch(() => {});
+        if (docId) {
+            const thumbnail = item.thumbnail ? await imageToLocalAsset(item.thumbnail) : '';
+            api.setBlockAttrs(docId, { 'custom-media': 'medianote', 'custom-url': getMediaUrl(item), 'custom-thumbnail': thumbnail }).catch(() => {});
+        }
 
         // 自动添加到笔记面板
         if (docId && plugin) try {

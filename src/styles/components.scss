@@ -178,8 +178,11 @@ $transition: 0.3s ease;
   
   // 标签区域
   .panel-tabs {
-    min-height: size(tabs); padding: size(spacing); @include flex(row, flex-start, center, size(spacing)); border-bottom: 1px solid color(border); background: color(surface); flex-wrap: wrap; overflow: visible;
-    .tab { @extend %button-base; padding: 4px 12px; @include bordered; color: color(on-surface); white-space: nowrap; font-size: 14px; line-height: 20px;
+    min-height: size(tabs); padding: size(spacing); @include flex(row, flex-start, center, size(spacing));
+    border-bottom: 1px solid color(border); background: color(surface); flex-wrap: wrap;
+    .tab {
+      @extend %button-base; padding: 4px 12px; @include bordered; color: color(on-surface);
+      white-space: nowrap; font-size: 14px; line-height: 20px;
       &:hover:not(.active) { border-color: color(primary); color: color(primary); }
       &.active { background: color(primary); color: #fff; border-color: color(primary); }
     }
@@ -188,19 +191,8 @@ $transition: 0.3s ease;
   // 内容区域
   .panel-content {
     @extend %section-container; padding-bottom: 60px;
-
-    // 空状态
-    .panel-empty {
-      height: 100%; @include flex(row, center, center);
-      color: color(on-surface); opacity: 0.5;
-    }
-
-    // 列表视图
-    .panel-items {
-      @include flex(column, flex-start, stretch, 8px);
-    }
-
-    // 网格视图
+    .panel-empty { height: 100%; @include flex(row, center, center); color: color(on-surface); opacity: 0.5; }
+    .panel-items { @include flex(column, flex-start, stretch, 8px); }
     &.grid-view .panel-items {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; align-items: start;
       &.grid-single { grid-template-columns: 100%; }
@@ -210,22 +202,35 @@ $transition: 0.3s ease;
   
   // 底部区域
   .panel-footer {
-    position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); @include flex(row, center, center, 8px); z-index: 10;
-
+    position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+    @include flex(row, center, center, 8px); z-index: 10;
     .add-btn, .action-btn {
-      @include flex(row, center, center); height: 28px; padding: 0 16px; border: none; border-radius: 24px; white-space: nowrap; font-size: 14px; background: color(primary); color: color(on-primary); transition: all 0.2s;
+      @include flex(row, center, center); height: 28px; padding: 0 16px; border: none;
+      border-radius: 24px; font-size: 14px; background: color(primary); color: color(on-primary);
+      transition: all 0.2s; &:hover { filter: brightness(0.9); transform: translateY(-2px); }
       .icon { width: 14px; height: 14px; margin-right: 4px; fill: currentColor; }
-      &:hover { filter: brightness(0.9); transform: translateY(-2px); }
-      &.simple-btn:hover { transform: none; }
     }
-
-    .input-wrapper { position: relative; .clear-icon { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); } }
   }
   
   // 表单元素
   .tab-input, .select-wrapper, .input-wrapper, .player-path-input { @extend %input-base; }
   .select-wrapper { padding: 0 8px; cursor: pointer; }
   
+  // 媒体卡片
+  .filter-results {
+    padding: size(spacing); height: 100%; overflow-y: auto;
+    .media-card {
+      position: relative; border-radius: 8px; overflow: hidden; min-height: 80px; margin-bottom: 12px;
+      display: block; text-decoration: none; color: inherit; cursor: pointer;
+      img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .card-overlay { position: absolute; inset: 0; @include flex(column, flex-end, flex-start); padding: 8px; }
+      .media-info { @include flex(row, flex-start, center, 4px); }
+      span { font: 700 14px/1 sans-serif; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+    }
+  }
+
+
+
   // 隐藏状态
   &.hidden { @extend %hidden-state; }
 }

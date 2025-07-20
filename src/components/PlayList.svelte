@@ -23,7 +23,7 @@
     };
 
     // ==================== 字段映射工具 ====================
-    const mapField = (key: string, keyMap: any) => keyMap[FIELDS[key]] || Object.values(keyMap).find(k => k.name?.includes(FIELDS[key]) || FIELDS[key]?.includes(k.name));
+    const mapField = (key: string, keyMap: any) => Object.values(keyMap).find(k => k.desc === FIELDS[key]) || keyMap[FIELDS[key]] || Object.values(keyMap).find(k => k.name?.includes(FIELDS[key]) || FIELDS[key]?.includes(k.name));
     const extractValue = (value: any, key: string) => key === 'type' ? (value?.mSelect?.[0]?.content === '音频' ? 'audio' : 'video') : (value?.text?.content || value?.url?.content || value?.mSelect?.[0]?.content || value?.mAsset?.[0]?.content || value?.date?.content || '');
 
     // ==================== 核心工具 ====================
@@ -47,7 +47,7 @@
 
     // ==================== 数据存储 ====================
     const api = async (path: string, data: any = {}) => fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json());
-    const getAvId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) throw new Error('请输入有效的数据库ID'); const avId = (await api('/api/query/sql', { stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` }).catch(() => ({ data: [] }))).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1]; return avId || id; };
+    const getAvId = async (id: string) => { if (!id || !/^\d{14}-[a-z0-9]{7}$/.test(id)) { showMessage('请输入有效的数据库ID', 0); throw new Error('请输入有效的数据库ID'); } const avId = (await api('/api/query/sql', { stmt: `SELECT markdown FROM blocks WHERE type='av' AND id='${id}'` }).catch(() => ({ data: [] }))).data?.[0]?.markdown?.match(/data-av-id="([^"]+)"/)?.[1]; return avId || id; };
     const loadLocal = async () => { try { return await plugin.loadData('playlist.json') || { tags: ['默认'], items: {} }; } catch { return { tags: ['默认'], items: {} }; } };
     const saveLocal = async (data) => { await plugin.saveData('playlist.json', data, 2); };
 
@@ -55,13 +55,14 @@
         getKeys: async (avId: string) => (await api('/api/av/getAttributeViewKeysByAvID', { avID: avId })).data || [],
         render: async (avId: string, viewId = '', page = 1, pageSize = -1) => (await api('/api/av/renderAttributeView', { id: avId, viewID: viewId, query: '', page, pageSize })).data || {},
         addKey: async (avId: string, keyID: string, keyName: string, keyType: string, keyIcon = '', previousKeyID = '') => api('/api/av/addAttributeViewKey', { avID: avId, keyID, keyName, keyType, keyIcon, previousKeyID }),
+        setKeyDesc: async (avId: string, keyID: string, desc: string) => db.transaction([{ action: "setAttrViewColDesc", id: keyID, avID: avId, data: desc }]),
         removeKey: async (avId: string, keyID: string) => api('/api/av/removeAttributeViewKey', { avID: avId, keyID }),
         addRow: async (avId: string, values: any[]) => api('/api/av/appendAttributeViewDetachedBlocksWithValues', { avID: avId, blocksValues: [values] }),
         updateField: async (avId: string, rowId: string, keyId: string, value: any) => api('/api/av/setAttributeViewBlockAttr', { avID: avId, rowID: rowId, keyID: keyId, value }),
         removeRows: async (avId: string, rowIds: string[]) => api('/api/av/removeAttributeViewBlocks', { avID: avId, srcIDs: rowIds }),
         transaction: async (operations: any[], undoOperations: any[] = []) => api('/api/transactions', {
             transactions: [{ doOperations: operations, undoOperations }],
-            session: crypto.randomUUID(), app: "qd1f", reqId: Date.now()
+            session: id(), app: "qd1f", reqId: Date.now()
         }),
         deleteTagOption: async (avId: string, keyId: string, optionName: string, allOptions: any[]) => {
             if (!allOptions.some(opt => opt.name === optionName)) throw new Error('标签选项不存在');
@@ -139,17 +140,21 @@
                 const primaryKey = (await db.getKeys(avId)).find(k => k.name === '主键' || k.name === '标题');
                 if (primaryKey && (primaryKey.name === '主键' || primaryKey.name === '标题')) {
                     await db.updateFieldName(avId, primaryKey.id, '媒体标题', primaryKey.name, primaryKey.type);
+                    await db.setKeyDesc(avId, primaryKey.id, '媒体标题');
+                } else if (primaryKey && !primaryKey.desc) {
+                    await db.setKeyDesc(avId, primaryKey.id, '媒体标题');
                 }
-                const updatedPrimaryKey = (await db.getKeys(avId)).find(k => k.name === '媒体标题');
+                const updatedKeys = await db.getKeys(avId), updatedPrimaryKey = updatedKeys.find(k => k.name === '媒体标题' || k.desc === '媒体标题');
                 let previousKeyID = updatedPrimaryKey?.id || '';
                 for (const key of ['url', 'duration', 'playlist', 'source', 'type', 'artist', 'thumbnail', 'artistIcon', 'created']) {
-                    const name = FIELDS[key];
-                    if (!existing.includes(name)) {
+                    const name = FIELDS[key], existingKey = updatedKeys.find(k => k.name === name || k.desc === name);
+                    if (!existingKey) {
                         const fieldDef = FIELD_DEFS[key] || { type: 'text' }, keyID = id();
                         await db.addKey(avId, keyID, name, fieldDef.type, '', previousKeyID);
+                        await db.setKeyDesc(avId, keyID, name);
                         if (fieldDef.options) await ensureFieldOptions(avId, keyID, fieldDef.options);
                         previousKeyID = keyID;
-                    }
+                    } else if (!existingKey.desc) await db.setKeyDesc(avId, existingKey.id, name);
                 }
                 break;
 
@@ -319,7 +324,7 @@
         const config = await cfg();
         state.enabled = !!config.settings?.enableDatabase;
         await loadView();
-        if (state.enabled) { state.dbId = config.settings?.playlistDb?.id; if (!state.dbId) throw new Error('请在设置-通用中输入数据库块Id用于配置播放列表数据库'); await dataOp('init'); }
+        if (state.enabled) { state.dbId = config.settings?.playlistDb?.id; if (!state.dbId) { showMessage('请在设置-通用中输入数据库块Id用于配置播放列表数据库', 0); return; } await dataOp('init'); }
         await load();
     };
 
@@ -431,8 +436,9 @@
 
     // ==================== 菜单操作 ====================
     const checkPro = (fn: Function) => async () => (await cfg())?.settings?.pro?.enabled ? fn() : showMessage("此功能需要Pro版本");
+    const openExternal = (item: MediaItem) => window.require?.('electron').shell[item.source === 'local' || (item.originalUrl || item.url).startsWith('file://') ? 'showItemInFolder' : 'openExternal']((item.originalUrl || item.url).replace('file://', ''));
     const menus = {
-        media: (item: any) => [["iconPlay", "播放", () => play(item)], ...(state.tags.filter(t => t !== state.tab && t !== '目录').length ? [["iconMove", "移动到", state.tags.filter(t => t !== state.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
+        media: (item: any) => [["iconPlay", "播放", () => play(item)], ["iconLink", "外部打开", () => openExternal(item)], ...(state.tags.filter(t => t !== state.tab && t !== '目录').length ? [["iconMove", "移动到", state.tags.filter(t => t !== state.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
         tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => { state.edit = tag; setTimeout(() => state.refs.edit?.focus(), 0); }], ["iconRefresh", "刷新", () => refreshTag(tag)]]), ["iconClear", "清空", () => del(undefined, state.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
         add: (_, e: MouseEvent) => [["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { state.add = 'tag'; setTimeout(() => state.refs.new?.focus(), 50); }], ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()], ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))], ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))], ["iconTags", i18n.playList?.menu?.addBilibiliSeason || "添加B站合集", checkPro(() => { state.add = 'season'; setTimeout(() => state.refs.new?.focus(), 50); })]]
     };
@@ -478,7 +484,7 @@
 
     // ==================== 其他功能 ====================
     const refreshTag = async (tagName: string) => {
-        if (!state.enabled) return showMessage('请先启用数据库功能');
+        if (!state.enabled) return showMessage('请先在设置中启用数据库功能，然后配置播放列表数据库', 0);
         const avId = await getAvId(state.dbId), keys = await db.getKeys(avId), keyMap = Object.fromEntries(keys.map(k => [k.name, k]));
         const option = mapField('playlist', keyMap)?.options?.find(opt => opt.name === tagName);
         if (!option?.desc) return showMessage('该标签无刷新信息');
@@ -495,13 +501,13 @@
             const config = await cfg();
             if (!config?.settings?.bilibiliLogin?.mid) return showMessage('请先登录B站账号');
             newItems = ((await BilibiliParser.getFavoritesList(desc, config)).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
-        } else if (desc.includes(':')) {
-            const [mid, seasonId] = desc.split(':');
-            newItems = ((await BilibiliParser.getSeasonArchives(mid, seasonId, await cfg())).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
         } else if (desc.includes('/') || desc.includes('\\')) {
             if (!window.navigator.userAgent.includes('Electron')) return showMessage('此功能仅在桌面版可用');
             await browse('folder', desc);
             newItems = state.items.filter(item => !item.is_dir).map(item => item.url);
+        } else if (desc.includes(':') && !desc.includes('/') && !desc.includes('\\')) {
+            const [mid, seasonId] = desc.split(':');
+            newItems = ((await BilibiliParser.getSeasonArchives(mid, seasonId, await cfg())).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
         } else return showMessage(i18n.playList?.error?.refreshTypeFailed || '无法识别的刷新类型');
 
         const [currentUrls, newUrls] = [new Set(currentItems.map(item => item.url)), new Set(newItems)];
@@ -543,7 +549,20 @@
 
     const handleAdd = async () => {
         if (state.input.trim()) { try { await add(state.input.trim(), state.tab); state.input = ''; } catch {} }
-        else { if (!window.navigator.userAgent.includes('Electron') || typeof window.require !== 'function') { showMessage("需要桌面版支持"); return; } const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] }); if (filePaths?.length > 1) await batchAdd(filePaths.map(p => ({ url: `file://${p.replace(/\\/g, '/')}` })), state.tab); else if (filePaths?.length) try { await add(`file://${filePaths[0].replace(/\\/g, '/')}`, state.tab); } catch {} }
+        else {
+            const isDesktop = window.navigator.userAgent.includes('Electron') && typeof window.require === 'function';
+            if (isDesktop) {
+                const { filePaths } = await window.require('@electron/remote').dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'], filters: [{ name: "媒体文件", extensions: EXT.MEDIA.map(ext => ext.slice(1)) }] });
+                const items = filePaths?.map(p => ({ url: `file://${p.replace(/\\/g, '/')}` })) || [];
+                items.length > 1 ? await batchAdd(items, state.tab) : items.length && await add(items[0].url, state.tab);
+            } else {
+                const input = Object.assign(document.createElement('input'), { type: 'file', multiple: true, accept: EXT.MEDIA.join(','), onchange: async (e) => {
+                    const files = Array.from((e.target as HTMLInputElement).files || []).map(f => ({ url: URL.createObjectURL(f), title: f.name }));
+                    files.length > 1 ? await batchAdd(files, state.tab) : files.length && await add(files[0].url, state.tab);
+                }});
+                input.click();
+            }
+        }
     };
 
     // ==================== 生命周期 ====================
