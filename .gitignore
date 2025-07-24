@@ -1,4 +1,4 @@
 node_modules/
-dist
-dev
-docs/README_zh_CN.md
+dist/
+dev/
+package.zip

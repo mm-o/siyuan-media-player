@@ -105,9 +105,9 @@ export class Media {
                     info.originalUrl = parsed.url;}
             }
 
-            // 本地视频缩略图
+            // 本地视频缩略图和时长
             if (parsed.source === 'local' && parsed.type === 'video') {
-                info.thumbnail = await this.generateThumbnail(parsed.url);
+                Object.assign(info, await this.generateThumbnail(parsed.url));
             }
 
             return { success: true, mediaItem: this.create({ ...info, ...parsed }) };
@@ -132,7 +132,8 @@ export class Media {
             startTime: data.startTime,
             endTime: data.endTime,
             bvid: data.bv || data.bvid,
-            cid: data.cid
+            cid: data.cid,
+            source: data.source // 添加source字段
         };
     }
 
@@ -190,8 +191,8 @@ export class Media {
         return null;
     }
 
-    // 生成缩略图
-    private static generateThumbnail(url: string): Promise<string> {
+    // 生成缩略图和获取时长
+    private static generateThumbnail(url: string): Promise<{thumbnail: string, duration: string}> {
         return new Promise(resolve => {
             const video = document.createElement('video');
             video.style.display = 'none';
@@ -200,11 +201,13 @@ export class Media {
             video.onloadedmetadata = () => video.currentTime = Math.min(5, video.duration / 2);
             video.onseeked = async () => {
                 const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                [canvas.width, canvas.height] = [video.videoWidth, video.videoHeight];
                 canvas.getContext('2d')?.drawImage(video, 0, 0);
                 document.body.removeChild(video);
-                resolve(await imageToLocalAsset(canvas.toDataURL('image/jpeg', 0.7)));
+                resolve({
+                    thumbnail: await imageToLocalAsset(canvas.toDataURL('image/jpeg', 0.7)),
+                    duration: this.fmt(video.duration)
+                });
             };
             video.load();
         });

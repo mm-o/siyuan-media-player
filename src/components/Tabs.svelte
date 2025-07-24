@@ -15,7 +15,7 @@
     };
 </script>
 
-<div class="playlist-header">
+<div class="panel-header">
     <div class="panel-nav">
         {#each tabs as tab}
             <h3 class:active={activeTabId === tab.id} on:click={() => switchTab(tab.id)}>{tab.title()}</h3>

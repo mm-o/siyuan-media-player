@@ -47,215 +47,92 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.2 Update (2025.7.15)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ Feature Optimization</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🎯 Media Notes Settings Optimization</strong>: Refactored target notebook/document setting item logic, simplified configuration process, improved user experience</li>
-<li><strong>📝 Smart Notes Panel Integration</strong>: Automatically add to notes panel when creating media notes, achieving seamless experience of one-click creation and automatic management
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔄 Auto Sync</strong>: Media notes appear immediately in the notes panel after creation, no manual addition required</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.1 Update (2025.7.14)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔗 Database URL Link Recognition</strong>: Support for clicking media links in database URL fields to directly open the player without browser redirection</li>
-<li><strong>⌨️ Ctrl+Click Force Browser</strong>: Hold Ctrl key while clicking media links to force browser opening, bypassing plugin handling</li>
-<li><strong>📝 Notes Panel Feature</strong>: New independent notes panel providing convenient document and block content editing functionality
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📋 ID Input Support</strong>: Support for inputting document ID or block ID with automatic format validation and content retrieval</li>
-<li><strong>🏷️ Smart Tags</strong>: Automatically truncate to first 4 characters as tag name when adding</li>
-<li><strong>🖱️ Context Menu</strong>: Provide rename, open in SiYuan, copy ID, delete tag and other complete operations</li>
-<li><strong>📄 Complete Rendering</strong>: Use Protyle component for complete document content rendering with scroll and interaction support</li>
-<li><strong>💾 State Persistence</strong>: Automatically save tab configuration and restore previous note tags after restart</li>
-</ul>
-</li>
-<li><strong>📔 Media Notes Enhancement</strong>: Media notes creation now supports creating sub-documents under specified documents, providing more flexible note organization
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔍 Smart Search Configuration</strong>: Support inputting document name or notebook name in settings to search and quickly locate target position</li>
-<li><strong>📂 Sub-document Creation</strong>: Support automatically creating sub-documents under selected parent documents, maintaining hierarchical note structure</li>
-<li><strong>⚙️ Convenient Settings</strong>: Quick addition of commonly used document and notebook configurations through search functionality, simplifying the setup process</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.4.0 Update (2025.7.12)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📚 Bilibili Collections Support</strong>: New batch import feature for Bilibili collections, get entire collection with any video link
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🏷️ Smart Recognition</strong>: Automatically detect if video belongs to a collection, extract collection ID and uploader info</li>
-<li><strong>🔄 Smart Refresh</strong>: Support one-click refresh for collection tags</li>
-</ul>
-</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">🔧 Performance Optimization</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>💬 Message Simplification</strong>: Optimized batch import notifications with unified showMessage handling</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔊 Bilibili Video Audio Fix</strong>: Fixed issue where Bilibili videos had video but no audio, unified DASH stream processing</li>
-<li><strong>⚡ Playback Parameter Unification</strong>: Refactored Bilibili video playback process, directly generate blob playback addresses</li>
-<li><strong>🔇 Warning Message Optimization</strong>: Eliminated irrelevant OpenList error warnings when playing Bilibili/WebDAV videos</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.9 Update (2025.7.12)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📝 Tag Description Storage</strong>: Automatically save path/ID information to tag option descriptions when batch adding folders or Bilibili favorites
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li>📁 Folder Tags: Save complete folder paths, e.g., <code>C:\Users\Music\MyPlaylist</code></li>
-<li>💖 Bilibili Favorites: Save favorite folder IDs, e.g., <code>12345678</code></li>
-</ul>
-</li>
-<li><strong>🔄 Smart Tag Refresh</strong>: Right-click menu adds intelligent refresh functionality based on tag description information
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li>🧠 Smart Recognition: Automatically identify folder paths or Bilibili favorite IDs, select corresponding refresh strategies</li>
-<li>📁 Folder Sync: Detect local folder changes, intelligently add/remove media items</li>
-<li>💖 Favorites Sync: Detect Bilibili favorite content changes, maintain data consistency</li>
-<li>⚡ Differential Updates: Intelligently compare existing data, only process changed items, performance improvement of 90%+</li>
-</ul>
-</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔄 Batch Add Fix</strong>: Fixed race condition issue where batch adding folders and Bilibili favorites would delete other items, ensuring data safety</li>
-<li><strong>⚡ Code Optimization</strong>: Extremely streamlined core function implementation, 40% code reduction, improved execution efficiency and readability</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.8 Update (2025.7.11)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>⌨️ Playback Speed Shortcuts</strong>: Added Ctrl+↑/↓ shortcuts for playback speed control, making operations more convenient</li>
-<li><strong>⚡ Speed Boost</strong>: Increased playback speed upper limit from 2x to 5x for fast browsing needs</li>
-<li><strong>🗂️ Database Smart Binding</strong>: Support both database ID and database block ID input methods with automatic recognition and conversion</li>
-<li><strong>🔗 Database Binding Mode</strong>: Added database binding switch, when enabled requires manual database binding, when disabled automatically generates local database configuration files, providing flexible configuration options</li>
-<li><strong>💾 Playlist State Memory</strong>: Automatically save view mode and tab state, seamless recovery after restart</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🎬 Bilibili Multi-Part Video Fix</strong>: Fixed missing part parameters in timestamp/loop segment links for Bilibili multi-part videos</li>
-<li><strong>🎮 External Player Fix</strong>: Fixed PotPlayer and browser opening method failure, external players no longer unnecessarily open tabs</li>
-<li><strong>🔗 OpenList Link Recognition</strong>: Fixed OpenList timestamp/loop segment link recognition, supporting three URL formats:
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><code>/#/</code> format: <code>http://localhost:5244/#/mv/ve/001.mp4?t=2.4</code></li>
-<li><code>/p/</code> format: <code>http://localhost:5244/p/mv/ve/001.mp4?t=2.4</code></li>
-<li>Direct path: <code>http://localhost:5244/mv/ve/001.mp4?t=2.4</code></li>
-</ul>
-</li>
-<li><strong>⚡ Settings Instant Effect</strong>: Fixed issue where player type settings didn't take effect immediately for link clicks</li>
-<li><strong>📺 Bilibili Function Recovery</strong>: Fixed issue where Bilibili subtitles and video summaries couldn't be retrieved</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Development Refactoring</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📊 Playlist API Refactoring</strong>: Removed file system operations, fully adopted SiYuan API for improved stability and performance</li>
-<li><strong>🛠️ Database Mapping Optimization</strong>: Relaxed field mapping conditions, supporting flexible handling of multi-field or missing fields with enhanced fault tolerance</li>
-</ul>
-</li>
-</ul>
-<details style="margin-top: 1.5em;">
-<summary style="color: #666; cursor: pointer; font-weight: 500;">📋 View Update History</summary>
-<div style="margin-top: 1em; padding-top: 1em; border-top: 1px solid #e0e7ff;">
+### 📅 v0.4.4 Update (2025.7.20)
+#### 🎴 **Note Card Visualization System** - A brand new media learning content management experience
+- 📋 **Smart Filter Panel**: Added media type filtering functionality in the notes panel, supporting quick filtering by timestamp, loop segment, screenshot, and media card types
+- 🖼️ **Visual Card Display**: Filter results are displayed as beautiful cards, automatically showing cover images/screenshots, media types, and time information for clear learning content overview
+- 🔗 **One-click Jump Playback**: Click any card to directly jump to the corresponding media time point and start playback, achieving seamless connection from notes to media
+- ⚡ **Real-time Sync Updates**: When performing timestamp, screenshot, and other operations in filter mode, new content will immediately appear in the card list, maintaining perfect real-time experience
+- 🎯 **Smart Insert Positioning**: All media operations in filter mode will automatically insert to the bottom of the current document, ensuring orderly content organization
+- 🏷️ **Unified Attribute Management**: Based on the custom attribute system from v0.4.3, achieving unified recognition and management of all media types
+#### ✨ **Playlist Enhancement Features**
+- 🌐 **External Open Support**: Added "Open Externally" function in right-click menu
+  - Open Bilibili/OpenList/WebDAV network resources in browser
+  - Locate and display local files in file explorer
+  - Smart resource type recognition with automatic optimal opening method selection
+#### 📱 **Mobile Support Attempt**
+- 🧪 **Experimental Feature**: Attempted to add mobile local file selection support (may not work properly on some devices)
+- 🔄 **Smart Platform Detection**: Desktop uses native file dialogs, mobile uses HTML5 file selectors
+- ⚠️ **Notice**: Mobile file selection functionality is still in testing phase, desktop usage is recommended
+#### 🔧 **Database Field Optimization**
+- 📝 **Field Description Management**: Automatically add description notes for all playlist fields, supporting normal loading after field renaming
+  - **Field Description Reference**: Media Title, URL, Duration, Playlist, Source, Type, Artist, Cover Image, Artist Avatar, Creation Time
+  - **Troubleshooting**: If playlist loading fails, please check if field descriptions match the above reference table
+- 🎯 **Mapping Logic Optimization**: Prioritize description matching to ensure functionality works after field renaming
+- 🛡️ **Smart Field Management**: Avoid duplicate creation and automatically supplement missing descriptions
+#### 🔧 **User Experience Optimization**
+- 💡 **Database Configuration Prompt Enhancement**: Optimized prompt experience when database is not configured
+  - Use persistent prompts instead of auto-disappearing ones, requiring user to manually close
+#### 🐛 **Bug Fixes**
+- ⏱️ **Duration Display Fix**: Fixed local media duration display issue, now correctly retrieves and displays local video file duration information
+- 🔧 **Compatibility Improvement**: Fixed crypto.randomUUID compatibility issue, improving stability across different environments
+- 🔄 **Tag Refresh Fix**: Fixed refresh functionality failure after clearing tags (adding/removing media), ensuring correct execution of smart addition based on tag description information
 
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.7 Update (2025.7.8)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>📊 Playlist Database Optimization</strong>: Fixed database field specification issues, single/multi-select options now have correct color identification, auto-create gallery view</li>
-<li><strong>🔄 Drag-and-Drop Sorting Fix</strong>: Fixed issue where playlist couldn't load after drag-and-drop sorting, ensuring data integrity in multi-tag environments</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Development Refactoring</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>⚡ Documentation Rewrite</strong>: Optimized documentation styling, added database configuration, account configuration methods</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.6 Update (2025.7.5)</strong>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.3em 0;"><strong style="color: #10b981;">🆕 New Features</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>☁️ WebDAV Cloud Storage Support</strong>: Added WebDAV cloud storage integration including settings panel configuration, tag menu browsing options, direct streaming playback, timestamp links and loop segments support</li>
-<li><strong>🎛️ Top Quick Menu</strong>: Added purple TV icon in top bar for quick settings access</li>
-<li><strong>🎨 Dedicated Icons</strong>: Added dedicated SVG icons for OpenList and WebDAV services</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #f59e0b;">✨ Feature Improvements</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🖼️ Image Localization</strong>: Automatically convert cover images and artist avatars to local resources, improving loading speed and offline display support</li>
-<li><strong>📔 Media Notes Enhancement</strong>: Newly created documents automatically open in right-side tabs</li>
-<li><strong>🔄 Loop Function Enhancement</strong>: Added mutual exclusion between single loop and playlist loop settings</li>
-<li><strong>📝 Terminology Optimization</strong>: Updated "Loop Count" to "Segment Loop Count", "Pause After Loop" to "Pause After Segment Loop"</li>
-<li><strong>📁 SiYuan Workspace Relative Path</strong>: SiYuan workspace media now uses relative paths for timestamp and loop segment links, consistent with SiYuan workspace menu item path format, improving portability and workspace independence</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #ef4444;">🐛 Bug Fixes</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li><strong>🔗 Bilibili Timestamp Links</strong>: Fixed timestamp link generation using playback URLs instead of standard links</li>
-<li><strong>📤 Export Functions</strong>: Fixed subtitle, danmaku, and AI summary export functionality</li>
-<li><strong>📔 Media Notes</strong>: Fixed document creation failure issue</li>
-<li><strong>📸 Screenshot Function</strong>: Fixed screenshot with timestamp option not working</li>
-<li><strong>🏷️ Playlist Tag Menu</strong>: Fixed right-click menu rename function not hiding menu after click</li>
-<li><strong>🔄 Loop Functions</strong>: Fixed single loop not working for Bilibili videos, playlist loop loading next media but remaining paused, enhanced Bilibili multi-part video series support</li>
-<li><strong>🎨 Style Scope</strong>: Fixed SCSS selector affecting SiYuan's scrollbar</li>
-</ul>
-</li>
-<li style="margin: 0.3em 0;"><strong style="color: #8b5cf6;">🔧 Technical Improvements</strong>
-<ul style="margin: 0.2em 0; padding-left: 1em;">
-<li>Unified core module code structure for improved stability and performance</li>
-<li>Implemented muted autoplay bypass strategy for reliable playlist loop</li>
-<li>Unified loop mechanism across all media types</li>
-</ul>
-</li>
-</ul>
-<hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e7ff;">
-<strong style="color: #6366f1; font-size: 1.1em;">📅 v0.3.5 Update (2025.7.2)</strong>
-<div style="margin: 0.5em 0; padding: 0.8em; background: #fef3f2; border-left: 4px solid #f87171; border-radius: 4px;">
-<strong style="color: #dc2626;">⚠️ Important Notice: Due to major refactoring, this update causes incompatibility with playlist and settings configurations!</strong><br>
-📋 Please backup your data before updating. Config file location: <code>data\storage\petal\siyuan-media-player\config.json</code><br>
-🔄 You will need to reconfigure playlists and related settings after updating
-</div>
-<ul style="margin: 0.5em 0; padding-left: 1.2em;">
-<li style="margin: 0.2em 0;"><strong>📋 Playlist Refactoring</strong>: Optimized playlist component structure and performance for better responsiveness with large media collections</li>
-<li style="margin: 0.2em 0;"><strong>⚙️ Settings Component Refactoring</strong>: Removed complex styles, simplified to intuitive toggle switch interface, unified component processing logic, significantly improved configuration efficiency, added real-time display of database avid and notebook ID, removed save and reset buttons, implemented real-time saving with individual reset</li>
-<li style="margin: 0.2em 0;"><strong>📚 Database Configuration Sync</strong>: Playlist configurations automatically sync to database, ensuring data consistency</li>
-<li style="margin: 0.2em 0;"><strong>🎯 Drag & Drop Enhancement</strong>: Support drag & drop media items for sorting and cross-tab movement, support drag & drop playlist tabs for reordering, removed traditional sort buttons, unified with drag & drop operations</li>
-<li style="margin: 0.2em 0;"><strong>📷 Screenshot Function Fix</strong>: Fixed screenshot with timestamp feature, ensuring proper screenshot-timestamp association</li>
-<li style="margin: 0.2em 0;"><strong>🏷️ Visual Tag Optimization</strong>: Added visual source and type tags for playlist items, making interface more intuitive and beautiful</li>
-<li style="margin: 0.2em 0;"><strong>👨‍💼 Account Style Optimization</strong>: Improved Bilibili account display styling for better user experience</li>
-<li style="margin: 0.2em 0;"><strong>💬 SiYuan Workspace Enhancement</strong>: Complete browsing of SiYuan Note workspace file system, supporting browsing and playing media files from all folders</li>
-<li style="margin: 0.2em 0;"><strong>🔗 Media Notes URL Fix</strong>: Fixed issue where Bilibili media notes used playback URLs instead of standard links</li>
-<li style="margin: 0.2em 0;"><strong>🧹 Feature Streamlining</strong>: Removed built-in script loading functionality, recommend using SiYuan's built-in JS script feature</li>
-<li style="margin: 0.2em 0;"><strong>🔄 Cloud Storage Refactoring</strong>: Refactored AList cloud storage functionality to OpenList, providing unified cloud storage interface with improved compatibility and stability</li>
-<li style="margin: 0.2em 0;"><strong>⚡ Code Optimization</strong>: Extremely simplified core code, cleaned up redundant logic, reduced plugin size</li>
-<li style="margin: 0.2em 0;"><strong>🎯 Core Focus</strong>: Focus on media playback and note integration features, improving stability and performance</li>
-</ul>
+<details>
+<summary><strong>📋 View Update History</strong></summary>
 
-</div>
+### 📅 v0.4.3 Update (2025.7.17)
+- 🆕 **New Features**
+  - 🏷️ **Media Block Custom Attributes System**: Add standardized custom attributes to all media-related blocks generated by the plugin for intelligent recognition and efficient management
+    - 📊 **Unified Identification System**: All media function-generated blocks will automatically add specific custom attributes for subsequent identification, querying, and management, providing a strong foundation for building personal media learning systems and content management workflows
+    - ⏰ **Timestamp Block Enhancement**: Generated timestamp link blocks automatically add `custom-media="timestamp"` attribute identification and precisely record time points through `custom-timestamp="02:03"`, supporting batch management and quick location of important moments
+    - 🔄 **Loop Segment Smart Marking**: Loop segment blocks use `custom-media="loop"` for identification, while precisely recording loop intervals through `custom-loop-start="01:30"` and `custom-loop-end="02:45"`, supporting complex segment management and learning focus marking
+    - 📸 **Screenshot Block Auto Recognition**: Screenshot function-generated image blocks add `custom-media="screenshot"` attribute for quick filtering, classification, and visual management of screenshot content
+    - 📷 **Screenshot+Timestamp Combo Cards**: Screenshot with timestamp function-generated composite blocks use `custom-media="mediacard"` identification, combined with `custom-timestamp="02:03"` to associate time information, forming a complete media memory card system
+    - 📔 **Media Notes Complete Archive**: Media note documents add `custom-type="MediaNote"` type identification, record source media links through `custom-mediaurl="Media URL"`, and use `custom-website="bilibili/openlist/webdav/local"` to mark source websites, building a complete learning archive system
+    - 🔍 **SQL Query Support**: Implement precise media block retrieval based on custom attributes, supporting complex data analysis and content management needs
+    - 🎯 **Application Scenario Expansion**: Support building personal media learning systems, content management workflows, media resource analysis, learning progress tracking, and other advanced applications, providing users with more powerful media content organization and utilization capabilities
+- 🐛 **Bug Fixes**
+  - 🎯 **Dock Icon Fix**: Fixed dock icon position adjustment causing blank space issue, ensuring normal icon display
+- 🔧 **Development Refactoring**
+  - 📋 **Panel Naming Unification**: Unified functional panel naming standards, improving code consistency
+  - 🎨 **Style Layout Optimization**: Unified style layout design, improving user interface experience
+---
+### 📅 v0.4.2 Update (2025.7.15)
+- ✨ **Feature Optimization**
+  - 🎯 **Media Notes Settings Optimization**: Refactored target notebook/document setting item logic, simplified configuration process, improved user experience
+  - 📝 **Smart Notes Panel Integration**: Automatically add to notes panel when creating media notes, achieving seamless experience of one-click creation and automatic management
+    - 🔄 **Auto Sync**: Media notes appear immediately in the notes panel after creation, no manual addition required
+---
+### 📅 v0.4.1 Update (2025.7.14)
+- 🆕 **New Features**
+  - 🔗 **Database URL Link Recognition**: Support for clicking media links in database URL fields to directly open the player without browser redirection
+  - ⌨️ **Ctrl+Click Force Browser**: Hold Ctrl key while clicking media links to force browser opening, bypassing plugin handling
+  - 📝 **Notes Panel Feature**: New independent notes panel providing convenient document and block content editing functionality
+    - 📋 **ID Input Support**: Support for inputting document ID or block ID with automatic format validation and content retrieval
+    - 🏷️ **Smart Tags**: Automatically truncate to first 4 characters as tag name when adding
+    - 🖱️ **Context Menu**: Provide rename, open in SiYuan, copy ID, delete tag and other complete operations
+    - 📄 **Complete Rendering**: Use Protyle component for complete document content rendering with scroll and interaction support
+    - 💾 **State Persistence**: Automatically save tab configuration and restore previous note tags after restart
+  - 📔 **Media Notes Enhancement**: Media notes creation now supports creating sub-documents under specified documents, providing more flexible note organization
+    - 🔍 **Smart Search Configuration**: Support inputting document name or notebook name in settings to search and quickly locate target position
+    - 📂 **Sub-document Creation**: Support automatically creating sub-documents under selected parent documents, maintaining hierarchical note structure
+    - ⚙️ **Convenient Settings**: Quick addition of commonly used document and notebook configurations through search functionality, simplifying the setup process
+---
+### 📅 v0.4.0 Update (2025.7.12)
+- 🆕 **New Features**
+  - 📚 **Bilibili Collections Support**: New batch import feature for Bilibili collections, get entire collection with any video link
+    - 🏷️ **Smart Recognition**: Automatically detect if video belongs to a collection, extract collection ID and uploader info
+    - 🔄 **Smart Refresh**: Support one-click refresh for collection tags
+- 🔧 **Performance Optimization**
+  - 💬 **Message Simplification**: Optimized batch import notifications with unified showMessage handling
+- 🐛 **Bug Fixes**
+  - 🔊 **Bilibili Video Audio Fix**: Fixed issue where Bilibili videos had video but no audio, unified DASH stream processing
+  - ⚡ **Playback Parameter Unification**: Refactored Bilibili video playback process, directly generate blob playback addresses
+  - 🔇 **Warning Message Optimization**: Eliminated irrelevant OpenList error warnings when playing Bilibili/WebDAV videos
+
 </details>
-</div>
+    </div>
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fefbff, #f3e8ff); border: 1px solid #c4b5fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
         <h2 style="color: #7c3aed; margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 User Guide</h2>
         <ul style="margin: 0; padding-left: 1.2em;">
