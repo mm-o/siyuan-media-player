@@ -14,16 +14,25 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(14,165,233,0.15);">
         <h2 style="color: #0ea5e9; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 核心功能</h2>
         <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>多平台播放</strong> - 本地媒体、B站视频、OpenList、WebDAV云存储统一播放</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>多平台播放</strong> - 本地媒体、扩展媒体、OpenList、WebDAV云存储统一播放</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>时间戳跳转</strong> - 精确时间戳链接，一键跳转到指定播放位置</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>循环片段</strong> - 自定义循环播放片段，重点内容反复学习</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，支持子文档创建和智能搜索配置，完整的学习笔记生态</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入B站收藏夹、B站合集、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入扩展收藏夹、扩展合集、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">📝 <strong>笔记面板</strong> - 独立的文档和块内容查看编辑，支持ID输入、智能标签、右键菜单操作</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">🔗 <strong>智能链接识别</strong> - 数据库URL字段媒体链接直接播放，Ctrl+点击强制浏览器打开</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">🔧 <strong>脚本扩展</strong> - 支持第三方扩展脚本，用户自主选择功能模块</li>
+        </ul>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 1px solid #fdba74; border-radius: 8px; box-shadow: 0 4px 12px rgba(251,146,60,0.15);">
+        <h2 style="color: #ea580c; margin: 0 0 1em; text-align: center; font-size: 1.3em;">⚠️ 免责说明</h2>
+        <ul style="margin: 0; padding-left: 1.2em;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ea580c; box-shadow: 0 2px 4px rgba(234,88,12,0.08);">🎯 <strong>技术架构</strong> - 插件采用扩展化设计，核心代码专注于播放功能，不包含任何第三方服务代码</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🎛️ <strong>扩展选择</strong> - 用户可根据需要自主选择是否使用第三方扩展脚本</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f97316; box-shadow: 0 2px 4px rgba(249,115,22,0.08);">🛡️ <strong>安全提醒</strong> - 扩展脚本为独立功能模块，请根据个人需求谨慎选择使用</li>
         </ul>
     </div>
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fef3f2, #fee2e2); border: 1px solid #fca5a5; border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.15);">
@@ -47,6 +56,36 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+### 📅 v0.4.7版本更新 (2025.7.28)
+#### 🎯 **脚本系统重构** - 重新设计扩展脚本加载机制，更符合思源笔记规范
+- 🔧 **简化扩展架构**: 完全重构扩展系统，直接通过window对象暴露API配置，完全符合思源笔记脚本标准
+- 📜 **扩展脚本升级到v2.0.0**: 极简设计，静默加载，**必须更新到v2.0.0扩展脚本**才能正常使用第三方功能
+#### 🎯 **会员预告** 
+  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
+  <strong style="color: #dc2626;">⚠️ 下个版本预计上线会员功能，价格会上浮，已打赏用户将获得永久会员资格，请联系我加群，加群请备注打赏订单号，现在打赏也算哦</strong>
+  </div>
+
+---
+### 📅 v0.4.6版本更新 (2025.7.25)
+#### 🎯 **扩展架构重构** - 插件采用模块化设计，支持可选扩展功能
+- 🚨 **重要提示**:
+  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
+  <strong style="color: #dc2626;">⚠️ 本版本已移除第三方相关API，更新后需要安装扩展脚本才能使用第三方功能</strong>
+  </div>
+- 💡 **安装方法**:
+  1. 下载扩展脚本文件
+  2. 思源笔记 → 设置 → 外观 → 代码片段 → JS → 粘贴脚本内容 → 开启
+  3. 重启思源笔记
+- 📥 **扩展脚本地址**: [GitHub](https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js) | [Gitee](https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js)
+#### ✨ **界面优化**
+- 🎨 **按钮图标化**: 将文字按钮替换为纯图标，实现极简设计
+- ⚡ **服务预初始化**: 解决首次使用时间戳链接无法播放的问题
+##### 🔍 **全局搜索功能**
+- 🔍 **搜索标签**: 在目录标签前添加搜索按钮，使用🔍字符图标
+- 🌐 **全局搜索**: 可搜索所有标签下的所有媒体内容
+- ⚡ **实时搜索**: 输入时立即显示搜索结果，支持标题、艺术家、URL搜索
+- 🎯 **智能交互**: 点击显示搜索框并自动聚焦，无内容时自动隐藏
+
 ### 📅 v0.4.4版本更新 (2025.7.20)
 #### 🎴 **笔记卡片可视化系统** - 全新的媒体学习内容管理体验
 - 📋 **智能筛选面板**: 在笔记面板中新增媒体类型筛选功能，支持按时间戳、循环片段、截图、媒体卡片四种类型快速筛选查看
@@ -57,7 +96,7 @@
 - 🏷️ **统一属性管理**: 基于v0.4.3版本的自定义属性系统，实现所有媒体类型的统一识别和管理
 #### ✨ **播放列表增强功能**
 - 🌐 **外部打开支持**: 新增右键菜单"外部打开"功能
-  - B站/OpenList/WebDAV等网络资源在浏览器中打开
+  - 扩展/OpenList/WebDAV等网络资源在浏览器中打开
   - 本地文件在资源管理器中定位显示
   - 智能识别资源类型，自动选择最佳打开方式
 #### 📱 **移动端支持尝试**
@@ -120,15 +159,15 @@
 ---
 ### 📅 v0.4.0版本更新 (2025.7.12)
 - 🆕 **新增功能**
-  - 📚 **B站合集支持**: 新增B站合集批量添加功能，通过任意合集视频链接一键获取整个合集
+  - 📚 **扩展合集支持**: 新增扩展合集批量添加功能，通过任意合集视频链接一键获取整个合集
     - 🏷️ **智能识别**：自动检测视频是否属于合集，提取合集ID和UP主信息
     - 🔄 **智能刷新**：支持合集标签的一键刷新更新
 - 🔧 **性能优化**
   - 💬 **提示信息精简**: 优化批量添加提示，统一showMessage处理逻辑
 - 🐛 **缺陷修复**
-  - 🔊 **B站视频音频修复**: 修复B站视频播放时只有画面无声音的问题，统一DASH流处理逻辑
-  - ⚡ **播放参数统一**: 重构B站视频播放流程，直接生成blob播放地址，简化代码逻辑
-  - 🔇 **警告信息优化**: 消除播放B站/WebDAV视频时的无关OpenList错误警告，提升用户体验
+  - 🔊 **扩展视频音频修复**: 修复扩展视频播放时只有画面无声音的问题，统一DASH流处理逻辑
+  - ⚡ **播放参数统一**: 重构扩展视频播放流程，直接生成blob播放地址，简化代码逻辑
+  - 🔇 **警告信息优化**: 消除播放扩展/WebDAV视频时的无关OpenList错误警告，提升用户体验
 
 </details>
     </div>
@@ -150,12 +189,12 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>添加B站账号</strong> - 登录B站访问个人资源</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔧 <strong>配置扩展账号</strong> - 登录扩展服务访问个人资源</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
-                1. 在设置面板中找到"B站账号"部分<br>
-                2. 点击"登录B站账号"按钮<br>
-                3. 扫描显示的二维码（使用B站手机APP）<br>
-                4. 登录成功后可观看B站视频并批量添加收藏夹
+                1. 在设置面板中找到"扩展账号"部分<br>
+                2. 点击"登录扩展账号"按钮<br>
+                3. 扫描显示的二维码（使用扩展服务手机APP）<br>
+                4. 登录成功后可观看扩展视频并批量添加收藏夹
                 </div>
                 </details>
             </li>
@@ -240,11 +279,11 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>批量导入B站收藏夹</strong> - 一键导入收藏视频</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📥 <strong>批量导入扩展收藏夹</strong> - 一键导入收藏视频</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
-                1. 确保已登录B站账号<br>
+                1. 确保已登录扩展账号<br>
                 2. 点击播放列表标签“+”弹出菜单
-                3. 点击“添加B站收藏夹”<br>
+                3. 点击“添加扩展收藏夹”<br>
                 3. 选择要导入的收藏夹<br>
                 4. 系统将批量导入收藏夹中的所有视频
                 </div>
@@ -252,11 +291,11 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>批量导入B站合集</strong> - 一键导入合集视频</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>批量导入扩展合集</strong> - 一键导入合集视频</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
-                1. 确保已登录B站账号<br>
+                1. 确保已登录扩展账号<br>
                 2. 点击播放列表标签"+"弹出菜单<br>
-                3. 点击"添加B站合集"<br>
+                3. 点击"添加扩展合集"<br>
                 4. 输入合集中任意视频的链接<br>
                 5. 按回车确认，系统将自动获取整个合集并批量导入所有视频
                 </div>
@@ -276,14 +315,14 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>智能刷新</strong> - 自动同步文件夹、B站收藏夹、B站合集</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>智能刷新</strong> - 自动同步文件夹、扩展收藏夹、扩展合集</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
                 1. 右键点击需要刷新的标签<br>
                 2. 选择"刷新标签"<br>
                 3. 系统将根据标签类型自动执行相应的刷新策略：<br>
                 • <strong>文件夹标签</strong>：检测本地文件夹变化，智能增删媒体项<br>
-                • <strong>B站收藏夹</strong>：检测收藏夹内容变化，保持数据一致性<br>
-                • <strong>B站合集</strong>：检测合集内容变化，自动同步最新视频<br>
+                • <strong>扩展收藏夹</strong>：检测收藏夹内容变化，保持数据一致性<br>
+                • <strong>扩展合集</strong>：检测合集内容变化，自动同步最新视频<br>
                 4. 智能对比现有数据，仅处理变化项目，性能提升显著
                 </div>
                 </details>

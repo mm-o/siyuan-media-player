@@ -7,7 +7,7 @@
     import { Media, EXT } from '../core/player';
     import { OpenListManager } from '../core/openlist';
     import { WebDAVManager } from '../core/webdav';
-    import { BilibiliParser } from '../core/bilibili';
+    import { BilibiliParser, isBilibiliAvailable } from '../core/bilibili';
 
     export let className = '', hidden = false, i18n: any, activeTabId = 'playlist', currentItem: MediaItem | null = null, plugin: any;
 
@@ -38,7 +38,7 @@
         tags: ['目录', '默认'], items: [] as MediaItem[],
         folder: { type: '', path: '', connected: false },
         edit: '', add: '', exp: new Set<string>(), parts: {} as any, sel: null as MediaItem|null, refs: {} as any,
-        drag: { item: -1, tag: '', target: '' }
+        drag: { item: -1, tag: '', target: '' }, search: '', searching: false
     };
 
     // ==================== 视图状态保存 ====================
@@ -386,7 +386,8 @@
     const map = (m: any, k: string) => m[k] || k;
     const tabs = { '目录': i18n?.playList?.tabs?.directory, '默认': i18n?.playList?.tabs?.default };
     const nextView = () => { state.view = VIEWS[(VIEWS.indexOf(state.view) + 1) % 4]; saveView(); };
-    const setTab = async (tag: string) => { if (tag === state.tab) return; state.tab = tag; await load(); saveView(); if (tag === 'OpenList' && !state.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === 'WebDAV' && !state.items.length) await connect('webdav', 'WebDAV', '/'); else if (tag === '思源空间' && !state.items.length) await browse('siyuan', ''); else if (!['OpenList', 'WebDAV', '思源空间'].includes(tag)) state.folder = { type: '', path: '', connected: false }; };
+    const setTab = async (tag: string) => { if (tag === state.tab) return; state.tab = tag; state.searching = false; state.search = ''; await load(); saveView(); if (tag === 'OpenList' && !state.items.length) await connect('openlist', 'OpenList', '/'); else if (tag === 'WebDAV' && !state.items.length) await connect('webdav', 'WebDAV', '/'); else if (tag === '思源空间' && !state.items.length) await browse('siyuan', ''); else if (!['OpenList', 'WebDAV', '思源空间'].includes(tag)) state.folder = { type: '', path: '', connected: false }; };
+    const searchAll = async () => { if (!state.search.trim()) return state.items = []; const query = state.search.toLowerCase(); const allItems = []; for (const tag of state.tags.filter(t => t !== '目录' && t !== '搜索')) { const oldTab = state.tab; state.tab = tag; await dataOp('load'); allItems.push(...state.items); state.tab = oldTab; } state.items = allItems.filter(item => item.title?.toLowerCase().includes(query) || item.artist?.toLowerCase().includes(query) || item.url?.toLowerCase().includes(query)); };
     const connect = async (type: string, tag: string, path = '') => { if (type === 'openlist' && (state.folder.type !== 'openlist' || !state.folder.connected) && !await OpenListManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.openlistConnectionRequired || "请先配置OpenList连接"); return; } if (type === 'webdav' && (state.folder.type !== 'webdav' || !state.folder.connected) && !await WebDAVManager.initFromConfig(await cfg())) { showMessage(i18n.playList?.errors?.webdavConnectionRequired || "请先配置WebDAV连接"); return; } if (type === 'openlist') state.folder = { connected: true, type: 'openlist', path: '' }; if (type === 'webdav') state.folder = { connected: true, type: 'webdav', path: '' }; if (!state.tags.includes(tag)) { await dataOp('ensure', { tagName: tag }); await load(); } state.tab = tag; await browse(type, path); };
 
     // ==================== 媒体交互 ====================
@@ -395,7 +396,7 @@
         if (item.source === 'directory') return setTab(item.title);
         if (item.is_dir) return play(item);
         const bvid = item.bvid || item.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
-        if (bvid && !state.parts[item.id]) state.parts[item.id] = await BilibiliParser.getVideoParts({ bvid }) || [];
+        if (bvid && !state.parts[item.id] && isBilibiliAvailable()) state.parts[item.id] = await BilibiliParser.getVideoParts({ bvid }) || [];
         if (state.parts[item.id]?.length > 1) { state.exp = new Set(state.exp.has(item.id) ? [...state.exp].filter(id => id !== item.id) : [...state.exp, item.id]); saveView(); }
     });
 
@@ -408,12 +409,13 @@
         const config = await cfg(), opts = { ...item, type: item.type || 'video', startTime, endTime };
         const bvid = item.bvid || item.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
         if ((item.source === 'B站' || item.type === 'bilibili') && bvid) {
+            if (!isBilibiliAvailable()) return;
             if (!config.settings?.bilibiliLogin?.mid) return showMessage('需要登录B站才能播放视频');
             const cid = item.cid || (await BilibiliParser.getVideoParts({ bvid }))?.[0]?.cid;
-            if (cid) {
-                const blobUrl = await BilibiliParser.getProcessedVideoStream(bvid, cid, 0, config);
-                Object.assign(opts, { url: blobUrl, originalUrl: item.originalUrl || item.url, type: 'video', bvid, cid });
-            }
+            if (cid) Object.assign(opts, {
+                url: await BilibiliParser.getProcessedVideoStream(bvid, cid, 0, config),
+                originalUrl: item.originalUrl || item.url, type: 'video', bvid, cid
+            });
         }
         currentItem = item;
         dispatch('play', opts);
@@ -440,7 +442,17 @@
     const menus = {
         media: (item: any) => [["iconPlay", "播放", () => play(item)], ["iconLink", "外部打开", () => openExternal(item)], ...(state.tags.filter(t => t !== state.tab && t !== '目录').length ? [["iconMove", "移动到", state.tags.filter(t => t !== state.tab && t !== '目录').map(t => [t, () => move(item.title, t)])]] : []), ["iconTrashcan", "删除", () => del(item.title)]],
         tab: (tag: any) => [...(tag === '默认' || tag === '目录' ? [] : [["iconEdit", "重命名", () => { state.edit = tag; setTimeout(() => state.refs.edit?.focus(), 0); }], ["iconRefresh", "刷新", () => refreshTag(tag)]]), ["iconClear", "清空", () => del(undefined, state.tab)], ...(tag === '默认' || tag === '目录' ? [] : [["iconTrashcan", "删除", () => delTag(tag)]])],
-        add: (_, e: MouseEvent) => [["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { state.add = 'tag'; setTimeout(() => state.refs.new?.focus(), 50); }], ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()], ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')], ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))], ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))], ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))], ["iconTags", i18n.playList?.menu?.addBilibiliSeason || "添加B站合集", checkPro(() => { state.add = 'season'; setTimeout(() => state.refs.new?.focus(), 50); })]]
+        add: (_, e: MouseEvent) => [
+            ["iconAdd", i18n.playList?.menu?.addNewTab || "添加新标签页", () => { state.add = 'tag'; setTimeout(() => state.refs.new?.focus(), 50); }],
+            ["iconFolder", i18n.playList?.menu?.addLocalFolder || "添加本地文件夹", () => addFolder()],
+            ["iconImage", i18n.playList?.menu?.addSiyuanAssets || "添加思源空间", () => connect('siyuan', '思源空间', '')],
+            ["iconCloud", i18n.playList?.menu?.addOpenList || "浏览OpenList云盘", checkPro(() => connect('openlist', 'OpenList', '/'))],
+            ["iconCloud", i18n.playList?.menu?.addWebDAV || "浏览WebDAV云盘", checkPro(() => connect('webdav', 'WebDAV', '/'))],
+            ...(isBilibiliAvailable() ? [
+                ["iconHeart", i18n.playList?.menu?.addBilibiliFavorites || "添加B站收藏夹", checkPro(() => addBili(e))],
+                ["iconTags", i18n.playList?.menu?.addBilibiliSeason || "添加B站合集", checkPro(() => { state.add = 'season'; setTimeout(() => state.refs.new?.focus(), 50); })]
+            ] : [])
+        ]
     };
     const menu = (e: MouseEvent, type: keyof typeof menus, target?: any) => { const m = new Menu(`${type}Menu`); menus[type](target, e).forEach(([icon, label, action]) => m.addItem(Array.isArray(action) ? { icon, label, submenu: action.map(([l, a]) => ({ label: l, click: a })) } : { icon, label, click: action })); m.open({ x: e.clientX, y: e.clientY }); };
 
@@ -459,20 +471,24 @@
     };
 
     const addBili = async (e: MouseEvent) => {
+        if (!isBilibiliAvailable()) return;
         const config = await cfg();
         if (!config?.settings?.bilibiliLogin?.mid) return showMessage('请先登录B站账号');
         const folders = await BilibiliParser.getUserFavoriteFolders(config);
         if (!folders?.length) return showMessage('未找到收藏夹');
         const menu = new Menu("biliFavs");
-        folders.forEach(f => menu.addItem({ icon: "iconHeart", label: `${f.title} (${f.media_count})`, click: async () => {
-            const { items } = await BilibiliParser.getFavoritesList(f.id.toString(), config);
-            await dataOp('ensure', { tagName: f.title, description: f.id.toString() });
-            await batchAdd(items || [], f.title);
-        }}));
+        folders.forEach(f => menu.addItem({
+            icon: "iconHeart", label: `${f.title} (${f.media_count})`,
+            click: async () => {
+                const { items } = await BilibiliParser.getFavoritesList(f.id.toString(), config);
+                await dataOp('ensure', { tagName: f.title, description: f.id.toString() });
+                await batchAdd(items || [], f.title);
+            }}));
         menu.open({ x: e.clientX, y: e.clientY });
     };
 
     const addSeason = async (url: string) => {
+        if (!isBilibiliAvailable()) return;
         const config = await cfg();
         if (!config?.settings?.bilibiliLogin?.mid) return showMessage(i18n.playList?.error?.needBiliLoginForSeason || '请先登录B站账号');
         const info = await BilibiliParser.getVideoInfo(url) as any;
@@ -498,6 +514,7 @@
         let newItems = [];
 
         if (desc.match(/^\d+$/)) {
+            if (!isBilibiliAvailable()) return;
             const config = await cfg();
             if (!config?.settings?.bilibiliLogin?.mid) return showMessage('请先登录B站账号');
             newItems = ((await BilibiliParser.getFavoritesList(desc, config)).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
@@ -506,6 +523,7 @@
             await browse('folder', desc);
             newItems = state.items.filter(item => !item.is_dir).map(item => item.url);
         } else if (desc.includes(':') && !desc.includes('/') && !desc.includes('\\')) {
+            if (!isBilibiliAvailable()) return;
             const [mid, seasonId] = desc.split(':');
             newItems = ((await BilibiliParser.getSeasonArchives(mid, seasonId, await cfg())).items || []).map(item => `https://www.bilibili.com/video/${item.bvid}`);
         } else return showMessage(i18n.playList?.error?.refreshTypeFailed || '无法识别的刷新类型');
@@ -525,7 +543,7 @@
         if (state.tab === tagName) state.tab = '默认';
     };
 
-    const input = (e: Event, type: 'tag' | 'add', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (!value) return (type === 'tag' ? state.edit = '' : state.add = ''); if (type === 'tag') { renameTag(old!, value); state.edit = ''; } else if (state.add === 'tag') { state.add = ''; dataOp('ensure', { tagName: value }); } else if (state.add === 'season') { state.add = ''; addSeason(value); } };
+    const input = (e: Event, type: 'tag' | 'add' | 'search', old?: string) => { if (e instanceof KeyboardEvent && e.key !== 'Enter') return; const value = ((e.target as HTMLInputElement).value || '').trim(); if (type === 'search') { state.search = value; if (value) searchAll(); else state.items = []; return; } if (!value) return (type === 'tag' ? state.edit = '' : state.add = ''); if (type === 'tag') { renameTag(old!, value); state.edit = ''; } else if (state.add === 'tag') { state.add = ''; dataOp('ensure', { tagName: value }); } else if (state.add === 'season') { state.add = ''; addSeason(value); } };
 
     export const playNext = safe(async () => {
         if (!state.items.length || !currentItem) return false;
@@ -533,7 +551,7 @@
         if (!config?.settings?.loopPlaylist) return false;
 
         const bvid = currentItem.bvid || currentItem.url?.match(/BV[a-zA-Z0-9]+/)?.[0];
-        if (bvid) {
+        if (bvid && isBilibiliAvailable()) {
             const currentPage = parseInt(currentItem.id?.match(/-p(\d+)/)?.[1] || '1', 10);
             const parts = await BilibiliParser.getVideoParts({ bvid });
             const nextPart = parts?.find(pt => pt.page === currentPage + 1);
@@ -584,13 +602,20 @@
     
     <!-- 标签 -->
     <div class="panel-tabs">
+        <!-- 搜索标签 -->
+        {#if state.searching}
+            <input bind:this={state.refs.search} type="text" class="tab-input" placeholder="搜索所有媒体..." bind:value={state.search} on:input={e => input(e, 'search')} on:blur={() => !state.search && (state.searching = false)} style="width: 150px;">
+        {:else}
+            <button class="tab tab-add" on:click={() => (state.searching = true, state.tab = '搜索', setTimeout(() => state.refs.search?.focus(), 0))}>🔍</button>
+        {/if}
+
         {#each state.tags as tag, index (tag)}
             {#if state.edit === tag}
                 <input bind:this={state.refs.edit} type="text" class="tab-input" value={tag} on:blur={e => input(e, 'tag', tag)} on:keydown={e => input(e, 'tag', tag)}>
             {:else}
                 <button
                     class="tab"
-                    class:active={state.tab === tag}
+                    class:active={state.tab === tag && !state.searching}
                     draggable={tag !== '目录' && tag !== '默认'}
                     on:click={() => setTab(tag)}
                     on:contextmenu|preventDefault={e => menu(e, 'tab', tag)}
@@ -603,7 +628,7 @@
             {/if}
         {/each}
         {#if state.add}
-            <input bind:this={state.refs.new} type="text" class="tab-input" style="width:{state.add === 'season' ? '200px' : '100px'}" placeholder={state.add === 'season' ? (i18n.playList?.placeholder?.bilibiliSeason || 'B站合集视频链接') : (i18n.playList?.placeholder?.newTab || '新标签名')} on:blur={e => input(e, 'add')} on:keydown={e => input(e, 'add')}>
+            <input bind:this={state.refs.new} type="text" class="tab-input" style="width:{state.add === 'season' ? '200px' : '100px'}" placeholder={state.add === 'season' ? (isBilibiliAvailable() ? (i18n.playList?.placeholder?.bilibiliSeason || 'B站合集视频链接') : '扩展未启用') : (i18n.playList?.placeholder?.newTab || '新标签名')} on:blur={e => input(e, 'add')} on:keydown={e => input(e, 'add')}>
         {:else}
             <button class="tab tab-add" on:click|preventDefault|stopPropagation={e => menu(e, 'add')}>+</button>
         {/if}
@@ -689,6 +714,6 @@
     <div class="panel-footer">
         <input type="text" class="tab-input panel-input" placeholder="输入链接或直接点击添加本地文件..." bind:value={state.input} on:keydown={e => e.key === 'Enter' && handleAdd()} style="padding-right: {state.input ? '25px' : '8px'}">
         {#if state.input}<span style="position:absolute;right:80px;cursor:pointer;color:#666" on:click={() => state.input = ''}>×</span>{/if}
-        <button class="add-btn" on:click={handleAdd}>添加</button>
+        <button class="add-btn" on:click={handleAdd} title="添加"><svg class="icon"><use xlink:href="#iconAdd"></use></svg></button>
     </div>
 </div>

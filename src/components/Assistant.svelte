@@ -1,7 +1,7 @@
 <script lang="ts">
     import { SubtitleManager } from '../core/subtitle';
     import { DanmakuManager } from '../core/danmaku';
-    import { BilibiliParser } from '../core/bilibili';
+    import { BilibiliParser, isBilibiliAvailable } from '../core/bilibili';
     import { onDestroy, onMount } from 'svelte';
     import { showMessage } from 'siyuan';
     // @ts-ignore
@@ -37,9 +37,11 @@
         ? (i18n?.assistant?.subtitles?.noItems || "当前视频没有可用的字幕")
         : (activeTab === 'danmakus'
             ? (i18n?.assistant?.danmakus?.noItems || "当前视频没有可用的弹幕")
-            : (!currentMedia?.bvid 
+            : (!currentMedia?.bvid
                 ? (i18n?.assistant?.summary?.onlyForBilibili || "AI总结功能仅支持哔哩哔哩视频。")
-                : (i18n?.assistant?.summary?.noItems || "当前视频没有可用的AI总结")));
+                : !isBilibiliAvailable()
+                    ? (i18n?.assistant?.summary?.onlyForBilibili || "AI总结功能仅支持哔哩哔哩视频。")
+                    : (i18n?.assistant?.summary?.noItems || "当前视频没有可用的AI总结")));
     
     // 媒体变化监听 - 极简版
     $: {
@@ -130,17 +132,17 @@
             // 并行加载所有内容
             const [subtitleResult, danmakuResult, summaryResult] = await Promise.allSettled([
                 // 字幕
-                bvid && cid
+                bvid && cid && isBilibiliAvailable()
                     ? SubtitleManager.loadBilibiliSubtitle(bvid, cid, config)
                     : url ? SubtitleManager.getSubtitleForMedia(url).then(opt => opt ? SubtitleManager.loadSubtitle(opt.url, opt.type) : []) : [],
 
                 // 弹幕
-                bvid && cid
+                bvid && cid && isBilibiliAvailable()
                     ? DanmakuManager.getBiliDanmaku(cid, config)
                     : url ? DanmakuManager.getDanmakuFileForMedia(url).then(opt => opt ? DanmakuManager.loadDanmaku(opt.url, opt.type) : []) : [],
 
                 // 总结
-                bvid && cid
+                bvid && cid && isBilibiliAvailable()
                     ? BilibiliParser.getVideoAiSummary(bvid, cid, currentMedia.artistId || config.settings?.bilibiliLogin?.mid, config)
                         .then(result => result?.code === 0 && result?.data?.code === 0 && result.data.model_result
                             ? [{ startTime: 0, text: result.data.model_result.summary, type: 'summary' },
@@ -269,14 +271,12 @@
 
     {#if hasItems}
         <div class="panel-footer">
-            <button class="add-btn" on:click={exportAll}>
+            <button class="add-btn" on:click={exportAll} title={exportBtnText}>
                 <svg class="icon"><use xlink:href="#iconDownload"></use></svg>
-                <span>{exportBtnText}</span>
             </button>
             {#if !autoScrollEnabled}
-                <button class="add-btn" on:click={resumeAutoScroll}>
+                <button class="add-btn" on:click={resumeAutoScroll} title={resumeBtnText}>
                     <svg class="icon"><use xlink:href="#iconPlay"></use></svg>
-                    <span>{resumeBtnText}</span>
                 </button>
             {/if}
         </div>

@@ -2,35 +2,27 @@ import md5 from 'md5';
 import QRCode from 'qrcode';
 import type { MediaInfo, BiliApiResponse } from "./types";
 import { Media } from './player';
+import { bilibili } from './extensions';
 
-// ===== 1. API配置 =====
-export const BILI_API = {
-    PROXY: "/api/network/forwardProxy",
-    QR_LOGIN: "https://passport.bilibili.com/x/passport-login/web/qrcode/generate",
-    QR_POLL: "https://passport.bilibili.com/x/passport-login/web/qrcode/poll",
-    USER_INFO: "https://api.bilibili.com/x/web-interface/nav",
-    VIDEO_INFO: "https://api.bilibili.com/x/web-interface/view",
-    VIDEO_PAGES: "https://api.bilibili.com/x/player/pagelist",
-    VIDEO_STREAM: "https://api.bilibili.com/x/player/wbi/playurl",
-    VIDEO_SUBTITLE: "https://api.bilibili.com/x/player/wbi/v2",
-    VIDEO_AI_SUMMARY: "https://api.bilibili.com/x/web-interface/view/conclusion/get",
-    FAVORITE_LIST: "https://api.bilibili.com/x/v3/fav/resource/list",
-    FAVORITE_IDS: "https://api.bilibili.com/x/v3/fav/resource/ids",
-    FAVORITE_FOLDER_LIST: "https://api.bilibili.com/x/v3/fav/folder/created/list-all",
-    SEASONS_ARCHIVES_LIST: "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
+// ===== 1. API配置 - 动态获取 =====
+export const getBiliAPI = () => {
+    const apis = bilibili.getAPIs();
+    return apis ? { PROXY: "/api/network/forwardProxy", ...apis } : null;
 };
+
+export const isBilibiliAvailable = () => bilibili.isAvailable();
 
 // ===== 2. 工具函数 =====
 export const biliRequest = async <T>(url: string, headers: Record<string, string> = {}): Promise<T> => {
-    const res = await fetch(BILI_API.PROXY, {
+    const api = getBiliAPI();
+    if (!api) throw new Error('B站扩展未启用');
+
+    const res = await fetch(api.PROXY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            url, method: 'GET', timeout: 7000,
-            headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
-        })
+        body: JSON.stringify({ url, method: 'GET', timeout: 7000, headers: Object.entries(headers).map(([k, v]) => ({ [k]: v })) })
     }).then(r => r.json());
-    
+
     if (res.code !== 0) throw new Error(`请求失败: ${res.msg}`);
     return JSON.parse(res.data.body);
 };
@@ -82,12 +74,15 @@ export class BilibiliParser {
     }
 
     static async getVideoInfo(url: string): Promise<MediaInfo | null> {
+        const api = getBiliAPI();
+        if (!api) return null;
+
         const videoId = parseBiliUrl(url);
         if (!videoId) return null;
 
         try {
             const { p, ...params } = videoId;
-            const info = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_INFO}?${new URLSearchParams(params)}`);
+            const info = await biliRequest<BiliApiResponse>(`${api.VIDEO_INFO}?${new URLSearchParams(params)}`);
             if (info.code !== 0) return null;
 
             const pages = await this.getVideoParts(params);
@@ -105,30 +100,29 @@ export class BilibiliParser {
                 bvid: info.data.bvid, cid: String(cid),
                 ...(info.data.ugc_season && { seasonId: String(info.data.ugc_season.id), seasonTitle: info.data.ugc_season.title })
             } as any;
-        } catch (error) {
-            console.error('获取视频信息失败:', error);
-            return null;
-        }
+        } catch { return null; }
     }
 
     static async getVideoParts(params: { aid?: string; bvid?: string }): Promise<any[]> {
+        const api = getBiliAPI();
+        if (!api) return [];
         try {
-            const response = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_PAGES}?${new URLSearchParams(params)}`);
+            const response = await biliRequest<BiliApiResponse>(`${api.VIDEO_PAGES}?${new URLSearchParams(params)}`);
             return response.code === 0 && Array.isArray(response.data) ? response.data : [];
-        } catch {
-            return [];
-        }
+        } catch { return []; }
     }
 
     static async getVideoStream(bvid: string, cid: string, qn: number, config: any): Promise<BiliApiResponse> {
+        const api = getBiliAPI();
+        if (!api) throw new Error('B站扩展未启用');
+
         const wbiImg = config?.settings?.bilibiliLogin?.wbi_img;
         if (!wbiImg) throw new Error('未找到WBI密钥信息');
-        
+
         const params = { bvid, cid, qn, fnval: 16, fnver: 0, fourk: 1, platform: 'html5', high_quality: 1 };
         const signedParams = this.sign(params, wbiImg);
-        const headers = getBiliHeaders(config, bvid);
 
-        const response = await biliRequest<BiliApiResponse>(`${BILI_API.VIDEO_STREAM}?${signedParams}`, headers);
+        const response = await biliRequest<BiliApiResponse>(`${api.VIDEO_STREAM}?${signedParams}`, getBiliHeaders(config, bvid));
         
         if (response.data.dash) {
             const decodeUrl = (url: string) => decodeURIComponent(url);
@@ -152,12 +146,15 @@ export class BilibiliParser {
     }
 
     static async getFavoritesList(mediaId: string, config: any): Promise<{title: string, items: {bvid: string}[]}> {
+        const api = getBiliAPI();
+        if (!api) throw new Error('B站扩展未启用');
+
         const headers = getBiliHeaders(config);
         const [infoResponse, idsResponse] = await Promise.all([
-            biliRequest<BiliApiResponse>(`${BILI_API.FAVORITE_LIST}?media_id=${mediaId}&platform=web&ps=20&pn=1`, headers),
-            biliRequest<BiliApiResponse>(`${BILI_API.FAVORITE_IDS}?media_id=${mediaId}&platform=web`, headers)
+            biliRequest<BiliApiResponse>(`${api.FAVORITE_LIST}?media_id=${mediaId}&platform=web&ps=20&pn=1`, headers),
+            biliRequest<BiliApiResponse>(`${api.FAVORITE_IDS}?media_id=${mediaId}&platform=web`, headers)
         ]);
-        
+
         return {
             title: infoResponse.data?.info?.title || '未命名收藏夹',
             items: Array.isArray(idsResponse.data) ? idsResponse.data.filter(item => item.type === 2 && item.bvid) : []
@@ -165,12 +162,11 @@ export class BilibiliParser {
     }
 
     static async getUserFavoriteFolders(config: any): Promise<{id: number, title: string, media_count: number}[]> {
-        if (!config.settings?.bilibiliLogin?.mid) {
-            throw new Error('未登录或无法获取用户信息');
-        }
+        const api = getBiliAPI();
+        if (!api || !config.settings?.bilibiliLogin?.mid) throw new Error('B站扩展未启用或未登录');
 
         const response = await biliRequest<BiliApiResponse>(
-            `${BILI_API.FAVORITE_FOLDER_LIST}?up_mid=${config.settings.bilibiliLogin.mid}`,
+            `${api.FAVORITE_FOLDER_LIST}?up_mid=${config.settings.bilibiliLogin.mid}`,
             getBiliHeaders(config)
         );
 
@@ -180,21 +176,25 @@ export class BilibiliParser {
     }
 
     static async getSeasonArchives(mid: string, seasonId: string, config: any): Promise<{title: string, items: {bvid: string}[]}> {
-        const response = await biliRequest<BiliApiResponse>(`${BILI_API.SEASONS_ARCHIVES_LIST}?mid=${mid}&season_id=${seasonId}&page_num=1&page_size=100`, getBiliHeaders(config));
+        const api = getBiliAPI();
+        if (!api) throw new Error('B站扩展未启用');
+
+        const response = await biliRequest<BiliApiResponse>(`${api.SEASONS_ARCHIVES_LIST}?mid=${mid}&season_id=${seasonId}&page_num=1&page_size=100`, getBiliHeaders(config));
         return { title: response.data?.meta?.name || '未命名合集', items: response.data?.archives?.map((item: any) => ({bvid: item.bvid})) || [] };
     }
 
     static async getVideoAiSummary(bvid: string, cid: string, upMid: string | undefined, config: any): Promise<any> {
+        const api = getBiliAPI();
+        if (!api) return { code: -1, message: 'B站扩展未启用', data: null };
+
         try {
             const params: Record<string, any> = { bvid, cid };
             if (upMid) params.up_mid = upMid;
-            
+
             const wbiImg = config?.settings?.bilibiliLogin?.wbi_img;
             if (!wbiImg) throw new Error('未找到WBI密钥信息');
-            
-            const signedParams = this.sign(params, wbiImg);
-            
-            return await biliRequest<any>(`${BILI_API.VIDEO_AI_SUMMARY}?${signedParams}`, getBiliHeaders(config, bvid));
+
+            return await biliRequest<any>(`${api.VIDEO_AI_SUMMARY}?${this.sign(params, wbiImg)}`, getBiliHeaders(config, bvid));
         } catch (error) {
             console.error('[BiliAPI] 获取视频AI总结失败:', error);
             return { code: -1, message: '获取AI总结失败', data: null };
@@ -253,12 +253,15 @@ export class QRCodeManager {
     ) {}
 
     async startLogin() {
-        const res = await biliRequest<any>(BILI_API.QR_LOGIN);
+        const api = getBiliAPI();
+        if (!api) throw new Error('B站扩展未启用');
+
+        const res = await biliRequest<any>(api.QR_LOGIN);
         if (res.code !== 0) throw new Error(res.message);
-        
+
         this.qrcodeData = await QRCode.toDataURL(res.data.url, { width: 200, margin: 2 });
         this.qrcodeKey = res.data.qrcode_key;
-        
+
         this.onStatusChange({ data: this.qrcodeData, key: this.qrcodeKey, message: '等待扫码' });
         this.startPolling();
     }
@@ -267,30 +270,33 @@ export class QRCodeManager {
         this.stopPolling();
         this.timer = window.setInterval(async () => {
             try {
-                const res = await biliRequest<any>(`${BILI_API.QR_POLL}?qrcode_key=${this.qrcodeKey}`);
-                this.onStatusChange({ 
-                    data: this.qrcodeData, 
-                    key: this.qrcodeKey, 
-                    message: { 0: '登录成功', 86038: '二维码已过期', 86090: '已扫码，请确认', 86101: '等待扫码' }[res.data.code] || '未知状态' 
+                const api = getBiliAPI();
+                if (!api) return this.stopPolling();
+
+                const res = await biliRequest<any>(`${api.QR_POLL}?qrcode_key=${this.qrcodeKey}`);
+                this.onStatusChange({
+                    data: this.qrcodeData, key: this.qrcodeKey,
+                    message: { 0: '登录成功', 86038: '二维码已过期', 86090: '已扫码，请确认', 86101: '等待扫码' }[res.data.code] || '未知状态'
                 });
 
                 if (res.data.code === 0) {
                     this.stopPolling();
                     await this.handleLoginSuccess(res.data);
-                } else if (res.data.code === 86038) {
-                    this.stopPolling();
-                }
+                } else if (res.data.code === 86038) this.stopPolling();
             } catch { this.stopPolling(); }
         }, 3000);
     }
 
     private async handleLoginSuccess(data: any) {
+        const api = getBiliAPI();
+        if (!api) return;
+
         const sessdata = new URL(data.url).searchParams.get('SESSDATA');
         if (!sessdata) return;
-        
-        const userInfo = await biliRequest<any>(BILI_API.USER_INFO, { 
-            'User-Agent': 'Mozilla/5.0', 
-            'Cookie': `SESSDATA=${sessdata}` 
+
+        const userInfo = await biliRequest<any>(api.USER_INFO, {
+            'User-Agent': 'Mozilla/5.0',
+            'Cookie': `SESSDATA=${sessdata}`
         });
         
         if (userInfo.code === 0 && userInfo.data?.mid) {

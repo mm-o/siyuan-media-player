@@ -209,6 +209,7 @@ $transition: 0.3s ease;
       border-radius: 24px; font-size: 14px; background: color(primary); color: color(on-primary);
       transition: all 0.2s; &:hover { filter: brightness(0.9); transform: translateY(-2px); }
       .icon { width: 14px; height: 14px; margin-right: 4px; fill: currentColor; }
+      &:has(svg:only-child) { width: 28px; padding: 0; border-radius: 50%; justify-content: center; .icon { margin: 0; } }
     }
   }
   

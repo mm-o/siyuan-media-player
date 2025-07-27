@@ -2,7 +2,7 @@
  * B站弹幕处理模块
  * 用于获取和转换B站弹幕为artplayer-plugin-danmuku支持的格式
  */
-import { BILI_API, getBiliHeaders } from './bilibili';
+import { getBiliAPI, getBiliHeaders } from './bilibili';
 import artplayerPluginDanmuku from 'artplayer-plugin-danmuku';
 import { Media } from './player';
 
@@ -79,13 +79,15 @@ export class DanmakuManager {
         if (this.cache.has(key)) return this.cache.get(key) || [];
 
         try {
+            const api = getBiliAPI();
+            if (!api) return [];
+
             const xmlUrl = `https://comment.bilibili.com/${cid}.xml`;
             const headers = getBiliHeaders(config);
-            
-            // 尝试直接请求或通过代理API
+
             let xmlText = await fetch(xmlUrl, { method: 'GET', headers })
                 .then(r => r.ok ? r.text() : Promise.reject())
-                .catch(() => fetch(BILI_API.PROXY, {
+                .catch(() => fetch(api.PROXY, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -96,8 +98,8 @@ export class DanmakuManager {
                 .then(r => r.json())
                 .then(result => {
                     if (result.code !== 0 || !result.data) return '';
-                    return typeof result.data === 'string' 
-                            ? result.data 
+                    return typeof result.data === 'string'
+                            ? result.data
                             : (typeof result.data.body === 'string' ? result.data.body : '');
                 })
                 .catch(() => ''));

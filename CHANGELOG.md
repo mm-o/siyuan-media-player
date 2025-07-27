@@ -1,3 +1,35 @@
+### 📅 v0.4.7版本更新 (2025.7.28)
+#### 🎯 **脚本系统重构** - 重新设计扩展脚本加载机制，更符合思源笔记规范
+- 🔧 **简化扩展架构**: 完全重构扩展系统，直接通过window对象暴露API配置，完全符合思源笔记脚本标准
+- 📜 **扩展脚本升级到v2.0.0**: 极简设计，静默加载，**必须更新到v2.0.0扩展脚本**才能正常使用第三方功能
+- 📥 **v2.0.0扩展脚本地址**: [GitHub](https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js) | [Gitee](https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js)
+#### 🎯 **会员预告** 
+- 🚨 **重要提示**:
+  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
+  <strong style="color: #dc2626;">⚠️ 下个版本预计上线会员功能，价格会上浮，已打赏用户将获得永久会员资格，请联系我加群，加群请备注打赏订单号，现在打赏也算哦</strong>
+  </div>
+
+---
+### 📅 v0.4.6版本更新 (2025.7.25)
+#### 🎯 **扩展架构重构** - 插件采用模块化设计，支持可选扩展功能
+- 🚨 **重要提示**:
+  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
+  <strong style="color: #dc2626;">⚠️ 本版本已移除第三方相关API，更新后需要安装扩展脚本才能使用第三方功能</strong>
+  </div>
+- 💡 **安装方法**:
+  1. 下载扩展脚本文件
+  2. 思源笔记 → 设置 → 外观 → 代码片段 → JS → 粘贴脚本内容 → 开启
+  3. 重启思源笔记
+- 📥 **扩展脚本地址**: [GitHub](https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js) | [Gitee](https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js)
+#### ✨ **界面优化**
+- 🎨 **按钮图标化**: 将文字按钮替换为纯图标，实现极简设计
+- ⚡ **服务预初始化**: 解决首次使用时间戳链接无法播放的问题
+##### 🔍 **全局搜索功能**
+- 🔍 **搜索标签**: 在目录标签前添加搜索按钮，使用🔍字符图标
+- 🌐 **全局搜索**: 可搜索所有标签下的所有媒体内容
+- ⚡ **实时搜索**: 输入时立即显示搜索结果，支持标题、艺术家、URL搜索
+- 🎯 **智能交互**: 点击显示搜索框并自动聚焦，无内容时自动隐藏
+
 ### 📅 v0.4.4版本更新 (2025.7.20)
 #### 🎴 **笔记卡片可视化系统** - 全新的媒体学习内容管理体验
 - 📋 **智能筛选面板**: 在笔记面板中新增媒体类型筛选功能，支持按时间戳、循环片段、截图、媒体卡片四种类型快速筛选查看

@@ -14,16 +14,25 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(14,165,233,0.15);">
         <h2 style="color: #0ea5e9; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Core Features</h2>
         <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>Multi-platform Playback</strong> - Unified playback for local media, Bilibili videos, OpenList, and WebDAV cloud storage</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>Multi-platform Playback</strong> - Unified playback for local media, extended media, OpenList, and WebDAV cloud storage</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>Timestamp Navigation</strong> - Precise timestamp links for one-click navigation to specific playback positions</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>Loop Segments</strong> - Custom loop playback segments for repeated learning of key content</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export with sub-document creation and smart search configuration for complete learning note ecosystem</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>Media Assistant</strong> - Subtitle lists, danmaku lists, and AI media summaries for intelligent analysis</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>Playlist Management</strong> - Database-driven management with tag classification, drag-and-drop sorting, and multi-view display</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of Bilibili favorites, Bilibili collections, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of extension favorites, extension collections, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">📝 <strong>Notes Panel</strong> - Independent document and block content viewing and editing with ID input, smart tags, and context menu operations</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">🔗 <strong>Smart Link Recognition</strong> - Direct playback of database URL field media links, Ctrl+click to force browser opening</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>Settings Panel</strong> - One-stop management for account configuration, player settings, and general options</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">🔧 <strong>Script Extensions</strong> - Support for third-party extension scripts, user-selectable functional modules</li>
+        </ul>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 1px solid #fdba74; border-radius: 8px; box-shadow: 0 4px 12px rgba(251,146,60,0.15);">
+        <h2 style="color: #ea580c; margin: 0 0 1em; text-align: center; font-size: 1.3em;">⚠️ Disclaimer</h2>
+        <ul style="margin: 0; padding-left: 1.2em;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ea580c; box-shadow: 0 2px 4px rgba(234,88,12,0.08);">🎯 <strong>Technical Architecture</strong> - Plugin adopts extensible design, core code focuses on playback functionality, contains no third-party service code</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🎛️ <strong>Extension Selection</strong> - Users can autonomously choose whether to use third-party extension scripts based on needs</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f97316; box-shadow: 0 2px 4px rgba(249,115,22,0.08);">🛡️ <strong>Security Reminder</strong> - Extension scripts are independent functional modules, please choose carefully based on personal needs</li>
         </ul>
     </div>
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fef3f2, #fee2e2); border: 1px solid #fca5a5; border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.15);">
@@ -47,6 +56,36 @@
     <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
         <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+### 📅 v0.4.7 Update (2025.7.28)
+#### 🎯 **Script System Refactoring** - Redesigned extension script loading mechanism, more compliant with SiYuan Note standards
+- 🔧 **Simplified Extension Architecture**: Complete refactoring of extension system, directly exposing API configuration through window object, fully compliant with SiYuan Note script standards
+- 📜 **Extension Script Upgraded to v2.0.0**: Minimalist design, silent loading, **must update to v2.0.0 extension script** for third-party functionality to work properly
+#### 🎯 **Member preview** 
+  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
+  <strong style="color: #dc2626;">⚠️ The next version is expected to launch the membership function, the price will rise, and the rewarded users will get permanent membership, please contact me to join the group, please note the reward order number, and now the tip is counted</strong>
+  </div>
+
+---
+### 📅 v0.4.6 Update (2025.7.25)
+#### 🎯 **Extension Architecture Refactoring** - Plugin adopts modular design, supports optional extension functionality
+- 🚨 **Important Notice**:
+  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
+  <strong style="color: #dc2626;">⚠️ This version has removed third-party related APIs, extension scripts must be installed after update to use third-party functionality</strong>
+  </div>
+- 💡 **Installation Method**:
+  1. Download extension script file
+  2. SiYuan Notes → Settings → Appearance → Code Snippets → JS → Paste script content → Enable
+  3. Restart SiYuan Notes
+- 📥 **Extension Script Address**: [GitHub](https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js) | [Gitee](https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js)
+#### ✨ **Interface Optimization**
+- 🎨 **Button Iconification**: Replace text buttons with pure icons for minimalist design
+- ⚡ **Service Pre-initialization**: Solve the issue of timestamp links not playing on first use
+##### 🔍 **Global Search Feature**
+- 🔍 **Search Tab**: Add search button before directory tab, using 🔍 character icon
+- 🌐 **Global Search**: Search all media content across all tabs
+- ⚡ **Real-time Search**: Instant search results while typing, supports title, artist, and URL search
+- 🎯 **Smart Interaction**: Click to show search box with auto-focus, auto-hide when empty
+
 ### 📅 v0.4.4 Update (2025.7.20)
 #### 🎴 **Note Card Visualization System** - A brand new media learning content management experience
 - 📋 **Smart Filter Panel**: Added media type filtering functionality in the notes panel, supporting quick filtering by timestamp, loop segment, screenshot, and media card types
@@ -57,7 +96,7 @@
 - 🏷️ **Unified Attribute Management**: Based on the custom attribute system from v0.4.3, achieving unified recognition and management of all media types
 #### ✨ **Playlist Enhancement Features**
 - 🌐 **External Open Support**: Added "Open Externally" function in right-click menu
-  - Open Bilibili/OpenList/WebDAV network resources in browser
+  - Open extension/OpenList/WebDAV network resources in browser
   - Locate and display local files in file explorer
   - Smart resource type recognition with automatic optimal opening method selection
 #### 📱 **Mobile Support Attempt**
@@ -89,7 +128,7 @@
     - 🔄 **Loop Segment Smart Marking**: Loop segment blocks use `custom-media="loop"` for identification, while precisely recording loop intervals through `custom-loop-start="01:30"` and `custom-loop-end="02:45"`, supporting complex segment management and learning focus marking
     - 📸 **Screenshot Block Auto Recognition**: Screenshot function-generated image blocks add `custom-media="screenshot"` attribute for quick filtering, classification, and visual management of screenshot content
     - 📷 **Screenshot+Timestamp Combo Cards**: Screenshot with timestamp function-generated composite blocks use `custom-media="mediacard"` identification, combined with `custom-timestamp="02:03"` to associate time information, forming a complete media memory card system
-    - 📔 **Media Notes Complete Archive**: Media note documents add `custom-type="MediaNote"` type identification, record source media links through `custom-mediaurl="Media URL"`, and use `custom-website="bilibili/openlist/webdav/local"` to mark source websites, building a complete learning archive system
+    - 📔 **Media Notes Complete Archive**: Media note documents add `custom-type="MediaNote"` type identification, record source media links through `custom-mediaurl="Media URL"`, and use `custom-website="extension/openlist/webdav/local"` to mark source websites, building a complete learning archive system
     - 🔍 **SQL Query Support**: Implement precise media block retrieval based on custom attributes, supporting complex data analysis and content management needs
     - 🎯 **Application Scenario Expansion**: Support building personal media learning systems, content management workflows, media resource analysis, learning progress tracking, and other advanced applications, providing users with more powerful media content organization and utilization capabilities
 - 🐛 **Bug Fixes**
@@ -121,15 +160,15 @@
 ---
 ### 📅 v0.4.0 Update (2025.7.12)
 - 🆕 **New Features**
-  - 📚 **Bilibili Collections Support**: New batch import feature for Bilibili collections, get entire collection with any video link
+  - 📚 **Extension Collections Support**: New batch import feature for extension collections, get entire collection with any video link
     - 🏷️ **Smart Recognition**: Automatically detect if video belongs to a collection, extract collection ID and uploader info
     - 🔄 **Smart Refresh**: Support one-click refresh for collection tags
 - 🔧 **Performance Optimization**
   - 💬 **Message Simplification**: Optimized batch import notifications with unified showMessage handling
 - 🐛 **Bug Fixes**
-  - 🔊 **Bilibili Video Audio Fix**: Fixed issue where Bilibili videos had video but no audio, unified DASH stream processing
-  - ⚡ **Playback Parameter Unification**: Refactored Bilibili video playback process, directly generate blob playback addresses
-  - 🔇 **Warning Message Optimization**: Eliminated irrelevant OpenList error warnings when playing Bilibili/WebDAV videos
+  - 🔊 **Extension Video Audio Fix**: Fixed issue where extension videos had video but no audio, unified DASH stream processing
+  - ⚡ **Playback Parameter Unification**: Refactored extension video playback process, directly generate blob playback addresses
+  - 🔇 **Warning Message Optimization**: Eliminated irrelevant OpenList error warnings when playing extension/WebDAV videos
 
 </details>
     </div>
@@ -151,12 +190,12 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>Add Bilibili Account</strong> - Login to Bilibili to access personal resources</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔧 <strong>Configure Extension Account</strong> - Login to extension service to access personal resources</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
-                1. Find the "Bilibili Account" section in the settings panel<br>
-                2. Click the "Login to Bilibili Account" button<br>
-                3. Scan the displayed QR code (using Bilibili mobile app)<br>
-                4. After successful login, you can watch Bilibili videos and batch add favorites
+                1. Find the "Extension Account" section in the settings panel<br>
+                2. Click the "Login to Extension Account" button<br>
+                3. Scan the displayed QR code (using extension service mobile app)<br>
+                4. After successful login, you can watch extension videos and batch add favorites
                 </div>
 </details>
             </li>
@@ -241,11 +280,11 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>Batch Import Bilibili Favorites</strong> - One-click import favorite videos</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📥 <strong>Batch Import Extension Favorites</strong> - One-click import favorite videos</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
-                1. Ensure Bilibili account is logged in<br>
+                1. Ensure extension account is logged in<br>
                 2. Click the "+" on the playlist tab to open the menu<br>
-                3. Click "Add Bilibili Favorites"<br>
+                3. Click "Add Extension Favorites"<br>
                 3. Select the favorites folder to import<br>
                 4. System will batch import all videos from the favorites folder
                 </div>
@@ -253,11 +292,11 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>Batch Import Bilibili Collections</strong> - One-click import collection videos</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>Batch Import Extension Collections</strong> - One-click import collection videos</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
-                1. Ensure Bilibili account is logged in<br>
+                1. Ensure extension account is logged in<br>
                 2. Click the "+" on the playlist tab to open the menu<br>
-                3. Click "Add Bilibili Collection"<br>
+                3. Click "Add Extension Collection"<br>
                 4. Enter any video link from the collection<br>
                 5. Press Enter to confirm, system will automatically get the entire collection and batch import all videos
                 </div>
@@ -277,14 +316,14 @@
             </li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Smart Refresh</strong> - Auto sync folders, Bilibili favorites, Bilibili collections</summary>
+                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Smart Refresh</strong> - Auto sync folders, extension favorites, extension collections</summary>
                 <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
                 1. Right-click the tag you want to refresh<br>
                 2. Select "Refresh Tag"<br>
                 3. System will automatically execute corresponding refresh strategy based on tag type:<br>
                 • <strong>Folder tags</strong>: Detect local folder changes, intelligently add/remove media items<br>
-                • <strong>Bilibili favorites</strong>: Detect favorites content changes, maintain data consistency<br>
-                • <strong>Bilibili collections</strong>: Detect collection content changes, auto sync latest videos<br>
+                • <strong>Extension favorites</strong>: Detect favorites content changes, maintain data consistency<br>
+                • <strong>Extension collections</strong>: Detect collection content changes, auto sync latest videos<br>
                 4. Intelligently compare existing data, only process changed items for significant performance improvement
                 </div>
                 </details>

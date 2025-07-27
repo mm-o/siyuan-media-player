@@ -8,7 +8,7 @@
     const isMobile = () => getFrontend().endsWith('mobile'); // 运行环境判断
     import { notebook } from "../core/document";
 
-    import { QRCodeManager } from "../core/bilibili";
+    import { QRCodeManager, isBilibiliAvailable } from "../core/bilibili";
 
     export let group: string;
     export let config: any;
@@ -152,9 +152,10 @@
         description: i18n.setting.webdavConfig?.password || "WebDAV账号密码", rows: 1,
         onChange: (v) => state.webdavConfig.password = v },
 
-            // B站账号
-            { key: "bilibili", type: "checkbox" as SettingType, tab: "account",
-              title: i18n.setting.bilibili?.account || "B站账号", 
+            // B站账号 - 只有扩展启用时才显示
+            ...(isBilibiliAvailable() ? [{
+              key: "bilibili", type: "checkbox" as SettingType, tab: "account",
+              title: i18n.setting.bilibili?.account || "B站账号",
               value: !!state.bilibiliLogin?.sessdata,
               description: ((u) => accDesc(
                 u?.face || '#iconBili', u?.uname || 'Bilibili',
@@ -162,19 +163,20 @@
                 u ? `UID ${u.mid} · 硬币 ${u.money}` : '登录B站账号',
                 u ? `EXP ${u.level_info?.current_exp}/${u.level_info?.next_exp === '--' ? 'MAX' : u.level_info?.next_exp}` : '解锁视频播放功能'
               ))(state.bilibiliLogin),
-              onChange: async (v) => v ? 
+              onChange: async (v) => v ?
                 (qrCodeManager ||= new QRCodeManager(
                     q => (qrcode = q, settingItems = createSettings(state)),
-                    async loginData => (state.bilibiliLogin = loginData, settingItems = createSettings(state), 
+                    async loginData => (state.bilibiliLogin = loginData, settingItems = createSettings(state),
                         await saveConfig({ ...(await getConfig()), settings: state }), qrCodeManager?.stopPolling())
                 ), await qrCodeManager.startLogin()) :
                 (state.bilibiliLogin = null, qrcode = { data: '', key: '' }, settingItems = createSettings(state),
                     await saveConfig({ ...(await getConfig()), settings: state }), qrCodeManager?.stopPolling())
-            },
-            { key: "biliQr", type: "images" as SettingType, tab: "account",
+            }, {
+              key: "biliQr", type: "images" as SettingType, tab: "account",
               value: qrcode?.data ? [{ url: qrcode.data }] : [],
               displayCondition: () => !!qrcode?.data && !state.bilibiliLogin?.sessdata,
-              title: "扫码登录" },
+              title: "扫码登录"
+            }] : []),
                        
             // 播放器设置
             { key: "openMode", value: state.openMode, type: "select" as SettingType, tab: "player",

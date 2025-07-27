@@ -2,7 +2,7 @@
  * 字幕处理工具类
  * 用于处理播放器的字幕功能
  */
-import { BILI_API, getBiliHeaders } from './bilibili';
+import { getBiliAPI, getBiliHeaders } from './bilibili';
 import { Media } from './player';
 
 /**
@@ -62,19 +62,22 @@ export class SubtitleManager {
     static async loadBilibiliSubtitle(bvid: string, cid: string, config?: any): Promise<SubtitleCue[]> {
         const key = `bili_${bvid}_${cid}`;
         if (this.cache.has(key)) return this.cache.get(key) || [];
-        
+
+        const api = getBiliAPI();
+        if (!api) return [];
+
         try {
             const headers = config ? getBiliHeaders(config, bvid) : {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Referer': `https://www.bilibili.com/video/${bvid}/`
             };
-            
+
             const result = await fetch('/api/network/forwardProxy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    url: `${BILI_API.VIDEO_SUBTITLE}?bvid=${bvid}&cid=${cid}`, 
-                    method: 'GET', 
+                    url: `${api.VIDEO_SUBTITLE}?bvid=${bvid}&cid=${cid}`,
+                    method: 'GET',
                     timeout: 7000,
                     headers: Object.entries(headers).map(([k, v]) => ({ [k]: v }))
                 })
