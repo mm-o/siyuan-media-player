@@ -1,9 +1,9 @@
 <div class="sy__outline" style="max-width: 800px; margin: 0 auto;">
-    <div style="text-align: center; padding: 2em; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px;">
-        <h1 style="color: white; margin: 0; font-size: 2.2em;">🎬 思源媒体播放器</h1>
-        <div style="color: rgba(255,255,255,0.9); margin-top: 0.5em; font-size: 1.1em;">专业的思源笔记媒体播放插件，集成多平台播放、智能笔记管理与高效学习工具</div>
+    <div style="text-align: center; padding: 2em; background: linear-gradient(135deg, var(--b3-theme-primary), var(--b3-theme-secondary)); border-radius: 12px;">
+        <h1 style="color: var(--b3-theme-on-primary); margin: 0; font-size: 2.2em;">🎬 思源媒体播放器</h1>
+        <div style="color: var(--b3-theme-on-primary-light); margin-top: 0.5em; font-size: 1.1em;">专业的思源笔记媒体播放插件，集成多平台播放、智能笔记管理与高效学习工具</div>
         <div style="margin-top: 1.5em; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <a href="https://github.com/mm-o/siyuan-media-player/blob/main/CHANGELOG.md"
+            <a href="https://github.com/mm-o/siyuan-media-player/blob/main/更新日志.md"
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">🗓 更新日志</a>
                <a href="https://github.com/mm-o/siyuan-media-player/issues"
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">💬 问题反馈</a>
@@ -11,173 +11,96 @@
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">👏 鸣谢</a>
         </div>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(14,165,233,0.15);">
-        <h2 style="color: #0ea5e9; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 核心功能</h2>
-        <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>多平台播放</strong> - 本地媒体、扩展媒体、OpenList、WebDAV云存储统一播放</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>时间戳跳转</strong> - 精确时间戳链接，一键跳转到指定播放位置</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>循环片段</strong> - 自定义循环播放片段，重点内容反复学习</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，支持子文档创建和智能搜索配置，完整的学习笔记生态</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>批量导入</strong> - 一键导入扩展收藏夹、扩展合集、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">📝 <strong>笔记面板</strong> - 独立的文档和块内容查看编辑，支持ID输入、智能标签、右键菜单操作</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">🔗 <strong>智能链接识别</strong> - 数据库URL字段媒体链接直接播放，Ctrl+点击强制浏览器打开</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">🔧 <strong>脚本扩展</strong> - 支持第三方扩展脚本，用户自主选择功能模块</li>
+     <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
+
+<h3>📅 v0.5.0版本更新 (2025.8.6)</h3>
+<h4>✨ 功能改进</h4>
+<p>🎯 <strong>会员系统</strong>: 新增三种会员类型（恶龙永久会员、年付会员、体验会员），支持跳转购买，前期打赏用户赠送永久恶龙会员。<strong>限期折扣，截止10月10日</strong></p>
+<p>👥 <strong>多账号支持</strong>: 支持多个账号同时管理（B站、OpenList、WebDAV），播放列表菜单提供二级菜单快速切换</p>
+<p>📌 <strong>标签钉住功能</strong>: 播放列表标签支持钉住到标签栏，快速访问常用列表 <a href="https://github.com/mm-o/siyuan-media-player/issues/95">#95</a></p>
+<p>📋 <strong>分P列表增强</strong>: 分P列表显示完整标题，提升内容识别度 <a href="https://github.com/mm-o/siyuan-media-player/issues/100">#100</a></p>
+<p>📖 <strong>设置面板优化</strong>: 新增关于标签页，集成README文档和目录导航</p>
+<p>🎨 <strong>播放速度优化</strong>: 播放速度选项更加人性化（0.5x-4.0x，步长0.25x）</p>
+<p>📝 <strong>循环片段改进</strong>: 循环次数改为输入类型，不再限制上限</p>
+<p>📥 <strong>批量添加增强</strong>:</p>
+<ul>
+<li>B站合集获取所有视频，不再限制100个 <a href="https://github.com/mm-o/siyuan-media-player/issues/88">#88</a></li>
+<li>批量处理稳定性提升，错误不会中断整个流程</li>
+<li>支持BV号直接添加 <a href="https://github.com/mm-o/siyuan-media-player/issues/79">#79</a></li>
+<li>支持多种分隔符混合输入（空格、换行、逗号）<a href="https://github.com/mm-o/siyuan-media-player/issues/85">#85</a></li>
+</ul>
+<p>🗂️ <strong>播放列表扩展</strong>: OpenList和WebDAV媒体支持添加到播放列表和数据库 <a href="https://github.com/mm-o/siyuan-media-player/issues/73">#73</a></p>
+<p>📔 <strong>媒体笔记增强</strong>: 支持DailyNote模式创建，点击按钮直接创建并打开新标签 <a href="https://github.com/mm-o/siyuan-media-player/issues/96">#96</a> <a href="https://github.com/mm-o/siyuan-media-player/issues/98">#98</a></p>
+
+<h4>🐛 修复缺陷</h4>
+<p>🌙 <strong>暗黑模式修复</strong>: 修复暗黑模式下分P列表显示不清的问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/101">#101</a></p>
+<p>🎨 <strong>视图样式优化</strong>: 优化紧凑视图分P展开样式，提升视觉体验</p>
+<p>📝 <strong>文档背景修复</strong>: 重置说明文档背景，暗黑模式下更加清晰</p>
+<p>⏱️ <strong>时间戳修复</strong>: 修复插入时间戳时点击下一行不换行、中间回车崩溃的问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/97">#97</a></p>
+<p>🧹 <strong>状态清理修复</strong>: 修复字幕、弹幕、总结状态未正确清空的问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/94">#94</a></p>
+
+<h4>🔧 开发重构</h4>
+<p>🔄 <strong>媒体播放重构</strong>: WebDAV和OpenList媒体通过思源代理API访问，提升稳定性</p>
+<p>🔗 <strong>链接处理优化</strong>: 重构链接点击逻辑，解决首次打开播放失败问题</p>
+<p>🏗️ <strong>合集添加统一</strong>: 统一合集添加到底部输入框，样式继承分P设计</p>
+<p>🔄 <strong>配置自动迁移</strong>: 新增配置迁移工具，自动处理单账号到多账号的配置升级，确保用户无感知升级</p>
+<blockquote>
+<p>📋 <strong>查看完整更新日志</strong>: <a href="https://github.com/mm-o/siyuan-media-player/blob/main/更新日志.md">更新日志.md</a></p>
+</blockquote>
+
+<h4>🎯 交流群</h4>
+<p><strong>QQ群</strong>: <a href="https://qm.qq.com/q/wpHDtsfxCw">QQ群</a> QQ群号：306538841（已打赏未进群用户请提供订单号进群）</p>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 核心功能</h2>
+        <ul style="margin: 0; list-style: none; padding: 0;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎥 <strong>多平台播放</strong> - 本地媒体、扩展媒体、OpenList、WebDAV云存储统一播放</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">⏰ <strong>时间戳跳转</strong> - 精确时间戳链接，一键跳转到指定播放位置</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔄 <strong>循环片段</strong> - 自定义循环播放片段，重点内容反复学习</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📔 <strong>媒体笔记</strong> - 截图、字幕、弹幕导出，支持子文档创建和智能搜索配置，完整的学习笔记生态</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🤖 <strong>媒体助手</strong> - 字幕列表、弹幕列表、AI媒体总结智能分析</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📋 <strong>播放列表</strong> - 数据库驱动管理，标签分类、拖拽排序、多视图展示</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📥 <strong>批量导入</strong> - 一键导入扩展收藏夹、扩展合集、本地文件夹、思源笔记工作空间、OpenList、WebDAV云存储到播放列表</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📝 <strong>笔记面板</strong> - 独立的文档和块内容查看编辑，支持ID输入、智能标签、右键菜单操作</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔗 <strong>智能链接识别</strong> - 数据库URL字段媒体链接直接播放，Ctrl+点击强制浏览器打开</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">⚙️ <strong>设置面板</strong> - 账号配置、播放器设置、通用选项一站式管理</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔧 <strong>脚本扩展</strong> - 支持第三方扩展脚本，用户自主选择功能模块</li>
         </ul>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fff7ed, #fed7aa); border: 1px solid #fdba74; border-radius: 8px; box-shadow: 0 4px 12px rgba(251,146,60,0.15);">
-        <h2 style="color: #ea580c; margin: 0 0 1em; text-align: center; font-size: 1.3em;">⚠️ 免责说明</h2>
-        <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ea580c; box-shadow: 0 2px 4px rgba(234,88,12,0.08);">🎯 <strong>技术架构</strong> - 插件采用扩展化设计，核心代码专注于播放功能，不包含任何第三方服务代码</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🎛️ <strong>扩展选择</strong> - 用户可根据需要自主选择是否使用第三方扩展脚本</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f97316; box-shadow: 0 2px 4px rgba(249,115,22,0.08);">🛡️ <strong>安全提醒</strong> - 扩展脚本为独立功能模块，请根据个人需求谨慎选择使用</li>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">⚠️ 免责说明</h2>
+        <ul style="margin: 0;  list-style: none; padding: 0;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎯 <strong>技术架构</strong> - 插件采用扩展化设计，核心代码专注于播放功能，不包含任何第三方服务代码</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎛️ <strong>扩展选择</strong> - 用户可根据需要自主选择是否使用第三方扩展脚本</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🛡️ <strong>安全提醒</strong> - 扩展脚本为独立功能模块，请根据个人需求谨慎选择使用</li>
         </ul>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fef3f2, #fee2e2); border: 1px solid #fca5a5; border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.15);">
-        <h2 style="color: #dc2626; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🧧 打赏、鼓励、催更</h2>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🧧 打赏</h2>
         <p style="margin: 0.5em 0;">如果思源媒体播放器对你有帮助，欢迎给作者点个赞或打赏一杯咖啡，这将鼓励作者持续优化和开发更多实用功能：</p>
         <div style="margin: 1em 0; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
             <div style="text-align: center;">
                 <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg"
                      alt="支付宝付款码"
-                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <p style="margin: 0.5em 0; color: #666;">支付宝</p>
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
+                <p style="margin: 0.5em 0; color: var(--b3-theme-text-lighter);">支付宝</p>
             </div>
             <div style="text-align: center;">
                 <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg"
                      alt="微信付款码"
-                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <p style="margin: 0.5em 0; color: #666;">微信</p>
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
+                <p style="margin: 0.5em 0; color: var(--b3-theme-text-lighter);">微信</p>
             </div>
         </div>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
-        <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
-
-### 📅 v0.4.7版本更新 (2025.7.28)
-#### 🎯 **脚本系统重构** - 重新设计扩展脚本加载机制，更符合思源笔记规范
-- 🔧 **简化扩展架构**: 完全重构扩展系统，直接通过window对象暴露API配置，完全符合思源笔记脚本标准
-- 📜 **扩展脚本升级到v2.0.0**: 极简设计，静默加载，**必须更新到v2.0.0扩展脚本**才能正常使用第三方功能
-#### 🎯 **会员预告** 
-  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
-  <strong style="color: #dc2626;">⚠️ 下个版本预计上线会员功能，价格会上浮，已打赏用户将获得永久会员资格，请联系我加群，加群请备注打赏订单号，现在打赏也算哦</strong>
-  </div>
-
----
-### 📅 v0.4.6版本更新 (2025.7.25)
-#### 🎯 **扩展架构重构** - 插件采用模块化设计，支持可选扩展功能
-- 🚨 **重要提示**:
-  <div style="padding: 0.8em; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; margin: 0.5em 0;">
-  <strong style="color: #dc2626;">⚠️ 本版本已移除第三方相关API，更新后需要安装扩展脚本才能使用第三方功能</strong>
-  </div>
-- 💡 **安装方法**:
-  1. 下载扩展脚本文件
-  2. 思源笔记 → 设置 → 外观 → 代码片段 → JS → 粘贴脚本内容 → 开启
-  3. 重启思源笔记
-- 📥 **扩展脚本地址**: [GitHub](https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js) | [Gitee](https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js)
-#### ✨ **界面优化**
-- 🎨 **按钮图标化**: 将文字按钮替换为纯图标，实现极简设计
-- ⚡ **服务预初始化**: 解决首次使用时间戳链接无法播放的问题
-##### 🔍 **全局搜索功能**
-- 🔍 **搜索标签**: 在目录标签前添加搜索按钮，使用🔍字符图标
-- 🌐 **全局搜索**: 可搜索所有标签下的所有媒体内容
-- ⚡ **实时搜索**: 输入时立即显示搜索结果，支持标题、艺术家、URL搜索
-- 🎯 **智能交互**: 点击显示搜索框并自动聚焦，无内容时自动隐藏
-
-### 📅 v0.4.4版本更新 (2025.7.20)
-#### 🎴 **笔记卡片可视化系统** - 全新的媒体学习内容管理体验
-- 📋 **智能筛选面板**: 在笔记面板中新增媒体类型筛选功能，支持按时间戳、循环片段、截图、媒体卡片四种类型快速筛选查看
-- 🖼️ **可视化卡片展示**: 筛选结果以精美卡片形式展示，自动显示封面图/截图、媒体类型、时间信息，让学习内容一目了然
-- 🔗 **一键跳转播放**: 点击任意卡片即可直接跳转到对应的媒体时间点开始播放，实现从笔记到媒体的无缝衔接
-- ⚡ **实时同步更新**: 在筛选状态下进行时间戳、截图等操作，新内容会立即显示在卡片列表中，保持完美的实时体验
-- 🎯 **智能插入定位**: 筛选状态下的所有媒体操作会自动插入到当前文档底部，确保内容有序组织
-- 🏷️ **统一属性管理**: 基于v0.4.3版本的自定义属性系统，实现所有媒体类型的统一识别和管理
-#### ✨ **播放列表增强功能**
-- 🌐 **外部打开支持**: 新增右键菜单"外部打开"功能
-  - 扩展/OpenList/WebDAV等网络资源在浏览器中打开
-  - 本地文件在资源管理器中定位显示
-  - 智能识别资源类型，自动选择最佳打开方式
-#### 📱 **移动端支持尝试**
-- 🧪 **实验性功能**: 尝试添加移动端本地文件选择支持（可能在某些设备上无法正常工作）
-- 🔄 **智能平台检测**: 桌面端使用原生文件对话框，移动端使用HTML5文件选择器
-- ⚠️ **注意事项**: 移动端文件选择功能仍在测试阶段，建议优先使用桌面端
-#### 🔧 **数据库字段优化**
-- 📝 **字段描述管理**: 自动为所有播放列表字段添加描述说明，支持字段重命名后正常加载
-  - **字段描述对照表**: 媒体标题、URL、时长、所在标签、来源、类型、艺术家、封面图、艺术家头像、创建时间
-  - **故障排除**: 播放列表加载失败时，请检查字段描述是否与上述对照表一致
-- 🎯 **映射逻辑优化**: 优先通过描述匹配，确保字段重命名后功能正常
-- 🛡️ **智能字段管理**: 避免重复创建，自动补充缺失描述
-#### 🔧 **用户体验优化**
-- 💡 **数据库配置提示增强**: 优化数据库未配置时的提示体验
-  - 使用持久提示替代自动消失提示，需要用户主动关闭
-#### 🐛 **缺陷修复**
-- ⏱️ **时长显示修复**: 修复本地媒体时长显示问题，现在能正确获取并显示本地视频文件的时长信息
-- 🔧 **兼容性提升**: 修复crypto.randomUUID兼容性问题，提升在不同环境下的稳定性
-- 🔄 **标签刷新修复**: 修复清空标签（增删媒体）后刷新功能失效的问题，确保根据标签描述信息正确执行智能添加
-
-<details>
-<summary><strong>📋 查看历史更新</strong></summary>
-
-### 📅 v0.4.3版本更新 (2025.7.17)
-- 🆕 **新增功能**
-  - 🏷️ **媒体块自定义属性系统**: 为插件生成的所有媒体相关块添加标准化自定义属性，实现智能识别和高效管理
-    - 📊 **统一标识体系**: 所有媒体功能生成的块都将自动添加特定的自定义属性，便于后续识别、查询和管理，为构建个人媒体学习系统和内容管理工作流提供强大基础
-    - ⏰ **时间戳块增强**: 生成的时间戳链接块自动添加 `custom-media="timestamp"` 属性标识，并通过 `custom-timestamp="02:03"` 精确记录时间点，支持批量管理和快速定位重要时刻
-    - 🔄 **循环片段智能标记**: 循环片段块使用 `custom-media="loop"` 进行标识，同时通过 `custom-loop-start="01:30"` 和 `custom-loop-end="02:45"` 精确记录循环区间，支持复杂的片段管理和学习重点标记
-    - 📸 **截图块自动识别**: 截图功能生成的图片块添加 `custom-media="screenshot"` 属性，实现截图内容的快速筛选、分类整理和视觉化管理
-    - 📷 **截图+时间戳组合卡片**: 截图带时间戳功能生成的复合块使用 `custom-media="mediacard"` 标识，配合 `custom-timestamp="02:03"` 关联时间信息，形成完整的媒体记忆卡片体系
-    - 📔 **媒体笔记完整档案**: 媒体笔记文档添加 `custom-type="MediaNote"` 类型标识，通过 `custom-mediaurl="媒体URL"` 记录源媒体链接，使用 `custom-website="bilibili/openlist/webdav/local"` 标记来源网站，构建完整的学习档案系统
-    - 🔍 **SQL查询支持**: 基于自定义属性实现精确的媒体块检索，支持复杂的数据分析和内容管理需求
-    - 🎯 **应用场景扩展**: 支持构建个人媒体学习系统、内容管理工作流、媒体资源分析、学习进度追踪等高级应用，为用户提供更强大的媒体内容组织和利用能力
-- 🐛 **缺陷修复**
-  - 🎯 **dock栏图标修复**: 修复dock栏图标调整位置导致空白问题，确保图标正常显示
-- 🔧 **开发重构**
-  - 📋 **面板命名统一**: 统一各功能面板命名规范，提升代码一致性
-  - 🎨 **样式布局优化**: 统一样式布局设计，改善用户界面体验
-
-### 📅 v0.4.2版本更新 (2025.7.15)
-- ✨ **功能优化**
-  - 🎯 **媒体笔记设置优化**: 重构目标笔记本/文档设置项逻辑，简化配置流程，提升用户体验
-  - 📝 **智能笔记面板集成**: 创建媒体笔记时自动添加到笔记面板，实现一键创建、自动管理的无缝体验
-    - 🔄 **自动同步**：媒体笔记创建后立即出现在笔记面板中，无需手动添加
----
-### 📅 v0.4.1版本更新 (2025.7.14)
-- 🆕 **新增功能**
-  - 🔗 **数据库URL链接识别**: 支持数据库中URL字段的媒体链接点击直接打开播放器，无需跳转浏览器
-  - ⌨️ **Ctrl+点击强制浏览器**: 按住Ctrl键点击媒体链接可强制使用浏览器打开，绕过插件处理
-  - 📝 **笔记面板功能**: 新增独立的笔记面板，提供便捷的文档和块内容编辑功能
-    - 📋 **ID输入支持**：支持输入文档ID或块ID，自动验证格式并获取内容
-    - 🏷️ **智能标签**：添加时自动截取前4个字符作为标签名称
-    - 🖱️ **右键菜单**：提供重命名、在思源中打开、复制ID、删除标签等完整操作
-    - 📄 **完整渲染**：使用Protyle组件完整渲染文档内容，支持滚动和交互
-    - 💾 **状态保存**：自动保存标签页配置，重启后恢复之前的笔记标签
-  - 📔 **媒体笔记增强**: 创建媒体笔记支持在指定文档下创建子文档，提供更灵活的笔记组织方式
-    - 🔍 **智能搜索配置**：设置中支持输入文档名称或笔记本名称进行搜索，快速定位目标位置
-    - 📂 **子文档创建**：支持在选定的父文档下自动创建子文档，保持笔记结构的层次性和组织性
----
-### 📅 v0.4.0版本更新 (2025.7.12)
-- 🆕 **新增功能**
-  - 📚 **扩展合集支持**: 新增扩展合集批量添加功能，通过任意合集视频链接一键获取整个合集
-    - 🏷️ **智能识别**：自动检测视频是否属于合集，提取合集ID和UP主信息
-    - 🔄 **智能刷新**：支持合集标签的一键刷新更新
-- 🔧 **性能优化**
-  - 💬 **提示信息精简**: 优化批量添加提示，统一showMessage处理逻辑
-- 🐛 **缺陷修复**
-  - 🔊 **扩展视频音频修复**: 修复扩展视频播放时只有画面无声音的问题，统一DASH流处理逻辑
-  - ⚡ **播放参数统一**: 重构扩展视频播放流程，直接生成blob播放地址，简化代码逻辑
-  - 🔇 **警告信息优化**: 消除播放扩展/WebDAV视频时的无关OpenList错误警告，提升用户体验
-
-</details>
-    </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fefbff, #f3e8ff); border: 1px solid #c4b5fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
-        <h2 style="color: #7c3aed; margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 使用指南</h2>
-        <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 使用指南</h2>
+        <ul style="margin: 0;  list-style: none; padding: 0;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🗄️ <strong>绑定数据库</strong> - 配置播放列表数据存储</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🗄️ <strong>绑定数据库</strong> - 配置播放列表数据存储</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 选择一个数据库块，点击数据库图标或者右键 > 复制 > 复制 ID<br>
                 2. 打开思源媒体播放器设置面板<br>
                 3. 在"通用"标签找到"播放列表数据库"<br>
@@ -187,10 +110,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔧 <strong>配置扩展账号</strong> - 登录扩展服务访问个人资源</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔧 <strong>配置扩展账号</strong> - 登录扩展服务访问个人资源</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 在设置面板中找到"扩展账号"部分<br>
                 2. 点击"登录扩展账号"按钮<br>
                 3. 扫描显示的二维码（使用扩展服务手机APP）<br>
@@ -198,10 +121,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>配置OpenList服务</strong> - 连接云存储服务器</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>配置OpenList服务</strong> - 连接云存储服务器</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 在设置面板中找到"OpenList配置"部分<br>
                 2. 填写OpenList服务器地址（如：http://localhost:5244）<br>
                 3. 输入用户名和密码<br>
@@ -209,10 +132,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>配置WebDAV云存储</strong> - 连接WebDAV服务</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>配置WebDAV云存储</strong> - 连接WebDAV服务</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 在设置面板中找到"WebDAV配置"部分<br>
                 2. 填写WebDAV服务器地址<br>
                 3. 输入用户名和密码<br>
@@ -221,10 +144,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📁 <strong>添加本地媒体</strong> - 支持多选</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📁 <strong>添加本地媒体</strong> - 支持多选</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 直接点击播放列表底部部的"添加"按钮<br>
                 2. 在弹出的文件管理器选择需要添加的媒体<br>
                 3. 点击打开就可以添加到播放列表<br>
@@ -233,10 +156,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📂 <strong>添加本地文件夹</strong> - 批量导入本地文件</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📂 <strong>添加本地文件夹</strong> - 批量导入本地文件</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 点击播放列表标签“+”弹出菜单<br>
                 2. 点击“添加本地文件夹”<br>
                 3. 在弹出的文件浏览器选择需要添加的文件夹<br>
@@ -245,20 +168,20 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏠 <strong>添加思源空间媒体</strong> - 浏览工作空间文件</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🏠 <strong>添加思源空间媒体</strong> - 浏览工作空间文件</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 点击播放列表标签“+”弹出菜单<br>
                 2. 点击“添加添加思源空间”即可添加思源工作空间到播放列表<br>
                 5. 思源空间的媒体使用相对路径，便于工作空间迁移
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>添加OpenList媒体</strong> - 云存储流式播放</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>添加OpenList媒体</strong> - 云存储流式播放</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 确保已配置OpenList服务器连接<br>
                 2. 点击播放列表标签“+”弹出菜单<br>
                 3. 点击“添加OpenList云盘”<br>
@@ -266,10 +189,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>添加WebDAV媒体</strong> - 云盘直接播放</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>添加WebDAV媒体</strong> - 云盘直接播放</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 确保已配置WebDAV云存储连接<br>
                 2. 点击播放列表标签“+”弹出菜单<br>
                 3. 点击“添加WebDAV云盘”<br>
@@ -277,10 +200,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📥 <strong>批量导入扩展收藏夹</strong> - 一键导入收藏视频</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📥 <strong>批量导入扩展收藏夹</strong> - 一键导入收藏视频</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 确保已登录扩展账号<br>
                 2. 点击播放列表标签“+”弹出菜单
                 3. 点击“添加扩展收藏夹”<br>
@@ -289,10 +212,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>批量导入扩展合集</strong> - 一键导入合集视频</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>批量导入扩展合集</strong> - 一键导入合集视频</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 确保已登录扩展账号<br>
                 2. 点击播放列表标签"+"弹出菜单<br>
                 3. 点击"添加扩展合集"<br>
@@ -301,10 +224,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>标签管理</strong> - 创建和管理播放列表标签</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>标签管理</strong> - 创建和管理播放列表标签</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 在播放列表顶部点击"+"按钮创建新标签<br>
                 2. 输入标签名称并确认<br>
                 3. <strong>重命名标签</strong>：右键点击标签 > 选择"重命名"<br>
@@ -313,10 +236,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>智能刷新</strong> - 自动同步文件夹、扩展收藏夹、扩展合集</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>智能刷新</strong> - 自动同步文件夹、扩展收藏夹、扩展合集</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 右键点击需要刷新的标签<br>
                 2. 选择"刷新标签"<br>
                 3. 系统将根据标签类型自动执行相应的刷新策略：<br>
@@ -327,10 +250,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>拖拽操作</strong> - 媒体移动和排序</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>拖拽操作</strong> - 媒体移动和排序</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 <strong>拖拽移动媒体：</strong><br>
                 1. <strong>在标签间移动</strong>：将媒体项从一个标签拖拽到另一个标签<br>
                 <strong>拖拽排序：</strong><br>
@@ -340,10 +263,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>笔记集成</strong> - 截图、时间戳、循环片段和媒体笔记</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>笔记集成</strong> - 截图、时间戳、循环片段和媒体笔记</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 <strong>创建截图（带时间戳）：</strong><br>
                 1. 播放视频到需要截图的位置<br>
                 2. 点击截图按钮创建截图<br>
@@ -366,10 +289,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>笔记面板</strong> - 文档和块内容查看编辑</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>笔记面板</strong> - 文档和块内容查看编辑</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 点击思源媒体播放器面板顶部的"笔记"标签<br>
                 2. <strong>添加笔记标签</strong>：点击"+"按钮，输入文档ID或块ID<br>
                 3. <strong>查看内容</strong>：点击标签查看对应的文档或块内容<br>
@@ -382,10 +305,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🧠 <strong>媒体助手（Pro版）</strong> - 字幕、弹幕、总结</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🧠 <strong>媒体助手（Pro版）</strong> - 字幕、弹幕、总结</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 在播放视频时点击"媒体助手"按钮<br>
                 2. <strong>字幕列表</strong>：浏览、搜索字幕内容，点击跳转<br>
                 3. <strong>视频摘要</strong>：查看AI生成的内容概要<br>
@@ -394,10 +317,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>快捷键设置</strong> - 配置自定义快捷键</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>快捷键设置</strong> - 配置自定义快捷键</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. 打开思源设置 > 快捷键<br>
                 2. 搜索"媒体播放器"或"siyuan-media-player"<br>
                 3. 为以下功能设置快捷键：<br>
@@ -410,15 +333,15 @@
                    - 空格：播放/暂停<br>
                    - 左右箭头：快退/快进<br>
                    - 上下箭头：音量调节<br>
-                   - <strong>Ctrl+↑</strong>：增加播放速度（+0.5x，最高5x）<br>
-                   - <strong>Ctrl+↓</strong>：减少播放速度（-0.5x，最低0.5x）
+                   - <strong>Ctrl+↑</strong>：增加播放速度（+0.25x，最高4x）<br>
+                   - <strong>Ctrl+↓</strong>：减少播放速度（-0.25x，最低0.5x）
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🎵 <strong>播放控制</strong> - 基本播放和循环功能</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🎵 <strong>播放控制</strong> - 基本播放和循环功能</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 <strong>基本播放操作：</strong><br>
                 1. <strong>播放/暂停</strong>：点击播放按钮或按空格键<br>
                 2. <strong>进度控制</strong>：拖拽进度条或使用左右箭头键<br>
@@ -435,20 +358,20 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>自定义链接格式</strong> - 个性化时间戳链接</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>自定义链接格式</strong> - 个性化时间戳链接</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 在设置中，您可以自定义时间戳链接的显示格式。例如：<br>
                 <code>- [😄标题 时间 字幕](链接)</code> // 带有表情符号的链接<br>
                 <code>> 🕒 时间 | 标题 | 字幕</code> // 引用格式的链接
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>自定义媒体笔记模板</strong> - 个性化笔记格式</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>自定义媒体笔记模板</strong> - 个性化笔记格式</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 您可以在设置中创建自己的媒体笔记模板，支持各种变量：<br>
                 <strong>可用变量</strong>：媒体标题、当前时间戳、艺术家名称、媒体URL、媒体时长、媒体缩略图、媒体类型、媒体ID、当前日期、当前日期和时间<br><br>
                 <strong>目标配置</strong>：<br>
