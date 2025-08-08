@@ -14,6 +14,35 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.5.1版本更新 (2025.8.8)</h3>
+<h4>✨ 功能改进</h4>
+<ol>
+<li>🧭 助手面板新增<strong>文档视图</strong>：播放进度联动高亮，支持拖拽复制</li>
+<li>📋 播放列表<strong>按标签保存独立视图状态</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/116">#116</a></li>
+<li>🎛️ 支持<strong>自定义播放列表项显示元素</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/107">#107</a></li>
+<li>🔍 搜索交互优化：改为<strong>按回车触发搜索</strong>，避免实时抖动 <a href="https://github.com/mm-o/siyuan-media-player/issues/109">#109</a></li>
+<li>⌨️ 新增快捷键 <strong>A</strong>：一键切换至<strong>3.0x</strong>，再次按下恢复原速度 <a href="https://github.com/mm-o/siyuan-media-player/issues/105">#105</a></li>
+<li>🌐 账号服务器地址输入<strong>容错率提升</strong></li>
+<li>📝 媒体标题字段可<strong>独立配置</strong>，主键支持自定义 <a href="https://github.com/mm-o/siyuan-media-player/issues/90">#90</a></li>
+<li>💳 会员限时折扣：年付<strong>¥20</strong>，永久<strong>¥99</strong></li>
+</ol>
+
+<h4>🐛 修复缺陷</h4>
+<ol>
+<li>修复点击合集子集自动添加到播放列表的问题</li>
+<li>修复合集与分P仅播放第一集的问题</li>
+<li>修复网盘<strong>导航条</strong>不显示的问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/117">#117</a></li>
+<li>修复数据库每页<strong>50条</strong>时无法完整加载到播放列表的问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/108">#108</a></li>
+</ol>
+
+<h4>🔧 开发重构</h4>
+<ol>
+<li>脚本依赖调整：B站功能需安装扩展脚本：
+<a href="https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js">GitHub</a> |
+<a href="https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js">Gitee</a>
+</li>
+</ol>
+
 <h3>📅 v0.5.0版本更新 (2025.8.6)</h3>
 <h4>✨ 功能改进</h4>
 <p>🎯 <strong>会员系统</strong>: 新增三种会员类型（恶龙永久会员、年付会员、体验会员），支持跳转购买，前期打赏用户赠送永久恶龙会员。<strong>限期折扣，截止10月10日</strong></p>

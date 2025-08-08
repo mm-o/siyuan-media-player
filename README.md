@@ -14,6 +14,35 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.5.1 Update (2025.8.8)</h3>
+<h4>✨ Feature Improvements</h4>
+<ol>
+<li>🧭 Assistant panel adds <strong>Document View</strong>: auto-follow highlight with playback, supports drag-and-drop copy</li>
+<li>📋 Playlist <strong>per-tag view state</strong> is saved <a href="https://github.com/mm-o/siyuan-media-player/issues/116">#116</a></li>
+<li>🎛️ Support <strong>customizable playlist item display elements</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/107">#107</a></li>
+<li>🔍 Search UX improved: now <strong>press Enter to trigger search</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/109">#109</a></li>
+<li>⌨️ New shortcut <strong>A</strong>: toggle to <strong>3.0x</strong>, press again to restore original speed <a href="https://github.com/mm-o/siyuan-media-player/issues/105">#105</a></li>
+<li>🌐 Improved tolerance for <strong>account server address</strong> input</li>
+<li>📝 <strong>Media title field</strong> can be configured independently; primary key is now customizable <a href="https://github.com/mm-o/siyuan-media-player/issues/90">#90</a></li>
+<li>💳 Limited-time membership discount: Annual <strong>¥20</strong>, Lifetime <strong>¥99</strong></li>
+</ol>
+
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>Fixed issue where clicking a collection subset <strong>auto-added</strong> it to the playlist</li>
+<li>Fixed issue where <strong>only the first episode</strong> played for collections and multi-part videos</li>
+<li>Fixed <strong>cloud disk navigation bar</strong> not displaying <a href="https://github.com/mm-o/siyuan-media-player/issues/117">#117</a></li>
+<li>Fixed issue where database default page size <strong>50</strong> failed to load all items into the playlist <a href="https://github.com/mm-o/siyuan-media-player/issues/108">#108</a></li>
+</ol>
+
+<h4>🔧 Development Refactoring</h4>
+<ol>
+<li>Bilibili features require the extension script:
+<a href="https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js">GitHub</a> |
+<a href="https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js">Gitee</a>
+</li>
+</ol>
+
 <h3>📅 v0.5.0 Update (2025.8.6)</h3>
 <h4>✨ Feature Improvements</h4>
 <p>🎯 <strong>Membership System</strong>: Added three membership types (Dragon Permanent Member, Annual Member, Trial Member), supports purchase redirection, early donors receive permanent Dragon membership. <strong>Limited-time discount until October 10th</strong></p>
