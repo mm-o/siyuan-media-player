@@ -14,6 +14,27 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.5.2版本更新 (2025.8.9)</h3>
+<h4>🔧 兼容性修复</h4>
+<ol>
+<li>🔄 <strong>智能数据库升级</strong>：自动检测旧版本数据库结构，智能提示用户升级</li>
+<li>📝 <strong>用户友好提示</strong>：检测到主键作为媒体标题的旧结构时，显示清晰的升级说明</li>
+<li>✅ <strong>安全数据迁移</strong>：用户确认后自动创建媒体标题字段并迁移所有数据</li>
+<li>🎯 <strong>无损升级</strong>：保留原有数据不变，仅新增优化字段结构</li>
+<li>🚫 <strong>可选操作</strong>：用户可选择立即升级或稍后处理，不强制执行</li>
+</ol>
+<h4>🐛 缺陷修复</h4>
+<ol>
+<li>🎬 修复弹幕滚动逻辑异常问题</li>
+<li>🏷️ <strong>标签显示修复</strong>：修复数据库标签选项描述为空时不显示的问题，默认支持显示视图和钉住</li>
+<li>🧹 移除过时的配置清理工具，优化设置界面</li>
+</ol>
+<h4>💡 用户体验优化</h4>
+<ol>
+<li>📋 优化兼容性提示界面，提供清晰的操作说明和选择按钮</li>
+<li>🎨 提升数据库字段映射容错性，确保各种配置环境下的稳定运行</li>
+</ol>
+
 <h3>📅 v0.5.1版本更新 (2025.8.8)</h3>
 <h4>✨ 功能改进</h4>
 <ol>

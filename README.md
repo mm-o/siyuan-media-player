@@ -14,6 +14,27 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.5.2 Update (2025.8.9)</h3>
+<h4>🔧 Compatibility Fixes</h4>
+<ol>
+<li>🔄 <strong>Smart Database Upgrade</strong>: Automatically detects legacy database structure and intelligently prompts users to upgrade</li>
+<li>📝 <strong>User-Friendly Prompts</strong>: Clear upgrade instructions when legacy structure (primary key as media title) is detected</li>
+<li>✅ <strong>Safe Data Migration</strong>: Automatically creates media title field and migrates all data upon user confirmation</li>
+<li>🎯 <strong>Lossless Upgrade</strong>: Preserves existing data unchanged, only adds optimized field structure</li>
+<li>🚫 <strong>Optional Operation</strong>: Users can choose to upgrade immediately or later, no forced execution</li>
+</ol>
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>🎬 Fixed danmaku scrolling logic issues</li>
+<li>🏷️ <strong>Tag Display Fix</strong>: Fixed issue where database tag options with empty descriptions wouldn't display, now defaults to support display view and pinning</li>
+<li>🧹 Removed obsolete configuration cleanup tools, optimized settings interface</li>
+</ol>
+<h4>💡 User Experience Improvements</h4>
+<ol>
+<li>📋 Optimized compatibility prompt interface with clear operation instructions and choice buttons</li>
+<li>🎨 Enhanced database field mapping fault tolerance for stable operation across various configuration environments</li>
+</ol>
+
 <h3>📅 v0.5.1 Update (2025.8.8)</h3>
 <h4>✨ Feature Improvements</h4>
 <ol>
