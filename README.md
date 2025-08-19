@@ -14,6 +14,32 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.5.3 Update (2025.8.19)</h3>
+<h4>✨ New Features</h4>
+<ol>
+<li>🧠 <strong>Mind Map</strong>: Assistant panel adds mind map functionality with click-to-jump support</li>
+<li>⚙️ <strong>AI Account Configuration</strong>: Support OpenAI/Azure compatible interfaces for custom AI service calls</li>
+<li>☁️ <strong>AliDrive Support</strong>: Added AliDrive account configuration and file browsing</li>
+<li>📱 <strong>Mobile Playback</strong>: Support for mobile media playback functionality</li>
+<li>🎛️ <strong>Player Enhancement</strong>: Added previous/next track buttons with shortcuts (Shift + ←/→)</li>
+<li>📌 <strong>Cloud Pinning</strong>: Cloud folders can be pinned to tab bar and batch added <a href="https://github.com/mm-o/siyuan-media-player/issues/121">#121</a></li>
+</ol>
+<h4>🔧 Interface Optimization</h4>
+<ol>
+<li>🎨 <strong>UI Refactor</strong>: Fully based on SiYuan styles, adapts to different themes</li>
+<li>🖥️ <strong>Player Interface</strong>: Optimized picture-in-picture, web fullscreen, fullscreen button types <a href="https://github.com/mm-o/siyuan-media-player/issues/126">#126</a></li>
+<li>⏰ <strong>Time Format</strong>: Timestamp and loop segment links optimized to hour:minute:second format <a href="https://github.com/mm-o/siyuan-media-player/issues/120">#120</a></li>
+<li>🔗 <strong>Link Order</strong>: Batch addition processes links in order <a href="https://github.com/mm-o/siyuan-media-player/issues/122">#122</a></li>
+</ol>
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>🧾 <strong>Batch Export</strong>: Fixed crash issues with subtitle and summary batch insertion</li>
+<li>🧭 <strong>Tag Status</strong>: Optimized default tag pinning status</li>
+<li>💳 <strong>Membership System</strong>: Enhanced membership activation logic</li>
+<li>🔑 <strong>Primary Key Conflict</strong>: Fixed import failure when primary key is named "Media Title"</li>
+<li>🗂️ <strong>SiYuan Workspace</strong>: Fixed addition failure and added folder pin & import functionality</li>
+</ol>
+
 <h3>📅 v0.5.2 Update (2025.8.9)</h3>
 <h4>🔧 Compatibility Fixes</h4>
 <ol>

@@ -14,6 +14,32 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.5.3版本更新 (2025.8.19)</h3>
+<h4>✨ 新增功能</h4>
+<ol>
+<li>🧠 <strong>思维导图</strong>：助手面板新增思维导图功能，支持点击跳转</li>
+<li>⚙️ <strong>AI 账号配置</strong>：支持 OpenAI/Azure 兼容接口，可直接调用自定义 AI 服务</li>
+<li>☁️ <strong>阿里云盘支持</strong>：新增阿里云盘账号配置和文件浏览</li>
+<li>📱 <strong>手机端播放</strong>：支持手机端媒体播放功能</li>
+<li>🎛️ <strong>播放器增强</strong>：新增上一曲/下一曲按钮，支持快捷键（Shift + ←/→）</li>
+<li>📌 <strong>网盘钉住</strong>：网盘文件夹可钉住到标签栏并批量添加 <a href="https://github.com/mm-o/siyuan-media-player/issues/121">#121</a></li>
+</ol>
+<h4>🔧 界面优化</h4>
+<ol>
+<li>🎨 <strong>UI 重构</strong>：完全依托思源样式，适应不同主题</li>
+<li>🖥️ <strong>播放器界面</strong>：优化画中画、网页全屏、全屏按钮类型 <a href="https://github.com/mm-o/siyuan-media-player/issues/126">#126</a></li>
+<li>⏰ <strong>时间格式</strong>：时间戳、循环片段链接优化为时分秒格式 <a href="https://github.com/mm-o/siyuan-media-player/issues/120">#120</a></li>
+<li>🔗 <strong>链接顺序</strong>：批量添加按链接顺序处理 <a href="https://github.com/mm-o/siyuan-media-player/issues/122">#122</a></li>
+</ol>
+<h4>🐛 问题修复</h4>
+<ol>
+<li>🧾 <strong>批量导出</strong>：修复字幕、总结等批量插入崩溃问题</li>
+<li>🧭 <strong>标签状态</strong>：优化默认标签钉住状态</li>
+<li>💳 <strong>会员系统</strong>：加强会员激活逻辑</li>
+<li>🔑 <strong>主键冲突</strong>：修复主键为媒体标题时导入失败问题</li>
+<li>🗂️ <strong>思源空间</strong>：修复添加失败问题，支持文件夹钉住并导入功能</li>
+</ol>
+
 <h3>📅 v0.5.2版本更新 (2025.8.9)</h3>
 <h4>🔧 兼容性修复</h4>
 <ol>
