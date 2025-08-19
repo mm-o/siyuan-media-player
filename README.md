@@ -14,7 +14,7 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
-<h3>📅 v0.5.3 Update (2025.8.19)</h3>
+<h3>📅 v0.5.4 Update (2025.8.19)</h3>
 <h4>✨ New Features</h4>
 <ol>
 <li>🧠 <strong>Mind Map</strong>: Assistant panel adds mind map functionality with click-to-jump support</li>

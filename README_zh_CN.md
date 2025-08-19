@@ -14,7 +14,7 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
-<h3>📅 v0.5.3版本更新 (2025.8.19)</h3>
+<h3>📅 v0.5.4版本更新 (2025.8.19)</h3>
 <h4>✨ 新增功能</h4>
 <ol>
 <li>🧠 <strong>思维导图</strong>：助手面板新增思维导图功能，支持点击跳转</li>
