@@ -14,6 +14,40 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+
+<h3>📅 v0.5.5版本更新 (2025.8.23)</h3>
+<h4>✨ 新增功能</h4>
+<ol>
+<li>☁️ <strong>百度网盘深度集成</strong>：
+  <ul>
+    <li><strong>多种登录方式</strong>：支持百度App扫码登录与授权码登录</li>
+    <li><strong>播放列表集成</strong>：可浏览并添加网盘媒体到播放列表</li>
+    <li><strong>文件夹钉住与导入</strong>：支持标签栏钉住文件夹，一键批量导入</li>
+    <li><strong>高清播放体验</strong>：非会员支持播放1080p</li>
+  </ul>
+</li>
+<li>☁️ <strong>自定义云盘账号</strong>：OpenList/WebDAV 支持自定义名称，便于识别多账号</li>
+<li>🔗 <strong>兼容反向代理</strong>：OpenList 新增“路径前缀”配置项</li>
+
+</ol>
+<h4>🔧 界面优化</h4>
+<ol>
+<li>🧩 <strong>Dock 侧栏</strong>：去除重复边框/圆角，统一继承主题</li>
+<li>🧭 <strong>播放列表底部输入区</strong>：层级与顶部标题一致，避免遮挡播放器</li>
+<li>🏷️ <strong>云盘标签</strong>：播放列表添加云盘时，标签使用自定义名称，告别 IP/序号</li>
+<li>➕ <strong>添加菜单</strong>：云盘账号以名称显示，更易识别</li>
+<li>🎨 <strong>样式作用域</strong>：修复影响全局的问题</li>
+</ol>
+<h4>🐛 问题修复</h4>
+<ol>
+<li>🧠 修复思维导图生成可能导致的错误</li>
+<li>⏱️ 修复时间戳插入导致的崩溃</li>
+<li>👥 修复多账号添加不识别的问题</li>
+<li>⌨️ 修复输入框层级问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/127">#127</a></li>
+<li>⌨️ 快捷键：修复按住 A 键触发 3x 影响全局的问题；现仅在播放器内生效，且仅单独按 A 生效（Ctrl+方向键仍用于调速）</li>
+<li>⚙️ <strong>OpenList API</strong>：规范化 API 利用，去除不必要的路径清理逻辑</li>
+</ol>
+
 <h3>📅 v0.5.4版本更新 (2025.8.19)</h3>
 <h4>✨ 新增功能</h4>
 <ol>

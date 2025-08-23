@@ -14,6 +14,40 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+
+<h3>📅 v0.5.5 Update (2025.8.23)</h3>
+<h4>✨ New Features</h4>
+<ol>
+<li>☁️ <strong>BaiduNetdisk Integration</strong>:
+  <ul>
+    <li><strong>Multiple login methods</strong>: Baidu App QR login and authorization code login</li>
+    <li><strong>Playlist integration</strong>: Browse BaiduNetdisk media and add to playlist</li>
+    <li><strong>Folder pin & import</strong>: Pin folders to tab bar and batch import all media</li>
+    <li><strong>1080p playback</strong>: Support 1080p playback without membership</li>
+  </ul>
+</li>
+</ol>
+<li>☁️ <strong>Custom cloud account names</strong>: OpenList/WebDAV support custom names for easier identification</li>
+<li>🔗 <strong>Reverse proxy compatibility</strong>: OpenList adds a "path prefix" option</li>
+
+<h4>🔧 Interface Optimization</h4>
+<ol>
+<li>🧩 <strong>Dock Sidebar</strong>: Removed duplicate border/radius, unified with theme</li>
+<li>🧭 <strong>Playlist bottom input area</strong>: Z-index aligned with top title to avoid overlaying player</li>
+<li>🏷️ <strong>Cloud tabs</strong>: Playlist tabs now use custom names for cloud accounts instead of IP/index</li>
+<li>➕ <strong>Add menu</strong>: Cloud accounts are listed by custom name for easier identification</li>
+<li>🎨 <strong>Scoped styles</strong>: Fixed global style bleed</li>
+</ol>
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>🧠 Fixed potential errors when generating mind maps</li>
+<li>⏱️ Fixed crash caused by inserting timestamps</li>
+<li>👥 Fixed issue where multi-account add not recognized</li>
+<li>⌨️ Fixed input bar z-index issue <a href="https://github.com/mm-o/siyuan-media-player/issues/127">#127</a></li>
+<li>⌨️ Shortcuts: Fixed holding A causing global 3x; now only works inside player and only with plain A (Ctrl+Arrows still adjust speed)</li>
+<li>⚙️ <strong>OpenList API</strong>: Standardized API usage; removed unnecessary path cleaning logic</li>
+</ol>
+
 <h3>📅 v0.5.4 Update (2025.8.19)</h3>
 <h4>✨ New Features</h4>
 <ol>
