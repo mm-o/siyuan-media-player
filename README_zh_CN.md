@@ -15,6 +15,112 @@
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
 
+<h3>📅 v0.5.6版本更新 (2025.9.5)</h3>
+<h4>✨ 新增功能</h4>
+<ol>
+  <li>🔊 <strong>音量增强与快捷键</strong>
+    <ul>
+      <li>音量上限提升至 600%（≤100 时每次步进 ±10，>100 时每次步进 ±20）</li>
+      <li>播放器快捷键同步支持上述步进逻辑</li>
+    </ul>
+  </li>
+  <li>🔐 <strong>OpenList 访客模式</strong>
+    <ul>
+      <li>支持无需用户名/密码的访客访问，便于内网或公开目录分享</li>
+    </ul>
+  </li>
+  <li>🗂️ <strong>123 网盘集成</strong>
+    <ul>
+      <li>支持登录、浏览与播放，兼容时间戳与循环片段链接</li>
+    </ul>
+  </li>
+  <li>💬 <strong>字幕增强</strong>
+    <ul>
+      <li>支持手动选择字幕并自动同步到字幕列表</li>
+      <li>双语字幕显示：同时显示主/副两路字幕，适合多语言学习
+        <ul>
+          <li>B站自动双语：自动尝试加载英文与中文字幕</li>
+          <li>手动双语选择：字幕选择支持多选（Ctrl 选 2 个文件），第一个为主字幕（上行），第二个为副字幕（下行）</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>🪟 <strong>画中画小窗增强</strong>
+    <ul>
+      <li>小窗模式支持上一曲/下一曲与列表循环 <a href="https://github.com/mm-o/siyuan-media-player/issues/134">#134</a></li>
+    </ul>
+  </li>
+  <li>🧭 <strong>播放列表排序</strong>
+    <ul>
+      <li>排序按钮依次循环：名称 → 类型 → 来源，支持升序/降序</li>
+      <li>每个播放列表标签独立记忆排序方式 <a href="https://github.com/mm-o/siyuan-media-player/issues/132">#132</a></li>
+    </ul>
+  </li>
+  <li>📺 <strong>B站合集细化</strong>
+    <ul>
+      <li>支持在合集内展开分P列表 <a href="https://github.com/mm-o/siyuan-media-player/issues/135">#135</a></li>
+    </ul>
+  </li>
+  <li>💻 <strong>本地导入增强</strong>
+    <ul>
+      <li>导入本地文件夹支持按层级结构导入，保留目录层次</li>
+    </ul>
+  </li>
+  <li>🧩 <strong>发布服务兼容</strong>
+    <ul>
+      <li>新增 plugin.json 字段 <code>disabledInPublish</code>：在发布服务中启用</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>🔧 界面优化</h4>
+<ol>
+  <li>🎛️ <strong>面板/标签/文件切换反馈</strong>
+    <ul>
+      <li>增加过渡动画，交互更流畅</li>
+    </ul>
+  </li>
+  <li>💬 <strong>悬浮提示优化</strong>
+    <ul>
+      <li>统一为思源样式</li>
+    </ul>
+  </li>
+  <li>🏷️ <strong>卡片视图可读性</strong>
+    <ul>
+      <li>鼠标悬浮显示完整标题 <a href="https://github.com/mm-o/siyuan-media-player/issues/133">#133</a></li>
+    </ul>
+  </li>
+  <li>🖱️ <strong>右键菜单统一</strong>
+    <ul>
+      <li>目录与播放列表标签右键菜单统一（钉住/取消钉住、重命名、刷新、清空、删除）</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>🐛 问题修复与稳定性</h4>
+<ol>
+  <li>🔗 <strong>OpenList 链接与播放</strong>
+    <ul>
+      <li>直链播放优先；增强各类 OpenList 链接格式的兼容性与健壮性</li>
+    </ul>
+  </li>
+  <li>👥 <strong>网盘多账号</strong>
+    <ul>
+      <li>多账号场景稳定性与兼容性增强</li>
+    </ul>
+  </li>
+  <li>⏱️ <strong>时间戳/循环片段链接</strong>
+    <ul>
+      <li>优化编码与解析方式，正确处理包含汉字等特殊字符的路径 <a href="https://github.com/mm-o/siyuan-media-player/issues/131">#131</a></li>
+    </ul>
+  </li>
+  <li>🌐 <strong>WebDAV 路径显示</strong>
+    <ul>
+      <li>重构路径与链接显示逻辑，提升一致性与健壮性</li>
+    </ul>
+  </li>
+</ol>
+
 <h3>📅 v0.5.5版本更新 (2025.8.23)</h3>
 <h4>✨ 新增功能</h4>
 <ol>

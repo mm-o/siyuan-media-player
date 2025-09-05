@@ -15,6 +15,112 @@
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
 
+<h3>📅 v0.5.6 Update (2025.9.5)</h3>
+<h4>✨ New Features</h4>
+<ol>
+  <li>🔊 <strong>Volume Boost & Shortcuts</strong>
+    <ul>
+      <li>Max volume increased to 600% (≤100 step ±10, >100 step ±20)</li>
+      <li>Player shortcuts follow the same stepping logic</li>
+    </ul>
+  </li>
+  <li>🔐 <strong>OpenList Guest Mode</strong>
+    <ul>
+      <li>No username/password required for guest access; ideal for intranet or public directory sharing</li>
+    </ul>
+  </li>
+  <li>🗂️ <strong>123Pan Integration</strong>
+    <ul>
+      <li>Login, browse and play supported; compatible with timestamp and loop links</li>
+    </ul>
+  </li>
+  <li>💬 <strong>Subtitle Enhancements</strong>
+    <ul>
+      <li>Manual subtitle selection with automatic sync to the subtitle list</li>
+      <li>Bilingual subtitles: display main/sub streams simultaneously, great for language learning
+        <ul>
+          <li>Bilibili auto-bilingual: automatically try to load both English and Chinese subtitles</li>
+          <li>Manual bilingual selection: multi-select supported (Ctrl select 2 files); the first is the main (upper), the second is the sub (lower)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>🪟 <strong>PiP Mini-window Enhancements</strong>
+    <ul>
+      <li>Previous/next track and playlist loop supported in PiP mode <a href="https://github.com/mm-o/siyuan-media-player/issues/134">#134</a></li>
+    </ul>
+  </li>
+  <li>🧭 <strong>Playlist Sorting</strong>
+    <ul>
+      <li>Cycle sorting: Name → Type → Source, supports ascending/descending</li>
+      <li>Per-tag sort preference is remembered <a href="https://github.com/mm-o/siyuan-media-player/issues/132">#132</a></li>
+    </ul>
+  </li>
+  <li>📺 <strong>Bilibili Collections</strong>
+    <ul>
+      <li>Support expanding P-list within a collection <a href="https://github.com/mm-o/siyuan-media-player/issues/135">#135</a></li>
+    </ul>
+  </li>
+  <li>💻 <strong>Local Import</strong>
+    <ul>
+      <li>Import local folders with hierarchy preserved</li>
+    </ul>
+  </li>
+  <li>🧩 <strong>Publishing Service Compatibility</strong>
+    <ul>
+      <li>Added <code>disabledInPublish</code> in plugin.json to enable/disable the plugin in Publishing Service (read-only mode)</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>🔧 Interface Optimization</h4>
+<ol>
+  <li>🎛️ <strong>Panel/Tab/File Switch Feedback</strong>
+    <ul>
+      <li>Added transition animations for smoother interactions</li>
+    </ul>
+  </li>
+  <li>💬 <strong>Tooltip Unification</strong>
+    <ul>
+      <li>Unified to SiYuan style for consistent look and feel</li>
+    </ul>
+  </li>
+  <li>🏷️ <strong>Card View Readability</strong>
+    <ul>
+      <li>Show full title on hover <a href="https://github.com/mm-o/siyuan-media-player/issues/133">#133</a></li>
+    </ul>
+  </li>
+  <li>🖱️ <strong>Unified Context Menu</strong>
+    <ul>
+      <li>Unified right-click menu for directory and playlist tabs (Pin/Unpin, Rename, Refresh, Clear, Delete)</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>🐛 Bug Fixes & Stability</h4>
+<ol>
+  <li>🔗 <strong>OpenList Links & Playback</strong>
+    <ul>
+      <li>Prefer direct-link playback; improved compatibility and robustness for various OpenList link formats</li>
+    </ul>
+  </li>
+  <li>👥 <strong>Cloud Multi-Account</strong>
+    <ul>
+      <li>Enhanced stability and compatibility for multi-account scenarios</li>
+    </ul>
+  </li>
+  <li>⏱️ <strong>Timestamp/Loop Links</strong>
+    <ul>
+      <li>Improved encoding and parsing; correctly handles paths with Chinese and other special characters <a href="https://github.com/mm-o/siyuan-media-player/issues/131">#131</a></li>
+    </ul>
+  </li>
+  <li>🌐 <strong>WebDAV Path Display</strong>
+    <ul>
+      <li>Refactored path/link display logic for better consistency and robustness</li>
+    </ul>
+  </li>
+</ol>
+
 <h3>📅 v0.5.5 Update (2025.8.23)</h3>
 <h4>✨ New Features</h4>
 <ol>
