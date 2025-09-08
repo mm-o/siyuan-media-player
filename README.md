@@ -15,6 +15,21 @@
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
 
+<h3>📅 v0.5.8 Update (2025.9.8)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li>📄 <strong>PDF Support</strong>: Initial support for opening local, WebDAV, and cloud drive PDFs in a dialog window.</li>
+</ul>
+<h4>⚡ Performance Optimizations & 🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>Fixed</strong>: Resolved UI freezing and white screen issues caused by loading video thumbnails from local folders and the SiYuan workspace.</li>
+  <li><strong>Fixed</strong>: Corrected the misaligned `/` menu issue in certain cases.</li>
+  <li><strong>Fixed</strong>: Addressed failures in scanning local folders under specific scenarios.</li>
+</ul>
+
+
+
+
 <h3>📅 v0.5.6 Update (2025.9.5)</h3>
 <h4>✨ New Features</h4>
 <ol>
@@ -270,8 +285,7 @@
     </div>
     <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Core Features</h2>
-        <ul style="margin: 0; list-style: none; padding: 0;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎥 <strong>Multi-platform Playback</strong> - Unified playback for local media, extended media, OpenList, and WebDAV cloud storage</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎥 <strong>多平台播放与PDF支持</strong> - 统一播放本地、B站及云存储(阿里/百度/123/WebDAV/OpenList)媒体，并支持在弹窗中阅读PDF文档</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">⏰ <strong>Timestamp Navigation</strong> - Precise timestamp links for one-click navigation to specific playback positions</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔄 <strong>Loop Segments</strong> - Custom loop playback segments for repeated learning of key content</li>
             <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export with sub-document creation and smart search configuration for complete learning note ecosystem</li>

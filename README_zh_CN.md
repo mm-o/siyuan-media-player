@@ -14,7 +14,17 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
-
+<h3>📅 v0.5.8 版本更新 (2025.9.8)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li>📄 <strong>PDF支持</strong>：初步支持在弹窗(Dialog)中打开本地、WebDAV及网盘中的PDF文件。</li>
+</ul>
+<h4>⚡ 性能优化 & 🐛 问题修复</h4>
+<ul>
+  <li><strong>修复</strong>：解决了因加载本地文件夹和思源空间视频缩略图导致的界面<strong>卡顿白屏</strong>问题。</li>
+  <li><strong>修复</strong>：修复了 `/` 菜单在某些情况下错位的问题。</li>
+  <li><strong>修复</strong>：修复特定场景下本地文件夹扫描失败的问题。</li>
+</ul>
 <h3>📅 v0.5.6版本更新 (2025.9.5)</h3>
 <h4>✨ 新增功能</h4>
 <ol>
