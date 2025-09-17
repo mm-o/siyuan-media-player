@@ -14,6 +14,61 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.0 版本更新 (2025.9.17)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>📺 TVBox 影视聚合</strong>:
+    <ul>
+      <li>支持通过自定义源加载影视媒体，聚合多平台内容。</li>
+      <li>自动从豆瓣抓取海报、名称、别名、英文名称、评分、上映年份、国家地区、语言、类型、简介、影人、预告片等详细信息。</li>
+      <li>支持多源聚合搜索与 HLS 分片视频播放。</li>
+    </ul>
+  </li>
+  <li><strong>💬 字幕系统全面增强</strong>:
+    <ul>
+      <li><strong>智能加载</strong>: 自动查找并加载同名字幕文件，并在菜单中默认勾选第一项。</li>
+      <li><strong>编码修复</strong>: 解决字幕乱码问题，通过 <code>UTF-8</code> + <code>GBK</code> 智能降级解码，兼容各类编码<a href="https://github.com/mm-o/siyuan-media-player/issues/138">#138</a>。</li>
+      <li><strong>双语优化</strong>: 智能解析多行字幕，完美支持双语分行显示<a href="https://github.com/mm-o/siyuan-media-player/issues/102">#102</a>。</li>
+      <li><strong>格式扩展</strong>: 新增对 <code>.ass</code> 字幕格式的解析支持。</li>
+      <li><strong>样式自定义</strong>: 支持通过设置滑块实时调整字幕字体大小。</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ 全局快捷键扩展</strong>:
+    <ul>
+      <li>新增“播放/暂停”、“快进”、“快退”、“上一曲”、“下一曲”等全局快捷键，快捷键默认留空<a href="https://github.com/mm-o/siyuan-media-player/issues/141">#141</a>。</li>
+    </ul>
+  </li>
+</ul>
+<h4>⚡ 界面（性能）优化</h4>
+<ul>
+  <li><strong>🚀 播放列表性能重构</strong>:
+    <ul>
+      <li><strong>多级缓存系统</strong>:
+        <ul>
+          <li><strong>标签页缓存</strong>: 首次加载标签页（普通列表、文件夹、网盘）后，其完整状态（文件列表、排序）将被缓存，切换回来时可实现“秒开”<a href="https://github.com/mm-o/siyuan-media-player/issues/139">#139</a>。</li>
+        </ul>
+      </li>
+      <li><strong>智能懒加载</strong>:
+        <ul>
+          <li>浏览文件夹或网盘时，视频缩略图仅在滚动到可视区域时才加载，极大提升大目录的浏览流畅度<a href="https://github.com/mm-o/siyuan-media-player/issues/143">#143</a>。</li>
+          <li>自动预加载少量首屏项目，优化初次加载体验。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 问题修复</h4>
+<ul>
+  <li><strong>文件名解析</strong>: 修复了导入含多个<code>.</code>的媒体文件（如<code>A.B.mp4</code>）时，标题被错误截断的问题。</li>
+  <li><strong>交互与状态修复</strong>:
+    <ul>
+      <li>修复了已缓存的标签页未能记住上次的视图布局和排序方式的 bug<a href="https://github.com/mm-o/siyuan-media-player/issues/142">#142</a>。</li>
+      <li>修复了从文件夹视图切换到普通标签页时，顶部导航面包屑会残留的 bug。</li>
+    </ul>
+  </li>
+  <li><strong>播放器设置</strong>: 解决了“选择字幕”、“画中画”、“全屏”按钮点击失效的问题<a href="https://github.com/mm-o/siyuan-media-player/issues/102">#102</a>。</li>
+</ul>
+
 <h3>📅 v0.5.8 版本更新 (2025.9.8)</h3>
 <h4>✨ 新增功能</h4>
 <ul>

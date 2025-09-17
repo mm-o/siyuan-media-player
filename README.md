@@ -15,6 +15,61 @@
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
 
+<h3>📅 v0.6.0 Update (2025.9.17)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>📺 TVBox Integration</strong>:
+    <ul>
+      <li>Supports loading media from custom sources, aggregating content from multiple platforms.</li>
+      <li>Automatically fetches detailed information from Douban, including posters, titles, aliases, ratings, release years, genres, summaries, and cast/crew.</li>
+      <li>Supports multi-source aggregated search and HLS video playback.</li>
+    </ul>
+  </li>
+  <li><strong>💬 Comprehensive Subtitle System Enhancement</strong>:
+    <ul>
+      <li><strong>Smart Loading</strong>: Automatically finds and loads subtitle files with the same name, and pre-selects the first one in the menu.</li>
+      <li><strong>Encoding Fix</strong>: Resolves garbled text issues by intelligently decoding with a <code>UTF-8</code> + <code>GBK</code> fallback <a href="https://github.com/mm-o/siyuan-media-player/issues/138">#138</a>.</li>
+      <li><strong>Bilingual Optimization</strong>: Intelligently parses multi-line subtitles for perfect bilingual display <a href="https://github.com/mm-o/siyuan-media-player/issues/102">#102</a>.</li>
+      <li><strong>Format Extension</strong>: Added support for parsing <code>.ass</code> subtitle format.</li>
+      <li><strong>Style Customization</strong>: Supports real-time adjustment of subtitle font size via a slider.</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ Global Hotkey Expansion</strong>:
+    <ul>
+      <li>Added global hotkeys for "Play/Pause", "Fast Forward", "Rewind", "Previous Track", and "Next Track", which are unbound by default <a href="https://github.com/mm-o/siyuan-media-player/issues/141">#141</a>.</li>
+    </ul>
+  </li>
+</ul>
+<h4>⚡ Interface (Performance) Optimizations</h4>
+<ul>
+  <li><strong>🚀 Playlist Performance Refactor</strong>:
+    <ul>
+      <li><strong>Multi-level Caching System</strong>:
+        <ul>
+          <li><strong>Tab Cache</strong>: After loading a tab for the first time (playlist, folder, or cloud drive), its complete state (file list, sorting) is cached for instant reloading <a href="https://github.com/mm-o/siyuan-media-player/issues/139">#139</a>.</li>
+        </ul>
+      </li>
+      <li><strong>Smart Lazy Loading</strong>:
+        <ul>
+          <li>When browsing folders or cloud drives, video thumbnails are loaded only when they scroll into view, significantly improving performance with large directories <a href="https://github.com/mm-o/siyuan-media-player/issues/143">#143</a>.</li>
+          <li>Automatically preloads a few items on the first screen to optimize initial loading experience.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>Filename Parsing</strong>: Fixed an issue where media titles with multiple dots (e.g., <code>A.B.mp4</code>) were incorrectly truncated upon import.</li>
+  <li><strong>Interaction & State Fixes</strong>:
+    <ul>
+      <li>Fixed a bug where cached tabs failed to remember their previous view layout and sorting order <a href="https://github.com/mm-o/siyuan-media-player/issues/142">#142</a>.</li>
+      <li>Fixed a bug where the navigation breadcrumbs would persist when switching from a folder view to a regular tab.</li>
+    </ul>
+  </li>
+  <li><strong>Player Settings</strong>: Resolved an issue where the "Select Subtitle," "Picture-in-Picture," and "Fullscreen" buttons were unresponsive <a href="https://github.com/mm-o/siyuan-media-player/issues/102">#102</a>.</li>
+</ul>
+
 <h3>📅 v0.5.8 Update (2025.9.8)</h3>
 <h4>✨ New Features</h4>
 <ul>
