@@ -15,6 +15,50 @@
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
 
+<h3>📅 v0.6.1 Update (2025.9.20)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>☁️ Quark Cloud Drive TV Version Integration</strong>:
+    <ul>
+      <li>Added support for Quark Cloud Drive TV version QR code login, enabling browsing, playback, and timestamping.</li>
+    </ul>
+  </li>
+  <li><strong>Subtitle Smart Loading</strong>:
+    <ul>
+      <li>Supports automatic loading of same-name subtitles from cloud drives, or manual selection of subtitle files from the same folder.</li>
+    </ul>
+  </li>
+</ul>
+<h4>⚡ Performance &amp; UX Optimizations</h4>
+<ul>
+    <ul>
+      <li><strong>Ultimate Performance</strong>: Refactored local video thumbnail loading mechanism, replacing file-based cache (<code>thumb-cache.json</code>) with a <strong>pure in-memory session cache</strong>.</li>
+      <li><strong>On-Demand Generation</strong>: Thumbnails are generated only once on lazy load and subsequently read instantly from memory, achieving zero disk I/O and significantly improving fluency and resource utilization.</li>
+      <li><strong>Logic Unification</strong>:<li>Unified the logic for adding local folders, which no longer write to the database, reducing dependency on it.</li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>UI Fixes</strong>:
+    <ul>
+      <li>Fixed an issue where the TVBox movie details page had an abnormal width in the Dock, making it adaptive to the panel size.</li>
+      <li>Fixed an issue where the plugin's Tab position was misaligned on initial load with certain themes (e.g., Asri).</li>
+    </ul>
+  </li>
+  <li><strong>Cloud Drive Fixes</strong>:
+    <ul>
+      <li>Fixed an error prompt that could appear when refreshing cloud drive tags.</li>
+      <li>Fixed an issue where timestamp links for some cloud drive videos failed to jump correctly.</li>
+      <li>Fixed an issue preventing screenshots from being taken for 123Pan videos.</li>
+    </ul>
+  </li>
+  <li><strong>Navigation Fixes</strong>:
+    <ul>
+      <li>Fixed an issue where the breadcrumb navigation in the local folder view could incorrectly point to a parent directory.</li>
+    </ul>
+  </li>
+</ul>
 <h3>📅 v0.6.0 Update (2025.9.17)</h3>
 <h4>✨ New Features</h4>
 <ul>

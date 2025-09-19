@@ -14,6 +14,51 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.1 版本更新 (2025.9.20)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>☁️ 夸克网盘 TV 版集成</strong>:
+    <ul>
+      <li>新增夸克网盘 TV 版扫码登录支持，可实现浏览、播放及时间戳标记。</li>
+    </ul>
+  </li>
+  <li><strong>字幕智能加载</strong>:
+    <ul>
+      <li>支持从网盘中自动加载同名字幕，或手动选择同一文件夹下的字幕文件。</li>
+    </ul>
+  </li>
+</ul>
+<h4>⚡ 性能与体验优化</h4>
+<ul>
+    <ul>
+      <li><strong>性能优化</strong>: 本地视频缩略图加载机制重构，废除文件缓存 (<code>thumb-cache.json</code>)，改为<strong>纯内存会话缓存</strong>。</li>
+      <li><strong>按需生成</strong>: 缩略图仅在懒加载时生成一次，后续从内存瞬时读取，实现零磁盘I/O，极大提升流畅度与资源利用率。</li>
+      <li><strong>逻辑统一</strong>:统一本地文件夹的添加逻辑，不再写入数据库，减少了对数据库的依赖。</li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 问题修复</h4>
+<ul>
+  <li><strong>界面修复</strong>:
+    <ul>
+      <li>修复了 TVBox 影视详情页在 Dock 栏中宽度异常的问题，使其自适应面板尺寸。</li>
+      <li>修复了在特定主题（如 Asri）下，插件内 Tab 标签页初始位置错位的问题。</li>
+    </ul>
+  </li>
+  <li><strong>网盘功能修复</strong>:
+    <ul>
+      <li>修复了网盘标签刷新时可能出现的错误提示。</li>
+      <li>修复了部分网盘视频时间戳链接点击无法正确跳转的问题。</li>
+      <li>修复了 123 网盘无法截图的问题。</li>
+    </ul>
+  </li>
+  <li><strong>导航修复</strong>:
+    <ul>
+      <li>修复了本地文件夹视图中，路径面包屑导航可能错误指向上级目录的问题。</li>
+    </ul>
+  </li>
+</ul>
+
 <h3>📅 v0.6.0 版本更新 (2025.9.17)</h3>
 <h4>✨ 新增功能</h4>
 <ul>
