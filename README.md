@@ -1,9 +1,9 @@
 <div class="sy__outline" style="max-width: 800px; margin: 0 auto;">
-    <div style="text-align: center; padding: 2em; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px;">
-        <h1 style="color: white; margin: 0; font-size: 2.2em;">🎬 SiYuan Media Player</h1>
-        <div style="color: rgba(255,255,255,0.9); margin-top: 0.5em; font-size: 1.1em;">Professional SiYuan Note media playback plugin with multi-platform playback, intelligent note management, and efficient learning tools</div>
+    <div style="text-align: center; padding: 2em; background: linear-gradient(135deg, var(--b3-theme-primary), var(--b3-theme-secondary)); border-radius: 12px;">
+        <h1 style="color: var(--b3-theme-on-primary); margin: 0; font-size: 2.2em;">🎬 SiYuan Media Player</h1>
+        <div style="color: var(--b3-theme-on-primary-light); margin-top: 0.5em; font-size: 1.1em;">Professional SiYuan Note media playback plugin with multi-platform playback, intelligent note management, and efficient learning tools</div>
         <div style="margin-top: 1.5em; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <a href="https://github.com/mm-o/siyuan-media-player/blob/main/CHANGELOG.md"
+            <a href="https://github.com/mm-o/siyuan-media-player/blob/main/更新日志.md"
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">🗓 Changelog</a>
                <a href="https://github.com/mm-o/siyuan-media-player/issues"
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">💬 Issue Feedback</a>
@@ -11,135 +11,425 @@
                style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9em;">👏 Acknowledgments</a>
         </div>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(14,165,233,0.15);">
-        <h2 style="color: #0ea5e9; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Core Features</h2>
-        <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">🎥 <strong>Multi-platform Playback</strong> - Unified playback for local media, Bilibili videos, OpenList, and WebDAV cloud storage</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">⏰ <strong>Timestamp Navigation</strong> - Precise timestamp links for one-click navigation to specific playback positions</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">🔄 <strong>Loop Segments</strong> - Custom loop playback segments for repeated learning of key content</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export with sub-document creation and smart search configuration for complete learning note ecosystem</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(245,158,11,0.08);">🤖 <strong>Media Assistant</strong> - Subtitle lists, danmaku lists, and AI media summaries for intelligent analysis</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(239,68,68,0.08);">📋 <strong>Playlist Management</strong> - Database-driven management with tag classification, drag-and-drop sorting, and multi-view display</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #8b5cf6; box-shadow: 0 2px 4px rgba(139,92,246,0.08);">📥 <strong>Batch Import</strong> - One-click import of Bilibili favorites, Bilibili collections, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #06b6d4; box-shadow: 0 2px 4px rgba(6,182,212,0.08);">📝 <strong>Notes Panel</strong> - Independent document and block content viewing and editing with ID input, smart tags, and context menu operations</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(16,185,129,0.08);">🔗 <strong>Smart Link Recognition</strong> - Direct playback of database URL field media links, Ctrl+click to force browser opening</li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #6366f1; box-shadow: 0 2px 4px rgba(99,102,241,0.08);">⚙️ <strong>Settings Panel</strong> - One-stop management for account configuration, player settings, and general options</li>
+        <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
+
+
+<h3>📅 v0.6.1 Update (2025.9.20)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>☁️ Quark Cloud Drive TV Version Integration</strong>:
+    <ul>
+      <li>Added support for Quark Cloud Drive TV version QR code login, enabling browsing, playback, and timestamping.</li>
+    </ul>
+  </li>
+  <li><strong>Subtitle Smart Loading</strong>:
+    <ul>
+      <li>Supports automatic loading of same-name subtitles from cloud drives, or manual selection of subtitle files from the same folder.</li>
+    </ul>
+  </li>
+</ul>
+<h4>⚡ Performance &amp; UX Optimizations</h4>
+<ul>
+    <ul>
+      <li><strong>Ultimate Performance</strong>: Refactored local video thumbnail loading mechanism, replacing file-based cache (<code>thumb-cache.json</code>) with a <strong>pure in-memory session cache</strong>.</li>
+      <li><strong>On-Demand Generation</strong>: Thumbnails are generated only once on lazy load and subsequently read instantly from memory, achieving zero disk I/O and significantly improving fluency and resource utilization.</li>
+      <li><strong>Logic Unification</strong>:<li>Unified the logic for adding local folders, which no longer write to the database, reducing dependency on it.</li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>UI Fixes</strong>:
+    <ul>
+      <li>Fixed an issue where the TVBox movie details page had an abnormal width in the Dock, making it adaptive to the panel size.</li>
+      <li>Fixed an issue where the plugin's Tab position was misaligned on initial load with certain themes (e.g., Asri).</li>
+    </ul>
+  </li>
+  <li><strong>Cloud Drive Fixes</strong>:
+    <ul>
+      <li>Fixed an error prompt that could appear when refreshing cloud drive tags.</li>
+      <li>Fixed an issue where timestamp links for some cloud drive videos failed to jump correctly.</li>
+      <li>Fixed an issue preventing screenshots from being taken for 123Pan videos.</li>
+    </ul>
+  </li>
+  <li><strong>Navigation Fixes</strong>:
+    <ul>
+      <li>Fixed an issue where the breadcrumb navigation in the local folder view could incorrectly point to a parent directory.</li>
+    </ul>
+  </li>
+</ul>
+<h3>📅 v0.6.0 Update (2025.9.17)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>📺 TVBox Integration</strong>:
+    <ul>
+      <li>Supports loading media from custom sources, aggregating content from multiple platforms.</li>
+      <li>Automatically fetches detailed information from Douban, including posters, titles, aliases, ratings, release years, genres, summaries, and cast/crew.</li>
+      <li>Supports multi-source aggregated search and HLS video playback.</li>
+    </ul>
+  </li>
+  <li><strong>💬 Comprehensive Subtitle System Enhancement</strong>:
+    <ul>
+      <li><strong>Smart Loading</strong>: Automatically finds and loads subtitle files with the same name, and pre-selects the first one in the menu.</li>
+      <li><strong>Encoding Fix</strong>: Resolves garbled text issues by intelligently decoding with a <code>UTF-8</code> + <code>GBK</code> fallback <a href="https://github.com/mm-o/siyuan-media-player/issues/138">#138</a>.</li>
+      <li><strong>Bilingual Optimization</strong>: Intelligently parses multi-line subtitles for perfect bilingual display <a href="https://github.com/mm-o/siyuan-media-player/issues/102">#102</a>.</li>
+      <li><strong>Format Extension</strong>: Added support for parsing <code>.ass</code> subtitle format.</li>
+      <li><strong>Style Customization</strong>: Supports real-time adjustment of subtitle font size via a slider.</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ Global Hotkey Expansion</strong>:
+    <ul>
+      <li>Added global hotkeys for "Play/Pause", "Fast Forward", "Rewind", "Previous Track", and "Next Track", which are unbound by default <a href="https://github.com/mm-o/siyuan-media-player/issues/141">#141</a>.</li>
+    </ul>
+  </li>
+</ul>
+<h4>⚡ Interface (Performance) Optimizations</h4>
+<ul>
+  <li><strong>🚀 Playlist Performance Refactor</strong>:
+    <ul>
+      <li><strong>Multi-level Caching System</strong>:
+        <ul>
+          <li><strong>Tab Cache</strong>: After loading a tab for the first time (playlist, folder, or cloud drive), its complete state (file list, sorting) is cached for instant reloading <a href="https://github.com/mm-o/siyuan-media-player/issues/139">#139</a>.</li>
+        </ul>
+      </li>
+      <li><strong>Smart Lazy Loading</strong>:
+        <ul>
+          <li>When browsing folders or cloud drives, video thumbnails are loaded only when they scroll into view, significantly improving performance with large directories <a href="https://github.com/mm-o/siyuan-media-player/issues/143">#143</a>.</li>
+          <li>Automatically preloads a few items on the first screen to optimize initial loading experience.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>Filename Parsing</strong>: Fixed an issue where media titles with multiple dots (e.g., <code>A.B.mp4</code>) were incorrectly truncated upon import.</li>
+  <li><strong>Interaction & State Fixes</strong>:
+    <ul>
+      <li>Fixed a bug where cached tabs failed to remember their previous view layout and sorting order <a href="https://github.com/mm-o/siyuan-media-player/issues/142">#142</a>.</li>
+      <li>Fixed a bug where the navigation breadcrumbs would persist when switching from a folder view to a regular tab.</li>
+    </ul>
+  </li>
+  <li><strong>Player Settings</strong>: Resolved an issue where the "Select Subtitle," "Picture-in-Picture," and "Fullscreen" buttons were unresponsive <a href="https://github.com/mm-o/siyuan-media-player/issues/102">#102</a>.</li>
+</ul>
+
+<h3>📅 v0.5.8 Update (2025.9.8)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li>📄 <strong>PDF Support</strong>: Initial support for opening local, WebDAV, and cloud drive PDFs in a dialog window.</li>
+</ul>
+<h4>⚡ Performance Optimizations & 🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>Fixed</strong>: Resolved UI freezing and white screen issues caused by loading video thumbnails from local folders and the SiYuan workspace.</li>
+  <li><strong>Fixed</strong>: Corrected the misaligned `/` menu issue in certain cases.</li>
+  <li><strong>Fixed</strong>: Addressed failures in scanning local folders under specific scenarios.</li>
+</ul>
+
+
+
+
+<h3>📅 v0.5.6 Update (2025.9.5)</h3>
+<h4>✨ New Features</h4>
+<ol>
+  <li>🔊 <strong>Volume Boost & Shortcuts</strong>
+    <ul>
+      <li>Max volume increased to 600% (≤100 step ±10, >100 step ±20)</li>
+      <li>Player shortcuts follow the same stepping logic</li>
+    </ul>
+  </li>
+  <li>🔐 <strong>OpenList Guest Mode</strong>
+    <ul>
+      <li>No username/password required for guest access; ideal for intranet or public directory sharing</li>
+    </ul>
+  </li>
+  <li>🗂️ <strong>123Pan Integration</strong>
+    <ul>
+      <li>Login, browse and play supported; compatible with timestamp and loop links</li>
+    </ul>
+  </li>
+  <li>💬 <strong>Subtitle Enhancements</strong>
+    <ul>
+      <li>Manual subtitle selection with automatic sync to the subtitle list</li>
+      <li>Bilingual subtitles: display main/sub streams simultaneously, great for language learning
+        <ul>
+          <li>Bilibili auto-bilingual: automatically try to load both English and Chinese subtitles</li>
+          <li>Manual bilingual selection: multi-select supported (Ctrl select 2 files); the first is the main (upper), the second is the sub (lower)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>🪟 <strong>PiP Mini-window Enhancements</strong>
+    <ul>
+      <li>Previous/next track and playlist loop supported in PiP mode <a href="https://github.com/mm-o/siyuan-media-player/issues/134">#134</a></li>
+    </ul>
+  </li>
+  <li>🧭 <strong>Playlist Sorting</strong>
+    <ul>
+      <li>Cycle sorting: Name → Type → Source, supports ascending/descending</li>
+      <li>Per-tag sort preference is remembered <a href="https://github.com/mm-o/siyuan-media-player/issues/132">#132</a></li>
+    </ul>
+  </li>
+  <li>📺 <strong>Bilibili Collections</strong>
+    <ul>
+      <li>Support expanding P-list within a collection <a href="https://github.com/mm-o/siyuan-media-player/issues/135">#135</a></li>
+    </ul>
+  </li>
+  <li>💻 <strong>Local Import</strong>
+    <ul>
+      <li>Import local folders with hierarchy preserved</li>
+    </ul>
+  </li>
+  <li>🧩 <strong>Publishing Service Compatibility</strong>
+    <ul>
+      <li>Added <code>disabledInPublish</code> in plugin.json to enable/disable the plugin in Publishing Service (read-only mode)</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>🔧 Interface Optimization</h4>
+<ol>
+  <li>🎛️ <strong>Panel/Tab/File Switch Feedback</strong>
+    <ul>
+      <li>Added transition animations for smoother interactions</li>
+    </ul>
+  </li>
+  <li>💬 <strong>Tooltip Unification</strong>
+    <ul>
+      <li>Unified to SiYuan style for consistent look and feel</li>
+    </ul>
+  </li>
+  <li>🏷️ <strong>Card View Readability</strong>
+    <ul>
+      <li>Show full title on hover <a href="https://github.com/mm-o/siyuan-media-player/issues/133">#133</a></li>
+    </ul>
+  </li>
+  <li>🖱️ <strong>Unified Context Menu</strong>
+    <ul>
+      <li>Unified right-click menu for directory and playlist tabs (Pin/Unpin, Rename, Refresh, Clear, Delete)</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>🐛 Bug Fixes & Stability</h4>
+<ol>
+  <li>🔗 <strong>OpenList Links & Playback</strong>
+    <ul>
+      <li>Prefer direct-link playback; improved compatibility and robustness for various OpenList link formats</li>
+    </ul>
+  </li>
+  <li>👥 <strong>Cloud Multi-Account</strong>
+    <ul>
+      <li>Enhanced stability and compatibility for multi-account scenarios</li>
+    </ul>
+  </li>
+  <li>⏱️ <strong>Timestamp/Loop Links</strong>
+    <ul>
+      <li>Improved encoding and parsing; correctly handles paths with Chinese and other special characters <a href="https://github.com/mm-o/siyuan-media-player/issues/131">#131</a></li>
+    </ul>
+  </li>
+  <li>🌐 <strong>WebDAV Path Display</strong>
+    <ul>
+      <li>Refactored path/link display logic for better consistency and robustness</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>📅 v0.5.5 Update (2025.8.23)</h3>
+<h4>✨ New Features</h4>
+<ol>
+<li>☁️ <strong>BaiduNetdisk Integration</strong>:
+  <ul>
+    <li><strong>Multiple login methods</strong>: Baidu App QR login and authorization code login</li>
+    <li><strong>Playlist integration</strong>: Browse BaiduNetdisk media and add to playlist</li>
+    <li><strong>Folder pin & import</strong>: Pin folders to tab bar and batch import all media</li>
+    <li><strong>1080p playback</strong>: Support 1080p playback without membership</li>
+  </ul>
+</li>
+</ol>
+<li>☁️ <strong>Custom cloud account names</strong>: OpenList/WebDAV support custom names for easier identification</li>
+<li>🔗 <strong>Reverse proxy compatibility</strong>: OpenList adds a "path prefix" option</li>
+
+<h4>🔧 Interface Optimization</h4>
+<ol>
+<li>🧩 <strong>Dock Sidebar</strong>: Removed duplicate border/radius, unified with theme</li>
+<li>🧭 <strong>Playlist bottom input area</strong>: Z-index aligned with top title to avoid overlaying player</li>
+<li>🏷️ <strong>Cloud tabs</strong>: Playlist tabs now use custom names for cloud accounts instead of IP/index</li>
+<li>➕ <strong>Add menu</strong>: Cloud accounts are listed by custom name for easier identification</li>
+<li>🎨 <strong>Scoped styles</strong>: Fixed global style bleed</li>
+</ol>
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>🧠 Fixed potential errors when generating mind maps</li>
+<li>⏱️ Fixed crash caused by inserting timestamps</li>
+<li>👥 Fixed issue where multi-account add not recognized</li>
+<li>⌨️ Fixed input bar z-index issue <a href="https://github.com/mm-o/siyuan-media-player/issues/127">#127</a></li>
+<li>⌨️ Shortcuts: Fixed holding A causing global 3x; now only works inside player and only with plain A (Ctrl+Arrows still adjust speed)</li>
+<li>⚙️ <strong>OpenList API</strong>: Standardized API usage; removed unnecessary path cleaning logic</li>
+</ol>
+
+<h3>📅 v0.5.4 Update (2025.8.19)</h3>
+<h4>✨ New Features</h4>
+<ol>
+<li>🧠 <strong>Mind Map</strong>: Assistant panel adds mind map functionality with click-to-jump support</li>
+<li>⚙️ <strong>AI Account Configuration</strong>: Support OpenAI/Azure compatible interfaces for custom AI service calls</li>
+<li>☁️ <strong>AliDrive Support</strong>: Added AliDrive account configuration and file browsing</li>
+<li>📱 <strong>Mobile Playback</strong>: Support for mobile media playback functionality</li>
+<li>🎛️ <strong>Player Enhancement</strong>: Added previous/next track buttons with shortcuts (Shift + ←/→)</li>
+<li>📌 <strong>Cloud Pinning</strong>: Cloud folders can be pinned to tab bar and batch added <a href="https://github.com/mm-o/siyuan-media-player/issues/121">#121</a></li>
+</ol>
+<h4>🔧 Interface Optimization</h4>
+<ol>
+<li>🎨 <strong>UI Refactor</strong>: Fully based on SiYuan styles, adapts to different themes</li>
+<li>🖥️ <strong>Player Interface</strong>: Optimized picture-in-picture, web fullscreen, fullscreen button types <a href="https://github.com/mm-o/siyuan-media-player/issues/126">#126</a></li>
+<li>⏰ <strong>Time Format</strong>: Timestamp and loop segment links optimized to hour:minute:second format <a href="https://github.com/mm-o/siyuan-media-player/issues/120">#120</a></li>
+<li>🔗 <strong>Link Order</strong>: Batch addition processes links in order <a href="https://github.com/mm-o/siyuan-media-player/issues/122">#122</a></li>
+</ol>
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>🧾 <strong>Batch Export</strong>: Fixed crash issues with subtitle and summary batch insertion</li>
+<li>🧭 <strong>Tag Status</strong>: Optimized default tag pinning status</li>
+<li>💳 <strong>Membership System</strong>: Enhanced membership activation logic</li>
+<li>🔑 <strong>Primary Key Conflict</strong>: Fixed import failure when primary key is named "Media Title"</li>
+<li>🗂️ <strong>SiYuan Workspace</strong>: Fixed addition failure and added folder pin & import functionality</li>
+</ol>
+
+<h3>📅 v0.5.2 Update (2025.8.9)</h3>
+<h4>🔧 Compatibility Fixes</h4>
+<ol>
+<li>🔄 <strong>Smart Database Upgrade</strong>: Automatically detects legacy database structure and intelligently prompts users to upgrade</li>
+<li>📝 <strong>User-Friendly Prompts</strong>: Clear upgrade instructions when legacy structure (primary key as media title) is detected</li>
+<li>✅ <strong>Safe Data Migration</strong>: Automatically creates media title field and migrates all data upon user confirmation</li>
+<li>🎯 <strong>Lossless Upgrade</strong>: Preserves existing data unchanged, only adds optimized field structure</li>
+<li>🚫 <strong>Optional Operation</strong>: Users can choose to upgrade immediately or later, no forced execution</li>
+</ol>
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>🎬 Fixed danmaku scrolling logic issues</li>
+<li>🏷️ <strong>Tag Display Fix</strong>: Fixed issue where database tag options with empty descriptions wouldn't display, now defaults to support display view and pinning</li>
+<li>🧹 Removed obsolete configuration cleanup tools, optimized settings interface</li>
+</ol>
+<h4>💡 User Experience Improvements</h4>
+<ol>
+<li>📋 Optimized compatibility prompt interface with clear operation instructions and choice buttons</li>
+<li>🎨 Enhanced database field mapping fault tolerance for stable operation across various configuration environments</li>
+</ol>
+
+<h3>📅 v0.5.1 Update (2025.8.8)</h3>
+<h4>✨ Feature Improvements</h4>
+<ol>
+<li>🧭 Assistant panel adds <strong>Document View</strong>: auto-follow highlight with playback, supports drag-and-drop copy</li>
+<li>📋 Playlist <strong>per-tag view state</strong> is saved <a href="https://github.com/mm-o/siyuan-media-player/issues/116">#116</a></li>
+<li>🎛️ Support <strong>customizable playlist item display elements</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/107">#107</a></li>
+<li>🔍 Search UX improved: now <strong>press Enter to trigger search</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/109">#109</a></li>
+<li>⌨️ New shortcut <strong>A</strong>: toggle to <strong>3.0x</strong>, press again to restore original speed <a href="https://github.com/mm-o/siyuan-media-player/issues/105">#105</a></li>
+<li>🌐 Improved tolerance for <strong>account server address</strong> input</li>
+<li>📝 <strong>Media title field</strong> can be configured independently; primary key is now customizable <a href="https://github.com/mm-o/siyuan-media-player/issues/90">#90</a></li>
+<li>💳 Limited-time membership discount: Annual <strong>¥20</strong>, Lifetime <strong>¥99</strong></li>
+</ol>
+
+<h4>🐛 Bug Fixes</h4>
+<ol>
+<li>Fixed issue where clicking a collection subset <strong>auto-added</strong> it to the playlist</li>
+<li>Fixed issue where <strong>only the first episode</strong> played for collections and multi-part videos</li>
+<li>Fixed <strong>cloud disk navigation bar</strong> not displaying <a href="https://github.com/mm-o/siyuan-media-player/issues/117">#117</a></li>
+<li>Fixed issue where database default page size <strong>50</strong> failed to load all items into the playlist <a href="https://github.com/mm-o/siyuan-media-player/issues/108">#108</a></li>
+</ol>
+
+<h4>🔧 Development Refactoring</h4>
+<ol>
+<li>Bilibili features require the extension script:
+<a href="https://github.com/mm-o/siyuan-media-player/raw/main/docs/bilibili-extension.js">GitHub</a> |
+<a href="https://gitee.com/m-o/siyuan-media-player/blob/master/docs/bilibili-extension.js">Gitee</a>
+</li>
+</ol>
+
+<h3>📅 v0.5.0 Update (2025.8.6)</h3>
+<h4>✨ Feature Improvements</h4>
+<p>🎯 <strong>Membership System</strong>: Added three membership types (Dragon Permanent Member, Annual Member, Trial Member), supports purchase redirection, early donors receive permanent Dragon membership. <strong>Limited-time discount until October 10th</strong></p>
+<p>👥 <strong>Multi-Account Support</strong>: Support multiple account management (Bilibili, OpenList, WebDAV), playlist menu provides secondary menu for quick switching</p>
+<p>📌 <strong>Tab Pinning Feature</strong>: Playlist tabs support pinning to tab bar for quick access to frequently used lists <a href="https://github.com/mm-o/siyuan-media-player/issues/95">#95</a></p>
+<p>📋 <strong>P-List Enhancement</strong>: P-list displays complete titles, improving content recognition <a href="https://github.com/mm-o/siyuan-media-player/issues/100">#100</a></p>
+<p>📖 <strong>Settings Panel Optimization</strong>: Added About tab with integrated README documentation and navigation</p>
+<p>🎨 <strong>Playback Speed Optimization</strong>: More user-friendly playback speed options (0.5x-4.0x, 0.25x increments)</p>
+<p>📝 <strong>Loop Segment Improvement</strong>: Loop count changed to input type, no longer limited to upper limit</p>
+<p>📥 <strong>Batch Addition Enhancement</strong>:</p>
+<ul>
+<li>Bilibili collections get all videos, no longer limited to 100 <a href="https://github.com/mm-o/siyuan-media-player/issues/88">#88</a></li>
+<li>Improved batch processing stability, errors won't interrupt entire process</li>
+<li>Support direct BV number addition <a href="https://github.com/mm-o/siyuan-media-player/issues/79">#79</a></li>
+<li>Support mixed delimiter input (space, newline, comma) <a href="https://github.com/mm-o/siyuan-media-player/issues/85">#85</a></li>
+</ul>
+<p>🗂️ <strong>Playlist Extension</strong>: OpenList and WebDAV media support adding to playlists and database <a href="https://github.com/mm-o/siyuan-media-player/issues/73">#73</a></p>
+<p>📔 <strong>Media Notes Enhancement</strong>: Support DailyNote mode creation, click button to directly create and open new tab <a href="https://github.com/mm-o/siyuan-media-player/issues/96">#96</a> <a href="https://github.com/mm-o/siyuan-media-player/issues/98">#98</a></p>
+
+<h4>🐛 Bug Fixes</h4>
+<p>🌙 <strong>Dark Mode Fix</strong>: Fixed display issues with P-list in dark mode <a href="https://github.com/mm-o/siyuan-media-player/issues/101">#101</a></p>
+<p>🎨 <strong>View Style Optimization</strong>: Optimized compact view P-list expansion style for better visual experience</p>
+<p>📝 <strong>Document Background Fix</strong>: Reset documentation background for clearer display in dark mode</p>
+<p>⏱️ <strong>Timestamp Fix</strong>: Fixed crash when clicking next line without line break and pressing enter in middle during timestamp insertion <a href="https://github.com/mm-o/siyuan-media-player/issues/97">#97</a></p>
+<p>🧹 <strong>State Cleanup Fix</strong>: Fixed subtitle, danmaku, and summary states not being properly cleared <a href="https://github.com/mm-o/siyuan-media-player/issues/94">#94</a></p>
+
+<h4>🔧 Development Refactoring</h4>
+<p>🔄 <strong>Media Playback Refactoring</strong>: WebDAV and OpenList media access through SiYuan proxy API for improved stability</p>
+<p>🔗 <strong>Link Processing Optimization</strong>: Refactored link click logic to resolve first-time playback failure issues</p>
+<p>🏗️ <strong>Collection Addition Unification</strong>: Unified collection addition to bottom input box with inherited P-list styling</p>
+<p>🔄 <strong>Automatic Config Migration</strong>: Added config migration tool to automatically handle single-account to multi-account configuration upgrades, ensuring seamless user experience</p>
+<blockquote>
+<p>📋 <strong>View Complete Changelog</strong>: <a href="https://github.com/mm-o/siyuan-media-player/blob/main/更新日志.md">更新日志.md</a></p>
+</blockquote>
+
+<h4>🎯 Discussion Group</h4>
+<p><strong>QQ Group</strong>: <a href="https://qm.qq.com/q/wpHDtsfxCw">QQ Group</a> QQ Group Number: 306538841 (Donors who haven't joined please provide order number to join)</p>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Core Features</h2>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎥 <strong>多平台播放与PDF支持</strong> - 统一播放本地、B站及云存储(阿里/百度/123/WebDAV/OpenList)媒体，并支持在弹窗中阅读PDF文档</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">⏰ <strong>Timestamp Navigation</strong> - Precise timestamp links for one-click navigation to specific playback positions</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔄 <strong>Loop Segments</strong> - Custom loop playback segments for repeated learning of key content</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📔 <strong>Media Notes</strong> - Screenshots, subtitles, and danmaku export with sub-document creation and smart search configuration for complete learning note ecosystem</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🤖 <strong>Media Assistant</strong> - Subtitle lists, danmaku lists, and AI media summaries for intelligent analysis</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📋 <strong>Playlist Management</strong> - Database-driven management with tag classification, drag-and-drop sorting, and multi-view display</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📥 <strong>Batch Import</strong> - One-click import of extension favorites, extension collections, local folders, SiYuan workspace, OpenList, and WebDAV cloud storage to playlists</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">📝 <strong>Notes Panel</strong> - Independent document and block content viewing and editing with ID input, smart tags, and context menu operations</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔗 <strong>Smart Link Recognition</strong> - Direct playback of database URL field media links, Ctrl+click to force browser opening</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">⚙️ <strong>Settings Panel</strong> - One-stop management for account configuration, player settings, and general options</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🔧 <strong>Script Extensions</strong> - Support for third-party extension scripts, user-selectable functional modules</li>
         </ul>
     </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fef3f2, #fee2e2); border: 1px solid #fca5a5; border-radius: 8px; box-shadow: 0 4px 12px rgba(239,68,68,0.15);">
-        <h2 style="color: #dc2626; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🧧 Support, Encourage & Feature Requests</h2>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">⚠️ Disclaimer</h2>
+        <ul style="margin: 0; list-style: none; padding: 0;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎯 <strong>Technical Architecture</strong> - Plugin adopts extensible design, core code focuses on playback functionality, contains no third-party service code</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🎛️<strong>Extension Selection</strong> - Users can autonomously choose whether to use third-party extension scripts based on needs</li>
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">🛡️<strong>Security Reminder</strong> - Extension scripts are independent functional modules, please choose carefully based on personal needs</li>
+        </ul>
+    </div>
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🧧 Support, Encourage & Feature Requests</h2>
         <p style="margin: 0.5em 0;">If SiYuan Media Player has been helpful to you, please consider giving the author a like or buying a cup of coffee. This will encourage the author to continue optimizing and developing more useful features:</p>
         <div style="margin: 1em 0; text-align: center; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
             <div style="text-align: center;">
                 <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg"
                      alt="Alipay QR Code"
-                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <p style="margin: 0.5em 0; color: #666;">Alipay</p>
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
+                <p style="margin: 0.5em 0; color: var(--b3-theme-text-lighter);">Alipay</p>
             </div>
             <div style="text-align: center;">
                 <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg"
                      alt="WeChat QR Code"
-                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <p style="margin: 0.5em 0; color: #666;">WeChat</p>
+                     style="width: 280px; border-radius: 8px; box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
+                <p style="margin: 0.5em 0; color: var(--b3-theme-text-lighter);">WeChat</p>
             </div>
         </div>
   </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; border-radius: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.15);">
-        <h2 style="color: #16a34a; margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
-
-### 📅 v0.4.4 Update (2025.7.20)
-#### 🎴 **Note Card Visualization System** - A brand new media learning content management experience
-- 📋 **Smart Filter Panel**: Added media type filtering functionality in the notes panel, supporting quick filtering by timestamp, loop segment, screenshot, and media card types
-- 🖼️ **Visual Card Display**: Filter results are displayed as beautiful cards, automatically showing cover images/screenshots, media types, and time information for clear learning content overview
-- 🔗 **One-click Jump Playback**: Click any card to directly jump to the corresponding media time point and start playback, achieving seamless connection from notes to media
-- ⚡ **Real-time Sync Updates**: When performing timestamp, screenshot, and other operations in filter mode, new content will immediately appear in the card list, maintaining perfect real-time experience
-- 🎯 **Smart Insert Positioning**: All media operations in filter mode will automatically insert to the bottom of the current document, ensuring orderly content organization
-- 🏷️ **Unified Attribute Management**: Based on the custom attribute system from v0.4.3, achieving unified recognition and management of all media types
-#### ✨ **Playlist Enhancement Features**
-- 🌐 **External Open Support**: Added "Open Externally" function in right-click menu
-  - Open Bilibili/OpenList/WebDAV network resources in browser
-  - Locate and display local files in file explorer
-  - Smart resource type recognition with automatic optimal opening method selection
-#### 📱 **Mobile Support Attempt**
-- 🧪 **Experimental Feature**: Attempted to add mobile local file selection support (may not work properly on some devices)
-- 🔄 **Smart Platform Detection**: Desktop uses native file dialogs, mobile uses HTML5 file selectors
-- ⚠️ **Notice**: Mobile file selection functionality is still in testing phase, desktop usage is recommended
-#### 🔧 **Database Field Optimization**
-- 📝 **Field Description Management**: Automatically add description notes for all playlist fields, supporting normal loading after field renaming
-  - **Field Description Reference**: Media Title, URL, Duration, Playlist, Source, Type, Artist, Cover Image, Artist Avatar, Creation Time
-  - **Troubleshooting**: If playlist loading fails, please check if field descriptions match the above reference table
-- 🎯 **Mapping Logic Optimization**: Prioritize description matching to ensure functionality works after field renaming
-- 🛡️ **Smart Field Management**: Avoid duplicate creation and automatically supplement missing descriptions
-#### 🔧 **User Experience Optimization**
-- 💡 **Database Configuration Prompt Enhancement**: Optimized prompt experience when database is not configured
-  - Use persistent prompts instead of auto-disappearing ones, requiring user to manually close
-#### 🐛 **Bug Fixes**
-- ⏱️ **Duration Display Fix**: Fixed local media duration display issue, now correctly retrieves and displays local video file duration information
-- 🔧 **Compatibility Improvement**: Fixed crypto.randomUUID compatibility issue, improving stability across different environments
-- 🔄 **Tag Refresh Fix**: Fixed refresh functionality failure after clearing tags (adding/removing media), ensuring correct execution of smart addition based on tag description information
-
+    <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 User Guide</h2>
+        <ul style="margin: 0; list-style: none; padding: 0;">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-<summary><strong>📋 View Update History</strong></summary>
-
-### 📅 v0.4.3 Update (2025.7.17)
-- 🆕 **New Features**
-  - 🏷️ **Media Block Custom Attributes System**: Add standardized custom attributes to all media-related blocks generated by the plugin for intelligent recognition and efficient management
-    - 📊 **Unified Identification System**: All media function-generated blocks will automatically add specific custom attributes for subsequent identification, querying, and management, providing a strong foundation for building personal media learning systems and content management workflows
-    - ⏰ **Timestamp Block Enhancement**: Generated timestamp link blocks automatically add `custom-media="timestamp"` attribute identification and precisely record time points through `custom-timestamp="02:03"`, supporting batch management and quick location of important moments
-    - 🔄 **Loop Segment Smart Marking**: Loop segment blocks use `custom-media="loop"` for identification, while precisely recording loop intervals through `custom-loop-start="01:30"` and `custom-loop-end="02:45"`, supporting complex segment management and learning focus marking
-    - 📸 **Screenshot Block Auto Recognition**: Screenshot function-generated image blocks add `custom-media="screenshot"` attribute for quick filtering, classification, and visual management of screenshot content
-    - 📷 **Screenshot+Timestamp Combo Cards**: Screenshot with timestamp function-generated composite blocks use `custom-media="mediacard"` identification, combined with `custom-timestamp="02:03"` to associate time information, forming a complete media memory card system
-    - 📔 **Media Notes Complete Archive**: Media note documents add `custom-type="MediaNote"` type identification, record source media links through `custom-mediaurl="Media URL"`, and use `custom-website="bilibili/openlist/webdav/local"` to mark source websites, building a complete learning archive system
-    - 🔍 **SQL Query Support**: Implement precise media block retrieval based on custom attributes, supporting complex data analysis and content management needs
-    - 🎯 **Application Scenario Expansion**: Support building personal media learning systems, content management workflows, media resource analysis, learning progress tracking, and other advanced applications, providing users with more powerful media content organization and utilization capabilities
-- 🐛 **Bug Fixes**
-  - 🎯 **Dock Icon Fix**: Fixed dock icon position adjustment causing blank space issue, ensuring normal icon display
-- 🔧 **Development Refactoring**
-  - 📋 **Panel Naming Unification**: Unified functional panel naming standards, improving code consistency
-  - 🎨 **Style Layout Optimization**: Unified style layout design, improving user interface experience
----
-### 📅 v0.4.2 Update (2025.7.15)
-- ✨ **Feature Optimization**
-  - 🎯 **Media Notes Settings Optimization**: Refactored target notebook/document setting item logic, simplified configuration process, improved user experience
-  - 📝 **Smart Notes Panel Integration**: Automatically add to notes panel when creating media notes, achieving seamless experience of one-click creation and automatic management
-    - 🔄 **Auto Sync**: Media notes appear immediately in the notes panel after creation, no manual addition required
----
-### 📅 v0.4.1 Update (2025.7.14)
-- 🆕 **New Features**
-  - 🔗 **Database URL Link Recognition**: Support for clicking media links in database URL fields to directly open the player without browser redirection
-  - ⌨️ **Ctrl+Click Force Browser**: Hold Ctrl key while clicking media links to force browser opening, bypassing plugin handling
-  - 📝 **Notes Panel Feature**: New independent notes panel providing convenient document and block content editing functionality
-    - 📋 **ID Input Support**: Support for inputting document ID or block ID with automatic format validation and content retrieval
-    - 🏷️ **Smart Tags**: Automatically truncate to first 4 characters as tag name when adding
-    - 🖱️ **Context Menu**: Provide rename, open in SiYuan, copy ID, delete tag and other complete operations
-    - 📄 **Complete Rendering**: Use Protyle component for complete document content rendering with scroll and interaction support
-    - 💾 **State Persistence**: Automatically save tab configuration and restore previous note tags after restart
-  - 📔 **Media Notes Enhancement**: Media notes creation now supports creating sub-documents under specified documents, providing more flexible note organization
-    - 🔍 **Smart Search Configuration**: Support inputting document name or notebook name in settings to search and quickly locate target position
-    - 📂 **Sub-document Creation**: Support automatically creating sub-documents under selected parent documents, maintaining hierarchical note structure
-    - ⚙️ **Convenient Settings**: Quick addition of commonly used document and notebook configurations through search functionality, simplifying the setup process
----
-### 📅 v0.4.0 Update (2025.7.12)
-- 🆕 **New Features**
-  - 📚 **Bilibili Collections Support**: New batch import feature for Bilibili collections, get entire collection with any video link
-    - 🏷️ **Smart Recognition**: Automatically detect if video belongs to a collection, extract collection ID and uploader info
-    - 🔄 **Smart Refresh**: Support one-click refresh for collection tags
-- 🔧 **Performance Optimization**
-  - 💬 **Message Simplification**: Optimized batch import notifications with unified showMessage handling
-- 🐛 **Bug Fixes**
-  - 🔊 **Bilibili Video Audio Fix**: Fixed issue where Bilibili videos had video but no audio, unified DASH stream processing
-  - ⚡ **Playback Parameter Unification**: Refactored Bilibili video playback process, directly generate blob playback addresses
-  - 🔇 **Warning Message Optimization**: Eliminated irrelevant OpenList error warnings when playing Bilibili/WebDAV videos
-
-</details>
-    </div>
-    <div style="margin-top: 1.5em; padding: 1.5em; background: linear-gradient(135deg, #fefbff, #f3e8ff); border: 1px solid #c4b5fd; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
-        <h2 style="color: #7c3aed; margin: 0 0 1em; text-align: center; font-size: 1.3em;">📖 User Guide</h2>
-        <ul style="margin: 0; padding-left: 1.2em;">
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
-<details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🗄️ <strong>Bind Database</strong> - Configure playlist data storage</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🗄️ <strong>Bind Database</strong> - Configure playlist data storage</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Select a database block, click the database icon or right-click > Copy > Copy ID<br>
                 2. Open SiYuan Media Player settings panel<br>
                 3. Find "Playlist Database" in the "General" tab<br>
@@ -149,21 +439,21 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>Add Bilibili Account</strong> - Login to Bilibili to access personal resources</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
-                1. Find the "Bilibili Account" section in the settings panel<br>
-                2. Click the "Login to Bilibili Account" button<br>
-                3. Scan the displayed QR code (using Bilibili mobile app)<br>
-                4. After successful login, you can watch Bilibili videos and batch add favorites
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔧 <strong>Configure Extension Account</strong> - Login to extension service to access personal resources</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
+                1. Find the "Extension Account" section in the settings panel<br>
+                2. Click the "Login to Extension Account" button<br>
+                3. Scan the displayed QR code (using extension service mobile app)<br>
+                4. After successful login, you can watch extension videos and batch add favorites
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Configure OpenList Service</strong> - Connect to cloud storage server</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Configure OpenList Service</strong> - Connect to cloud storage server</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Find the "OpenList Configuration" section in the settings panel<br>
                 2. Fill in the OpenList server address (e.g., http://localhost:5244)<br>
                 3. Enter username and password<br>
@@ -171,22 +461,22 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>Configure WebDAV Cloud Storage</strong> - Connect to WebDAV service</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>Configure WebDAV Cloud Storage</strong> - Connect to WebDAV service</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Find the "WebDAV Configuration" section in the settings panel<br>
                 2. Fill in the WebDAV server address<br>
                 3. Enter username and password<br>
-                4. Supports mainstream WebDAV services like Jianguoyun (坚果云), NextCloud<br>
+                4. Supports mainstream WebDAV services like Jianguoyun (坚果�?, NextCloud<br>
                 5. After successful configuration, you can directly browse and play media files from WebDAV
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📁 <strong>Add Local Media</strong> - Support multiple selection</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📁 <strong>Add Local Media</strong> - Support multiple selection</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Click the "Add" button at the bottom of the playlist<br>
                 2. Select the media files you want to add in the file manager<br>
                 3. Click "Open" to add them to the playlist<br>
@@ -195,10 +485,10 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📂 <strong>Add Local Folder</strong> - Batch import local files</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📂 <strong>Add Local Folder</strong> - Batch import local files</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Click the "+" on the playlist tab to open the menu<br>
                 2. Click "Add Local Folder"<br>
                 3. Select the folder you want to add in the file browser<br>
@@ -207,20 +497,20 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏠 <strong>Add SiYuan Workspace Media</strong> - Browse workspace files</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🏠 <strong>Add SiYuan Workspace Media</strong> - Browse workspace files</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Click the "+" on the playlist tab to open the menu<br>
                 2. Click "Add SiYuan Workspace" to add SiYuan workspace to the playlist<br>
                 3. SiYuan workspace media uses relative paths for easy workspace migration
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Add OpenList Media</strong> - Cloud storage streaming playback</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Add OpenList Media</strong> - Cloud storage streaming playback</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Ensure OpenList server connection is configured<br>
                 2. Click the "+" on the playlist tab to open the menu<br>
                 3. Click "Add OpenList Cloud"<br>
@@ -228,10 +518,10 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>Add WebDAV Media</strong> - Direct cloud playback</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">☁️ <strong>Add WebDAV Media</strong> - Direct cloud playback</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Ensure WebDAV cloud storage connection is configured<br>
                 2. Click the "+" on the playlist tab to open the menu<br>
                 3. Click "Add WebDAV Cloud"<br>
@@ -239,34 +529,34 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🅱️ <strong>Batch Import Bilibili Favorites</strong> - One-click import favorite videos</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
-                1. Ensure Bilibili account is logged in<br>
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📥 <strong>Batch Import Extension Favorites</strong> - One-click import favorite videos</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
+                1. Ensure extension account is logged in<br>
                 2. Click the "+" on the playlist tab to open the menu<br>
-                3. Click "Add Bilibili Favorites"<br>
+                3. Click "Add Extension Favorites"<br>
                 3. Select the favorites folder to import<br>
                 4. System will batch import all videos from the favorites folder
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>Batch Import Bilibili Collections</strong> - One-click import collection videos</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
-                1. Ensure Bilibili account is logged in<br>
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📚 <strong>Batch Import Extension Collections</strong> - One-click import collection videos</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
+                1. Ensure extension account is logged in<br>
                 2. Click the "+" on the playlist tab to open the menu<br>
-                3. Click "Add Bilibili Collection"<br>
+                3. Click "Add Extension Collection"<br>
                 4. Enter any video link from the collection<br>
                 5. Press Enter to confirm, system will automatically get the entire collection and batch import all videos
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷️ <strong>Tag Management</strong> - Create and manage playlist tags</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🏷�?<strong>Tag Management</strong> - Create and manage playlist tags</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Click the "+" button at the top of the playlist to create a new tag<br>
                 2. Enter tag name and confirm<br>
                 3. <strong>Rename tag</strong>: Right-click the tag > Select "Rename"<br>
@@ -275,24 +565,24 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Smart Refresh</strong> - Auto sync folders, Bilibili favorites, Bilibili collections</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Smart Refresh</strong> - Auto sync folders, extension favorites, extension collections</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Right-click the tag you want to refresh<br>
                 2. Select "Refresh Tag"<br>
                 3. System will automatically execute corresponding refresh strategy based on tag type:<br>
-                • <strong>Folder tags</strong>: Detect local folder changes, intelligently add/remove media items<br>
-                • <strong>Bilibili favorites</strong>: Detect favorites content changes, maintain data consistency<br>
-                • <strong>Bilibili collections</strong>: Detect collection content changes, auto sync latest videos<br>
+                �?<strong>Folder tags</strong>: Detect local folder changes, intelligently add/remove media items<br>
+                �?<strong>Extension favorites</strong>: Detect favorites content changes, maintain data consistency<br>
+                �?<strong>Extension collections</strong>: Detect collection content changes, auto sync latest videos<br>
                 4. Intelligently compare existing data, only process changed items for significant performance improvement
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Drag & Drop Operations</strong> - Media movement and sorting</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔄 <strong>Drag & Drop Operations</strong> - Media movement and sorting</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 <strong>Drag media items:</strong><br>
                 1. <strong>Move between tags</strong>: Drag media items from one tag to another<br>
                 <strong>Drag sorting:</strong><br>
@@ -302,10 +592,10 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Note Integration</strong> - Screenshots, timestamps, loop segments and media notes</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Note Integration</strong> - Screenshots, timestamps, loop segments and media notes</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 <strong>Create screenshots (with timestamp):</strong><br>
                 1. Play video to the position you want to screenshot<br>
                 2. Click the screenshot button to create screenshot<br>
@@ -328,10 +618,10 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Notes Panel</strong> - Document and block content viewing and editing</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Notes Panel</strong> - Document and block content viewing and editing</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Click the "Notes" tab at the top of the SiYuan Media Player panel<br>
                 2. <strong>Add note tabs</strong>: Click the "+" button and enter document ID or block ID<br>
                 3. <strong>View content</strong>: Click tabs to view corresponding document or block content<br>
@@ -344,10 +634,10 @@
                 </div>
                 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🧠 <strong>Media Assistant (Pro Version)</strong> - Subtitles, danmaku, summaries</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🧠 <strong>Media Assistant (Pro Version)</strong> - Subtitles, danmaku, summaries</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Click the "Media Assistant" button while playing video<br>
                 2. <strong>Subtitle list</strong>: Browse and search subtitle content, click to jump<br>
                 3. <strong>Video summary</strong>: View AI-generated content overview<br>
@@ -356,10 +646,10 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(3,105,161,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>Shortcut Settings</strong> - Configure custom shortcuts</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #e0f2fe;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">⌨️ <strong>Shortcut Settings</strong> - Configure custom shortcuts</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 1. Open SiYuan Settings > Shortcuts<br>
                 2. Search for "Media Player" or "siyuan-media-player"<br>
                 3. Set shortcuts for the following functions:<br>
@@ -372,20 +662,20 @@
                    - Space: Play/pause<br>
                    - Left/right arrows: Rewind/fast forward<br>
                    - Up/down arrows: Volume adjustment<br>
-                   - <strong>Ctrl+↑</strong>: Increase playback speed (+0.5x, max 5x)<br>
-                   - <strong>Ctrl+↓</strong>: Decrease playback speed (-0.5x, min 0.5x)
+                   - <strong>Ctrl+�?/strong>: Increase playback speed (+0.5x, max 5x)<br>
+                   - <strong>Ctrl+�?/strong>: Decrease playback speed (-0.5x, min 0.5x)
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🎵 <strong>Playback Control</strong> - Basic playback and loop functions</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🎵 <strong>Playback Control</strong> - Basic playback and loop functions</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 <strong>Basic playback operations:</strong><br>
                 1. <strong>Play/pause</strong>: Click play button or press space<br>
                 2. <strong>Progress control</strong>: Drag progress bar or use left/right arrow keys<br>
                 3. <strong>Volume adjustment</strong>: Use volume slider or up/down arrow keys<br>
-                4. <strong>Playback speed</strong>: Adjust playback speed in settings or use Ctrl+↑/↓ shortcuts<br>
+                4. <strong>Playback speed</strong>: Adjust playback speed in settings or use Ctrl+�?�?shortcuts<br>
                 5. <strong>Picture-in-Picture</strong>: Enable in player settings or select "Picture-in-Picture" open mode<br>
                 6. <strong>Fullscreen</strong>: Click fullscreen button or double-click play area<br><br>
                 <strong>Loop playback functions:</strong><br>
@@ -397,26 +687,26 @@
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Custom Link Format</strong> - Personalized timestamp links</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">🔗 <strong>Custom Link Format</strong> - Personalized timestamp links</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 In settings, you can customize the display format of timestamp links. For example:<br>
                 <code>- [😄Title Time Subtitle](Link)</code> // Link with emoji<br>
                 <code>> 🕒 Time | Title | Subtitle</code> // Quote-formatted link
                 </div>
 </details>
             </li>
-            <li style="margin: 0.5em 0; padding: 10px 14px; background: white; border-radius: 8px; border-left: 4px solid #0369a1; box-shadow: 0 2px 4px rgba(124,58,237,0.08);">
+            <li style="margin: 0.5em 0; padding: 10px 14px; background: var(--b3-theme-surface); border-radius: 8px; border-left: 4px solid var(--b3-theme-primary); box-shadow: 0 2px 4px var(--b3-theme-shadow-light);">
                 <details>
-                <summary style="color: #0369a1; cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Custom Media Notes Template</strong> - Personalized note format</summary>
-                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid #f3e8ff;">
+                <summary style="color: var(--b3-theme-primary); cursor: pointer; font-weight: 500; font-size: 1.05em;">📝 <strong>Custom Media Notes Template</strong> - Personalized note format</summary>
+                <div style="margin-top: 0.8em; padding-top: 0.8em; border-top: 1px solid var(--b3-theme-border);">
                 You can create your own media notes template in settings with various variables:<br>
                 <strong>Available variables</strong>: Media title, current timestamp, artist name, media URL, media duration, media thumbnail, media type, media ID, current date, current date and time<br><br>
                 <strong>Target Configuration</strong>:<br>
-                • <strong>Smart Search</strong>: Input keywords to search documents and notebooks, quickly locate target position<br>
-                • <strong>Sub-document Creation</strong>: After selecting parent document, media notes will be created as sub-documents, maintaining hierarchical structure<br>
-                • <strong>Convenient Settings</strong>: Common configurations can be saved, simplifying subsequent creation process
+                �?<strong>Smart Search</strong>: Input keywords to search documents and notebooks, quickly locate target position<br>
+                �?<strong>Sub-document Creation</strong>: After selecting parent document, media notes will be created as sub-documents, maintaining hierarchical structure<br>
+                �?<strong>Convenient Settings</strong>: Common configurations can be saved, simplifying subsequent creation process
                 </div>
                 </details>
             </li>

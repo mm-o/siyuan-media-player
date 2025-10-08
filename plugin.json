@@ -2,8 +2,10 @@
   "name": "siyuan-media-player",
   "author": "mm-o",
   "url": "https://github.com/mm-o/siyuan-media-player",
-  "version": "0.4.4",
+  "version": "0.6.1",
   "minAppVersion": "3.0.12",
+  "disabledInPublish": false,
+
   "backends": [
     "windows",
     "linux",
@@ -26,8 +28,8 @@
     "zh_CN": "思源媒体播放器"
   },
   "description": {
-    "en_US": "A comprehensive media player for SiYuan Note that supports audio, video, and Bilibili playback with timestamped jumps, loop segments, and playlist management",
-    "zh_CN": "一个用来在思源笔记中实现视频、音频、B站视频播放，支持时间点跳转、片段循环和播放列表管理的媒体播放器插件"
+    "en_US": "Professional media player for SiYuan Note with multi-platform support, smart note integration, timestamp jumps, loop segments, and extensible script architecture",
+    "zh_CN": "专业的思源笔记媒体播放插件，集成多平台播放、智能笔记管理、时间戳跳转、循环片段与可扩展脚本架构"
   },
   "readme": {
     "en_US": "README.md",
@@ -42,9 +44,17 @@
     "media player",
     "audio",
     "video",
+    "timestamp",
+    "playlist",
+    "note integration",
+    "extensible",
     "播放器",
     "音频",
-    "视频"
+    "视频",
+    "时间戳",
+    "播放列表",
+    "笔记集成",
+    "可扩展"
   ],
   "css": {
     "themes": [
