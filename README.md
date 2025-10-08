@@ -14,6 +14,49 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.6.2 Update (2025.10.8)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>📋 Batch Copy Hyperlinks</strong>:
+    <ul>
+      <li>Added one-click batch copy of video Markdown hyperlinks for easy organization and sharing <a href="https://github.com/mm-o/siyuan-media-player/issues/147">#147</a>.</li>
+    </ul>
+  </li>
+  <li><strong>🏷️ Multi-tab Player</strong>:
+    <ul>
+      <li>Added multi-tab player support, allowing multiple player tabs to be opened simultaneously <a href="https://github.com/mm-o/siyuan-media-player/issues/151">#151</a>.</li>
+    </ul>
+  </li>
+  <li><strong>📸 Screenshot Format Settings</strong>:
+    <ul>
+      <li>Added screenshot format selection, supporting PNG (lossless), JPEG (smaller size), and WebP (recommended) formats.</li>
+      <li>Supports adjusting compression quality (60-100%) for JPEG/WebP formats to balance file size and image quality.</li>
+    </ul>
+  </li>
+  <li><strong>🔐 Certificate Verification Configuration</strong>:
+    <ul>
+      <li>Attempted to add certificate verification skip functionality. Final effectiveness depends on whether SiYuan Note's <code>/api/network/forwardProxy</code> API supports the <code>ignoreCertificateErrors</code> parameter. If not supported, consider submitting a Feature Request to SiYuan official <a href="https://github.com/mm-o/siyuan-media-player/issues/153">#153</a>.</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ Shortcut Enhancements</strong>:
+    <ul>
+      <li>Added custom shortcut for quick playback speed switching, enabling fast switching between different playback speeds <a href="https://github.com/mm-o/siyuan-media-player/issues/149">#149</a>.</li>
+      <li>Changed in-player shortcuts for increasing/decreasing playback speed, quick speed adjustment, and volume control to user-customizable global shortcuts to avoid conflicts <a href="https://github.com/mm-o/siyuan-media-player/issues/150">#150</a>.</li>
+    </ul>
+  </li>
+</ul>
+<h4>🔧 Interface Optimization</h4>
+<ul>
+  <li><strong>🎛️ Button Layout Optimization</strong>: Optimized the layout of function buttons in the top-right corner of the playlist for improved operational convenience.</li>
+  <li><strong>📋 Playlist Display Settings</strong>: Optimized playlist display elements selection interface with adaptive flex layout that intelligently arranges based on screen width.</li>
+  <li><strong>🎨 Slider Component Style Optimization</strong>: Optimized slider component styles in the settings panel to fully use SiYuan Note's native styles, ensuring visual consistency.</li>
+  <li><strong>📑 About Panel Navigation Optimization</strong>: Optimized table of contents navigation display in the About panel, enhancing reading experience and navigation convenience.</li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>☁️ Cloud Drive Fixes</strong>: Fixed Baidu Netdisk login issues to ensure normal access and playback.</li>
+  <li><strong>⚙️ Settings Display Fix</strong>: Fixed playlist database setting displaying <code>[object Object]</code>, now correctly shows database ID.</li>
+</ul>
 
 <h3>📅 v0.6.1 Update (2025.9.20)</h3>
 <h4>✨ New Features</h4>

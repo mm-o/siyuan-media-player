@@ -14,6 +14,50 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.2 版本更新 (2025.10.8)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>📋 批量复制超链接</strong>:
+    <ul>
+      <li>新增一键批量复制视频的 Markdown 超链接功能，方便快速整理和分享 <a href="https://github.com/mm-o/siyuan-media-player/issues/147">#147</a>。</li>
+    </ul>
+  </li>
+  <li><strong>🏷️ 多标签播放器</strong>:
+    <ul>
+      <li>增加播放器多标签支持，可同时打开多个播放器标签页 <a href="https://github.com/mm-o/siyuan-media-player/issues/151">#151</a>。</li>
+    </ul>
+  </li>
+  <li><strong>📸 截图格式设置</strong>:
+    <ul>
+      <li>新增截图格式选择功能，支持 PNG（无损）、JPEG（小体积）、WebP（推荐）三种格式。</li>
+      <li>支持调节 JPEG/WebP 格式的压缩质量（60-100%），平衡文件大小与图像质量。</li>
+    </ul>
+  </li>
+  <li><strong>🔐 证书验证配置</strong>:
+    <ul>
+      <li>尝试增加跳过证书验证功能，最终效果取决于思源笔记的 <code>/api/network/forwardProxy</code> API 是否支持 <code>ignoreCertificateErrors</code> 参数。如果不支持，可以考虑提交 Feature Request 给思源官方 <a href="https://github.com/mm-o/siyuan-media-player/issues/153">#153</a>。</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ 快捷键增强</strong>:
+    <ul>
+      <li>新增自定义快捷切换播放速度功能，快速在不同播放速度间切换 <a href="https://github.com/mm-o/siyuan-media-player/issues/149">#149</a>。</li>
+      <li>将增降播放速度、快捷调整播放速度、增降音量等播放器内快捷键更改为用户自定义全局快捷键，避免快捷键冲突 <a href="https://github.com/mm-o/siyuan-media-player/issues/150">#150</a>。</li>
+    </ul>
+  </li>
+</ul>
+<h4>🔧 界面优化</h4>
+<ul>
+  <li><strong>🎛️ 按钮布局优化</strong>: 优化播放列表右上角功能按键排布，提升操作便捷性。</li>
+  <li><strong>📋 播放列表显示元素</strong>: 设置界面中的播放列表显示元素改为自适应布局，根据屏幕宽度自动调整排列。</li>
+  <li><strong>🎨 滑块组件样式优化</strong>: 优化设置面板中的滑块组件样式，完全使用思源笔记原生样式，确保视觉一致性。</li>
+  <li><strong>📑 关于面板导航优化</strong>: 优化关于面板中的目录导航显示，提升阅读体验和导航便捷性。</li>
+</ul>
+<h4>🐛 问题修复</h4>
+<ul>
+  <li><strong>☁️ 网盘功能修复</strong>: 修复百度网盘登录问题，确保正常访问和播放。</li>
+  <li><strong>⚙️ 设置显示修复</strong>: 修复播放列表数据库设置项显示为 <code>[object Object]</code> 的问题，现在正确显示数据库 ID。</li>
+</ul>
+
 <h3>📅 v0.6.1 版本更新 (2025.9.20)</h3>
 <h4>✨ 新增功能</h4>
 <ul>
