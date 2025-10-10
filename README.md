@@ -14,6 +14,36 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.6.3 Update (2025.10.10)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>📝 Notes Panel Enhancement</strong>:
+    <ul>
+      <li>Added document search functionality to notes panel, supporting quick document lookup and addition <a href="https://github.com/mm-o/siyuan-media-player/issues/154">#154</a>.</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ Global Shortcut Expansion</strong>:
+    <ul>
+      <li>Extended play/pause functionality to customizable global shortcut for improved operational convenience.</li>
+    </ul>
+  </li>
+  <li><strong>🎵 Audio Playback Enhancement</strong>:
+    <ul>
+      <li>Supports intelligent song information parsing, automatically extracting and displaying lyrics and cover art.</li>
+      <li>Enhanced previous/next track switching logic, resolving playback interruption issues for smooth playback experience.</li>
+    </ul>
+  </li>
+  <li><strong>🎨 Subtitle Style Diversification</strong>:
+    <ul>
+      <li>Added multiple subtitle display style options: Default, Focus Clock, Transparent Disc, Dynamic Wave, catering to different scenario needs.</li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>☁️ Baidu Netdisk</strong>: Due to official restrictions, application submission is required. Review time is uncertain, temporarily unavailable.</li>
+</ul>
+
 <h3>📅 v0.6.2 Update (2025.10.8)</h3>
 <h4>✨ New Features</h4>
 <ul>

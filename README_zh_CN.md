@@ -14,6 +14,36 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.3 版本更新 (2025.10.10)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>📝 笔记面板增强</strong>:
+    <ul>
+      <li>笔记面板添加文档搜索功能，支持快速查找和添加文档 <a href="https://github.com/mm-o/siyuan-media-player/issues/154">#154</a>。</li>
+    </ul>
+  </li>
+  <li><strong>⌨️ 全局快捷键扩展</strong>:
+    <ul>
+      <li>将播放/暂停功能扩展为可自定义的全局快捷键，提升操作便捷性。</li>
+    </ul>
+  </li>
+  <li><strong>🎵 音频播放增强</strong>:
+    <ul>
+      <li>支持歌曲信息智能解析，自动提取并显示歌词和封面。</li>
+      <li>增强上一曲/下一曲切换逻辑，解决播放中断问题，确保流畅播放体验。</li>
+    </ul>
+  </li>
+  <li><strong>🎨 字幕样式多样化</strong>:
+    <ul>
+      <li>新增多种字幕显示样式选择：默认、专注时钟、透明唱片、动感波光，满足不同场景需求。</li>
+    </ul>
+  </li>
+</ul>
+<h4>🐛 问题修复</h4>
+<ul>
+  <li><strong>☁️ 百度网盘</strong>: 受官方限制，需要提交应用申请，不确定审核时间，暂时不可用。</li>
+</ul>
+
 <h3>📅 v0.6.2 版本更新 (2025.10.8)</h3>
 <h4>✨ 新增功能</h4>
 <ul>
