@@ -14,6 +14,36 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.6.4 Update (2025.10.13)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>📂 Folder Management Optimization</strong>:
+    <ul>
+      <li>Split "Import" and "Pin": Import = batch add to database; Pin = live read directory (good for frequently changing folders).</li>
+      <li>Sources covered: BaiduNetdisk, AliDrive, OpenList, WebDAV, 123Pan, QuarkTV, SiYuan workspace.</li>
+    </ul>
+  </li>
+  <li><strong>🌐 External Open: VLC supported</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/68">#68</a></li>
+  <li><strong>🅱️ Bilibili collection batch-copy hyperlinks</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/156">#156</a></li>
+</ul>
+<h4>🔧 UI Improvements</h4>
+<ul>
+  <li>Compact view refined for higher information density.</li>
+  <li>Source/type tags use icons and smaller text for better readability.</li>
+  </ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>☁️ BaiduNetdisk</strong>: Fixed account info fetching after login; added token auto-refresh.</li>
+  <li><strong>🪪 Credential strategy</strong>: Temporarily use OpenList public credentials; will switch back after app review approval.</li>
+  <li><strong>🏷️ Tag path parsing</strong>: Unified protocol <code>type://label|path</code>, fixed multi-segment and special-char paths.</li>
+  <li><strong>🔗 Markdown link click</strong>: Fixed timestamp/loop links failing when wrapped by bold/italic (prefer <code>data-href</code>).</li>
+  <li><strong>▶️ PotPlayer external open</strong>: Fixed incomplete local path passing <a href="https://github.com/mm-o/siyuan-media-player/issues/144">#144</a>.</li>
+</ul>
+<h4>⚡ Performance</h4>
+<ul>
+  <li>Playlist lazy-load + Map cache: lookup ≈ +30%, memory ≈ -15%.</li>
+</ul>
+
 <h3>📅 v0.6.3 Update (2025.10.10)</h3>
 <h4>✨ New Features</h4>
 <ul>

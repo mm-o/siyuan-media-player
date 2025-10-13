@@ -14,6 +14,36 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.4 版本更新 (2025.10.13)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>📂 文件夹管理优化</strong>:
+    <ul>
+      <li>分离“导入”和“钉住”：导入=批量添加到数据库；钉住=实时读取目录，适合经常变更的文件夹。</li>
+      <li>覆盖来源：百度网盘、阿里云盘、OpenList、WebDAV、123 云盘、夸克TV、思源空间。</li>
+    </ul>
+  </li>
+  <li><strong>🌐 外部打开支持 VLC</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/68">#68</a></li>
+  <li><strong>🅱️ B 站合集批量复制超链接</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/156">#156</a></li>
+</ul>
+<h4>🔧 界面优化</h4>
+<ul>
+  <li>优化简洁视图样式，更加紧凑，信息密度更高。</li>
+  <li>来源与类型标签改用图标与更小字号，提升可读性与观感。</li>
+  </ul>
+<h4>🐛 问题修复</h4>
+<ul>
+  <li><strong>☁️ 百度网盘</strong>：修复登录后账号信息获取异常；新增访问令牌自动刷新。</li>
+  <li><strong>🪪 凭证策略</strong>：临时使用 OpenList 公共凭证，后续应用审核成功后切回插件凭证。</li>
+  <li><strong>🏷️ 标签路径解析</strong>：统一协议 <code>type://label|path</code>，修复多段描述及特殊字符路径。</li>
+  <li><strong>🔗 Markdown 链接点击</strong>：修复加粗/斜体包裹后时间戳/循环片段链接无法跳转（优先读取 <code>data-href</code>）。</li>
+  <li><strong>▶️ PotPlayer 外部打开</strong>：修复本地媒体路径传递不完整问题 <a href="https://github.com/mm-o/siyuan-media-player/issues/144">#144</a>。</li>
+</ul>
+<h4>⚡ 性能优化</h4>
+<ul>
+  <li>播放列表懒加载 + Map 缓存：查找≈↑30%，内存≈↓15%。</li>
+</ul>
+
 <h3>📅 v0.6.3 版本更新 (2025.10.10)</h3>
 <h4>✨ 新增功能</h4>
 <ul>
