@@ -14,6 +14,57 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.5 版本更新 (2025.10.17)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>☁️ 百度网盘凭证恢复</strong>:
+    <ul>
+      <li>百度网盘登录凭证恢复为插件专用凭证（已完成官方审核），提供更稳定的服务。</li>
+    </ul>
+  </li>
+  <li><strong>🎵 歌曲解析增强</strong>:
+    <ul>
+      <li>增强歌曲信息智能解析，现在点击时间戳即可自动解析并显示封面与歌词。</li>
+    </ul>
+  </li>
+  <li><strong>🤖 AI 总结功能扩展</strong>:
+    <ul>
+      <li>AI 总结功能现已支持视频总结和思维导图生成，帮助快速理解视频内容。</li>
+    </ul>
+  </li>
+  <li><strong>🔗 OpenList 链接识别优化</strong>:
+    <ul>
+      <li>增强 OpenList 链接点击识别播放逻辑，完美兼容 WebDAV，不再产生冲突。</li>
+    </ul>
+  </li>
+</ul>
+<h4>🔧 移动端重构</h4>
+<ul>
+  <li><strong>📱 全新移动端界面</strong>:
+    <ul>
+      <li>采用极简悬浮设计，提供流畅的交互体验。</li>
+      <li>悬浮按钮支持展开/折叠控制栏，点击图标即可切换。</li>
+    </ul>
+  </li>
+  <li><strong>🎮 控制栏优化</strong>:
+    <ul>
+      <li>功能按钮分两行布局，自适应屏幕宽度均匀分布。</li>
+      <li>按钮展开/折叠动画流畅，带有渐变延迟效果。</li>
+    </ul>
+  </li>
+  <li><strong>📐 布局自适应</strong>:
+    <ul>
+      <li>列表面板高度智能适配：无播放器时占满全屏，有播放器时自动调整至剩余空间。</li>
+      <li>播放器高度按 9:16 比例自动计算，适配不同屏幕尺寸。</li>
+    </ul>
+  </li>
+  <li><strong>🎯 交互逻辑优化</strong>:
+    <ul>
+      <li>功能按钮包括：截图、时间戳、循环片段、媒体笔记、上一曲、下一曲、播放/暂停、列表。</li>
+    </ul>
+  </li>
+</ul>
+
 <h3>📅 v0.6.4 版本更新 (2025.10.13)</h3>
 <h4>✨ 新增功能</h4>
 <ul>

@@ -14,6 +14,57 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.6.5 Update (2025.10.17)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>☁️ Baidu Netdisk Credentials Restored</strong>:
+    <ul>
+      <li>Baidu Netdisk login credentials restored to plugin-specific credentials (official review completed), providing more stable service.</li>
+    </ul>
+  </li>
+  <li><strong>🎵 Song Parsing Enhancement</strong>:
+    <ul>
+      <li>Enhanced intelligent song information parsing: clicking timestamps now automatically parses and displays cover art and lyrics.</li>
+    </ul>
+  </li>
+  <li><strong>🤖 AI Summary Feature Expansion</strong>:
+    <ul>
+      <li>AI summary feature now supports video summarization and mind map generation, helping quickly understand video content.</li>
+    </ul>
+  </li>
+  <li><strong>🔗 OpenList Link Recognition Optimization</strong>:
+    <ul>
+      <li>Enhanced OpenList link click recognition and playback logic, perfectly compatible with WebDAV without conflicts.</li>
+    </ul>
+  </li>
+</ul>
+<h4>🔧 Mobile Reconstruction</h4>
+<ul>
+  <li><strong>📱 Brand New Mobile Interface</strong>:
+    <ul>
+      <li>Adopts minimalist floating design with smooth interactive experience.</li>
+      <li>Floating button supports expand/collapse control bar, toggled by clicking the icon.</li>
+    </ul>
+  </li>
+  <li><strong>🎮 Control Bar Optimization</strong>:
+    <ul>
+      <li>Function buttons arranged in two rows, adaptively distributed evenly based on screen width.</li>
+      <li>Smooth expand/collapse animations with gradient delay effects.</li>
+    </ul>
+  </li>
+  <li><strong>📐 Adaptive Layout</strong>:
+    <ul>
+      <li>List panel height intelligently adapts: full screen without player, adjusts to remaining space with player.</li>
+      <li>Player height automatically calculated at 9:16 ratio, adapting to different screen sizes.</li>
+    </ul>
+  </li>
+  <li><strong>🎯 Interaction Logic Optimization</strong>:
+    <ul>
+      <li>Function buttons include: Screenshot, Timestamp, Loop Segment, Media Notes, Previous, Next, Play/Pause, List.</li>
+    </ul>
+  </li>
+</ul>
+
 <h3>📅 v0.6.4 Update (2025.10.13)</h3>
 <h4>✨ New Features</h4>
 <ul>
