@@ -14,6 +14,50 @@
         <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 Recent Updates</h2>
 
+<h3>📅 v0.6.6 Update (2025.10.20)</h3>
+<h4>✨ New Features</h4>
+<ul>
+  <li><strong>🎬 TVBox Episode Navigation</strong>:
+    <ul>
+      <li>Player next/previous buttons now support TVBox episode switching with smart playlist detection.</li>
+      <li>Auto-locate current episode and quickly switch to previous/next episode.</li>
+    </ul>
+  </li>
+  <li><strong>📺 TVBox Episode Display in Title</strong>:
+    <ul>
+      <li>Playing title automatically includes episode info (e.g., <code>Sword Spirit - Episode 02</code>).</li>
+      <li>Prioritize episode names, auto-format index when name unavailable.</li>
+    </ul>
+  </li>
+  <li><strong>💾 Multi-Database Account Switching</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/163">#163</a>:
+    <ul>
+      <li>Configure multiple playlist database accounts, easily switch between different data sets.</li>
+    </ul>
+  </li>
+</ul>
+<h4>🔧 UI Improvements</h4>
+<ul>
+  <li><strong>🎨 TVBox Dark Mode Adaptation</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/162">#162</a> <a href="https://github.com/mm-o/siyuan-media-player/issues/164">#164</a>:
+    <ul>
+      <li>Episode buttons use theme color variables, auto-adapt to light/dark mode with better contrast.</li>
+      <li>Currently playing episode highlighted with bold font for better visibility, easy to identify playback position.</li>
+      <li>Playlist source tags use theme colors for better visual consistency.</li>
+    </ul>
+  </li>
+  <li><strong>📋 Playlist Style Refinement</strong>: Overall style more polished and elegant with refined details.</li>
+  <li><strong>🎵 Accordion Component</strong>: New accordion component for settings page account tabs, smooth expand/collapse animations, more compact and intuitive layout.</li>
+</ul>
+<h4>🐛 Bug Fixes</h4>
+<ul>
+  <li><strong>📝 Subtitle Loading Timing</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/161">#161</a>: Fixed subtitle loading and destruction timing to prevent memory leaks.</li>
+  <li><strong>🔑 Membership Stability</strong>: Attempted fix for potential membership loss issues, improved service stability.</li>
+</ul>
+<h4>⚡ Performance</h4>
+<ul>
+  <li><strong>📊 Playlist Add Compatibility</strong>: Optimized primary key field lookup logic, smart handling when primary key name is "Media Title", supports adding both text and block field values.</li>
+  <li><strong>🚀 Playlist Cache Optimization</strong>: Fixed cache sync issues across all data operations, more precise cache strategy to avoid displaying stale data.</li>
+</ul>
+
 <h3>📅 v0.6.5 Update (2025.10.17)</h3>
 <h4>✨ New Features</h4>
 <ul>

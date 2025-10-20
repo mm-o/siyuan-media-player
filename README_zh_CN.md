@@ -14,6 +14,50 @@
      <div style="margin-top: 1.5em; padding: 1.5em; background: var(--b3-theme-surface-lighter); border: 1px solid var(--b3-theme-border); border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
         <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; text-align: center; font-size: 1.3em;">🚀 近期更新</h2>
 
+<h3>📅 v0.6.6 版本更新 (2025.10.20)</h3>
+<h4>✨ 新增功能</h4>
+<ul>
+  <li><strong>🎬 TVBox 上下集切换</strong>:
+    <ul>
+      <li>支持播放器上下曲按钮切换 TVBox 集数，智能识别详情页播放列表。</li>
+      <li>自动定位当前播放集数，快速切换上一集/下一集。</li>
+    </ul>
+  </li>
+  <li><strong>📺 TVBox 播放标题显示集数</strong>:
+    <ul>
+      <li>播放时标题自动添加集数信息（如：<code>剑来 - 第02集</code>）。</li>
+      <li>优先使用集数名称，无名称时自动格式化索引。</li>
+    </ul>
+  </li>
+  <li><strong>💾 数据库多账号切换</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/163">#163</a>:
+    <ul>
+      <li>支持配置多个播放列表数据库账号，轻松切换管理不同数据集。</li>
+    </ul>
+  </li>
+</ul>
+<h4>🔧 界面优化</h4>
+<ul>
+  <li><strong>🎨 TVBox 深色模式适配</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/162">#162</a> <a href="https://github.com/mm-o/siyuan-media-player/issues/164">#164</a>:
+    <ul>
+      <li>集数按钮使用主题色变量，深浅模式自适应，对比度更佳。</li>
+      <li>播放中的集数高亮显示，加粗字体更醒目，方便识别当前播放位置。</li>
+      <li>播放列表来源标签使用主题色，视觉一致性更好。</li>
+    </ul>
+  </li>
+  <li><strong>📋 播放列表样式优化</strong>：整体样式更加精致美观，细节处理更加精细。</li>
+  <li><strong>🎵 手风琴组件</strong>：新增手风琴组件应用于设置页账号标签区域，展开/折叠动画流畅，布局更加紧凑直观美观。</li>
+</ul>
+<h4>🐛 问题修复</h4>
+<ul>
+  <li><strong>📝 字幕加载时机修复</strong> <a href="https://github.com/mm-o/siyuan-media-player/issues/161">#161</a>：修复字幕加载和销毁时机问题，避免内存泄漏。</li>
+  <li><strong>🔑 会员状态稳定性</strong>：尝试修复可能存在的掉会员问题，提升服务稳定性。</li>
+</ul>
+<h4>⚡ 性能优化</h4>
+<ul>
+  <li><strong>📊 播放列表添加兼容性增强</strong>：优化主键字段查找逻辑，智能处理主键名称为"媒体标题"的场景，支持同时添加 text 和 block 字段值。</li>
+  <li><strong>🚀 播放列表缓存优化</strong>：修复缓存同步问题，覆盖所有数据操作场景，缓存策略更精准，避免显示过期数据。</li>
+</ul>
+
 <h3>📅 v0.6.5 版本更新 (2025.10.17)</h3>
 <h4>✨ 新增功能</h4>
 <ul>
