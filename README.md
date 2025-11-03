@@ -22,11 +22,12 @@
         </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.6.9</h2>
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.0</h2>
         <ul style="margin: 0; padding-left: 1.5em; line-height: 1.8; color: var(--b3-theme-on-surface);">
-            <li><strong>🔍 SQL Query Import</strong> - Quickly add media via SQL queries to SiYuan database</li>
-            <li><strong>🔌 Third-party Integration API</strong> - Open JavaScript API for developers</li>
-            <li><strong>🎓 Bilibili Course Support</strong> - Experimental support for Bilibili courses</li>
+            <li><strong>📝 SQL Query Optimization</strong> - Multi-line text input for longer SQL statements</li>
+            <li><strong>📂 Quick Document Navigation</strong> - Right-click to open source document from query results</li>
+            <li><strong>💬 Subtitle File Browser</strong> - Browse cloud storage for subtitle files with visual navigation</li>
+            <li><strong>🪟 Multi-window Optimization</strong> - Plugin unload no longer affects other windows</li>
         </ul>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(231,76,60,0.08), rgba(255,154,158,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow); text-align: center;">

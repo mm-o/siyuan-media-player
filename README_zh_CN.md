@@ -22,11 +22,12 @@
         </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 最新版本 v0.6.9</h2>
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 最新版本 v0.7.0</h2>
         <ul style="margin: 0; padding-left: 1.5em; line-height: 1.8; color: var(--b3-theme-on-surface);">
-            <li><strong>🔍 SQL查询导入</strong> - 通过SQL查询思源数据库快速添加媒体</li>
-            <li><strong>🔌 第三方集成API</strong> - 开放JavaScript API供开发者集成</li>
-            <li><strong>🎓 B站课程支持</strong> - 实验性支持B站课程播放</li>
+            <li><strong>📝 SQL查询优化</strong> - 添加多行文本输入，支持更长的SQL语句</li>
+            <li><strong>📂 快速文档跳转</strong> - 查询结果支持右键打开所在文档</li>
+            <li><strong>💬 字幕文件浏览器</strong> - 从网盘可视化浏览并选择字幕文件</li>
+            <li><strong>🪟 多窗口优化</strong> - 插件卸载不再影响其他窗口</li>
         </ul>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(231,76,60,0.08), rgba(255,154,158,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow); text-align: center;">
