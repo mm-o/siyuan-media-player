@@ -22,13 +22,34 @@
         </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.0</h2>
-        <ul style="margin: 0; padding-left: 1.5em; line-height: 1.8; color: var(--b3-theme-on-surface);">
-            <li><strong>📝 SQL Query Optimization</strong> - Multi-line text input for longer SQL statements</li>
-            <li><strong>📂 Quick Document Navigation</strong> - Right-click to open source document from query results</li>
-            <li><strong>💬 Subtitle File Browser</strong> - Browse cloud storage for subtitle files with visual navigation</li>
-            <li><strong>🪟 Multi-window Optimization</strong> - Plugin unload no longer affects other windows</li>
-        </ul>
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.1</h2>
+        <div style="margin: 0; line-height: 1.8; color: var(--b3-theme-on-surface);">
+            <div style="margin-bottom: 1.5em;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">⏩ Skip Opening/Ending</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>Auto skip opening/ending with customizable duration (0-300 seconds)</li>
+                    <li>Smart detection: Only skips at video start, doesn't affect manual seeking</li>
+                    <li>Ending skip only works in non-loop mode to avoid interfering with loop playback</li>
+                    <li>Easy setup: Enter seconds directly, 0 means no skip</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 1.5em;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📺 In-Player Multi-Source Panel</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>New in-player list feature for quick switching without sidebar</li>
+                    <li>Supports Bilibili series/parts switching and TVBox episode switching</li>
+                    <li>TVBox real-time source switching: Visual source list, one-click playback source change</li>
+                    <li>Smart search: Continuously searches for more sources, dynamically updates available sources</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 0;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🔗 TVBox Timestamp Support</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>Timestamp links independent of playback source, unaffected by source switching</li>
+                    <li>Seamless switching experience with in-player source switching feature</li>
+                </ul>
+            </div>
+        </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(231,76,60,0.08), rgba(255,154,158,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow); text-align: center;">
         <h2 style="color: #e74c3c; margin: 0 0 0.5em; font-size: 1.5em;">🧧 Support & Donation</h2>
