@@ -22,31 +22,46 @@
         </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.1</h2>
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.2</h2>
         <div style="margin: 0; line-height: 1.8; color: var(--b3-theme-on-surface);">
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">⏩ Skip Opening/Ending</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📚 Playlist Mode Expansion</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>Auto skip opening/ending with customizable duration (0-300 seconds)</li>
-                    <li>Smart detection: Only skips at video start, doesn't affect manual seeking</li>
-                    <li>Ending skip only works in non-loop mode to avoid interfering with loop playback</li>
-                    <li>Easy setup: Enter seconds directly, 0 means no skip</li>
+                    <li><strong>Document Mode</strong>: Bind to SiYuan docs, store media with child blocks + custom attributes, permanent data</li>
+                    <li><strong>Local Mode</strong>: Manage with playlist.json file, lightweight & fast, database-independent</li>
+                    <li>Support tags, sorting, view state management, full CRUD operations and drag-and-drop reordering</li>
+                    <li>Switch freely between document mode and local mode in settings</li>
                 </ul>
             </div>
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📺 In-Player Multi-Source Panel</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎨 Media Link View Styles</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>New in-player list feature for quick switching without sidebar</li>
-                    <li>Supports Bilibili series/parts switching and TVBox episode switching</li>
-                    <li>TVBox real-time source switching: Visual source list, one-click playback source change</li>
-                    <li>Smart search: Continuously searches for more sources, dynamically updates available sources</li>
+                    <li><strong>Four Styles</strong>: Default/Border/Card/Cover/Player, right-click media link to set</li>
+                    <li><strong>Adaptive Sizes</strong>: Small (25% width) / Medium (50% width) / Large (100% width), fully responsive</li>
+                    <li><strong>Batch Convert</strong>: Right-click document title to convert all media links at once with optimized performance</li>
+                    <li><strong>Inline Player</strong>: Player style supports playback directly in block without opening player</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 1.5em;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎭 Danmaku Enhancement</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>New danmaku settings: speed, opacity, font size, display area</li>
+                    <li>Supports Bilibili video danmaku auto-loading</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 1.5em;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📱 Mobile Floating Button</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>New "Show Mobile TV Button" setting to control mobile bottom-right floating button display</li>
+                    <li>Settings take effect instantly (no plugin restart needed), dynamically create/remove button</li>
                 </ul>
             </div>
             <div style="margin-bottom: 0;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🔗 TVBox Timestamp Support</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎨 UI Improvements</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>Timestamp links independent of playback source, unaffected by source switching</li>
-                    <li>Seamless switching experience with in-player source switching feature</li>
+                    <li>Playlist themes: Default/Soft/Flat/Frosted/Minimal with density and size adjustments</li>
+                    <li>Thumbnails: Aspect ratio selection (16:9/1:1/2:3) and custom defaults (folder/video/audio/PDF)</li>
+                    <li>Settings panel grouping: Subtitle/Danmaku, Loop, Opening/Ending and more clearer organization</li>
                 </ul>
             </div>
         </div>

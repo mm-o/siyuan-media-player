@@ -22,31 +22,46 @@
         </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 最新版本 v0.7.1</h2>
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 最新版本 v0.7.2</h2>
         <div style="margin: 0; line-height: 1.8; color: var(--b3-theme-on-surface);">
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">⏩ 跳过片头片尾</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📚 播放列表模式拓展</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>新增自动跳过片头、片尾功能，支持自定义跳过时长（0-300秒）</li>
-                    <li>智能判断：仅在视频开头自动跳过片头，不影响正常拖动进度</li>
-                    <li>片尾跳过仅在非循环模式下生效，避免干扰循环播放体验</li>
-                    <li>设置便捷：直接输入秒数，0表示不跳过</li>
+                    <li><strong>文档列表模式</strong>：绑定思源文档，使用子块+自定义属性存储媒体项，数据永久保存</li>
+                    <li><strong>本地列表模式</strong>：使用 playlist.json 文件管理，轻量快速，不依赖数据库</li>
+                    <li>支持标签、排序、视图状态管理，完整的增删改查、拖拽排序等操作</li>
+                    <li>可在设置中自由切换文档模式和本地模式</li>
                 </ul>
             </div>
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📺 播放器内多源面板</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎨 媒体链接视图样式</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>新增播放器内列表功能，无需打开侧边栏即可快速切换</li>
-                    <li>支持B站合集/分P切换、TVBox剧集切换</li>
-                    <li>TVBox支持实时换源：可视化源站列表，一键切换播放源</li>
-                    <li>智能搜索：持续搜索更多源站，动态更新可用源</li>
+                    <li><strong>四种样式</strong>：默认/边框/卡片/封面/播放，右键媒体链接即可设置</li>
+                    <li><strong>自适应尺寸</strong>：小（25%宽）/中（50%宽）/大（100%宽），完全响应式</li>
+                    <li><strong>批量转换</strong>：右键文档标题一键转换所有媒体链接，性能优化显著</li>
+                    <li><strong>内嵌播放</strong>：播放样式支持直接在块内播放，无需打开播放器</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 1.5em;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎭 弹幕功能增强</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>新增弹幕速度、透明度、字体大小、显示区域设置</li>
+                    <li>支持B站视频弹幕自动加载</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 1.5em;">
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📱 移动端悬浮按钮</h3>
+                <ul style="margin: 0; padding-left: 1.5em;">
+                    <li>新增"显示移动端小电视按钮"设置项，可控制移动端右下角悬浮按钮显示</li>
+                    <li>设置变更即时生效（无需重启插件），动态创建/移除悬浮按钮</li>
                 </ul>
             </div>
             <div style="margin-bottom: 0;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🔗 TVBox时间戳支持</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎨 UI优化</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>时间戳链接独立于播放源，即使源失效换源也不影响时间点定位</li>
-                    <li>配合播放器内换源功能，实现无缝切换体验</li>
+                    <li>播放列表主题：默认/柔和/扁平/毛玻璃/极简，支持密度和尺寸调节</li>
+                    <li>缩略图：比例选择（16:9/1:1/2:3）与默认缩略图自定义（文件夹/视频/音频/PDF）</li>
+                    <li>设置面板分组优化：字幕弹幕、循环设置、片头片尾等功能分组更清晰</li>
                 </ul>
             </div>
         </div>
