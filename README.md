@@ -22,46 +22,44 @@
         </div>
     </div>
     <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.2</h2>
+        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 Latest v0.7.3</h2>
         <div style="margin: 0; line-height: 1.8; color: var(--b3-theme-on-surface);">
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📚 Playlist Mode Expansion</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">✨ New Features</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li><strong>Document Mode</strong>: Bind to SiYuan docs, store media with child blocks + custom attributes, permanent data</li>
-                    <li><strong>Local Mode</strong>: Manage with playlist.json file, lightweight & fast, database-independent</li>
-                    <li>Support tags, sorting, view state management, full CRUD operations and drag-and-drop reordering</li>
-                    <li>Switch freely between document mode and local mode in settings</li>
+                    <li><strong>Media Block Playback Enhancement</strong>: Support opening video/audio blocks in player without affecting direct playback on blocks, providing more flexible media viewing options for different use cases</li>
+                    <li><strong>Multi-Source Panel Enhancement</strong>: Player's multi-source info panel title now supports click-to-navigate to detail page, view complete media details (Douban ratings, synopsis, etc.) with one click, improving media info browsing efficiency</li>
+                    <li><strong>Bilibili Favorites Navigation Optimization</strong>: Added three-level menu for Bilibili favorites with clearer hierarchy, improved stability and usability for managing large collections</li>
                 </ul>
             </div>
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎨 Media Link View Styles</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🔧 UI Improvements</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li><strong>Four Styles</strong>: Default/Border/Card/Cover/Player, right-click media link to set</li>
-                    <li><strong>Adaptive Sizes</strong>: Small (25% width) / Medium (50% width) / Large (100% width), fully responsive</li>
-                    <li><strong>Batch Convert</strong>: Right-click document title to convert all media links at once with optimized performance</li>
-                    <li><strong>Inline Player</strong>: Player style supports playback directly in block without opening player</li>
+                    <li><strong>Batch Import Stability Enhancement</strong>: Optimized batch import method with enhanced error handling and data consistency, improved success rate and stability for large-scale media imports</li>
                 </ul>
             </div>
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎭 Danmaku Enhancement</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🐛 Bug Fixes</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>New danmaku settings: speed, opacity, font size, display area</li>
-                    <li>Supports Bilibili video danmaku auto-loading</li>
+                    <li><strong>Multi-Tab Mode Fix</strong>: Fixed duplicate tab opening issue when clicking links in multi-tab mode, optimized link click logic to ensure single-tab opening</li>
+                    <li><strong>Player Multi-Instance Optimization</strong>: Synchronized simultaneous playback feature with multi-instance logic for functional consistency</li>
+                    <li><strong>Database Loading Fix</strong>: Fixed database loading exceptions when binding playlists, ensuring correct playlist data loading and display</li>
+                    <li><strong>Drag & Drop Fix</strong>: Fixed drag-and-drop functionality failure in playlist media items, restored drag-to-sort and cross-tag moving features</li>
+                    <li><strong>TVBox UI Fix</strong>: Fixed content misalignment issue when scrolling TVBox pages, optimized detail page rendering logic</li>
+                    <li><strong>WebDAV Playback Fix</strong>: Fixed playback errors when using self-hosted WebDAV services like Cloudreve, improved WebDAV protocol handling logic</li>
                 </ul>
             </div>
             <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">📱 Mobile Floating Button</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">⚡ Performance Optimization</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>New "Show Mobile TV Button" setting to control mobile bottom-right floating button display</li>
-                    <li>Settings take effect instantly (no plugin restart needed), dynamically create/remove button</li>
+                    <li><strong>Media View Module Refactor</strong>: Optimized media view module code structure for better maintainability, enhanced batch conversion stability with error tolerance and rate limiting, significantly improved performance and success rate for large-scale media style conversions</li>
+                    <li><strong>Tag Query Optimization</strong>: Optimized tag menu data query frequency, reduced unnecessary database access, improved response speed for playlist switching and tag operations</li>
                 </ul>
             </div>
             <div style="margin-bottom: 0;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🎨 UI Improvements</h3>
+                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🔧 Development Refactor</h3>
                 <ul style="margin: 0; padding-left: 1.5em;">
-                    <li>Playlist themes: Default/Soft/Flat/Frosted/Minimal with density and size adjustments</li>
-                    <li>Thumbnails: Aspect ratio selection (16:9/1:1/2:3) and custom defaults (folder/video/audio/PDF)</li>
-                    <li>Settings panel grouping: Subtitle/Danmaku, Loop, Opening/Ending and more clearer organization</li>
+                    <li><strong>Database Module Decoupling</strong>: Completely separated database logic from playlist component into independent database module, optimized code structure, improved modularity and maintainability, providing better architectural foundation for future feature expansions</li>
                 </ul>
             </div>
         </div>
