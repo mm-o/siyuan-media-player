@@ -2,7 +2,7 @@
   "name": "siyuan-media-player",
   "author": "mm-o",
   "url": "https://github.com/mm-o/siyuan-media-player",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "minAppVersion": "3.0.12",
   "disabledInPublish": false,
 
@@ -25,7 +25,7 @@
   ],
   "displayName": {
     "en_US": "SiYuan Media Player",
-    "zh_CN": "思源媒体播放器"
+    "zh_CN": "思播-思源媒体播放器"
   },
   "description": {
     "en_US": "Professional media player for SiYuan Note with multi-platform support, smart note integration, timestamp jumps, loop segments, and extensible script architecture",
