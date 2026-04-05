@@ -5,7 +5,7 @@
 让思源笔记同时成为播放器、网盘媒体浏览器、时间戳记录器与学习型媒体管理中心。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,11 @@
 ---
 
 ## 最新更新
+
+### v1.1.1 版本更新 (2026.4.5)
+
+- 问题修复：修复画中画、网页全屏、全屏不生效的问题，优化为互斥。
+- 优化改进：优化脚本加载方式，提升稳定性。
 
 ### v1.1.0 版本更新 (2026.4.5)
 
