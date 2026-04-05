@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "0.7.5",
+  "version": "1.1.0",
   "type": "module",
   "description": {
     "default": "Professional media player plugin for SiYuan Note with multi-platform support, smart note integration, timestamp jumps, loop segments, media assistant, and extensible script architecture for enhanced learning experience.",
@@ -61,10 +61,9 @@
     "多平台"
   ],
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^3.1.0",
-    "@tsconfig/svelte": "^4.0.1",
-    "@types/dplayer": "^1.25.5",
     "@types/node": "^20.3.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
     "cross-env": "^7.0.3",
     "dashjs": "^5.0.0",
     "fast-glob": "^3.2.12",
@@ -74,7 +73,6 @@
     "rollup-plugin-livereload": "^2.0.5",
     "sass": "^1.63.3",
     "siyuan": "1.0.4",
-    "svelte": "^4.2.19",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3",
     "vite": "^5.2.9",
@@ -86,17 +84,19 @@
     "@types/md5": "^2.3.5",
     "@types/node": "^20.2.5",
     "@types/qrcode": "^1.5.5",
+    "@vueuse/motion": "^3.0.3",
     "artplayer": "^5.2.1",
+    "artplayer-plugin-audio-track": "^1.0.0",
     "artplayer-plugin-danmuku": "^5.1.6",
     "artplayer-plugin-dash-control": "^1.0.0",
     "artplayer-plugin-hls-control": "^1.0.1",
-    "d3": "6",
+    "flv.js": "^1.6.2",
     "hls.js": "^1.5.17",
-    "markmap-lib": "^0.18.12",
-    "markmap-view": "^0.18.12",
     "md5": "^2.3.0",
     "music-metadata-browser": "^2.5.10",
     "qrcode": "^1.5.4",
-    "viewerjs": "^1.11.7"
+    "sql.js": "^1.14.1",
+    "viewerjs": "^1.11.7",
+    "vue": "^3.3.8"
   }
 }

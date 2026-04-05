@@ -1,64 +1,205 @@
-<div class="sy__outline" style="max-width: 900px; margin: 0 auto;">
-    <div style="text-align: center; padding: 2.5em 1.5em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
-        <h1 style="color: white; margin: 0 0 0.3em; font-size: 2.5em; font-weight: 600;">🎬 思播-思源媒体播放器</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 0 0 2em; font-size: 1.1em;">多平台播放 · 智能笔记 · AI助手</p>
-        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/KZSMwZk7JiyzFtkgmPUc8rHxnVh?from=from_copylink" 
-               style="display: inline-block; min-width: 160px; padding: 18px 28px; background: white; color: #667eea; border-radius: 12px; text-decoration: none; font-size: 1.1em; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                📖 使用说明
-            </a>
-            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/FEDdw8o7ti1IPpkJLjXcNX7En6d?from=from_copylink" 
-               style="display: inline-block; min-width: 160px; padding: 18px 28px; background: white; color: #667eea; border-radius: 12px; text-decoration: none; font-size: 1.1em; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                🔄 更新日志
-            </a>
-            <a href="https://qm.qq.com/q/wpHDtsfxCw" 
-               style="display: inline-block; min-width: 160px; padding: 18px 28px; background: white; color: #667eea; border-radius: 12px; text-decoration: none; font-size: 1.1em; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                👥 QQ群
-            </a>
-            <a href="https://vcne5rvqxi9z.feishu.cn/wiki/HOKAw3KTiigaVukvcencOUh7nEb" 
-               style="display: inline-block; min-width: 160px; padding: 18px 28px; background: white; color: #667eea; border-radius: 12px; text-decoration: none; font-size: 1.1em; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                👏 鸣谢
-            </a>
-        </div>
-    </div>
-    <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow);">
-        <h2 style="color: var(--b3-theme-primary); margin: 0 0 1em; font-size: 1.5em;">🚀 最新版本 v0.7.5 (2026.1.12)</h2>
-        <div style="margin: 0; line-height: 1.8; color: var(--b3-theme-on-surface);">
-            <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">✨ 新增功能</h3>
-                <ul style="margin: 0; padding-left: 1.5em;">
-                    <li><strong>斜杠命令快捷插入</strong>：支持 /媒体播放器、/sm 等命令快速添加媒体链接到当前块，内置分段控制器可选择显示样式（默认/边框/卡片/封面/播放），支持批量添加</li>
-                    <li><strong>时间戳偏移设置</strong>：新增时间戳偏移设置，生成时间戳/循环片段时可向前(-)/向后(+)偏移指定秒数</li>
-                </ul>
-            </div>
-            <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🐛 问题修复</h3>
-                <ul style="margin: 0; padding-left: 1.5em;">
-                    <li><strong>样式污染修复</strong>：修复 ArtPlayer hint.css 污染思源开关按钮导致模糊的问题</li>
-                    <li><strong>B站分P时间戳修复</strong>：修复B站播放分P视频生成时间戳不准确的问题</li>
-                </ul>
-            </div>
-            <div style="margin-bottom: 1.5em;">
-                <h3 style="color: var(--b3-theme-primary); margin: 0 0 0.5em; font-size: 1.1em;">🔧 优化改进</h3>
-                <ul style="margin: 0; padding-left: 1.5em;">
-                    <li><strong>设置分组调整</strong>：设置分组「链接模板」更名为「笔记链接」，时间戳偏移设置归入此分组</li>
-                    <li><strong>插件改名</strong>：中文名称由「思源媒体播放器」更名为「思播-思源媒体播放器」</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div style="margin-top: 2em; padding: 2em; background: linear-gradient(135deg, rgba(231,76,60,0.08), rgba(255,154,158,0.08)); border: 1px solid var(--b3-theme-border); border-radius: 12px; box-shadow: 0 4px 12px var(--b3-theme-shadow); text-align: center;">
-        <h2 style="color: #e74c3c; margin: 0 0 0.5em; font-size: 1.5em;">🧧 打赏支持</h2>
-        <p style="margin: 0 0 1.5em; color: var(--b3-theme-on-surface-light);">感谢您的支持，这将鼓励作者持续开发</p>
-        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
-            <div>
-                <img src="/plugins/siyuan-media-player/assets/images/alipay.jpg" alt="支付宝" style="width: 200px; border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow-light);">
-                <p style="margin: 0.8em 0 0; color: var(--b3-theme-on-surface-light); font-size: 0.9em;">支付宝</p>
-            </div>
-            <div>
-                <img src="/plugins/siyuan-media-player/assets/images/wechat.jpg" alt="微信" style="width: 200px; border-radius: 8px; box-shadow: 0 4px 12px var(--b3-theme-shadow-light);">
-                <p style="margin: 0.8em 0 0; color: var(--b3-theme-on-surface-light); font-size: 0.9em;">微信</p>
-            </div>
-        </div>
-    </div>
-</div>
+# 思播 SiMedia
+
+**思源笔记的多源媒体播放器 · 网盘媒体中心 · 时间戳笔记工作台**
+
+让思源笔记同时成为播放器、网盘媒体浏览器、时间戳记录器与学习型媒体管理中心。  
+支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123、OneDrive、S3 等多种来源。
+
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
+
+**🌐 [官网](https://simedia-home.745201.xyz) · 💎 [购买授权](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
+
+---
+
+## 最新更新
+
+### v1.1.0 版本更新 (2026.4.5)
+
+#### 架构重构
+- Vue 3 全量重构：插件主体全面迁移到 Vue 3，核心界面、状态流与模块边界整体重写。
+- 数据存储重构：配置、账号、历史、收藏、续播、媒体记录统一切换到数据库管理，读写更稳定，后续扩展更清晰。
+- 驱动层统一：系统梳理本地媒体、BBLL、TTVV、各类网盘、OpenList、WebDAV 等驱动结构，统一鉴权、目录读取、媒体解析与播放链路。
+
+#### 新增功能
+- 媒体列表上线：新增独立媒体列表，与播放列表分层协作，浏览与播放职责更清晰。  
+  ![媒体列表](https://simedia-home.745201.xyz/main-ui.png)
+- 新增 115 网盘支持：支持浏览、识别、播放等基础能力。
+- 新增 OneDrive 支持：补齐更多主流云端媒体来源。
+- 图片预览增强：支持图片预览、网盘图片查看，扩展非视频类媒体使用场景。
+- 媒体信息管理：支持查看与修改媒体信息，便于整理和维护媒体库。  
+  ![多网盘与媒体列表](https://simedia-home.745201.xyz/multi-drive-view-sort.png)
+- 独立窗口播放：支持独立窗口播放，适配多任务与多屏场景。  
+  ![独立窗口](https://simedia-home.745201.xyz/multi-window.png)
+- 光标处插入完善：更稳定地将时间戳、片段、媒体笔记等内容插入到当前光标位置。  
+  ![时间戳与媒体笔记](https://simedia-home.745201.xyz/timestamp-insert.png)
+- OpenList / WebDAV 挂载增强：更完善地支持挂载目录浏览、媒体读取与播放。
+- 默认清晰度设置：新增全局默认清晰度设置，默认优先 720p，可按需自定义。
+
+#### 列表与界面重构
+- 播放列表重构：重写播放列表结构与交互逻辑，统一展开、同步、切换与状态更新方式。
+- 历史记录重构：历史记录改造成更统一的页面式入口与结构，减少混乱模板判断。
+- 收藏夹重构：收藏夹结构与交互统一到新的列表体系，复用更清晰。
+- 界面逻辑梳理：整体精简冗余样式与判断，界面切换更顺滑，结构更统一。
+
+#### 网盘与播放修复
+- 夸克网盘重构修复：
+  - 修复授权登录链路与签名调用问题
+  - 修复媒体类型识别错误问题
+  - 修复播放链接获取与播放失败问题
+  - 修复时间戳链接与 sourcePath 结构混乱问题
+  - 统一夸克的续播、恢复与路径生成逻辑
+- 百度网盘优化：
+  - 优化清晰度默认选择逻辑
+  - 修复部分播放链路与时间戳体验问题
+- BBLL 修复：修复历史记录异常、接口提取后的推荐流异常等问题，继续保持与原有交互一致。
+- 代理链路优化：补齐代理播放链路细节，提升网盘媒体播放兼容性与稳定性。
+
+#### 播放体验增强
+- 重启后续播：统一续播恢复逻辑，支持重启后继续播放。
+- 续播链路梳理：梳理播放器、驱动、页面恢复之间的关系，修复多来源续播异常。
+- 多类型媒体统一播放：统一图片、音频、视频、PDF 等媒体在播放器与界面中的处理方式。
+
+#### 问题修复
+- 修复播放列表进入下一级时空白闪烁的问题
+- 修复播放列表与媒体列表展开/折叠不同步的问题
+- 修复独立窗口/新窗口播放后续播失效的问题
+- 修复播放器配置更新时导致的异常报错问题
+- 修复部分网盘媒体全部识别为“其他文件”的问题
+- 修复部分媒体时间戳链接路径过长、结构混乱的问题
+- 修复会员引导地址、购买地址与 tooltip 显示问题
+- 修复多处中文文案、入口提示与交互细节问题
+
+#### 优化改进
+- 极限精简多处重复逻辑与补丁式分支判断
+- 统一驱动返回数据结构，减少上层特殊兼容
+- 精简部分播放器与列表联动逻辑，提升可维护性
+- 梳理文档链接、时间戳、媒体恢复、代理播放之间的边界关系
+- 为后续迭代建立更清晰、更稳定的 Vue 3 + 数据库 + 统一驱动基础架构
+
+---
+
+## 完整功能列表
+
+| 功能模块 | 子功能 | 说明 |
+|---------|--------|------|
+| 播放来源 | 本地媒体 | 支持本地视频、音频、图片、PDF、URL 媒体导入、浏览、播放与预览 |
+|  | BBLL | 支持视频、分P、合集、收藏夹、历史记录、详情字段与分集侧栏 |
+|  | TTVV | 支持源浏览、详情解析、剧集切换与播放 |
+|  | 云盘来源 | 支持百度网盘、阿里云盘、夸克 TV / UC / Open、115、123、OneDrive、OpenList、WebDAV、S3 |
+|  | 图片与非视频媒体 | 支持图片查看、音频封面、PDF 识别与多类型媒体统一入口 |
+| 数据与存储 | 数据库统一存储 | 媒体库、云盘账号、播放历史、设置、续播点、默认目录统一走数据库管理 |
+|  | 自动迁移与修复 | 支持建表、索引修复、坏数据清理、结构迁移、自动压缩优化 |
+|  | 默认目录初始化 | 自动创建媒体库、视频、音乐、BBLL 等默认目录 |
+| 播放列表 | 三页结构 | 播放列表、收藏夹、历史记录统一为同层级页面结构 |
+|  | 树形浏览 | 支持文件夹树、层级缩进、展开/折叠、高亮当前项 |
+|  | 全部展开/折叠 | 支持一键展开全部、一键折叠全部 |
+|  | 顶部操作 | 支持排序、添加、更多菜单 |
+|  | 根级入口 | 支持从播放列表直接进入各类云盘账号与媒体目录 |
+|  | 图标管理 | 本地文件夹支持更换图标 |
+| 收藏夹 | 收藏文件 | 支持本地与云盘媒体加入收藏夹 |
+|  | 收藏文件夹 | 支持本地与云盘文件夹加入收藏夹 |
+|  | 去重判断 | 同一资源重复收藏时自动拦截 |
+|  | 独立页面 | 收藏夹作为独立页面入口统一展示 |
+| 历史记录 | 最近播放 | 自动记录最近播放媒体 |
+|  | 历史上限 | 默认保留最近 30 条历史记录 |
+|  | 恢复播放 | 历史项可直接回播并带回进度信息 |
+|  | 历史页面 | 作为独立页面与播放列表、收藏夹统一切换 |
+| 媒体列表 | 独立浏览层 | 媒体列表与播放列表分层协作，负责内容浏览、筛选、详情与批量处理 |
+|  | 面包屑导航 | 支持目录路径导航、回跳上层 |
+|  | 搜索 | 支持按名称、艺术家快速筛选 |
+|  | 文件夹分区 | 文件夹区域独立显示、独立展开折叠 |
+|  | 媒体分区 | 媒体区域独立显示、独立展开折叠 |
+|  | 子文件夹模式 | 支持仅当前目录与“含子文件夹”递归显示 |
+|  | 云盘分页 | 云盘目录支持分页与翻页浏览 |
+| 视图与显示 | 文件夹视图 | 支持网格、列表两种文件夹视图 |
+|  | 媒体视图 | 支持网格、瀑布流、列表、详细四种媒体视图 |
+|  | 显示元素 | 可单独切换名称、艺术家、大小、时长、播放次数、添加时间、专辑、年份、流派、码率、采样率、编码、分辨率 |
+|  | 列宽记忆 | 列表视图支持拖拽列宽并持久化保存 |
+|  | 缩略图 | 支持封面、缩略图、本地与远程图像统一加载 |
+| 排序 | 排序字段 | 支持默认排序、按名称、按添加时间、按最近播放、按播放次数、按类型 |
+|  | 排序方向 | 支持正序、倒序 |
+|  | 自然排序 | 名称排序采用自然排序，更适合中文和数字混排 |
+| 侧栏与详情 | 统计侧栏 | 支持文件夹统计、媒体统计、已播未播、平均时长、平均大小、高清数量、艺术家数、专辑数等 |
+|  | 详情侧栏 | 支持封面、标题、描述、完整字段查看 |
+|  | 编辑侧栏 | 支持本地媒体字段编辑与批量保存 |
+|  | 删除确认 | 支持单项删除与批量删除确认 |
+|  | 添加面板 | 支持添加 URL、新建文件夹 |
+|  | 导入面板 | 支持导入文件、导入文件夹、导入为文件、导入为链接 |
+| 媒体管理 | 重命名 | 支持本地媒体、本地文件夹与支持能力的云盘项目重命名 |
+|  | 删除 | 支持本地删除、云盘删除、文件夹级联删除 |
+|  | 新建文件夹 | 支持本地目录与云盘目录下新建文件夹 |
+|  | 添加 URL | 支持手动添加 URL 媒体 |
+|  | 导入本地资源 | 支持导入文件、文件夹，并区分复制文件或仅保存链接 |
+|  | 下载 | 支持云盘媒体下载到本地桌面目录 |
+|  | 右键菜单 | 支持播放、详情、收藏、重命名、删除、新建文件夹、添加 URL、新标签打开、下载等菜单 |
+| 批量操作 | 批量选择 | 支持多选、全选、取消全选 |
+|  | 批量编辑 | 支持选中后统一保存修改 |
+|  | 批量删除 | 支持选中后批量删除 |
+|  | 批量导入确认 | 导入列表支持批量勾选后执行导入 |
+| 云盘能力 | 多账号 | 支持同一类型多账号并存与分组显示 |
+|  | 账号配置 | 支持在设置中统一添加、编辑、刷新、删除云盘账号 |
+|  | 鉴权方式 | 支持账号密码、扫码登录、授权页登录、Token 类登录等多种方式，按驱动定义 |
+|  | OpenList / WebDAV | 支持挂载目录浏览、媒体识别、播放与刷新 |
+|  | 云盘文件操作 | 支持按驱动能力开放新建文件夹、重命名、删除、下载 |
+|  | 缓存机制 | 支持目录缓存、分页缓存、账号变更后缓存失效 |
+|  | 根目录映射 | 云盘根目录会映射为统一媒体节点并参与列表体系 |
+| 播放器 | 内置播放器 | 基于 ArtPlayer，支持音视频统一播放 |
+|  | 外部播放器 | 支持 MPV、PotPlayer、VLC、浏览器打开 |
+|  | 打开方式 | 支持新标签、右侧新标签、底部新标签、新窗口 |
+|  | 多开 | 支持允许多开与单例复用 |
+|  | 播放队列 | 支持统一上一曲、下一曲与共享队列 |
+|  | 图片查看 | 图片走独立预览器，支持队列切换 |
+|  | 音频封面 | 音频支持封面显示 |
+|  | HLS / FLV | 支持 m3u8、flv 等流式格式 |
+|  | 独立音轨 | 支持独立音轨切换与更新 |
+|  | 直播标记 | 支持直播流配置透传 |
+| 续播与控制 | 续播恢复 | 支持关闭后恢复、重启后续播 |
+|  | 历史写回 | 暂停、拖动进度条时自动保存进度 |
+|  | 单项循环 | 支持循环当前媒体 |
+|  | 列表循环 | 支持队列级循环播放 |
+|  | 片段循环 | 支持设置开始时间、结束时间循环播放 |
+|  | 循环后暂停 | 支持片段循环达到次数后暂停 |
+|  | 跳过片头片尾 | 支持按秒设置自动跳过 |
+|  | 默认清晰度 | 支持 720P、1080P、480P、360P、原始/自动优先级 |
+| 字幕 | 字幕显示 | 支持显示/隐藏字幕 |
+|  | 默认语言 | 支持按语言优先自动选择字幕轨 |
+|  | 字幕偏移 | 支持字幕时间偏移 |
+|  | 字幕样式 | 支持字幕样式、字号、颜色、背景颜色、背景透明度 |
+|  | 字幕加载 | 支持动态加载字幕并在设置面板切换 |
+| 弹幕 | 弹幕开关 | 支持启用与显示开关 |
+|  | 弹幕样式 | 支持速度、透明度、字号、颜色、显示区域 |
+|  | 弹幕模式 | 支持滚动、顶部、底部、模式过滤 |
+|  | 弹幕优化 | 支持防重叠、同步速度、热力图、最大长度过滤 |
+| 笔记与插入 | 时间戳链接 | 生成并回放带时间点的媒体链接 |
+|  | 时间戳偏移 | 支持生成链接时前后偏移秒数 |
+|  | 循环片段链接 | 支持将循环片段写入笔记 |
+|  | 截图插入 | 支持截图与截图+时间戳插入 |
+|  | 插入方式 | 支持插入光标处、追加到块末尾、添加到块开头、更新当前块、插入到文档顶部、插入到文档底部、复制到剪贴板 |
+|  | 媒体笔记创建 | 支持插入当前文档、笔记本下创建、文档下创建、DailyNote |
+|  | 目标定位 | 支持目标笔记本、目标文档搜索与选择 |
+| 模板与格式 | 模板预设 | 支持简洁、Callout、引用三类模板预设 |
+|  | 链接格式 | 支持自定义链接显示格式 |
+|  | 媒体笔记模板 | 支持标题、时间、艺术家、时长、类型、封面、ID、日期、时间戳等变量 |
+|  | 截图格式 | 支持 PNG、JPEG、WebP |
+|  | 截图质量 | 支持 JPEG / WebP 质量设置 |
+| 界面与交互 | 媒体列表开关 | 可选择是否启用媒体列表 |
+|  | 移动端悬浮按钮 | 支持在移动端显示小电视入口 |
+|  | 多彩文档树 | 支持插件内文档树彩色层级样式 |
+|  | 边框文档树 | 支持插件内文档树边框卡片样式 |
+|  | 页面统一结构 | 播放列表、收藏夹、历史记录、媒体列表采用统一风格与层级结构 |
+| 驱动体系 | 驱动注册表 | 所有云盘与来源通过统一注册表注入字段、登录方式、测试逻辑与说明 |
+|  | 驱动元数据 | 支持字段定义、表单类型、下拉选项、扫码、授权页、测试连接、账号描述 |
+|  | 上层统一调用 | 列表层统一通过驱动读取目录、解析媒体、执行文件操作 |
+| 授权与服务 | 授权入口 | 提供官网、购买入口与会员授权能力 |
+|  | 功能分级 | 支持按会员能力开放云盘、字幕高级样式、截图、自定义界面等增强能力 |
+
+---
+
+## 授权说明
+
+插件提供会员授权能力，用于解锁更多增强型媒体源与扩展体验。
+
+- 官网：<https://simedia-home.745201.xyz>
+- 购买地址：<https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc>
