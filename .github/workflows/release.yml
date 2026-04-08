@@ -1,0 +1,95 @@
+name: Release from Synced Package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'package.zip'
+      - 'plugin.json'
+      - 'README.md'
+      - 'README_zh_CN.md'
+      - '*.md'
+      - 'preview.png'
+      - '.github/workflows/release.yml'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check tag exists
+        id: tag
+        shell: bash
+        run: |
+          if git rev-parse "refs/tags/${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify package.zip
+        shell: bash
+        run: |
+          test -f package.zip
+          ls -lh package.zip
+
+      - name: Create tag
+        if: steps.tag.outputs.exists == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Build release body
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import json, os, re
+
+          version = json.loads(Path('package.json').read_text(encoding='utf-8'))['version']
+          pattern = re.compile(rf'^### .*v{re.escape(version)}.*$', re.M)
+          body = None
+          for path in sorted(Path('.').glob('*.md')):
+              text = path.read_text(encoding='utf-8')
+              m = pattern.search(text)
+              if not m:
+                  continue
+              rest = text[m.start():]
+              nxt = re.search(r'^###\s+', rest[m.end() - m.start():], re.M)
+              body = rest[:m.end() - m.start() + nxt.start()] if nxt else rest
+              break
+          if not body:
+              body = f'## Release v{version}'
+          body = body.strip() + f'\n\n---\n\nSynced package release: v{version}\nCommit: {os.environ.get("GITHUB_SHA", "")}\n'
+          Path('release-body.md').write_text(body, encoding='utf-8')
+          PY
+
+      - name: Create or update release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          artifacts: package.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          makeLatest: true
+          allowUpdates: true
+          bodyFile: release-body.md
