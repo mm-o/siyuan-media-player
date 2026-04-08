@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,45 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.1.2 Release Notes (2026.4.6)
+
+#### ✨ New Features
+- **🔍 Media List Search**: Added unified multi-source search for local media, BBLL, TTVV, cloud drives, and more.
+- **📺 BBLL Triple Action**: Added like, coin, and favorite actions, with support for choosing favorite folders.
+- **💬 BBLL Comment Assistant**: Added comment loading, reply expansion, emoji display, right-click copy, and subtitle language switching.
+- **🔄 TTVV Refresh Button**: Added a reload entry for the current page.
+- **📝 Sidebar Description**: Added a description card in the side panel.
+- **📄 TTVV Detail Enhancement**: Added more detail fields and episode display.
+- **🔗 Copy Link**: Added direct link copying without time parameters.
+- **📂 Open File Location**: Local media now supports opening its file location directly.
+- **📚 BBLL Category Expansion**: Added Bangumi and Film/TV categories with matching search support.
+- **🎛️ BBLL Filter Browsing**: Added filter-based browsing for Bangumi and Film/TV.
+- **ℹ️ Playlist Detail Panel**: Added a detail panel to show more item information.
+- **✏️ Favorites Management**: Added rename and delete support for favorite items and folders.
+- **🗑️ History Management**: Added single-item delete and clear-all support.
+
+#### 🔧 Improvements
+- **📝 Media Note Display**: Improved available field rendering in media notes.
+- **▶️ Bilibili Playback Optimization**: Improved video loading by switching to Dash for better smoothness and stability.
+- **🎬 TTVV Default Playback**: Optimized default playback to prefer m3u8.
+- **🎵 BBLL Playback Method**: Switched to merged Dash stream playback for better stability and smoother high-quality playback.
+- **🧭 Import Logic Optimization**: Improved compatibility with more system path formats.
+- **🗂️ Default Media Library Adjustment**: Changed default folders to Videos, Music, and Images.
+- **📁 Playlist Add Flow Optimization**: Improved the logic and UI template for creating new folders.
+- **📌 Unified Insert Logic**: Unified insert behavior for media notes, timestamps, loop clips, and screenshots, with remembered target document support.
+
+#### 🐛 Bug Fixes
+- **📝 Subtitles and Summary**: Fixed cases where BBLL subtitles, danmaku, and AI summary were not displayed.
+- **🧩 TTVV Pagination**: Fixed page switching not working correctly.
+- **📸 Baidu Netdisk Screenshot**: Fixed screenshot failures.
+- **🧾 Media Note Template**: Fixed incorrect field replacement and mixed content in note templates.
+- **📋 Clipboard Copy**: Fixed media note copy-to-clipboard failures.
+- **📂 Media List Collapse**: Fixed folders and media items collapsing automatically.
+- **🕘 History Playback**: Fixed playback errors for history items in playlists.
+- **📚 Document Selection**: Fixed inability to select notebooks and documents.
+- **🔗 URL Import**: Fixed URL import not being added correctly.
+- **🎥 Bilibili Playback**: Fixed some Bilibili videos failing to play.
 
 ### v1.1.1 (2026.4.5)
 
