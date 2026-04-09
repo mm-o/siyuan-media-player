@@ -5,15 +5,29 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.3-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [Official Site](https://simedia-home.745201.xyz) · 💎 [Purchase License](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
+**🌐 [Official Site](https://simedia-home.745201.xyz) · 💳 [Purchase License](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
 
 ---
 
 ## Latest Update
+
+### v1.1.3 Release Notes (2026.4.9)
+
+#### Improvements
+- **New-window playback flow**: Switched new-window opening to the native SiYuan window chain, avoiding duplicate player mounts, making startup faster, and fixing incorrect playback-parameter delivery.
+- **New-window document insertion**: Timestamp, screenshot, and loop-clip insertion now bridges back to the main window when inserting into the current document, so editor resolution stays stable.
+- **Cloud playback optimization**: Unified direct-link optimization and proxy warmup for WebDAV, Quark, Baidu Netdisk, Aliyun Drive, OpenList, OneDrive, 123 Pan, 115, S3, and similar remote media sources.
+- **Streaming engine enhancement**: Tuned DASH, HLS, and FLV buffering, retry, and recovery strategy for better Bilibili, cloud-drive, and large-file playback stability.
+- **TVBox source strategy**: Added unified media-type detection for TVBox lines, with better mpd / m3u8 / flv matching.
+- **Dead-code cleanup**: Removed the unused legacy GPU / hardware-decode detection code.
+
+#### Bug Fixes
+- **New-window double audio**: Fixed the case where audio started early or played twice before the video finished loading in a new window.
+- **Insertion target lookup**: Fixed failures when inserting timestamps, screenshots, or loop clips from a new window into the active document.
 
 ### v1.1.2 Release Notes (2026.4.6)
 
@@ -34,7 +48,6 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 
 #### 🔧 Improvements
 - **📝 Media Note Display**: Improved available field rendering in media notes.
-- **▶️ Bilibili Playback Optimization**: Improved video loading by switching to Dash for better smoothness and stability.
 - **🎬 TTVV Default Playback**: Optimized default playback to prefer m3u8.
 - **🎵 BBLL Playback Method**: Switched to merged Dash stream playback for better stability and smoother high-quality playback.
 - **🧭 Import Logic Optimization**: Improved compatibility with more system path formats.
@@ -52,7 +65,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 - **🕘 History Playback**: Fixed playback errors for history items in playlists.
 - **📚 Document Selection**: Fixed inability to select notebooks and documents.
 - **🔗 URL Import**: Fixed URL import not being added correctly.
-- **🎥 Bilibili Playback**: Fixed some Bilibili videos failing to play.
+- **🎥 BBLL Playback**: Fixed some Bilibili videos failing to play.
 
 ### v1.1.1 (2026.4.5)
 
