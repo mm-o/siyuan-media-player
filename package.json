@@ -21,10 +21,18 @@
   "backends": [
     "windows",
     "linux",
-    "darwin"
+    "darwin",
+    "ios",
+    "android",
+    "harmony",
+    "docker"
   ],
   "frontends": [
-    "desktop"
+    "desktop",
+    "mobile",
+    "browser-desktop",
+    "browser-mobile",
+    "desktop-window"
   ],
   "displayName": {
     "default": "SiYuan Media Player",
@@ -56,8 +64,6 @@
     "时间戳",
     "播放列表",
     "笔记集成",
-    "学习工具",
-    "可扩展",
     "多平台"
   ],
   "devDependencies": {
