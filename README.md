@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.3-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.4-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,30 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.1.4 Release Notes (2026.4.12)
+
+#### ✨ New Features
+- **📱 Mobile Browsing & Playback**: Added support for browsing and playing media on mobile devices.
+- **💬 Subtitle Selection**: Added subtitle selection feature with automatic same-name subtitle loading or manual selection, fully supporting cloud drive subtitles.
+
+#### 🔧 Improvements
+- **📋 Media Note Copy Optimization**: Unified copy logic for media notes and screenshots. When cover fetch fails, automatically uses current frame screenshot. Only copies text content (with image references) to avoid compatibility issues from copying images and text simultaneously.
+- **📸 Screenshot Enhancement**: Optimized screenshot logic. Pure screenshots directly copy image Blob, while screenshots with timestamps upload images and return text references.
+- **🎬 Danmaku State Persistence**: Fixed issue where danmaku would auto-show after seeking when manually closed. Now remembers user's show/hide state.
+- **🔄 Danmaku Merge Function**: Player danmaku now supports merging identical content, grouping by time and showing count (e.g., "Danmaku text ×3"), consistent with assistant panel.
+- **🏷️ Playlist Icon Display**: Supports displaying SiYuan custom icons (.png) and dynamic icons (api/icon/getDynamicIcon) with fully consistent interaction as standard Emoji.
+- **🎛️ Dash.js Config Optimization**: Removed unsupported `fastSwitchEnabled` parameter, simplified config, increased retry count for better playback stability.
+- **🔍 Search Box Color Adaptation**: Fixed search text visibility in dark mode by using SiYuan CSS variables for theme adaptation.
+- **💻 Mac Local File Playback**: Fixed Mac local file link playback issue by automatically converting local paths to `file://` protocol.
+- **🖼️ Cover Save Function**: Fixed cover save failure during media import. Now automatically creates directory and saves covers to `/public/siyuan-media-player/covers/`.
+- **🎯 Codec Warning Optimization**: For unsupported codecs (H.265/HEVC, AV1, VP9), only shows warning on actual playback failure to avoid false positives.
+
+#### 🐛 Bug Fixes
+- **🔐 Quark Login Fix**: Fixed missing QR code button in Quark login.
+- **📂 Media List Fix**: Fixed import error caused by undefined `selectFiles` and `selectFolder`.
+- **🌐 SiYuan Resource Path**: Fixed local path conversion logic affecting SiYuan resource paths (`/assets/`, `/data/`, `/public/`, etc.).
+- **🎬 Danmaku Reload Fix**: Fixed danmaku reloading issue when clicking to seek in subtitle or danmaku panel.
 
 ### v1.1.3 Release Notes (2026.4.9)
 
