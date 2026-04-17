@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.4-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,33 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.1.5 Release Notes (2026.4.17)
+#### New Features
+- Added a custom player option so you can choose another player for playback.
+- **Docker environment support**: Added support for Docker environments. This is currently provisional support, and playback experience still needs further optimization.
+- **Initial mobile-page support**: Added initial support for the mobile page. The current experience is still not ideal and will continue to be improved.
+- **Mini player refactor**: Added a minimal mini player and moved bottom controls closer to native SiYuan status-bar interaction, with a more compact unified structure and style.
+
+#### Improvements
+- **Quark playback optimization**: Reduced unnecessary relays and duplicate loads in the Quark playback chain, significantly improving startup, seeking, and timestamp-jump speed.
+- **Multi-drive playback optimization**: Unified playback resolution flow for Aliyun Drive, 123 Pan, 115, OneDrive, and similar drives to reduce duplicate reads and extra waiting.
+- **Multi-source loading optimization**: Improved loading flow for Aliyun Drive, Baidu Netdisk, TTVV, BBLL, and other sources to reduce duplicate requests and speed up opening.
+- **Proxy flow refactor**: Refactored media proxy logic so normal cross-origin links no longer go through the proxy unless actually needed, making playback lighter and faster overall.
+- **SiYuan style alignment**: Reused more of SiYuan's existing card, button, icon, and slider styles in the mini player to reduce custom style code.
+- **Playback switching optimization**: Optimized switching between the full player and mini player to reduce repeated parsing and media loading, with background playback preferring pure-audio mode.
+- **Player code cleanup**: Further compressed and unified player and mini-player internals by merging repeated methods and state handling.
+
+#### Bug Fixes
+- **Sidebar close fix**: Fixed the issue where the top button could not close the sidebar.
+- **Local media metadata save fix**: Fixed the issue where edited local-media metadata could not be saved.
+- **Slow Quark folder playback**: Fixed the long delay when starting playback from Quark folders, improving video open speed inside folders.
+- **Duplicate cloud-drive loading**: Fixed cases where some drives performed an extra directory read or duplicate loading during playback.
+- **Redundant subtitle scanning**: Reduced unnecessary subtitle scans during playback to lower extra waiting time.
+- **BBLL account detection issue**: Fixed incorrect BBLL account recognition that could break favorites and related features.
+- **Mini-player subtitle loading**: Fixed subtitles in the mini player relying on assistant-panel triggers by completing subtitle warmup and auto-attachment flow.
+- **Player restore-to-video issue**: Fixed the case where restoring from the mini player back to the full player only showed the cover instead of the video.
+- **Background playback display issue**: Fixed leftover playback layers and control icons in background-playback mode so hiding behavior is now more complete.
 
 ### v1.1.4 Release Notes (2026.4.12)
 
