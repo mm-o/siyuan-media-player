@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-1.1.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,12 @@
 ---
 
 ## 最新更新
+
+### 📝 v1.1.7 版本更新 (2026.4.18)
+
+#### 🔧 优化改进
+- **📺 BBLL公开链接统一**：统一时间戳复制、助手导出与链接解析中的 BBLL 对外链接生成逻辑，复制结果不再暴露内部 `bilibili://...` 协议路径。
+- **⏱️ 时间参数可读化**：时间戳链接改为直接输出可读的 `t=00:57`，不再把冒号编码成 `%3A`，同时兼容旧格式链接的解析与跳转。
 
 ### 📝 v1.1.6 版本更新 (2026.4.18)
 

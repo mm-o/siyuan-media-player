@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,11 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.1.7 Release Notes (2026.4.18)
+#### Improvements
+- **BBLL public-link unification**: Unified BBLL public-link generation across timestamp copy, assistant export, and link parsing, so copied links no longer expose internal `bilibili://...` protocol paths.
+- **Readable timestamp parameter**: Timestamp links now keep `t=00:57` in readable form instead of `%3A`-encoded colons, while older encoded links remain compatible for parsing and jumping.
 
 ### v1.1.6 Release Notes (2026.4.18)
 #### New Features
