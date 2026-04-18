@@ -5,15 +5,29 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [Official Site](https://simedia-home.745201.xyz) · 💳 [Purchase License](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
+**🌐 [Official Site](https://simedia.745201.xyz) · 💳 [Purchase License](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
 
 ---
 
 ## Latest Update
+
+### v1.1.6 Release Notes (2026.4.18)
+#### New Features
+- **Player info button enhancement**: The player info button now shows the title, link, and episode / page list directly, and supports switching playback from inside the panel.
+
+#### Improvements
+- **Smarter proxy detection**: Media proxy detection now only bypasses proxying for true loopback addresses, avoiding false matches for LAN WebDAV / OpenList sources.
+
+#### Bug Fixes
+- **Mobile local playback**: Fixed cases where imported or local media on mobile incorrectly went through the proxy and failed to play.
+- **Mac local-link playback**: Fixed absolute Mac paths such as `/Users/...` not being converted to the `file://` protocol, which previously became `http://127.0.0.1/...` and failed to play.
+- **SiYuan workspace path detection**: Fixed `/public/`, `/assets/`, `/data/`, and similar workspace paths being mistaken for local files and incorrectly converted to `file://`, which could break playback inside the plugin.
+- **Imported-link playback**: Fixed some imported links not being resolved or played correctly by unifying local-path, file-protocol, and playback-resolution handling.
+- **BBLL link display**: Fixed BBLL links in player info and media notes showing internal `bilibili://...` or `blob:` URLs, and now consistently output the real BBLL page link.
 
 ### v1.1.5 Release Notes (2026.4.17)
 #### New Features

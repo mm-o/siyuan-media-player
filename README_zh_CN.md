@@ -5,15 +5,30 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-1.1.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [官网](https://simedia-home.745201.xyz) · 💳 [购买授权](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
+**🌐 [官网](https://simedia.745201.xyz) · 💳 [购买授权](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
 
 ---
 
 ## 最新更新
+
+### 📝 v1.1.6 版本更新 (2026.4.18)
+
+#### ✨ 新增功能
+- **ℹ️ 播放器信息按钮增强**：信息按钮支持直接显示名称、链接与分集 / 分P 列表，并可在面板内直接点击切换播放。
+
+#### 🔧 优化改进
+- **🌐 代理判断智能化**：优化媒体代理判断逻辑，仅对真正的本机回环地址直连，避免局域网 WebDAV / OpenList 等来源被机械误判。
+
+#### 🐛 问题修复
+- **📱 移动端本地播放**：修复移动端导入或播放本地媒体时地址错误走代理，导致无法正常播放的问题。
+- **💻 Mac 本地链接播放**：修复 Mac 导入本地绝对路径（如 `/Users/...`）未正确转换为 `file://` 协议，错误变成 `http://127.0.0.1/...` 导致播放失败的问题。
+- **🗂️ 思源空间路径识别**：修复思源工作空间内 `/public/`、`/assets/`、`/data/` 等路径被误判为本地文件并错误转成 `file://`，导致插件内媒体无法播放的问题。
+- **🔗 导入链接播放异常**：修复部分导入链接无法正确识别与播放的问题，统一补齐本地路径、文件协议与播放解析链路。
+- **📺 BBBLL链接显示异常**：修复播放器信息与媒体笔记中 BBLL地址显示为 `bilibili://...` 或 `blob:` 内部链接的问题，改为统一输出真实BBLL页面链接。
 
 ### 📝 v1.1.5 版本更新 (2026.4.17)
 
