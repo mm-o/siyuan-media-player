@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "type": "module",
   "description": {
     "default": "Professional media player plugin for SiYuan Note with multi-platform support, smart note integration, timestamp jumps, loop segments, media assistant, and extensible script architecture for enhanced learning experience.",

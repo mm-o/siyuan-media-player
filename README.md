@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.8-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,21 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.1.8 Release Notes (2026.4.19)
+
+#### New Features
+- **TTVV detail integration with Douban**: Added Douban metadata support in TTVV detail pages so richer film and series information can be viewed directly inside the player.
+- **Media-detail copy/export enhancement**: Added new media detail copy and export options, with support for database-bound export to make media cataloging easier.
+
+#### Improvements
+- **Further playback-chain simplification**: Removed several unstable playback methods on other platforms, further simplifying and unifying the playback path.
+- **Mobile-entry cleanup**: Removed invalid small-TV entry settings on mobile to reduce meaningless options and UI noise.
+
+#### Bug Fixes
+- **Mini-player subtitle mix-up**: Fixed occasional subtitle mix-up issues in the mini player window.
+- **Desktop Baidu Netdisk playback**: Fixed an issue where Baidu Netdisk could not play on desktop.
+- **Docker BBLL playback**: Fixed an issue where BBLL could not play in Docker environments.
 
 ### v1.1.7 Release Notes (2026.4.18)
 #### Improvements

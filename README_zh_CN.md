@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-1.1.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.1.8-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,21 @@
 ---
 
 ## 最新更新
+
+### 📝 v1.1.8 版本更新 (2026.4.19)
+
+#### ✨ 新增功能
+- **📚 TTVV 详情接入豆瓣信息**：新增 TTVV 详情页从豆瓣拉取补充信息，方便在播放器内直接查看更完整的影视资料。
+- **📤 媒体详情复制导出增强**：新增媒体详情复制与导出方式，并支持绑定数据库导出，方便整理与沉淀媒体资料。
+
+#### 🔧 优化改进
+- **🧹 播放链路进一步精简**：移除了一些不稳定的其他端播放方法，统一收敛播放逻辑，减少绕路与兼容分支。
+- **📱 移动端入口精简**：删除移动端小电视入口中的无效设置项，减少无意义干扰。
+
+#### 🐛 问题修复
+- **💬 迷你播放器字幕串乱**：修复迷你播放器窗口中字幕偶发串乱的问题。
+- **📦 桌面端百度网盘播放**：修复桌面端百度网盘无法播放的问题。
+- **🐳 Docker 环境 BBLL 播放**：修复 Docker 环境下 BBLL 无法播放的问题。
 
 ### 📝 v1.1.7 版本更新 (2026.4.18)
 
