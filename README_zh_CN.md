@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-1.2.3-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -15,7 +15,7 @@
 
 ## 最新更新
 
-### 📝 v1.2.3 版本更新 (2026.4.21)
+### 📝 v1.2.4 版本更新 (2026.4.21)
 
 #### ✨ 新增功能
 - **📝 BiliBite 总结导出到文档**：新增 BiliBite 总结内容直接导出到文档功能，方便沉淀与整理观看记录。

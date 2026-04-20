@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.2.3-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -15,7 +15,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 
 ## Latest Update
 
-### v1.2.3 Release Notes (2026.4.21)
+### v1.2.4 Release Notes (2026.4.21)
 
 #### New Features
 - **BiliBite summary export to document**: Added direct export of BiliBite summaries into documents.
