@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.1.8-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,28 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.2.2 Release Notes (2026.4.21)
+
+#### New Features
+- **BiliBite summary export to document**: Added direct export of BiliBite summaries into documents.
+- **One-click player summary button**: Added a summary button in the player to trigger a summary for the current media.
+- **Standalone Docker media proxy**: Added a standalone Docker media proxy for BBLL, Baidu Netdisk, Aliyun Drive, and WebDAV resources that need special headers, `Range` handling, or `m3u8` rewriting.
+
+#### Improvements
+- **Insert and export flow cleanup**: Cleaned up insert, copy, and export logic to keep summary and note handling consistent.
+- **Unified proxy pipeline**: Unified player, driver, and media URL handling to reduce repeated branching and keep proxy entry points centralized.
+- **Clearer desktop / Docker split**: Desktop continues to use the built-in local proxy, while Docker and mobile use the standalone proxy service.
+- **Faster Baidu startup playback**: Optimized Baidu playback startup to prefer directly playable URLs and reduce `pending` delays.
+- **Driver and proxy code cleanup**: Removed redundant wrappers, duplicate checks, and unused exports to simplify the proxy layer.
+
+#### Bug Fixes
+- **Single-image insert failure**: Fixed failures when inserting a single image.
+- **Multi-device sync config loss**: Fixed possible config loss during multi-device synchronization.
+- **Docker BBLL playback**: Fixed BBLL playback failures in Docker environments.
+- **Baidu Netdisk playback stability**: Fixed slow startup and unstable default stream selection for Baidu Netdisk in some environments.
+- **WebDAV / Jianguoyun playback chain**: Fixed authentication and media chunk handling for external WebDAV proxying.
+- **Desktop local proxy restore**: Fixed desktop playback still pointing to `16810` after the external proxy service was turned off.
 
 ### v1.1.8 Release Notes (2026.4.19)
 
