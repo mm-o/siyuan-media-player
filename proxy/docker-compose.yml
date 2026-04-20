@@ -1,0 +1,10 @@
+services:
+  siyuan-media-proxy:
+    build: .
+    container_name: siyuan-media-proxy
+    ports:
+      - "16810:16810"
+    environment:
+      MEDIA_PROXY_HOST: 0.0.0.0
+      MEDIA_PROXY_PORT: 16810
+    restart: unless-stopped

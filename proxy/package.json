@@ -1,0 +1,11 @@
+{
+  "name": "siyuan-media-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Standalone media proxy for SiYuan Media Player",
+  "scripts": {
+    "start": "node media-proxy-server.mjs",
+    "dev": "node media-proxy-server.mjs"
+  }
+}
