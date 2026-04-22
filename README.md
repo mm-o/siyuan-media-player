@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,28 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.2.5 Release Notes (2026.4.22)
+
+#### New Features
+- **Unified episode / page expansion**: Added folder-like expansion and switching for episodes and multi-part videos in media lists, playlists, and detail side panels.
+- **Episode list in player info panel**: Added episode / page listing inside the player info panel for quicker context and switching.
+- **Docker media proxy base URL setting**: Added a configurable Docker media proxy base URL for remote server and container deployments.
+
+#### Improvements
+- **Unified episode pipeline**: Consolidated episode data flow across lists, side panels, and player info to reduce repeated branching and keep behavior consistent.
+- **Lean playback and list handling**: Further simplified playlist, media list, and driver-side episode handling by reusing existing folder-style expansion logic.
+- **Membership and account display cleanup**: Improved membership activation plus Bilibili account login and display behavior.
+- **New-tab interaction cleanup**: Improved the right-click open-in-new-tab behavior when the media list is disabled.
+
+#### Bug Fixes
+- **Media click not opening player**: Fixed media items in resource lists failing to open the player.
+- **Wrong episode playback target**: Fixed episode / page clicks in media lists, playlists, and the info panel starting from the first item instead of the selected one.
+- **Current-playing highlight mismatch**: Fixed incorrect highlighting of the current episode / page in the player info panel.
+- **Detail side panel freeze**: Fixed freezes when opening the detail side panel with episode / page data.
+- **Title and link text garbling**: Fixed garbled media titles, timestamp links, and anchor text.
+- **SiYuan timestamp host leakage**: Fixed SiYuan media timestamp links incorrectly carrying `127.0.0.1`.
+- **BiliBite summary export and display**: Fixed BiliBite summary export and display issues.
 
 ### v1.2.4 Release Notes (2026.4.21)
 
