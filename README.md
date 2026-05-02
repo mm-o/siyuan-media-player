@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.2.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,23 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v1.2.6 Release Notes (2026.5.2)
+
+#### New Features
+- **Previous / next switching inside episode lists**: Added direct previous-episode and next-episode switching within episode-list context to reduce back-and-forth operations between the list and the player.
+- **Episode index in player title**: The player title now shows the current episode / index so it is easier to confirm position when playing multi-episode media.
+
+#### Improvements
+- **Config storage cleanup**: Refined configuration persistence and read/write flow to improve stability and overall smoothness during settings synchronization.
+
+#### Bug Fixes
+- **Cloud-drive timestamp link corruption**: Fixed timestamp links generated from custom-protocol cloud resources such as Baidu Netdisk, Aliyun Drive, Quark, WebDAV, OpenList, OneDrive, 115, 123 Pan, and S3, preventing malformed results like `null/...` or missing protocols.
+- **Preferred quality application mismatch**: Fixed cases where the preferred quality setting was not correctly applied on sources such as Bilibili and Baidu Netdisk. Quality selection is now unified before playback, preventing Bilibili from incorrectly choosing `1080P` when `720P` is preferred, while also correcting Baidu Netdisk quality ordering.
+- **macOS local file playback proxy regression**: Fixed local macOS media paths being incorrectly converted into `127.0.0.1` proxy URLs during playback. Native local files now consistently keep the required `file:///...` form.
+- **BBLL favorite write failure**: Fixed cases where BBLL media could fail to be added into favorites.
+- **Incomplete BBLL favorite display**: Fixed incomplete metadata display for BBLL favorites in media lists.
+- **License restore proxy failure**: Fixed proxy request failures during license restore / activation flows.
 
 ### v1.2.5 Release Notes (2026.4.22)
 

@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-1.2.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,23 @@
 ---
 
 ## 最新更新
+
+### 📝 v1.2.6 版本更新 (2026.5.2)
+
+#### ✨ 新增功能
+- **⏮️ 分集内上一曲 / 下一曲切换**：支持在分集列表上下文中直接切换上一集和下一集，减少在列表与播放器之间来回操作。
+- **🏷️ 播放器标题分集显示**：播放器标题支持显示当前分集 / 集数信息，便于在多分集媒体中快速确认当前位置。
+
+#### 🔧 优化改进
+- **🗂️ 配置存储整理**：优化配置持久化与读写方式，提升设置同步时的稳定性与整体流畅性。
+
+#### 🐛 问题修复
+- **☁️ 网盘时间戳链接异常**：修复百度网盘、阿里云盘、夸克、WebDAV、OpenList、OneDrive、115、123、S3 等自定义协议资源生成时间戳时链接异常的问题，避免出现 `null/...` 或协议丢失。
+- **🎚️ 默认清晰度应用异常**：修复 B站、百度网盘等来源未正确应用默认清晰度设置的问题，统一播放前的清晰度选择逻辑，避免 B站在偏好 `720P` 时误选 `1080P`，同时修正百度网盘清晰度返回顺序。
+- **🍎 mac 本地文件代理回退异常**：修复 mac 本地媒体路径播放时被错误改写为 `127.0.0.1` 代理地址的问题，恢复使用正确的 `file:///...` 本地文件链接形式。
+- **📺 BBLL 收藏写入失败**：修复 BBLL 媒体收藏到收藏夹时可能失败的问题。
+- **🧾 BBLL 收藏信息显示不全**：修复 BBLL 收藏媒体在列表中显示信息不完整的问题。
+- **🔑 授权恢复代理失败**：修复授权恢复 / 激活流程中代理请求失败的问题。
 
 ### 📝 v1.2.5 版本更新 (2026.4.22)
 
