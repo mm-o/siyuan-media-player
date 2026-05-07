@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.2.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,22 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+### v1.2.7 Release Notes (2026.5.6)
+#### New Features
+- **Load more in playlists**: Added a unified load-more action for playlists so paged sources such as TTVV and BBLL can continue loading additional items inline.
+
+#### Improvements
+- **Episode entry flow cleanup**: Further consolidated episode playback entry points across media lists, playlists, and the player info panel so they share the same queue and episode-switching pipeline.
+- **Media list pagination interaction**: Reworked media-list pagination into direct load-more interaction to reduce page switching and keep browsing more continuous.
+- **Instant play response**: Reduced the gap between clicking an item and opening playback so player launch and loading feedback feel more immediate.
+- **Unified cloud refresh state updates**: Unified post-refresh account state sync and persistence across cloud drives to reduce false expiry detection and repeated refresh attempts.
+- **Further driver format unification**: Continued aligning config fields, expiry checks, and error-message formatting across cloud-drive drivers to reduce special cases and duplicated logic.
+
+#### Bug Fixes
+- **Incomplete favorite / history media info**: Fixed favorite and history items not being rehydrated with complete playable metadata, avoiding incomplete details in panels, editing flows, or later playback.
+- **Lost queue context after episode click**: Fixed missing queue context inheritance when clicking episodes / multi-part items from the player info panel, media list, or playlist.
+- **Bilibili episode selection mismatch**: Fixed incorrect highlight, selection, and episode recognition when reused BBLL episode items carried stale state.
+- **Baidu Netdisk playback failure**: Fixed Baidu Netdisk playback failures caused by unstable proxy routing or stream selection in some scenarios, while also restoring deferred quality loading and cache reuse for more stable follow-up switching.
 
 ### v1.2.6 Release Notes (2026.5.2)
 
