@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.2.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,35 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+### v1.3.0 Release Notes (2026.6.3)
+
+#### New Features
+- **Fine-tune timestamps**: Added a timestamp fine-tuning command with direct time editing, `-1s` / `+1s` adjustments, jump preview, and editable Markdown link text before insertion.
+- **Frame stepping**: Added previous-frame and next-frame commands with shortcut support and in-player operation hints.
+- **Note group management**: Added group management in the notes sidebar, with support for creating groups and adding or browsing linked documents by group.
+- **Temporary loop count**: Added a temporary loop count in the player settings panel, letting the current video loop a specified number of times until the media changes.
+- **Copy all links from playlist folders**: Playlist folders can now copy all media links recursively [#174](https://github.com/mm-o/siyuan-media-player/issues/174).
+
+#### Improvements
+- **Baidu Netdisk playback chain**: Baidu Netdisk videos now use the `crack_video` download API by default for a more stable playback path.
+- **Media note binding**: After creating or reusing a media note, it is automatically bound to the current media and the notes sidebar is refreshed.
+- **On-demand cover handling**: Media-note cover processing now runs only when the template includes `{{封面}}`.
+- **Unified document tree structure**: Unified document-tree structures across Playlist, AI Assistant, Notes, and Settings, improving indentation, collapse behavior, and native list styling.
+- **Notes sidebar add entry**: Merged document search and group creation into the add menu while keeping the current search keyword.
+- **Notes group layout**: Default and custom groups are now shown at the same level and reuse SiYuan document-tree styling.
+
+#### Bug Fixes
+- **Baidu Netdisk playback**: Fixed Baidu Netdisk video playback failures and stuttering.
+- **115 playback and account refresh**: Fixed issues with playback request headers, form proxying, and account-refresh persistence for 115.
+- **OneDrive account refresh**: Fixed account refresh, auth-header, and token persistence issues that could incorrectly mark OneDrive accounts as expired.
+- **Cloud-account deletion refresh**: Fixed playlist cloud folders not refreshing after the corresponding cloud account was removed.
+- **Media note cover source**: Fixed media notes incorrectly using the current screenshot as the cover. Covers now prefer media `cover` / `thumbnail`, and local public covers are written as relative paths.
+- **Network video cover persistence**: Fixed Bilibili and other network-video covers being written as remote image URLs; they are now saved to assets before being written into media notes.
+- **Action hint overlap**: Fixed action-button hints in the notes sidebar and playlist being covered by upper elements.
+- **Unpinned Dock panel switching**: Fixed Favorites / History switching from the playlist bottom bar hiding the panel when the Dock is not pinned.
+- **Player scrollbar in some themes**: Fixed an unwanted scrollbar on the right side of the player in some themes [#175](https://github.com/mm-o/siyuan-media-player/issues/175).
+- **ArtPlayer hint style leakage**: Fixed ArtPlayer hint styles leaking into SiYuan slash-command popups, which could make the popup transparent, misplaced, or incomplete.
+
 ### v1.2.7 Release Notes (2026.5.6)
 #### New Features
 - **Load more in playlists**: Added a unified load-more action for playlists so paged sources such as TTVV and BBLL can continue loading additional items inline.
@@ -309,6 +338,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 |  | Top actions | Sorting, adding, and more actions from the header |
 |  | Root-level entries | Enter cloud accounts and media directories directly from the playlist page |
 |  | Icon management | Local folders support custom icon changes |
+|  | Copy all links | Folders can recursively copy links for contained media |
 | Favorites | Favorite media | Add local and cloud media into Favorites |
 |  | Favorite folders | Add local and cloud folders into Favorites |
 |  | Duplicate guard | Prevents duplicated favorite entries |
@@ -361,6 +391,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 |  | Open modes | New tab, right tab, bottom tab, and new window |
 |  | Multi-instance | Supports both multi-instance and singleton reuse |
 |  | Playback queue | Shared previous / next queue across entry points |
+|  | Frame stepping | Previous-frame and next-frame commands with shortcut binding support |
 |  | Image viewer | Images open in a dedicated preview viewer with queue support |
 |  | Audio cover | Audio items support cover display |
 |  | HLS / FLV | Supports m3u8 and flv playback |
@@ -371,6 +402,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 |  | Single loop | Loop the current item |
 |  | Playlist loop | Loop playback across the queue |
 |  | Loop segment | Loop between start and end timestamps |
+|  | Temporary loop count | Temporarily set the loop count for the current video, cleared when switching media |
 |  | Pause after loop | Stop after clip loop finishes its configured count |
 |  | Skip intro / outro | Time-based intro and outro skipping |
 |  | Preferred quality | 720P, 1080P, 480P, 360P, and original / auto preference |
@@ -385,10 +417,12 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 |  | Danmaku optimization | Anti-overlap, sync speed, heatmap, and max-length filtering |
 | Notes and insertion | Timestamp links | Generate and replay timestamped media links |
 |  | Timestamp offset | Shift generated timestamps backward or forward |
+|  | Fine-tune timestamps | Edit time parameters, nudge by seconds, preview jumps, and adjust Markdown link text |
 |  | Loop segment links | Insert repeatable clip segments into notes |
 |  | Screenshot insertion | Insert screenshots with or without timestamps |
 |  | Insert modes | Insert at cursor, append/prepend block, update current block, prepend/append document, or copy to clipboard |
 |  | Media note creation | Insert into current doc, create under notebook, create under a target doc, or create in DailyNote |
+|  | Note group management | Create groups and add or browse documents linked to the current media by group |
 |  | Target selection | Target notebook selection, target doc search, and target doc picking |
 | Templates and formats | Template presets | Simple, Callout, and Quote presets |
 |  | Link format | Custom link rendering format |

@@ -1,7 +1,8 @@
 {
   "name": "siyuan-media-player",
-  "version": "1.2.7",
+  "version": "1.3.0",
   "type": "module",
+  "packageManager": "pnpm@9.14.4",
   "description": {
     "default": "Professional media player plugin for SiYuan Note with multi-platform support, smart note integration, timestamp jumps, loop segments, media assistant, and extensible script architecture for enhanced learning experience.",
     "zh_CN": "专业的思源笔记媒体播放器插件，集成本地媒体、网盘、BBLL、TTVV、多窗口播放、时间戳、循环片段、媒体助手与可扩展架构。"
@@ -105,5 +106,10 @@
     "sql.js": "^1.14.1",
     "viewerjs": "^1.11.7",
     "vue": "^3.3.8"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "artplayer@5.2.1": "patches/artplayer@5.2.1.patch"
+    }
   }
 }
