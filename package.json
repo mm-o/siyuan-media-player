@@ -13,6 +13,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development VITE_SOURCEMAP=inline vite build --watch --mode development",
     "build": "cross-env NODE_ENV=production vite build",
+    "test:zwplayer": "node scripts/test_zwplayer_first_cut.js",
     "make-link": "node --no-warnings ./scripts/make_dev_link.js",
     "make-link-win": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./scripts/elevate.ps1 -scriptPath ./scripts/make_dev_link.js",
     "update-version": "node --no-warnings ./scripts/update_version.js",
@@ -82,17 +83,10 @@
     "vite-plugin-zip-pack": "^1.0.5"
   },
   "dependencies": {
-    "artplayer": "^5.2.1",
-    "artplayer-plugin-danmuku": "^5.1.6",
     "hls.js": "^1.5.17",
     "md5": "^2.3.0",
     "music-metadata-browser": "^2.5.10",
     "qrcode": "^1.5.4",
     "vue": "^3.3.8"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "artplayer@5.2.1": "patches/artplayer@5.2.1.patch"
-    }
   }
 }
