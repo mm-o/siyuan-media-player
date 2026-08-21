@@ -13,13 +13,11 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development VITE_SOURCEMAP=inline vite build --watch --mode development",
     "build": "cross-env NODE_ENV=production vite build",
-    "test:zwplayer": "node scripts/test_zwplayer_first_cut.js",
     "make-link": "node --no-warnings ./scripts/make_dev_link.js",
     "make-link-win": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./scripts/elevate.ps1 -scriptPath ./scripts/make_dev_link.js",
     "update-version": "node --no-warnings ./scripts/update_version.js",
     "make-install": "vite build && node --no-warnings ./scripts/make_install.js",
-    "deploy-siyuan": "python ./scripts/deploy_siyuan_plugin.py",
-    "deploy-siyuan-restart": "python ./scripts/deploy_siyuan_plugin.py --restart-container"
+    "deploy-siyuan": "node --no-warnings ./scripts/utils.js --deploy-siyuan-plugin"
   },
   "minAppVersion": "2.10.13",
   "backends": [
@@ -28,8 +26,7 @@
     "darwin",
     "ios",
     "android",
-    "harmony",
-    "docker"
+    "harmony"
   ],
   "frontends": [
     "desktop",
@@ -83,6 +80,7 @@
     "vite-plugin-zip-pack": "^1.0.5"
   },
   "dependencies": {
+    "artplayer": "github:mm-o/ArtPlayer#siyuan-artplayer-5.2.1-base&path:/packages/artplayer",
     "hls.js": "^1.5.17",
     "md5": "^2.3.0",
     "music-metadata-browser": "^2.5.10",
