@@ -81,6 +81,7 @@
   },
   "dependencies": {
     "artplayer": "github:mm-o/ArtPlayer#siyuan-artplayer-5.2.1-base&path:/packages/artplayer",
+    "artplayer-plugin-danmuku": "github:mm-o/ArtPlayer#siyuan-artplayer-5.2.1-base&path:/packages/artplayer-plugin-danmuku",
     "hls.js": "^1.5.17",
     "md5": "^2.3.0",
     "music-metadata-browser": "^2.5.10",
