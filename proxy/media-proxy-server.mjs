@@ -2,7 +2,10 @@ import http from 'node:http'
 import https from 'node:https'
 import { URL } from 'node:url'
 
-const HOST = process.env.MEDIA_PROXY_HOST || '0.0.0.0'
+// Default to loopback-only binding so the unauthenticated dashboard/status/proxy
+// endpoints are not reachable from other hosts on the network unless the operator
+// explicitly opts in (e.g. Docker deployments set MEDIA_PROXY_HOST=0.0.0.0 themselves).
+const HOST = process.env.MEDIA_PROXY_HOST || '127.0.0.1'
 const PORT = Number(process.env.MEDIA_PROXY_PORT || '16810')
 const PROXY_PATH = '/api/webdav/media'
 const HTTP_PROXY_PATH = '/api/webdav/http'
