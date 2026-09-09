@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,38 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+### v2.0.0 Release Notes (2026.9.9)
+
+#### Important Changes
+- **Complete player upgrade**: Reworked the player and controls on top of ArtPlayer for a more consistent playback, playlist, subtitle, and danmaku experience.
+- **Cloud-drive change**: Removed the legacy built-in cloud drives and now integrates Siyuan Cloud; Bilibili and TTVV playback also work on mobile and Docker through the SiYuan kernel.
+- **Focused scope**: Streamlined the plugin around audio, video, images, site media, and note integration.
+
+#### New Features
+- **Siyuan Cloud browsing and playback**: Added the `siyuan-cloud://` source for browsing files, playing audio/video, previewing images, creating folders, renaming, deleting, writing text, and searching.
+- **Bilibili and TTVV playback**: Added login, search, episodes, favorites, history, comments, danmaku, and quality switching.
+- **Siyuan Cloud integration**: Linked the media library directly with Siyuan Cloud for more stable playback, including on mobile and Docker.
+- **Enhanced player features**: Added native playlists, danmaku controls, subtitle panel and mounting, richer video details, 600% volume, more speed options, screenshots, and loop segments.
+
+#### Improvements
+- **Faster Bilibili playback**: Significantly optimized playback resolution, DASH buffering, and media caching so the first segment enters playback sooner; subtitles and danmaku load asynchronously on demand to shorten first-play wait time.
+- **More stable playback**: Fixed duplicate resume seeks that caused black screens and second buffering, unified the playback chain, and removed debug code.
+- **Unified playback resolution**: Player playback, document links, episode switching, and quality loading now share one source-identification and resolution path.
+- **More reliable history and resume**: Increased history capacity to 100 items and preserved `ref`, `refKey`, `originalUrl`, and compatibility aliases to reduce duplicate or misplaced resume entries.
+- **Cleaner media library and search**: Simplified root entries and unified MediaRef-based deduplication across search, favorites, AI summaries, recursive folders, and detail views.
+- **Unified lists and sources**: Media List, Playlist, favorites, history, and all sources now share consistent browsing and playback behavior.
+
+#### Bug Fixes
+- Fixed incomplete playback objects restored from history by preserving media IDs, source references, original URLs, and progress.
+- Fixed incorrect SiYuan workspace path detection for local paths, `file://`, `/public/`, `/assets/`, and `/data/`.
+- Fixed playlist and media-list synchronization after account creation, QR login, refresh, and deletion.
+- Fixed excessive progress writes with throttling and forced persistence on pause and playback end.
+- Fixed the subtitle-candidate entry by reading explicit/local sidecar subtitles and scanning cloud subtitles in the same directory.
+
+#### Cleanup
+- Removed legacy multi-cloud, Bilibili, TVBox, WebDAV proxy, PDF, Douban frontend, and YAML i18n implementations.
+- Moved third-party reference sources out of the repository and documented them in `docs/参考源码位置.md` to reduce repository size and search noise.
+
 ### v1.3.0 Release Notes (2026.6.3)
 
 #### New Features
