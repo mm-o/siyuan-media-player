@@ -34,6 +34,7 @@
     "zh_CN": "专业的思源笔记媒体播放器插件，集成本地媒体、网盘、BBLL、TTVV、多窗口播放、时间戳、循环片段、媒体助手与可扩展架构。"
   },
   "readme": {
+    "default": "README.md",
     "en_US": "README.md",
     "zh_CN": "README_zh_CN.md"
   },
@@ -57,10 +58,5 @@
     "播放列表",
     "笔记集成",
     "多平台"
-  ],
-  "css": {
-    "themes": [
-      "theme.css"
-    ]
-  }
+  ]
 }
