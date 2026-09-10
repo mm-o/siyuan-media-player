@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.1-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,7 +14,10 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
-### v2.0.0 Release Notes (2026.9.9)
+### v2.0.1 Release Notes (2026.9.10)
+
+#### Maintenance
+- Updated the package manifest and preview assets to satisfy the SiYuan community bazaar requirements.
 
 #### Important Changes
 - **Complete player upgrade**: Reworked the player and controls on top of ArtPlayer for a more consistent playback, playlist, subtitle, and danmaku experience.
