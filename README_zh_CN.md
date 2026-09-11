@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.0.2-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.3-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,13 @@
 ---
 
 ## 最新更新
+### v2.0.3 版本更新 (2026.9.11)
+
+- 修复 ArtPlayer Dock 收藏操作无法保存或取消的问题。
+- 播放列表侧栏和 ArtPlayer Dock 均支持清空收藏夹。
+- 历史记录、收藏夹和播放列表继续使用同一套持久化数据。
+- ArtPlayer 依赖已同步到包含上述修复的版本。
+
 ### 📝 v2.0.2 版本更新 (2026.9.10)
 
 #### 🔧 维护修复
