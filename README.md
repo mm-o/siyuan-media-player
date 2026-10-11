@@ -5,15 +5,22 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.0.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [Official Site](https://simedia.745201.xyz) · 💳 [Purchase License](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
+**🌐 [Official Site](https://simedia.745201.xyz) · 💳 Use the WeChat Mini Program “思源插件助手” to purchase · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
 
 ---
 
 ## Latest Update
+### v2.0.7 Release Notes
+
+- Added the quick-note window with streamlined interaction, state restoration, and player integration.
+- Added embedded lyric display for FLAC music.
+- Added playback support for FLV, MPEG-TS (TS/M2TS), and WebM formats.
+- Fixed garbled video titles displayed at the top of the player.
+
 ### v2.0.5 Release Notes (2026.9.24)
 
 - Changed the authorization method to QR-code authorization.
@@ -497,4 +504,4 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 The plugin includes a membership / license system for advanced sources and enhanced features.
 
 - Official site: <https://simedia-home.745201.xyz>
-- Purchase link: <https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc>
+- Purchase method: use the WeChat Mini Program “思源插件助手”.

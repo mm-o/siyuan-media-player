@@ -5,15 +5,22 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.0.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [官网](https://simedia.745201.xyz) · 💳 [购买授权](https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc) · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
+**🌐 [官网](https://simedia.745201.xyz) · 💳 用微信小程序“思源插件助手”购买 · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
 
 ---
 
 ## 最新更新
+### v2.0.7 版本更新
+
+- 新增播放器速记窗口及相关交互、状态和播放器联动优化。
+- 新增 FLAC 格式音乐的内置歌词显示。
+- 新增 FLV、MPEG-TS（TS/M2TS）和 WebM 格式播放支持。
+- 修复播放器顶部播放视频标题乱码的问题。
+
 ### v2.0.5 版本更新 (2026.9.24)
 
 - 授权方式改为扫码授权。
@@ -521,4 +528,4 @@
 插件提供会员授权能力，用于解锁更多增强型媒体源与扩展体验。
 
 - 官网：<https://simedia-home.745201.xyz>
-- 购买地址：<https://pay.ldxp.cn/shop/J7MJJ8YR/zmfsuc>
+- 购买方式：请使用微信小程序“思源插件助手”。
