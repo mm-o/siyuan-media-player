@@ -14,6 +14,12 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+### v2.0.8 Release Notes
+
+- Fixed legacy cloud links that use file IDs instead of paths.
+- Fixed cloud media links being converted to temporary service paths.
+- Fixed percent-encoded SiYuan Cloud links being difficult to read or recognize.
+
 ### v2.0.7 Release Notes
 
 - Added the quick-note window with streamlined interaction, state restoration, and player integration.
@@ -50,6 +56,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 - **Siyuan Cloud browsing and playback**: Added the `siyuan-cloud://` source for browsing files, playing audio/video, previewing images, creating folders, renaming, deleting, writing text, and searching.
 - **Bilibili and TTVV playback**: Added login, search, episodes, favorites, history, comments, danmaku, and quality switching.
 - **Siyuan Cloud integration**: Linked the media library directly with Siyuan Cloud for more stable playback, including on mobile and Docker.
+- **Readable cloud links**: Cloud path links remain readable and avoid percent-encoded paths that are difficult to recognize.
 - **Enhanced player features**: Added native playlists, danmaku controls, subtitle panel and mounting, richer video details, 600% volume, more speed options, screenshots, and loop segments.
 
 #### Improvements

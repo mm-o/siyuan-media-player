@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "type": "module",
   "packageManager": "pnpm@9.14.4",
   "description": {
