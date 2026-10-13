@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.0.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.9-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,14 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.0.9 Release Notes (2026.10.13)
+
+- Fixed FLV files missing from cloud-drive lists in SiMedia.
+- Fixed FLV playback failures caused by losing the media type when cloud playback URLs have no file extension.
+- Unified format detection for local imports, cloud-drive lists, media links, and playback, including uppercase extensions, signed URLs, and URL encoding.
+- Reused media-type and subtitle detection rules and shared the FLV/MPEG-TS adapter lifecycle to reduce duplication and maintenance.
+
 ### v2.0.8 Release Notes
 
 - Fixed legacy cloud links that use file IDs instead of paths.

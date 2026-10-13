@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.0.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.0.9-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -14,6 +14,17 @@
 ---
 
 ## 最新更新
+
+### v2.0.9 版本更新 (2026.10.13)
+
+#### 修复
+- 修复思播网盘列表中 FLV 文件不显示的问题。
+- 修复网盘直链不带格式后缀时，FLV 播放类型丢失导致播放失败的问题。
+
+#### 优化
+- 统一本地导入、网盘列表、媒体链接和播放类型的格式识别规则，支持大小写后缀、签名参数和 URL 编码。
+- 复用媒体类型与字幕识别规则，合并 FLV、MPEG-TS 播放适配流程，减少重复判断与维护成本。
+
 ### v2.0.8 版本更新
 
 #### 修复
