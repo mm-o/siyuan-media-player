@@ -9,7 +9,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [Official Site](https://simedia.745201.xyz) · 💳 Use the WeChat Mini Program “思源插件助手” to purchase · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
+**🌐 [Official Site](https://simedia.745201.xyz) · 💳 Use the WeChat Mini Program “思源插件助手” to purchase · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md) · 🔌 [Integration API v1](./PLAYBACK_INTEGRATION_API_V1.md)**
 
 ---
 
