@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [官网](https://simedia.745201.xyz) · 💳 用微信小程序“思源插件助手”购买 · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
+**🌐 [官网](https://simedia.745201.xyz) · 💳 用微信小程序“思源插件助手”购买 · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md) · 🔌 [播放集成 API v1](./PLAYBACK_INTEGRATION_API_V1.md)**
 
 ---
 
