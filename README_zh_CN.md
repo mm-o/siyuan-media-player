@@ -5,15 +5,31 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.0.9-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [官网](https://simedia.745201.xyz) · 💳 用微信小程序“思源插件助手”购买 · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md) · 🔌 [播放集成 API v1](./PLAYBACK_INTEGRATION_API_V1.md)**
+**🌐 [官网](https://simedia.745201.xyz) · 💳 用微信小程序“思源插件助手”购买 · 👥 [QQ 群](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [更新日志](./更新日志.md)**
+
+**[第三方播放集成 API v1](https://github.com/mm-o/siyuan-media-player/blob/main/PLAYBACK_INTEGRATION_API_V1.md)**
 
 ---
 
 ## 最新更新
+
+### v2.1.0 版本更新 (2026.10.22)
+
+#### ✨ 新增
+- 新增版本化第三方集成 API v1，统一通过 `window.siyuanMediaPlayer.integration` 访问，支持协议、版本和能力发现，并按播放、媒体、导航、操作和设置分组；详见[播放集成 API v1](https://github.com/mm-o/siyuan-media-player/blob/main/PLAYBACK_INTEGRATION_API_V1.md)。
+- 新增标准播放状态事件和有效播放时长查询。时长按播放器播放且宿主文档可见期间的墙上时间累计，跨本地日期拆分；事件使用稳定媒体标识，不暴露标题和路径。
+
+#### 🔧 优化改进
+- 插件内部播放器调用统一迁移到分组 API，同时保留原有顶层方法和 `controller` 作为兼容入口。
+- 优化会员缓存刷新和扫码绑定状态处理：服务临时异常时保留仍有效的缓存权益，只有服务确认无会员时才清除；二维码过期时显示明确提示。
+- 每日使用量上报改为按账号去重，并增加并发去重和失败重试间隔。
+
+#### 🐛 问题修复
+- 修复基础版被识别为有效会员的问题，避免会员状态和权益判断错误。
 
 ### v2.0.9 版本更新 (2026.10.13)
 

@@ -5,15 +5,26 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.0.9-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
-**🌐 [Official Site](https://simedia.745201.xyz) · 💳 Use the WeChat Mini Program “思源插件助手” to purchase · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md) · 🔌 [Integration API v1](./PLAYBACK_INTEGRATION_API_V1.md)**
+**🌐 [Official Site](https://simedia.745201.xyz) · 💳 Use the WeChat Mini Program “思源插件助手” to purchase · 👥 [QQ Group](https://qm.qq.com/q/wpHDtsfxCw) · 📝 [Changelog](./更新日志.md)**
+
+**[Playback Integration API v1](https://github.com/mm-o/siyuan-media-player/blob/main/PLAYBACK_INTEGRATION_API_V1.md)**
 
 ---
 
 ## Latest Update
+
+### v2.1.0 Release Notes (2026.10.22)
+
+- Added the versioned third-party Integration API v1 at `window.siyuanMediaPlayer.integration`, with protocol, version, and capability discovery and grouped playback, media, navigation, action, and settings APIs; see the [Playback Integration API v1](https://github.com/mm-o/siyuan-media-player/blob/main/PLAYBACK_INTEGRATION_API_V1.md).
+- Added standard playback-state events and effective playback-duration queries. Duration counts only while playback is active and the host document is visible, splits across local dates, and uses stable media identifiers without exposing titles or paths.
+- Migrated internal player calls to the grouped API while keeping existing top-level methods and `controller` as compatibility entry points.
+- Improved membership-cache refresh and QR binding: retain still-valid cached entitlements during temporary service failures, clear them only after the server confirms no entitlement, and show a clear QR-expired message.
+- Deduplicated daily usage reports per account, including concurrent requests, and added a failure retry interval.
+- Fixed the free tier being incorrectly treated as valid membership.
 
 ### v2.0.9 Release Notes (2026.10.13)
 
