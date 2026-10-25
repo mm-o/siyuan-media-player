@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,14 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.2.0 Release Notes (2026.10.25)
+
+#### ✨ New: SiMedia block
+- Type `/media` or `/思播` in a document to choose media from the library, favorites, or history, or paste a URL with an optional title. The inserted block supports inline playback.
+- Click the poster or play button to play inline. Expand the title to replace the media source and choose whether to keep existing review points.
+- Record timestamps, loop segments, and screenshots in the review list, or add a timestamp manually. Click a time to seek to that position.
+- Rename, copy, export, or delete individual entries, and export the full review list into the current document.
 
 ### v2.1.0 Release Notes (2026.10.22)
 

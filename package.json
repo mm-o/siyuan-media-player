@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "packageManager": "pnpm@9.14.4",
   "description": {
@@ -19,7 +19,7 @@
     "make-install": "vite build && node --no-warnings ./scripts/make_install.js",
     "deploy-siyuan": "node --no-warnings ./scripts/utils.js --deploy-siyuan-plugin"
   },
-  "minAppVersion": "2.10.13",
+  "minAppVersion": "3.8.3",
   "backends": [
     "windows",
     "linux",

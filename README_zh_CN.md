@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,14 @@
 ---
 
 ## 最新更新
+
+### v2.2.0 版本更新 (2026.10.25)
+
+#### ✨ 新增：思播媒体块
+- 在文档中输入 `/思播`，从媒体库、收藏、历史中选择媒体，或粘贴链接并填写可选标题，插入可内嵌播放的媒体块。
+- 点击封面或播放按钮即可块内播放；展开标题可更换媒体来源，并选择是否保留已有回看记录。
+- 回看列表支持记录时间点、循环片段和截图，也支持手动添加时间点；点击记录时间可直接跳转。
+- 单条记录可重命名、复制、导出或删除；支持将全部回看记录导出到当前文档。
 
 ### v2.1.0 版本更新 (2026.10.22)
 
