@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,30 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.3.0 Release Notes (2026.11.02)
+
+#### ✨ New Features
+- Added work-link resolution and playback for Douyin, Kuaishou, Weibo, Xiaohongshu, and AcFun.
+- Added support for Pixiv static illustrations, multipage works, and ugoira animations, with galleries and animations displayed in the image viewer.
+- Integrated the new platforms into URL entry, library imports, playlists, favorites, history, and slash-command media blocks; work links can also be extracted from share text.
+- Added Xiaohongshu and Pixiv Cookie settings and renamed “Cloud Accounts” to “Account Credentials” (账号凭证).
+
+#### 🔧 Improvements and Fixes
+- Restored the playback-speed toggle shortcut, which switches between the configured shortcut speed (3× by default) and normal speed.
+- Improved playback, opening, link copying, and source replacement in media blocks; images and animations use the image viewer, with inapplicable video timestamp and screenshot actions hidden.
+- Fixed note-data and video-URL extraction on some Xiaohongshu pages, with distinct messages for rejected Cookies, login redirects, security verification, and restricted works.
+- Resolve temporary URLs again when replaying social-platform works to avoid reusing expired playback proxy links.
+- Improved on-demand gallery loading, current-image selection, and animation resource cleanup to reduce unnecessary requests and memory usage.
+- Unified media references and persistence, fixing potentially empty media identifiers in favorites, history, and other entry points.
+- Improved document insertion for timestamps, screenshots, and review entries, and standardized interface tooltip styling and placement.
+- Consolidated duplicate source configuration and request handling, and improved type declarations to reduce duplication and maintenance costs.
+
+#### 📖 Usage
+- Add work links to a playlist or the media library, or type `/思播` or a platform name, select “Insert SiMedia Block,” and paste the link.
+- Xiaohongshu requires a full Cookie in “Account Credentials” and a work-sharing link containing `xsec_token`; configure a Pixiv Cookie according to the work's access requirements.
+- Xiaohongshu Cookies and sharing-link access tokens can become invalid; no fixed validity period has been confirmed. If a login redirect or rejected Cookie is reported, sign in again in your browser and update the full Cookie under “Account Credentials → Xiaohongshu.” Retry the original link first; if the work is still reported as restricted or the link as invalid, copy a new complete sharing link.
+- Douyin browser resolution is available only on SiYuan Desktop; work permissions, platform verification, and login status may still affect resolution.
 
 ### v2.2.0 Release Notes (2026.10.25)
 

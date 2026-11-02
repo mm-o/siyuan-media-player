@@ -1,6 +1,6 @@
 {
   "name": "siyuan-media-player",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "type": "module",
   "packageManager": "pnpm@9.14.4",
   "description": {
@@ -84,6 +84,7 @@
     "artplayer-plugin-danmuku": "github:mm-o/ArtPlayer#siyuan-artplayer-5.2.1-base&path:/packages/artplayer-plugin-danmuku",
     "flv.js": "1.6.2",
     "hls.js": "^1.5.17",
+    "jszip": "3.10.1",
     "md5": "^2.3.0",
     "mpegts.js": "1.8.2",
     "music-metadata-browser": "^2.5.10",
