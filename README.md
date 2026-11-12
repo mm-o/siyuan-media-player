@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,43 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.3.5 Release Notes (2026.11.12)
+
+#### ✨ New Features
+- Media blocks can switch between side-by-side and stacked layouts manually; the stacked layout gives the video the full width, while narrow containers and image blocks still switch automatically.
+- Added a draggable splitter between the video and the review list to adjust the list width.
+- Review entries can now change their time and annotation text; loop segments can also change the end time, and entries are re-sorted afterwards.
+- Manual timestamps now use the same inline editor (a single “Add timestamp” row at the end of the list) instead of a separate composer panel, and rows support a right-click menu.
+- All media block buttons, menus, placeholders and empty states now use the plugin i18n (zh/en); review points no longer generate a “Timestamp + time” title — the title holds only the user's annotation.
+- The player and the review list no longer have a blank column between them; the divider line itself is the drag handle for resizing.
+- Cloud media blocks now show a cover: the source thumbnail is cached as a local asset on insert, and blocks inserted earlier fall back to the source thumbnail when rendered.
+- Text blocks carrying timestamp attributes get a “Convert to Sibo media block” entry in the block menu, which rebuilds the Markdown timestamp link in place as a media block and keeps that point; legacy `custom-media="timestamp"` blocks are supported too. Media blocks with at most one review point can convert back with “Convert to timestamp link”, restoring the standard timestamp attribute.
+- Review points without an annotation show a “Timestamp + time” placeholder, while the editor still edits only the annotation itself.
+
+#### 🔧 Improvements
+- Removed the container sniffing logic from the player. Media type is provided by the media source, and the player only selects the playback method by type.
+- Reorganized the media block toolbar: rewind 10s, play/pause, and forward 10s now sit around the play button, the loop button moved left of the timestamp button, and the export button uses a new icon.
+- The play/pause icon now follows the playback state, and review-list header tooltips point upward.
+- New timestamps and screenshots now scroll into view and keep the list position instead of jumping back to the top.
+- Screenshots behave like timestamps: recording creates the entry directly without opening an edit form; in the review list the note now shows as a tooltip on the image, and exports always include the timestamp with the note kept in the image alt text.
+- Trimmed the media block Markdown: the media link is written once in a readable form (CJK and emoji preserved), the metadata no longer repeats the same link and title, and review entries use a compact “time + note + screenshot” form.
+- Faster first play: cloud files no longer read their metadata twice, and the main player starts playback before building the playlist tree.
+
+#### 🐛 Bug Fixes
+- Fixed some Baidu Netdisk `.flv` media that failed to play: the player now uses the real media type (`media_type`) returned by Siyuan Cloud instead of guessing from the file extension.
+- Fixed the statistics timer not being cleared after an FLV / MPEG-TS playback error, which flooded the console with repeated `currentURL` errors.
+- Fixed progress-bar dragging inside media blocks being treated as a block drag by the editor, so seeking and fast-forward work normally.
+- Fixed the progress bar still following the cursor after the mouse button was released, which made a drag impossible to end: the SiYuan editor swallows `mouseup` in the capture phase, so the player's drag state never reset. The release event is now dispatched to the player from the capture phase, which also covers dragging outside the window, a dialog stealing focus, and touch cancellation.
+- Fixed the splitter between the video and the review list reacting outside its own area: dragging below the list, even near the play button, used to resize it, and now only the divider between those two regions is draggable.
+- Fixed screenshot thumbnails opening a broken `file:///assets/...` URL; previews now use the SiYuan asset address, and clicking a thumbnail opens the image viewer.
+- Fixed timestamp attributes not being written.
+- Fixed the subtitle settings panel staying open after the pointer leaves; it now opens on hover and hides on leave, matching the danmaku panel. The ArtPlayer dependency is updated to the latest `siyuan-artplayer-5.2.1-base` commit.
+
+#### 📖 Usage
+- Drag the splitter between the video and the review list to resize the list; the width is kept for the current session.
+- Click a screenshot thumbnail to open the image viewer; clicking a time or the row still seeks.
+- Use “More → Edit Time and Annotation” on an entry to add or update a screenshot annotation.
 
 ### v2.3.0 Release Notes (2026.11.02)
 
