@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.3.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -17,7 +17,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 
 ## Latest Update
 
-### v2.3.5 Release Notes (2026.11.12)
+### v2.3.6 Release Notes (2026.11.17)
 
 #### ✨ New Features
 - Media blocks can switch between side-by-side and stacked layouts manually; the stacked layout gives the video the full width, while narrow containers and image blocks still switch automatically.
@@ -42,6 +42,7 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 #### 🐛 Bug Fixes
 - Fixed some Baidu Netdisk `.flv` media that failed to play: the player now uses the real media type (`media_type`) returned by Siyuan Cloud instead of guessing from the file extension.
 - Fixed the statistics timer not being cleared after an FLV / MPEG-TS playback error, which flooded the console with repeated `currentURL` errors.
+- Fixed Baidu Netdisk MPEG-TS videos where the progress bar was unseekable, hover time stayed at 0, and timestamp jumps returned to 0:00. Duration and file size from the media source are now passed to mpegts.js / flv.js so the total duration is known and seeking works.
 - Fixed progress-bar dragging inside media blocks being treated as a block drag by the editor, so seeking and fast-forward work normally.
 - Fixed the progress bar still following the cursor after the mouse button was released, which made a drag impossible to end: the SiYuan editor swallows `mouseup` in the capture phase, so the player's drag state never reset. The release event is now dispatched to the player from the capture phase, which also covers dragging outside the window, a dialog stealing focus, and touch cancellation.
 - Fixed the splitter between the video and the review list reacting outside its own area: dragging below the list, even near the play button, used to resize it, and now only the divider between those two regions is draggable.

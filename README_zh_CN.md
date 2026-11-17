@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.3.5-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -17,7 +17,7 @@
 
 ## 最新更新
 
-### v2.3.5 版本更新 (2026.11.12)
+### v2.3.6 版本更新 (2026.11.17)
 
 #### ✨ 新增功能
 - 思播媒体块支持手动切换「两栏 / 上下」布局，上下布局下视频占满整行；窄屏与图片块仍自动使用上下布局。
@@ -42,6 +42,7 @@
 #### 🐛 问题修复
 - 修复百度网盘部分 `.flv` 媒体无法播放的问题：改为直接采用思盘返回的真实媒体类型（`media_type`）选择解码器，不再按文件名后缀推断类型。
 - 修复 FLV / MPEG-TS 播放出错后统计定时器未清理、控制台反复报 `currentURL` 错误的问题。
+- 修复百度网盘 MPEG-TS 视频进度条无法拖动、悬停时间恒为 0、时间戳跳转回到 0 秒的问题；现在把媒体源提供的时长与文件大小传给 mpegts.js / flv.js，使总时长可知并可正常跳转。
 - 修复媒体块内拖动进度条被编辑器识别为整块拖拽的问题，可以正常拖动进度与快进。
 - 修复媒体块内拖动进度条松手后进度仍继续跟随鼠标、拖拽无法结束的问题：思源编辑器会在捕获阶段吞掉 `mouseup`，导致播放器的拖拽状态不复位；现改为在捕获阶段抢先向播放器派发释放事件，拖到窗口外、被弹窗抢焦点、触摸被系统取消同样会正常结束。
 - 修复媒体块中视频区与回看列表之间的分隔条可拖动热区溢出到下方信息条的问题：此前拖到列表下方甚至播放按钮附近也能触发调整，现在热区只覆盖这两块区域之间的分隔线。
