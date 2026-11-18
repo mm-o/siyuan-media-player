@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.3.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,14 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.3.7 Release Notes (2026.11.18)
+
+#### 🐛 Bug Fixes
+- Fixed TTVV sites opening with empty categories and lists: the kernel now requests CMS endpoints through SiYuan's network proxy (`/api/network/forwardProxy`) instead of fetching absolute URLs directly.
+- Fixed TTVV being misrouted to Siyuan Cloud as a legacy cloud source, which produced `siyuanCloudLink: file not found`; TVBox paths no longer get a `legacy:tvbox:` prefix, restoring sites, categories, details, and playback.
+- Fixed `tvbox://` navigation pseudo-links being treated as resolved URLs; history and favorites entries resolve again and keep the selected episode.
+- Fixed the missing Siyuan Cloud hint popping up every time a panel opened: it now appears at most once per plugin version, and a failed manual cloud entry no longer shows two messages.
 
 ### v2.3.6 Release Notes (2026.11.17)
 

@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.3.6-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,14 @@
 ---
 
 ## 最新更新
+
+### v2.3.7 版本更新 (2026.11.18)
+
+#### 🐛 问题修复
+- 修复 TTVV 站点打开后分类与列表为空的问题：内核改为经思源网络代理（`/api/network/forwardProxy`）请求采集接口，不再依赖内核直接访问外部 URL。
+- 修复 TTVV 被误判为旧版网盘来源、请求被路由到思盘并报 `siyuanCloudLink: file not found` 的问题；TVBox 路径不再附加 `legacy:tvbox:` 前缀，站点、分类、详情和播放恢复正常。
+- 修复列表中的 `tvbox://` 导航伪链接被当作已解析地址、跳过真实解析的问题；历史与收藏中的旧条目会重新解析，并按所选选集播放。
+- 修复未安装思盘时的提示每次打开面板都会重复弹出的问题：现在每个插件版本最多提示一次；手动打开思盘失败时也不再叠加两条提示。
 
 ### v2.3.6 版本更新 (2026.11.17)
 
