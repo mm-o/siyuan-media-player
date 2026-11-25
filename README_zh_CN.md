@@ -5,7 +5,7 @@
 让思源笔记同时成为统一播放器、网盘媒体浏览器、时间戳记录器与学习型媒体工作区。  
 支持本地媒体、BBLL、TTVV、OpenList、WebDAV、百度网盘、阿里云盘、夸克、115、123 网盘、OneDrive、S3 等多种来源。
 
-[![Version](https://img.shields.io/badge/version-2.3.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.8-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,21 @@
 ---
 
 ## 最新更新
+
+### v2.3.8 版本更新 (2026.11.25)
+
+#### ✨ 新增功能
+- 媒体块回看记录支持导出绑定：时间戳、循环片段、截图导出后记录块 ID，修改时间、结束时间或标注时同步更新文档中的块，删除记录时一并移除对应块。
+- 新增「媒体块自动导出」设置（设置 → 笔记与插入，默认关闭）：记录回看时自动写入文档并绑定，后续修改自动同步。
+
+#### 🔧 优化改进
+- 导出改为逐条独立插入，向上插入时自动倒序，文档中的记录顺序与回看列表一致。
+- 编辑已导出记录改为整块原位替换，避免 callout、引用等容器反复嵌套。
+- 光标或锚点不可用时，导出自动追加到文档末尾，不再直接提示插入失败。
+- 回看记录与导出块的绑定写入列表行尾隐藏注释，重排、改时间后仍能对上。
+
+#### 🐛 问题修复
+- 修复截图被当作会员功能的问题：播放器截图、媒体块截图及截图格式/质量设置恢复为基础功能，不再提示会员。
 
 ### v2.3.7 版本更新 (2026.11.18)
 

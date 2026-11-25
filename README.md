@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.3.7-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.3.8-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,21 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.3.8 Release Notes (2026.11.25)
+
+#### ✨ New Features
+- Media block review points now bind to exported blocks: timestamps, loop segments, and screenshots remember the exported block ID; editing the time, end time, or annotation updates the document block, and deleting a point removes its exported block.
+- Added the “Auto export media block” setting (Settings → Notes & Insert, off by default): recording a review point writes and binds it automatically, and later edits stay in sync.
+
+#### 🔧 Improvements
+- Exports are inserted one block per point; prepend modes insert in reverse so the document keeps the review-list order.
+- Editing an exported point replaces the block in place, preventing callouts/quotes from nesting on every update.
+- When the cursor or anchor is unavailable, exports fall back to the end of the document instead of failing.
+- Bindings live in an invisible trailing comment on each review line, so reordering or editing times keeps them intact.
+
+#### 🐛 Bug Fixes
+- Screenshots are basic functionality again: player screenshots, media block screenshots, and screenshot format/quality settings no longer require a membership.
 
 ### v2.3.7 Release Notes (2026.11.18)
 
