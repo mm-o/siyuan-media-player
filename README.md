@@ -5,7 +5,7 @@
 Turn SiYuan Note into a unified player, cloud-drive media browser, timestamp recorder, and study-oriented media workspace.  
 Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive, Quark, 115, 123 Pan, OneDrive, S3, and more.
 
-[![Version](https://img.shields.io/badge/version-2.3.8-blue.svg)](https://github.com/mm-o/siyuan-media-player)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](https://github.com/mm-o/siyuan-media-player)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![SiYuan](https://img.shields.io/badge/SiYuan-3.0+-orange.svg)](https://github.com/siyuan-note/siyuan)
 
@@ -16,6 +16,23 @@ Supports local media, BBLL, TTVV, OpenList, WebDAV, Baidu Netdisk, Aliyun Drive,
 ---
 
 ## Latest Update
+
+### v2.4.0 Release Notes (2026.11.26)
+
+#### ✨ New Features
+- Favorites are now a first-class storage section: a favorite keeps only the media reference plus the minimum display fields (reference, time, title, type, cover, duration), and its identity is derived from that reference, so the same video favorited from different entries stays a single record (one record dropped from ~15 fields to at most 6).
+- Renaming is available on the playlist panel for both folders and files: pick “Rename” and edit the name in place; renaming a folder also moves every child path, so playback, favorites and history keep resolving.
+
+#### 🔧 Improvements
+- Favorites survive restarts: writes are validated and retried, a failed or corrupt file is never overwritten with empty data, and only a genuinely empty storage directory triggers first-run initialization.
+- Multiple windows no longer clobber each other: favorites merge with the file on disk per key before saving instead of rewriting the whole list from a stale copy.
+- Existing favorites are migrated automatically on first start into the new reference-only format; the `playlist.json` file name is unchanged, no manual migration needed.
+- The storage read/write contract is unified: reads report `ok / missing / invalid`, writes return a real boolean, and every unsafe URL decode (Siyuan Cloud / TVBox references, TVBox paths, AI-summary file paths) now goes through one safe decoder.
+
+#### 🐛 Bug Fixes
+- Fixed imports that did nothing when a file name contains `%` (e.g. `提速99%的学习纯音…mp4`): raw Electron file-system paths are no longer passed to `decodeURI()`, only `file://` URLs are decoded, and import failures now show a message instead of failing silently.
+- Fixed “Rename” doing nothing for folders in the playlist panel (it wrote the old name back) and fixed files inside a folder having no rename entry at all.
+- Fixed renamed media still displaying its old title, and fixed a corrupted or unreadable storage file wiping favorites, library and history.
 
 ### v2.3.8 Release Notes (2026.11.25)
 
